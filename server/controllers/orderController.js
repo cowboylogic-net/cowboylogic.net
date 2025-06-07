@@ -133,6 +133,25 @@ const createCheckoutSession = async (req, res) => {
   res.status(200).json({ url: session.url });
 };
 
+const getLatestOrder = async (req, res) => {
+  const userId = req.user.id;
+
+  const latestOrder = await Order.findOne({
+    where: { userId },
+    include: {
+      model: OrderItem,
+      include: Book,
+    },
+    order: [["createdAt", "DESC"]],
+  });
+
+  if (!latestOrder) {
+    throw HttpError(404, "No orders found");
+  }
+
+  res.json(latestOrder);
+};
+
 const deleteOrder = async (req, res) => {
   const { id } = req.params;
 
@@ -211,4 +230,5 @@ export default {
   createCheckoutSession: ctrlWrapper(createCheckoutSession),
   confirmStripeOrder: ctrlWrapper(confirmStripeOrder),
   deleteOrder: ctrlWrapper(deleteOrder),
+  getLatestOrder: ctrlWrapper(getLatestOrder),
 };

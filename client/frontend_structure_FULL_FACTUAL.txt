@@ -1,0 +1,232 @@
+# 📂 Повна структура фронтенду (фактологічна, оновлено 2025-06-06)
+
+└── client
+    ├── FRONTEND_README.md
+    ├── README_editable.md
+    ├── README_i18n.md
+    ├── README_redux.md
+    ├── eslint.config.js
+    ├── frontend_structure_COMPLETE_UPDATED.txt
+    ├── frontend_todo_FINAL_REVISED.md
+    ├── frontend_todo_UPDATED_FINAL_BILINGUAL.md
+    ├── index.html
+    ├── package-lock.json
+    ├── package.json
+    ├── public
+    │   ├── Fonts
+    │   │   ├── Marlboro.ttf
+    │   │   └── PlayfairDisplay-VariableFont_wght.ttf
+    │   ├── _redirects
+    │   └── assets
+    │       ├── images
+    │       │   ├── body_bg_cowboy.jpg
+    │       │   ├── change.jpg
+    │       │   ├── image001.jpg
+    │       │   ├── image002.jpg
+    │       │   ├── image003.jpg
+    │       │   ├── image004.jpg
+    │       │   ├── image005.jpg
+    │       │   ├── image006.jpg
+    │       │   └── res_pic.jpg
+    │       └── svg
+    │           └── search-icon.svg
+    ├── src
+    │   ├── App.jsx
+    │   ├── App.module.css
+    │   ├── components
+    │   │   ├── AuthLoader
+    │   │   │   └── AuthLoader.jsx
+    │   │   ├── BookCard
+    │   │   │   ├── BookCard.jsx
+    │   │   │   └── BookCard.module.css
+    │   │   ├── BookForm
+    │   │   │   ├── BookForm.jsx
+    │   │   │   └── BookForm.module.css
+    │   │   ├── BookList
+    │   │   │   ├── BookList.jsx
+    │   │   │   └── BookList.module.css
+    │   │   ├── EditablePage
+    │   │   │   ├── EditablePage.jsx
+    │   │   │   └── EditablePage.module.css
+    │   │   ├── EditableToolbar
+    │   │   │   ├── EditableToolbar.jsx
+    │   │   │   └── EditableToolbar.module.css
+    │   │   ├── FavoriteButton
+    │   │   │   ├── FavoriteButton.jsx
+    │   │   │   └── FavoriteButton.module.css
+    │   │   ├── Footer
+    │   │   │   ├── Footer.jsx
+    │   │   │   └── Footer.module.css
+    │   │   ├── Header
+    │   │   │   ├── Header.jsx
+    │   │   │   └── Header.module.css
+    │   │   ├── Hero
+    │   │   │   ├── Hero.jsx
+    │   │   │   └── Hero.module.css
+    │   │   ├── HeroPublishing
+    │   │   │   ├── HeroPublishing.jsx
+    │   │   │   └── HeroPublishing.module.css
+    │   │   ├── HeroStrategies
+    │   │   │   ├── HeroStrategies.jsx
+    │   │   │   └── HeroStrategies.module.css
+    │   │   ├── LanguageSwitcher
+    │   │   │   ├── LanguageSwitcher.jsx
+    │   │   │   └── LanguageSwitcher.module.css
+    │   │   ├── Loader
+    │   │   │   ├── Loader.jsx
+    │   │   │   └── Loader.module.css
+    │   │   ├── LoginForm
+    │   │   │   ├── LoginForm.jsx
+    │   │   │   └── LoginForm.module.css
+    │   │   ├── Navbar
+    │   │   │   ├── Navbar.jsx
+    │   │   │   └── Navbar.module.css
+    │   │   ├── NewsletterSignup
+    │   │   │   ├── NewsletterSignup.jsx
+    │   │   │   └── NewsletterSignup.module.css
+    │   │   ├── Notification
+    │   │   │   ├── Notification.jsx
+    │   │   │   └── Notification.module.css
+    │   │   ├── RegisterForm
+    │   │   │   ├── RegisterForm.jsx
+    │   │   │   └── RegisterForm.module.css
+    │   │   ├── ResetPasswordForm
+    │   │   │   ├── ResetPasswordForm.jsx
+    │   │   │   └── ResetPasswordForm.module.css
+    │   │   ├── Slider
+    │   │   │   ├── SliderComponent.jsx
+    │   │   │   └── SliderComponent.module.css
+    │   │   ├── SliderPublishing
+    │   │   │   ├── SliderPublishing.jsx
+    │   │   │   └── SliderPublishing.module.css
+    │   │   ├── SliderStrategies
+    │   │   │   ├── SliderStrategies.jsx
+    │   │   │   └── SliderStrategies.module.css
+    │   │   └── modals
+    │   │       ├── ClearConfirmModal
+    │   │       │   ├── ClearConfirmModal.jsx
+    │   │       │   └── ClearConfirmModal.module.css
+    │   │       ├── DeleteConfirmModal
+    │   │       │   ├── DeleteConfirmModal.jsx
+    │   │       │   └── DeleteConfirmModal.module.css
+    │   │       ├── ImageInsertModal
+    │   │       │   ├── ImageInsertModal.jsx
+    │   │       │   └── ImageInsertModal.module.css
+    │   │       ├── LinkInsertModal
+    │   │       │   ├── LinkInsertModal.jsx
+    │   │       │   └── LinkInsertModal.module.css
+    │   │       └── TableInsertModal
+    │   │           ├── TableInsertModal.jsx
+    │   │           └── TableInsertModal.module.css
+    │   ├── constants
+    │   │   └── roles.js
+    │   ├── hooks
+    │   │   └── useFetch.js
+    │   ├── i18n.js
+    │   ├── index.css
+    │   ├── locales
+    │   │   ├── en
+    │   │   │   ├── login.json
+    │   │   │   └── translation.json
+    │   │   └── es
+    │   │       ├── login.json
+    │   │       └── translation.json
+    │   ├── main.jsx
+    │   ├── pages
+    │   │   ├── About
+    │   │   │   ├── About.jsx
+    │   │   │   └── About.module.css
+    │   │   ├── Admin
+    │   │   │   ├── AddBook.jsx
+    │   │   │   ├── AdminDashboard.jsx
+    │   │   │   ├── AdminDashboard.module.css
+    │   │   │   ├── EditBook.jsx
+    │   │   │   ├── EditBook.module.css
+    │   │   │   ├── Newsletter.jsx
+    │   │   │   ├── Newsletter.module.css
+    │   │   │   ├── UserManagement.jsx
+    │   │   │   └── UserManagement.module.css
+    │   │   ├── B2BBookstores
+    │   │   │   └── B2BBookstores.jsx
+    │   │   ├── BookDetails
+    │   │   │   ├── BookDetails.jsx
+    │   │   │   └── BookDetails.module.css
+    │   │   ├── BookStore
+    │   │   │   ├── BookStore.jsx
+    │   │   │   └── BookStore.module.css
+    │   │   ├── BooksBooks
+    │   │   │   └── BooksBooks.jsx
+    │   │   ├── CLPublishing
+    │   │   │   ├── CLPublishing.jsx
+    │   │   │   └── CLPublishing.module.css
+    │   │   ├── CLStrategies
+    │   │   │   ├── CLStrategies.jsx
+    │   │   │   └── CLStrategies.module.css
+    │   │   ├── CLStrategiesHome
+    │   │   │   └── CLStrategiesHome.jsx
+    │   │   ├── CancelPage
+    │   │   │   └── CancelPage.jsx
+    │   │   ├── Cart
+    │   │   │   ├── Cart.jsx
+    │   │   │   └── Cart.module.css
+    │   │   ├── Contact
+    │   │   │   ├── Contact.jsx
+    │   │   │   └── Contact.module.css
+    │   │   ├── CowboyCollegeConsulting
+    │   │   │   └── CowboyCollegeConsulting.jsx
+    │   │   ├── CowboyCollegeLeadership
+    │   │   │   └── CowboyCollegeLeadership.jsx
+    │   │   ├── CowboyCollegePubAuthor
+    │   │   │   └── CowboyCollegePubAuthor.jsx
+    │   │   ├── CowboyCollegeStartup
+    │   │   │   └── CowboyCollegeStartup.jsx
+    │   │   ├── Education
+    │   │   │   ├── Education.jsx
+    │   │   │   └── Education.module.css
+    │   │   ├── FavoritesPage
+    │   │   │   ├── FavoritesPage.jsx
+    │   │   │   └── FavoritesPage.module.css
+    │   │   ├── Home
+    │   │   │   ├── Home.jsx
+    │   │   │   └── Home.module.css
+    │   │   ├── Login
+    │   │   │   ├── Login.jsx
+    │   │   │   └── Login.module.css
+    │   │   ├── Orders
+    │   │   │   ├── Orders.jsx
+    │   │   │   └── Orders.module.css
+    │   │   ├── Portfolio
+    │   │   │   ├── Portfolio.jsx
+    │   │   │   └── Portfolio.module.css
+    │   │   ├── ProfilePage
+    │   │   │   ├── ProfilePage.jsx
+    │   │   │   └── ProfilePage.module.css
+    │   │   ├── Register
+    │   │   │   ├── Register.jsx
+    │   │   │   └── Register.module.css
+    │   │   ├── SearchResult
+    │   │   │   ├── SearchResult.jsx
+    │   │   │   └── SearchResult.module.css
+    │   │   ├── SuccessPage
+    │   │   │   └── SuccessPage.jsx
+    │   │   └── WorkHistory
+    │   │       ├── WorkHistory.jsx
+    │   │       └── WorkHistory.module.css
+    │   ├── routes
+    │   │   ├── AdminRoute.jsx
+    │   │   └── PrivateRoute.jsx
+    │   ├── services
+    │   │   ├── authHelpers.js
+    │   │   └── axiosService.js
+    │   └── store
+    │       ├── axios.js
+    │       ├── helper.jsx
+    │       ├── slices
+    │       │   ├── authSlice.js
+    │       │   ├── bookSlice.js
+    │       │   ├── cartSlice.js
+    │       │   ├── favoritesSlice.js
+    │       │   ├── notificationSlice.js
+    │       │   └── pageSlice.js
+    │       └── store.jsx
+    └── vite.config.js

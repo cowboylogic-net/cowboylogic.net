@@ -5,6 +5,7 @@ import pageReducer from "./slices/pageSlice";
 import authReducer from "./slices/authSlice";
 import notificationReducer from "./slices/notificationSlice";
 import favoritesReducer from "./slices/favoritesSlice";
+import ordersReducer from "./slices/ordersSlice";
 
 export const store = configureStore({
   reducer: {
@@ -14,5 +15,6 @@ export const store = configureStore({
     pages: pageReducer,
     notification: notificationReducer,
     favorites: favoritesReducer,
+    orders: ordersReducer,
   },
 });

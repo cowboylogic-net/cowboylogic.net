@@ -1,15 +1,21 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "../../store/axios";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  createBook,
+  updateBook,
+  fetchBookById,
+} from "../../store/thunks/bookThunks";
+import { selectBookById } from "../../store/selectors/bookSelectors";
 import styles from "./BookForm.module.css";
-import { useSelector } from "react-redux";
 import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal";
 
 const BookForm = ({ onSuccess, onError }) => {
   const { id } = useParams();
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const token = useSelector((state) => state.auth.token);
 
+  const existingBook = useSelector(selectBookById(Number(id)));
   const [form, setForm] = useState({
     title: "",
     author: "",
@@ -25,21 +31,30 @@ const BookForm = ({ onSuccess, onError }) => {
 
   useEffect(() => {
     if (id) {
-      axios
-        .get(`/books/${id}`)
-        .then((res) => {
-          setForm(res.data);
-          setPreview(res.data.imageUrl);
-        })
-        .catch(() => {
-          onError?.("❌ Failed to load book");
-        });
+      dispatch(fetchBookById(id));
     }
-  }, [id, onError]);
+  }, [dispatch, id]);
+
+  useEffect(() => {
+    if (existingBook) {
+      setForm({
+        title: existingBook.title,
+        author: existingBook.author,
+        description: existingBook.description || "",
+        price: existingBook.price,
+        imageUrl: existingBook.imageUrl || "",
+        inStock: existingBook.inStock,
+      });
+      setPreview(existingBook.imageUrl || null);
+    }
+  }, [existingBook]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setForm({ ...form, [name]: type === "checkbox" ? checked : value });
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const handleImageInsert = ({ file, url }) => {
@@ -73,26 +88,15 @@ const BookForm = ({ onSuccess, onError }) => {
 
     try {
       if (id) {
-        await axios.put(`/books/${id}`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await dispatch(updateBook({ id, formData })).unwrap();
         onSuccess?.("✅ Book updated successfully");
       } else {
-        await axios.post("/books", formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        await dispatch(createBook(formData)).unwrap();
         onSuccess?.("✅ Book created successfully");
       }
       navigate("/bookstore");
     } catch (err) {
-      const msg = err.response?.data?.message || "❌ Error saving book";
-      onError?.(msg);
+      onError?.(err || "❌ Failed to save book");
     }
   };
 

@@ -1,30 +1,31 @@
-import { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
-import useFetch from "../../hooks/useFetch";
-import { apiService } from "../../services/axiosService";
-import { toast } from "react-toastify";
+import { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchOrders,
+  deleteOrder,
+} from "../../store/thunks/ordersThunks";
+import {
+  selectAllOrders,
+  selectOrdersLoading,
+  selectOrdersError,
+} from "../../store/selectors/orderSelectors";
 import styles from "./Orders.module.css";
 
 const Orders = () => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const token = useSelector((state) => state.auth.token);
-  const { data: ordersData, loading, error } = useFetch("/orders", token);
-  const [orders, setOrders] = useState([]);
+
+  const orders = useSelector(selectAllOrders);
+  const loading = useSelector(selectOrdersLoading);
+  const error = useSelector(selectOrdersError);
 
   useEffect(() => {
-    if (ordersData) setOrders(ordersData);
-  }, [ordersData]);
+    dispatch(fetchOrders());
+  }, [dispatch]);
 
-  const handleDeleteOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to delete this order?")) return;
-
-    try {
-      await apiService.delete(`/orders/${orderId}`, token);
-      setOrders((prev) => prev.filter((o) => o.id !== orderId));
-      toast.success("Order deleted successfully");
-    } catch (err) {
-      toast.error("Failed to delete order");
-      console.error(err);
+  const handleDeleteOrder = (orderId) => {
+    if (window.confirm("Are you sure you want to delete this order?")) {
+      dispatch(deleteOrder(orderId));
     }
   };
 
@@ -65,3 +66,4 @@ const Orders = () => {
 };
 
 export default Orders;
+

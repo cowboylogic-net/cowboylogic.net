@@ -1,0 +1,28 @@
+.wrapper {
+  padding: 2rem;
+  position: relative;
+}
+
+.progressBarContainer {
+  height: 4px;
+  width: 100%;
+  background-color: #eee;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.progressBar {
+  height: 100%;
+  width: 0;
+  background-color: var(--color-accent, #8b0000); /* або інший стиль */
+}
+
+.centered {
+  text-align: center;
+  padding-top: 3rem;
+}
+
+.button {
+  margin-top: 1rem;
+}

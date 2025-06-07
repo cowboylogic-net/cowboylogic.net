@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import axios from "../../store/axios";
-import { showSuccess, showError } from "../../store/slices/notificationSlice";
+
+import { fetchFavorites } from "../../store/thunks/favoritesThunks";
+import { addToCartThunk } from "../../store/thunks/cartThunks";
+import { deleteBook } from "../../store/thunks/bookThunks";
+
 import styles from "./BookList.module.css";
 import BookCard from "../BookCard/BookCard";
 import DeleteConfirmModal from "../modals/DeleteConfirmModal/DeleteConfirmModal";
@@ -14,6 +17,14 @@ const BookList = ({ books = [], onDelete }) => {
   const navigate = useNavigate();
 
   const [bookToDelete, setBookToDelete] = useState(null);
+  const hasFetchedFavorites = useRef(false); // ✅
+
+  useEffect(() => {
+    if (token && !hasFetchedFavorites.current) {
+      dispatch(fetchFavorites());
+      hasFetchedFavorites.current = true;
+    }
+  }, [dispatch, token]);
 
   const handleEdit = (id) => {
     navigate(`/admin/books/edit/${id}`);
@@ -21,14 +32,10 @@ const BookList = ({ books = [], onDelete }) => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`/books/${bookToDelete}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await dispatch(deleteBook(bookToDelete)).unwrap();
       onDelete?.(bookToDelete);
-      dispatch(showSuccess("Book deleted successfully"));
     } catch (err) {
       console.error("Delete failed", err);
-      dispatch(showError("Failed to delete book"));
     } finally {
       setBookToDelete(null);
     }
@@ -36,22 +43,10 @@ const BookList = ({ books = [], onDelete }) => {
 
   const handleAddToCart = async (bookId) => {
     try {
-      await axios.post(
-        "/cart",
-        { bookId, quantity: 1 },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      dispatch(showSuccess("Book added to cart!"));
+      await dispatch(addToCartThunk({ bookId, quantity: 1 })).unwrap();
     } catch (err) {
       console.error("Add to cart error:", err);
-      dispatch(showError("Failed to add to cart"));
     }
-  };
-
-  const handleToggleFavorite = (bookId) => {
-    console.log("Toggle favorite:", bookId);
   };
 
   return (
@@ -66,7 +61,6 @@ const BookList = ({ books = [], onDelete }) => {
             onEdit={handleEdit}
             onDeleteClick={(id) => setBookToDelete(id)}
             onAddToCart={handleAddToCart}
-            onToggleFavorite={handleToggleFavorite}
           />
         ))}
       </div>

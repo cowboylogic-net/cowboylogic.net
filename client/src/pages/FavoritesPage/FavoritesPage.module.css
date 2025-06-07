@@ -11,6 +11,9 @@
   align-items: center;
   gap: var(--spacing-md);
 }
+.page p{
+  color: var(--color-titles);
+}
 
 .bookList {
   display: grid;

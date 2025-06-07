@@ -1,54 +1,52 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchBookById } from "../../store/slices/bookSlice";
-import { showNotification } from "../../store/slices/notificationSlice";
+
+import { fetchBookById } from "../../store/thunks/bookThunks";
+import { addToCartThunk } from "../../store/thunks/cartThunks";
+import { selectSelectedBook } from "../../store/selectors/bookSelectors";
+
 import styles from "./BookDetails.module.css";
-import axios from "../../store/axios";
-import FavoriteButton from "../../components/FavoriteButton/FavoriteButton"; // ✅
+import FavoriteButton from "../../components/FavoriteButton/FavoriteButton";
+import { createSquarePayment } from "../../services/paymentService";
 
 const BookDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+
   const user = useSelector((state) => state.auth.user);
-  const token = useSelector((state) => state.auth.token);
-  const book = useSelector((state) => state.books.selectedBook);
-  const { loading, error } = useSelector((state) => state.books);
+  const book = useSelector(selectSelectedBook);
+  const { isFetchingById, error } = useSelector((state) => state.books);
 
   useEffect(() => {
     if (id) dispatch(fetchBookById(id));
   }, [dispatch, id]);
 
   const handleAddToCart = async () => {
+    if (!book) return;
     try {
-      await axios.post(
-        "/cart",
-        { bookId: book.id, quantity: 1 },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      dispatch(showNotification({ message: "Book added to cart!", type: "success" }));
+      await dispatch(addToCartThunk({ bookId: book.id, quantity: 1 })).unwrap();
     } catch (err) {
       console.error("Add to cart failed", err);
-      dispatch(showNotification({ message: "Error adding book to cart", type: "error" }));
     }
   };
 
   const handleBuyNow = async () => {
+    if (!book || !user) return;
     try {
-      const { data } = await axios.post("/square/create-payment", {
+      const checkoutUrl = await createSquarePayment({
         title: book.title,
         price: book.price,
         bookId: book.id,
         userId: user.id,
       });
-      window.location.href = data.checkoutUrl;
+      window.location.href = checkoutUrl;
     } catch (err) {
-      console.error("Square payment error", err);
-      dispatch(showNotification({ message: "Payment failed", type: "error" }));
+      console.error("Payment failed", err);
     }
   };
 
-  if (loading || !book) return <h2 className={styles.loading}>Loading...</h2>;
+  if (isFetchingById || !book) return <h2 className={styles.loading}>Loading...</h2>;
   if (error) return <h2 className={styles.error}>{error}</h2>;
 
   return (

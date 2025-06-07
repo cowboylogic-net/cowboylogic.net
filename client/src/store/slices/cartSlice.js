@@ -1,36 +1,18 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../axios';
-import { showNotification } from './notificationSlice';
+// cartSlice.js
+import { createSlice } from '@reduxjs/toolkit';
+import { fetchCartItems, addToCartThunk } from '../thunks/cartThunks';
 
 const localCart = JSON.parse(localStorage.getItem('cart')) || [];
-
-export const fetchCartItems = createAsyncThunk(
-  'cart/fetchCartItems',
-  async (_, { getState, rejectWithValue, dispatch }) => {
-    try {
-      const token = getState().auth.token;
-      const response = await axios.get('/cart', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return response.data;
-    } catch {
-      dispatch(showNotification({ type: 'error', message: 'Failed to load cart items' }));
-      return rejectWithValue('Failed to fetch cart');
-    }
-  }
-);
 
 const cartSlice = createSlice({
   name: 'cart',
   initialState: {
     items: localCart,
     error: null,
+    isFetching: false,
+    isAdding: false,
   },
   reducers: {
-    addToCart: (state, action) => {
-      state.items.push(action.payload);
-      localStorage.setItem('cart', JSON.stringify(state.items));
-    },
     removeFromCart: (state, action) => {
       state.items = state.items.filter(item => item.id !== action.payload);
       localStorage.setItem('cart', JSON.stringify(state.items));
@@ -46,38 +28,44 @@ const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchCartItems.pending, (state) => {
+        state.isFetching = true;
+        state.error = null;
+      })
       .addCase(fetchCartItems.fulfilled, (state, action) => {
         state.items = action.payload;
-        state.error = null;
+        state.isFetching = false;
         localStorage.setItem('cart', JSON.stringify(action.payload));
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.error = action.payload;
+        state.isFetching = false;
+      })
+      .addCase(addToCartThunk.pending, (state) => {
+        state.isAdding = true;
+        state.error = null;
+      })
+      .addCase(addToCartThunk.fulfilled, (state, action) => {
+        const existing = state.items.find(item => item.id === action.payload.id);
+        if (existing) {
+          existing.quantity += action.payload.quantity;
+        } else {
+          state.items.push(action.payload);
+        }
+        state.isAdding = false;
+        localStorage.setItem('cart', JSON.stringify(state.items));
+      })
+      .addCase(addToCartThunk.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isAdding = false;
       });
   },
 });
 
 export const {
-  addToCart,
   removeFromCart,
   clearCart,
   replaceCart,
 } = cartSlice.actions;
-
-// ❗ Обгортаємо дії з нотифікаціями
-export const addToCartWithNotify = (item) => (dispatch) => {
-  dispatch(addToCart(item));
-  dispatch(showNotification({ type: 'success', message: 'Book added to cart!' }));
-};
-
-export const removeFromCartWithNotify = (id) => (dispatch) => {
-  dispatch(removeFromCart(id));
-  dispatch(showNotification({ type: 'info', message: 'Item removed from cart.' }));
-};
-
-export const clearCartWithNotify = () => (dispatch) => {
-  dispatch(clearCart());
-  dispatch(showNotification({ type: 'info', message: 'Cart cleared.' }));
-};
 
 export default cartSlice.reducer;

@@ -1,69 +1,41 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../axios';
-import { showNotification } from './notificationSlice';
-
-export const fetchPageContent = createAsyncThunk(
-  'pages/fetchPageContent',
-  async (slug, { rejectWithValue, dispatch }) => {
-    try {
-      const res = await axios.get(`/pages/${slug}`);
-      return { slug, content: res.data.content };
-    } catch {
-      const msg = `Failed to load page: ${slug}`;
-      dispatch(showNotification({ type: 'error', message: msg }));
-      return rejectWithValue(msg);
-    }
-  }
-);
-
-export const updatePageContent = createAsyncThunk(
-  'pages/updatePageContent',
-  async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
-    try {
-      const res = await axios.put(
-        `/pages/${slug}`,
-        { content },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      dispatch(showNotification({ type: 'success', message: `Saved changes for ${slug}` }));
-      return { slug, content: res.data.content };
-    } catch {
-      const msg = `Failed to update page: ${slug}`;
-      dispatch(showNotification({ type: 'error', message: msg }));
-      return rejectWithValue(msg);
-    }
-  }
-);
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchPageContent, updatePageContent } from "../thunks/pageThunks";
 
 const pageSlice = createSlice({
-  name: 'pages',
+  name: "pages",
   initialState: {
     pages: {},
-    loading: false,
     error: null,
+    isFetching: false,
+    isUpdating: false,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchPageContent.pending, (state) => {
-        state.loading = true;
+        state.isFetching = true;
         state.error = null;
       })
       .addCase(fetchPageContent.fulfilled, (state, action) => {
         state.pages[action.payload.slug] = action.payload.content;
-        state.loading = false;
+        state.isFetching = false;
       })
       .addCase(fetchPageContent.rejected, (state, action) => {
         state.error = action.payload;
-        state.loading = false;
+        state.isFetching = false;
+      })
+
+      .addCase(updatePageContent.pending, (state) => {
+        state.isUpdating = true;
+        state.error = null;
       })
       .addCase(updatePageContent.fulfilled, (state, action) => {
         state.pages[action.payload.slug] = action.payload.content;
+        state.isUpdating = false;
       })
       .addCase(updatePageContent.rejected, (state, action) => {
         state.error = action.payload;
+        state.isUpdating = false;
       });
   },
 });

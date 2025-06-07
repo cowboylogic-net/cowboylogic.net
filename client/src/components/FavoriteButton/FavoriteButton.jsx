@@ -1,31 +1,30 @@
-import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   addFavorite,
   removeFavorite,
-  fetchFavorites,
-} from "../../store/slices/favoritesSlice";
+} from "../../store/thunks/favoritesThunks";
+import { selectFavorites } from "../../store/selectors/favoritesSelectors";
 import styles from "./FavoriteButton.module.css";
 
 const FavoriteButton = ({ bookId, small = false }) => {
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
-  const favorites = useSelector((state) => state.favorites.books);
-  const isFavorite = favorites.some((fav) => fav.id === bookId);
+  const favorites = useSelector(selectFavorites); // ✅ беремо список прямо
 
-  useEffect(() => {
-    if (token && favorites.length === 0) {
-      dispatch(fetchFavorites());
-    }
-  }, [dispatch, token, favorites.length]);
+  const isFavorite = favorites.some((b) => String(b.id) === String(bookId)); // 🛡️ надійна перевірка
 
   const toggleFavorite = async () => {
-    if (isFavorite) {
-      await dispatch(removeFavorite(bookId));
-    } else {
-      await dispatch(addFavorite(bookId));
+    if (!token) return;
+
+    try {
+      if (isFavorite) {
+        await dispatch(removeFavorite(bookId)).unwrap();
+      } else {
+        await dispatch(addFavorite(bookId)).unwrap();
+      }
+    } catch (err) {
+      console.error("Favorite toggle failed", err);
     }
-    dispatch(fetchFavorites()); // оновлення після дії
   };
 
   return (
@@ -34,10 +33,15 @@ const FavoriteButton = ({ bookId, small = false }) => {
       className={small ? styles.favoriteIconOnly : "btn btn-outline"}
       title={isFavorite ? "Remove from favorites" : "Add to favorites"}
     >
-      {small ? (isFavorite ? "💔" : "❤️") : isFavorite ? "💔 Remove" : "❤️ Add to Favorites"}
+      {small
+        ? isFavorite
+          ? "💔"
+          : "❤️"
+        : isFavorite
+        ? "💔 Remove"
+        : "❤️ Add to Favorites"}
     </button>
   );
 };
 
 export default FavoriteButton;
-

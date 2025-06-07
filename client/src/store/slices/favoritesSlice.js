@@ -1,96 +1,64 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../axios";
-import { showNotification } from "./notificationSlice";
-
-// ✅ Завантажити всі обрані книги з токеном
-export const fetchFavorites = createAsyncThunk(
-  "favorites/fetchFavorites",
-  async (_, { rejectWithValue, getState }) => {
-    const token = getState().auth.token;
-    if (!token) return rejectWithValue("No auth token provided");
-
-    try {
-      const res = await axios.get("/favorites", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data;
-    } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Failed to load favorites"
-      );
-    }
-  }
-);
-
-
-// ➕ Додати книгу
-export const addFavorite = createAsyncThunk(
-  "favorites/addFavorite",
-  async (bookId, { rejectWithValue, dispatch, getState }) => {
-    try {
-      const token = getState().auth.token;
-      await axios.post(
-        "/favorites",
-        { bookId },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      dispatch(showNotification({ type: "success", message: "Added to favorites" }));
-      return bookId;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Add failed");
-    }
-  }
-);
-
-// ❌ Видалити книгу
-export const removeFavorite = createAsyncThunk(
-  "favorites/removeFavorite",
-  async (bookId, { rejectWithValue, dispatch, getState }) => {
-    try {
-      const token = getState().auth.token;
-      await axios.delete(`/favorites/${bookId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      dispatch(showNotification({ type: "success", message: "Removed from favorites" }));
-      return bookId;
-    } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Remove failed");
-    }
-  }
-);
+import { createSlice } from "@reduxjs/toolkit";
+import {
+  fetchFavorites,
+  addFavorite,
+  removeFavorite,
+} from "../thunks/favoritesThunks";
 
 const favoritesSlice = createSlice({
   name: "favorites",
   initialState: {
     books: [],
-    loading: false,
     error: null,
+    isFetching: false,
+    isAdding: false,
+    isRemoving: false,
   },
   reducers: {},
   extraReducers: (builder) => {
     builder
+      // fetchFavorites
       .addCase(fetchFavorites.pending, (state) => {
-        state.loading = true;
+        state.isFetching = true;
         state.error = null;
       })
       .addCase(fetchFavorites.fulfilled, (state, action) => {
         state.books = action.payload;
-        state.loading = false;
+        state.isFetching = false;
       })
       .addCase(fetchFavorites.rejected, (state, action) => {
-        state.loading = false;
         state.error = action.payload;
+        state.isFetching = false;
       })
 
-      .addCase(addFavorite.fulfilled, (state, action) => {
-        const exists = state.books.find((b) => b.id === action.payload);
-        if (!exists) state.books.push({ id: action.payload });
+      // addFavorite
+      .addCase(addFavorite.pending, (state) => {
+        state.isAdding = true;
+      })
+.addCase(addFavorite.fulfilled, (state, action) => {
+  const exists = state.books.find((b) => String(b.id) === String(action.payload));
+  if (!exists) {
+    state.books.push({ id: action.payload }); // ✅ лише ID, бо немає інших полів
+  }
+  state.isAdding = false;
+})
+      .addCase(addFavorite.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isAdding = false;
       })
 
+      // removeFavorite
+      .addCase(removeFavorite.pending, (state) => {
+        state.isRemoving = true;
+      })
       .addCase(removeFavorite.fulfilled, (state, action) => {
-        state.books = state.books.filter((b) => b.id !== Number(action.payload));
+        state.books = state.books.filter((b) => b.id !== action.payload);
+        state.isRemoving = false;
+      })
+
+      .addCase(removeFavorite.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isRemoving = false;
       });
   },
 });

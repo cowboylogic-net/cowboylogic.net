@@ -1,47 +1,41 @@
 import { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
-import { apiService } from "../../services/axiosService";
-import styles from "./EditablePage.module.css";
+import { useDispatch, useSelector } from "react-redux";
 import DOMPurify from "dompurify";
+import styles from "./EditablePage.module.css";
+
 import { ROLES } from "../../constants/roles";
-import { toast } from "react-toastify";
 import EditableToolbar from "../../components/EditableToolbar/EditableToolbar";
 
+import {
+  fetchPageContent,
+  updatePageContent,
+} from "../../store/thunks/pageThunks";
+import { selectPageContentBySlug } from "../../store/selectors/pageSelectors";
+
 const EditablePage = ({ slug, title }) => {
+  const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
 
-  const [content, setContent] = useState("");
+  const content = useSelector(selectPageContentBySlug(slug));
   const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState(null);
   const editorRef = useRef(null);
 
   useEffect(() => {
-    apiService
-      .get(`/pages/${slug}`)
-      .then((res) => {
-        setContent(res.data.content);
-        setError(null);
-      })
-      .catch(() => {
-        setError("⚠️ Failed to load content");
-        toast.error("Failed to load content");
-      });
-  }, [slug]);
+    dispatch(fetchPageContent(slug));
+  }, [dispatch, slug]);
 
   const execCmd = (command, value = null) => {
     document.execCommand(command, false, value);
   };
 
   const handleSave = async () => {
+    const cleanContent = DOMPurify.sanitize(editorRef.current.innerHTML);
     try {
-      const cleanContent = DOMPurify.sanitize(editorRef.current.innerHTML);
-      await apiService.put(`/pages/${slug}`, { content: cleanContent }, token);
-      setContent(cleanContent);
+      await dispatch(updatePageContent({ slug, content: cleanContent, token })).unwrap();
       setIsEditing(false);
-      toast.success("Page content saved successfully!");
-    } catch {
-      toast.error("Failed to save changes.");
+    } catch (err) {
+      console.error("Update failed:", err);
     }
   };
 
@@ -60,8 +54,6 @@ const EditablePage = ({ slug, title }) => {
           </div>
         )}
       </div>
-
-      {error && <p className={styles.error}>{error}</p>}
 
       {isEditing && <EditableToolbar execCmd={execCmd} editorRef={editorRef} />}
 

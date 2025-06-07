@@ -1,20 +1,30 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchFavorites } from "../../store/slices/favoritesSlice";
-import styles from "./FavoritesPage.module.css";
+import {
+  fetchFavorites
+} from "../../store/thunks/favoritesThunks";
+import {
+  selectFavorites,
+  selectFavoritesLoading,
+  selectFavoritesError,
+} from "../../store/selectors/favoritesSelectors";
 import { useNavigate } from "react-router-dom";
 import FavoriteButton from "../../components/FavoriteButton/FavoriteButton";
+import styles from "./FavoritesPage.module.css";
 
 const FavoritesPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const favorites = useSelector((state) => state.favorites.books);
-  const loading = useSelector((state) => state.favorites.loading);
-  const error = useSelector((state) => state.favorites.error);
+
+  const favorites = useSelector(selectFavorites);
+  const loading = useSelector(selectFavoritesLoading);
+  const error = useSelector(selectFavoritesError);
 
   useEffect(() => {
-    dispatch(fetchFavorites());
-  }, [dispatch]);
+    if (favorites.length === 0) {
+      dispatch(fetchFavorites());
+    }
+  }, [dispatch, favorites.length]);
 
   if (loading) return <h2>Loading favorites...</h2>;
   if (error) return <h2 style={{ color: "red" }}>{error}</h2>;
@@ -34,12 +44,10 @@ const FavoritesPage = () => {
                 className={styles.image}
                 onClick={() => navigate(`/bookstore/book/${book.id}`)}
               />
-
               <div className={styles.info}>
                 <div className={styles.actions}>
                   <FavoriteButton bookId={book.id} />
                 </div>
-
                 <h3>{book.title}</h3>
                 <p>{book.author}</p>
                 <p>${book.price}</p>

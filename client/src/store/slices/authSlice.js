@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../axios';
 import { showNotification } from './notificationSlice';
 
-// Login: надсилає email+код і отримує JWT
+// 🔐 Login: email + code → JWT
 export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, code }, { rejectWithValue, dispatch }) => {
@@ -18,7 +18,7 @@ export const loginUser = createAsyncThunk(
   }
 );
 
-// Перевірка JWT → отримати поточного користувача
+// ✅ Перевірка JWT → отримати поточного користувача
 export const fetchCurrentUser = createAsyncThunk(
   'auth/fetchCurrentUser',
   async (token, { rejectWithValue, dispatch }) => {
@@ -66,12 +66,17 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.isLoading = true;
+      })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
         state.user = action.payload;
+        state.isLoading = false;
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
         state.user = null;
         state.token = null;
+        state.isLoading = false;
         localStorage.removeItem('token');
       });
   },
