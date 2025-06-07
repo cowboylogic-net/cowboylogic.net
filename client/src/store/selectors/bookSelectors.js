@@ -12,6 +12,11 @@ export const selectBookById = (id) =>
     books.find((b) => b.id === id)
   );
 
+  export const selectSelectedBook = createSelector(
+  [selectBookState],
+  (state) => state.selectedBook
+);
+
 export const selectLoadingFlags = createSelector(
   [selectBookState],
   (state) => ({
