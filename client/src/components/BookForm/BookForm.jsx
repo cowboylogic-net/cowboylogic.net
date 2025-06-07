@@ -1,6 +1,10 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
 import {
   createBook,
   updateBook,
@@ -10,19 +14,42 @@ import { selectBookById } from "../../store/selectors/bookSelectors";
 import styles from "./BookForm.module.css";
 import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal";
 
+// ✅ Yup schema
+const schema = yup.object().shape({
+  title: yup.string().required("Title is required"),
+  author: yup.string().required("Author is required"),
+  description: yup.string(),
+  price: yup
+    .number()
+    .typeError("Price must be a number")
+    .positive("Price must be positive")
+    .required("Price is required"),
+  inStock: yup.boolean(),
+});
+
 const BookForm = ({ onSuccess, onError }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const existingBook = useSelector(selectBookById(Number(id)));
-  const [form, setForm] = useState({
-    title: "",
-    author: "",
-    description: "",
-    price: "",
-    imageUrl: "",
-    inStock: true,
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm({
+    resolver: yupResolver(schema),
+    defaultValues: {
+      title: "",
+      author: "",
+      description: "",
+      price: "",
+      imageUrl: "",
+      inStock: true,
+    },
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -37,7 +64,7 @@ const BookForm = ({ onSuccess, onError }) => {
 
   useEffect(() => {
     if (existingBook) {
-      setForm({
+      reset({
         title: existingBook.title,
         author: existingBook.author,
         description: existingBook.description || "",
@@ -47,43 +74,33 @@ const BookForm = ({ onSuccess, onError }) => {
       });
       setPreview(existingBook.imageUrl || null);
     }
-  }, [existingBook]);
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
-    }));
-  };
+  }, [existingBook, reset]);
 
   const handleImageInsert = ({ file, url }) => {
     if (file) {
       setImageFile(file);
-      setForm((f) => ({ ...f, imageUrl: "" }));
+      setValue("imageUrl", "");
       setPreview(URL.createObjectURL(file));
     } else if (url) {
       setImageFile(null);
-      setForm((f) => ({ ...f, imageUrl: url }));
+      setValue("imageUrl", url);
       setPreview(url);
     }
     setShowImageModal(false);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append("title", form.title);
-    formData.append("author", form.author);
-    formData.append("description", form.description);
-    formData.append("price", form.price);
-    formData.append("inStock", form.inStock);
+    formData.append("title", data.title);
+    formData.append("author", data.author);
+    formData.append("description", data.description);
+    formData.append("price", data.price);
+    formData.append("inStock", data.inStock);
 
     if (imageFile) {
       formData.append("image", imageFile);
-    } else if (form.imageUrl) {
-      formData.append("imageUrl", form.imageUrl);
+    } else if (data.imageUrl) {
+      formData.append("imageUrl", data.imageUrl);
     }
 
     try {
@@ -103,38 +120,20 @@ const BookForm = ({ onSuccess, onError }) => {
   return (
     <div className={styles.bookForm}>
       <h2>{id ? "Edit Book" : "Add New Book"}</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="title"
-          value={form.title}
-          onChange={handleChange}
-          placeholder="Title"
-          required
-        />
-        <input
-          type="text"
-          name="author"
-          value={form.author}
-          onChange={handleChange}
-          placeholder="Author"
-          required
-        />
-        <textarea
-          name="description"
-          value={form.description}
-          onChange={handleChange}
-          placeholder="Description"
-        />
-        <input
-          type="number"
-          name="price"
-          value={form.price}
-          onChange={handleChange}
-          placeholder="Price"
-          step="0.01"
-          required
-        />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <input type="text" placeholder="Title" {...register("title")} />
+        {errors.title && <p className={styles.error}>{errors.title.message}</p>}
+
+        <input type="text" placeholder="Author" {...register("author")} />
+        {errors.author && <p className={styles.error}>{errors.author.message}</p>}
+
+        <textarea placeholder="Description" {...register("description")} />
+        {errors.description && (
+          <p className={styles.error}>{errors.description.message}</p>
+        )}
+
+        <input type="number" placeholder="Price" step="0.01" {...register("price")} />
+        {errors.price && <p className={styles.error}>{errors.price.message}</p>}
 
         <button type="button" className="btn btn-outline" onClick={() => setShowImageModal(true)}>
           Choose Image
@@ -148,12 +147,7 @@ const BookForm = ({ onSuccess, onError }) => {
         )}
 
         <label>
-          <input
-            type="checkbox"
-            name="inStock"
-            checked={form.inStock}
-            onChange={handleChange}
-          />
+          <input type="checkbox" {...register("inStock")} />
           In Stock
         </label>
 

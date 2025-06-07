@@ -1,23 +1,34 @@
-import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import styles from "./RegisterForm.module.css";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import { GoogleLogin } from "@react-oauth/google";
+
+import styles from "./RegisterForm.module.css";
 import axios from "../../store/axios";
 import { fetchCurrentUser } from "../../store/slices/authSlice";
-import { showNotification } from "../../store/slices/notificationSlice"; // ✅
+import { showNotification } from "../../store/slices/notificationSlice";
+
+// 🔒 Yup валідація
+const schema = yup.object().shape({
+  email: yup.string().email("Invalid email").required("Email is required"),
+  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+});
 
 const RegisterForm = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: yupResolver(schema),
+  });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (form) => {
     try {
       await axios.post("/auth/register", form);
       dispatch(showNotification({ message: "Account created successfully!", type: "success" }));
@@ -66,24 +77,24 @@ const RegisterForm = () => {
   return (
     <div className={styles.container}>
       <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <input
           type="email"
-          name="email"
           placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
+          {...register("email")}
         />
+        {errors.email && <p className={styles.error}>{errors.email.message}</p>}
+
         <input
           type="password"
-          name="password"
           placeholder="Password"
-          value={form.password}
-          onChange={handleChange}
-          required
+          {...register("password")}
         />
-        <button type="submit">Register</button>
+        {errors.password && <p className={styles.error}>{errors.password.message}</p>}
+
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Registering..." : "Register"}
+        </button>
       </form>
 
       <div className={styles["google-signup"]}>

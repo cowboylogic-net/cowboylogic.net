@@ -11,17 +11,24 @@ import {
 } from "../../store/selectors/orderSelectors";
 import styles from "./Orders.module.css";
 
+const TEN_MINUTES = 10 * 60 * 1000;
+
 const Orders = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const token = useSelector((state) => state.auth.token);
 
   const orders = useSelector(selectAllOrders);
   const loading = useSelector(selectOrdersLoading);
   const error = useSelector(selectOrdersError);
+  const lastFetched = useSelector((state) => state.orders.lastFetched);
 
   useEffect(() => {
-    dispatch(fetchOrders());
-  }, [dispatch]);
+    const isStale = !lastFetched || Date.now() - lastFetched > TEN_MINUTES;
+    if (user?.id && (orders.length === 0 || isStale)) {
+      dispatch(fetchOrders());
+    }
+  }, [dispatch, user?.id, token, orders.length, lastFetched]);
 
   const handleDeleteOrder = (orderId) => {
     if (window.confirm("Are you sure you want to delete this order?")) {

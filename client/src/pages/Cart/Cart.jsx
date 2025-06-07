@@ -1,6 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchCartItems } from "../../store/thunks/cartThunks";
+import {
+  updateItemQuantity,
+  removeItemById,
+} from "../../store/slices/cartSlice";
 import { toast } from "react-toastify";
 import { apiService } from "../../services/axiosService";
 import styles from "./Cart.module.css";
@@ -12,37 +16,43 @@ const Cart = () => {
   const items = useSelector((state) => state.cart.items);
   const error = useSelector((state) => state.cart.error);
 
+  // ✅ Завантаження кошика лише якщо він порожній
   useEffect(() => {
-    dispatch(fetchCartItems());
-  }, [dispatch]);
+    if (!items.length) {
+      dispatch(fetchCartItems());
+    }
+  }, [dispatch, items.length]);
 
+  // ✅ Оновлення кількості без повторного fetch
   const handleQuantityChange = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
     try {
       await apiService.patch(`/cart/${itemId}`, { quantity: newQuantity }, token);
-      dispatch(fetchCartItems());
+      dispatch(updateItemQuantity({ itemId, quantity: newQuantity }));
       toast.success("Quantity updated");
     } catch {
       toast.error("Failed to update quantity");
     }
   };
 
+  // ✅ Видалення без refetch
   const handleRemove = async (itemId) => {
     try {
       await apiService.delete(`/cart/${itemId}`, token);
-      dispatch(fetchCartItems());
+      dispatch(removeItemById(itemId));
       toast.success("Item removed from cart");
     } catch {
       toast.error("Failed to remove item");
     }
   };
 
+  // ✅ Мемоізація totalPrice
+  const totalPrice = useMemo(() => {
+    return items.reduce((sum, item) => sum + item.quantity * item.Book.price, 0);
+  }, [items]);
+
   const handleSquareCheckout = async () => {
     try {
-      const totalPrice = items.reduce(
-        (sum, item) => sum + item.quantity * item.Book.price,
-        0
-      );
       const res = await apiService.post(
         "/square/create-payment",
         {
@@ -59,11 +69,6 @@ const Cart = () => {
       console.error(err);
     }
   };
-
-  const totalPrice = items.reduce(
-    (sum, item) => sum + item.quantity * item.Book.price,
-    0
-  );
 
   return (
     <div className={styles["cart-page"]}>

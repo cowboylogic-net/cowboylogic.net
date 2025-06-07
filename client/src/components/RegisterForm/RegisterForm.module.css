@@ -73,3 +73,12 @@
   display: flex;
   justify-content: center;
 }
+.error {
+  color: #ffdddd;
+  font-size: 0.85rem;
+  margin-top: -0.5rem;
+  margin-bottom: -0.5rem;
+  text-align: left;
+  width: 100%;
+  max-width: 300px;
+}

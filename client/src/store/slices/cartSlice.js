@@ -25,6 +25,17 @@ const cartSlice = createSlice({
       state.items = action.payload;
       localStorage.setItem('cart', JSON.stringify(action.payload));
     },
+    updateItemQuantity: (state, action) => {
+  const { itemId, quantity } = action.payload;
+  const item = state.items.find((i) => i.id === itemId);
+  if (item) {
+    item.quantity = quantity;
+  }
+},
+removeItemById: (state, action) => {
+  const itemId = action.payload;
+  state.items = state.items.filter((i) => i.id !== itemId);
+},
   },
   extraReducers: (builder) => {
     builder

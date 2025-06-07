@@ -1,32 +1,56 @@
-import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
+
 import styles from "./LoginForm.module.css";
 import axios from "../../store/axios";
 import { loginUser, fetchCurrentUser } from "../../store/slices/authSlice";
-import { showNotification } from "../../store/slices/notificationSlice"; // ✅
+import { showNotification } from "../../store/slices/notificationSlice";
+
+// ✅ Схема валідації для кроку 1
+const loginSchema = yup.object().shape({
+  email: yup.string().email("Invalid email").required("Email is required"),
+  password: yup.string().min(6, "Password too short").required("Password is required"),
+});
+
+// ✅ Схема валідації для кроку 2
+const codeSchema = yup.object().shape({
+  code: yup.string().required("Verification code required"),
+});
 
 const LoginForm = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoading = useSelector((state) => state.auth.isLoading);
-
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [code, setCode] = useState("");
   const [step, setStep] = useState(1);
+  const [email, setEmail] = useState("");
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+  } = useForm({
+    resolver: yupResolver(step === 1 ? loginSchema : codeSchema),
+  });
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const onLogin = async (data) => {
     try {
-      await axios.post("/auth/login", form);
-      await axios.post("/auth/request-code", { email: form.email });
+      await axios.post("/auth/login", data);
+      await axios.post("/auth/request-code", { email: data.email });
+
+      setEmail(data.email);
+
+      // Очищуємо email і password при переході на step 2
+      setValue("email", "");
+      setValue("password", "");
+
       setStep(2);
       dispatch(showNotification({ message: t("login.codeSent"), type: "info" }));
     } catch (err) {
@@ -39,10 +63,9 @@ const LoginForm = () => {
     }
   };
 
-  const handleVerify = async (e) => {
-    e.preventDefault();
+  const onVerify = async (data) => {
     try {
-      const result = await dispatch(loginUser({ email: form.email, code }));
+      const result = await dispatch(loginUser({ email, code: data.code }));
       if (loginUser.fulfilled.match(result)) {
         dispatch(showNotification({ message: t("login.welcomeBack"), type: "success" }));
         dispatch(fetchCurrentUser(result.payload.token));
@@ -68,11 +91,9 @@ const LoginForm = () => {
 
       localStorage.setItem("token", res.data.token);
       dispatch(fetchCurrentUser(res.data.token));
-
       dispatch(showNotification({ message: t("login.googleSuccess"), type: "success" }));
       navigate("/");
-    } catch (err) {
-      console.error("Google login error", err);
+    } catch {
       dispatch(showNotification({ message: t("login.googleFailed"), type: "error" }));
     }
   };
@@ -82,34 +103,20 @@ const LoginForm = () => {
       <h2>{t("Login")}</h2>
 
       {step === 1 ? (
-        <form onSubmit={handleLogin}>
-          <input
-            type="email"
-            name="email"
-            placeholder={t("Email")}
-            value={form.email}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder={t("Password")}
-            value={form.password}
-            onChange={handleChange}
-            required
-          />
+        <form onSubmit={handleSubmit(onLogin)}>
+          <input type="email" placeholder={t("Email")} {...register("email")} />
+          {errors.email && <p className={styles.error}>{errors.email.message}</p>}
+
+          <input type="password" placeholder={t("Password")} {...register("password")} />
+          {errors.password && <p className={styles.error}>{errors.password.message}</p>}
+
           <button type="submit">{t("Continue")}</button>
         </form>
       ) : (
-        <form onSubmit={handleVerify}>
-          <input
-            type="text"
-            placeholder={t("Placeholder")}
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            required
-          />
+        <form onSubmit={handleSubmit(onVerify)}>
+          <input type="text" placeholder={t("Placeholder")} {...register("code")} />
+          {errors.code && <p className={styles.error}>{errors.code.message}</p>}
+
           <button type="submit" disabled={isLoading}>
             {isLoading ? t("LoggingIn") : t("Verify")}
           </button>
@@ -129,3 +136,4 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
+
