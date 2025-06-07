@@ -1,11 +1,11 @@
 // cartSlice.js
-import { createSlice } from '@reduxjs/toolkit';
-import { fetchCartItems, addToCartThunk } from '../thunks/cartThunks';
+import { createSlice } from "@reduxjs/toolkit";
+import { fetchCartItems, addToCartThunk } from "../thunks/cartThunks";
 
-const localCart = JSON.parse(localStorage.getItem('cart')) || [];
+const localCart = JSON.parse(localStorage.getItem("cart")) || [];
 
 const cartSlice = createSlice({
-  name: 'cart',
+  name: "cart",
   initialState: {
     items: localCart,
     error: null,
@@ -14,28 +14,28 @@ const cartSlice = createSlice({
   },
   reducers: {
     removeFromCart: (state, action) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
-      localStorage.setItem('cart', JSON.stringify(state.items));
+      state.items = state.items.filter((item) => item.id !== action.payload);
+      localStorage.setItem("cart", JSON.stringify(state.items));
     },
     clearCart: (state) => {
       state.items = [];
-      localStorage.removeItem('cart');
+      localStorage.removeItem("cart");
     },
     replaceCart: (state, action) => {
       state.items = action.payload;
-      localStorage.setItem('cart', JSON.stringify(action.payload));
+      localStorage.setItem("cart", JSON.stringify(action.payload));
     },
     updateItemQuantity: (state, action) => {
-  const { itemId, quantity } = action.payload;
-  const item = state.items.find((i) => i.id === itemId);
-  if (item) {
-    item.quantity = quantity;
-  }
-},
-removeItemById: (state, action) => {
-  const itemId = action.payload;
-  state.items = state.items.filter((i) => i.id !== itemId);
-},
+      const { itemId, quantity } = action.payload;
+      const item = state.items.find((i) => i.id === itemId);
+      if (item) {
+        item.quantity = quantity;
+      }
+    },
+    removeItemById: (state, action) => {
+      const itemId = action.payload;
+      state.items = state.items.filter((i) => i.id !== itemId);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -46,7 +46,7 @@ removeItemById: (state, action) => {
       .addCase(fetchCartItems.fulfilled, (state, action) => {
         state.items = action.payload;
         state.isFetching = false;
-        localStorage.setItem('cart', JSON.stringify(action.payload));
+        localStorage.setItem("cart", JSON.stringify(action.payload));
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.error = action.payload;
@@ -57,14 +57,16 @@ removeItemById: (state, action) => {
         state.error = null;
       })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
-        const existing = state.items.find(item => item.id === action.payload.id);
+        const existing = state.items.find(
+          (item) => item.id === action.payload.id
+        );
         if (existing) {
           existing.quantity += action.payload.quantity;
         } else {
           state.items.push(action.payload);
         }
         state.isAdding = false;
-        localStorage.setItem('cart', JSON.stringify(state.items));
+        localStorage.setItem("cart", JSON.stringify(state.items));
       })
       .addCase(addToCartThunk.rejected, (state, action) => {
         state.error = action.payload;
@@ -77,6 +79,9 @@ export const {
   removeFromCart,
   clearCart,
   replaceCart,
+  updateItemQuantity,
+  removeItemById,
 } = cartSlice.actions;
+
 
 export default cartSlice.reducer;
