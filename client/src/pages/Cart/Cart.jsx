@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { fetchCartItems } from "../../store/slices/cartSlice";
+import { fetchCartItems } from "../../store/thunks/cartThunks";
 import { toast } from "react-toastify";
 import { apiService } from "../../services/axiosService";
 import styles from "./Cart.module.css";
