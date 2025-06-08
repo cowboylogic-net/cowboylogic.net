@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useCallback } from "react";
 import DOMPurify from "dompurify";
 import styles from "./EditablePage.module.css";
 
@@ -58,15 +59,15 @@ const EditablePage = ({ slug, title }) => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isEditing, localContent, draft]);
 
-  useEffect(() => {
-    if (!isEditing || isPreviewing) return;
-    const interval = setInterval(() => {
-      if (localContent !== draft) {
-        handleSaveDraft();
-      }
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [localContent, draft, isEditing, isPreviewing]);
+useEffect(() => {
+  if (!isEditing || isPreviewing) return;
+  const interval = setInterval(() => {
+    if (localContent !== draft) {
+      handleSaveDraft();
+    }
+  }, 10000);
+  return () => clearInterval(interval);
+}, [localContent, draft, isEditing, isPreviewing, handleSaveDraft]);
 
   const execCmd = (command, value = null) => {
     document.execCommand(command, false, value);
@@ -86,14 +87,14 @@ const EditablePage = ({ slug, title }) => {
     }
   };
 
-  const handleSaveDraft = async () => {
-    const cleanContent = DOMPurify.sanitize(localContent);
-    try {
-      await dispatch(saveDraftContent({ slug, content: cleanContent, token })).unwrap();
-    } catch (err) {
-      console.error("Draft save failed:", err);
-    }
-  };
+const handleSaveDraft = useCallback(async () => {
+  const cleanContent = DOMPurify.sanitize(localContent);
+  try {
+    await dispatch(saveDraftContent({ slug, content: cleanContent, token })).unwrap();
+  } catch (err) {
+    console.error("Draft save failed:", err);
+  }
+}, [dispatch, localContent, slug, token]);
 
   const handleCancel = () => {
     if (localContent !== draft) {
@@ -122,7 +123,7 @@ const EditablePage = ({ slug, title }) => {
               className="btn btn-outline"
               onClick={() => (isEditing ? handleCancel() : setIsEditing(true))}
             >
-              {isEditing ? "❌ Cancel" : "✏️ Edit Page"}
+              {isEditing ? "Cancel" : "Edit Page"}
             </button>
 
             {isEditing && (
@@ -130,7 +131,7 @@ const EditablePage = ({ slug, title }) => {
                 className="btn btn-outline"
                 onClick={() => setIsPreviewing((prev) => !prev)}
               >
-                {isPreviewing ? "✏️ Back to Edit" : "👁️ Preview"}
+                {isPreviewing ? "Back to Edit" : "Preview"}
               </button>
             )}
           </div>
