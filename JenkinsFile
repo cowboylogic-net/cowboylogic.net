@@ -10,8 +10,11 @@ pipeline {
   }
 
   environment {
-    DEPLOY_DIR = 'E:\\deploy\\dev'
-    SERVER_DIR = 'server'
+    CODEBASE_SERVER_DIR = 'server'
+    CODEBASE_CLIENT_DIR = 'client'
+
+    DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\dev\\server'
+    DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\dev\\client'
   }
 
   stages {
@@ -30,19 +33,19 @@ pipeline {
 
     stage('Install Server Dependencies') {
       steps {
-        dir("${env.SERVER_DIR}") {
+        dir("${env.CODEBASE_SERVER_DIR}") {
           bat 'npm ci'
         }
       }
     }
 
-    stage('Copy to DEV Folder') {
+    stage('Server code base replication to DEV deployment destination') {
       steps {
         bat """
-          if not exist "${env.DEPLOY_DIR}" (
-            mkdir "${env.DEPLOY_DIR}"
+          if not exist "${env.DEV_DEPLOY_SERVER_DIR}" (
+            mkdir "${env.DEV_DEPLOY_SERVER_DIR}"
           )
-          robocopy ${env.SERVER_DIR} ${env.DEPLOY_DIR} /MIR /NFL /NDL /NJH /NJS /NP
+          robocopy ${env.CODEBASE_SERVER_DIR} ${env.DEV_DEPLOY_SERVER_DIR} /MIR /NFL /NDL /NJH /NJS /NP
         """
       }
     }
