@@ -23,10 +23,37 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
   const [showTableModal, setShowTableModal] = useState(false);
   const [showLinkModal, setShowLinkModal] = useState(false);
 
-  const handleImageInsert = (url) => {
-    execCmd("insertImage", url);
-    setShowImageModal(false);
-  };
+const handleImageInsert = async ({ file, url, width, height }) => {
+  try {
+    let imageUrl = url;
+
+    if (file) {
+      const formData = new FormData();
+      formData.append("image", file);
+
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/images/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error(`Upload failed with status ${res.status}`);
+      const data = await res.json();
+      imageUrl = data.imageUrl;
+    }
+
+    if (imageUrl && editorRef?.current) {
+      editorRef.current.focus();
+      const imgTag = `<img src="${imageUrl}" style="max-width:100%;${width ? ` width:${width}px;` : ""}${height ? ` height:${height}px;` : ""}" />`;
+      execCmd("insertHTML", imgTag);
+      return true;
+    }
+  } catch (err) {
+    console.error("Upload failed", err);
+  }
+
+  return false;
+};
+
 
   const handleClearFormatting = () => {
     execCmd("removeFormat");

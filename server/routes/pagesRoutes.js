@@ -13,24 +13,44 @@ router.get("/:slug", ctrlWrapper(async (req, res) => {
   let page = await Page.findOne({ where: { slug } });
 
   if (!page) {
-    page = await Page.create({ slug, content: "" }); // автостворення пустої сторінки
+    page = await Page.create({ slug, content: "" });
   }
 
   res.json(page);
 }));
 
-// ➕ POST create new page (використовується рідко)
-router.post("/", protect, isAdmin, ctrlWrapper(async (req, res) => {
-  const { slug, content } = req.body;
+// 🔄 GET draft & published versions
+router.get("/:slug/versions", protect, isAdmin, ctrlWrapper(async (req, res) => {
+  const { slug } = req.params;
 
-  const existing = await Page.findOne({ where: { slug } });
-  if (existing) throw HttpError(400, "Page already exists");
+  const page = await Page.findOne({ where: { slug } });
+  if (!page) throw HttpError(404, "Page not found");
 
-  const page = await Page.create({ slug, content });
-  res.status(201).json(page);
+  res.json({
+    published: page.content,
+    draft: page.draftContent,
+  });
 }));
 
-// ✏️ PUT update or create page by slug
+// 💾 PUT save draft content only
+router.put("/:slug/draft", protect, isAdmin, ctrlWrapper(async (req, res) => {
+  const { slug } = req.params;
+  const { draftContent } = req.body;
+
+  let page = await Page.findOne({ where: { slug } });
+
+  if (!page) {
+    page = await Page.create({ slug, content: "", draftContent });
+    return res.status(201).json({ message: "Draft created" });
+  }
+
+  page.draftContent = draftContent;
+  await page.save();
+
+  res.json({ message: "Draft updated" });
+}));
+
+// ✏️ PUT publish content — overrides live version
 router.put("/:slug", protect, isAdmin, ctrlWrapper(async (req, res) => {
   const { slug } = req.params;
   const { content } = req.body;
@@ -39,12 +59,13 @@ router.put("/:slug", protect, isAdmin, ctrlWrapper(async (req, res) => {
 
   if (page) {
     page.content = content;
+    page.draftContent = null; // опціонально очищаємо чернетку
     await page.save();
-    return res.json({ message: "Page updated" });
+    return res.json({ message: "Page updated and published" });
   }
 
   await Page.create({ slug, content });
-  res.status(201).json({ message: "Page created" });
+  res.status(201).json({ message: "Page created and published" });
 }));
 
 export default router;

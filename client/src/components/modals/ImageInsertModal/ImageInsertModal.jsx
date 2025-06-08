@@ -5,17 +5,27 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
   const [url, setUrl] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
+  const [width, setWidth] = useState("");
+  const [height, setHeight] = useState("");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (file) {
-      onInsert({ file, url: "" });
-    } else if (url.trim()) {
-      onInsert({ file: null, url: url.trim() });
+
+    const result = await onInsert({
+      file,
+      url: url.trim(),
+      width: width.trim(),
+      height: height.trim(),
+    });
+
+    if (result !== false) {
+      setUrl("");
+      setPreview("");
+      setFile(null);
+      setWidth("");
+      setHeight("");
+      onClose(); // закриваємо лише якщо успішно
     }
-    setUrl("");
-    setPreview("");
-    setFile(null);
   };
 
   const handleFileChange = (e) => {
@@ -31,11 +41,7 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
       <div className={styles.modal}>
         <h3>Choose Image</h3>
         <form onSubmit={handleSubmit}>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+          <input type="file" accept="image/*" onChange={handleFileChange} />
           <p>or</p>
           <input
             type="text"
@@ -44,16 +50,28 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
             placeholder="Enter image URL..."
             disabled={!!file}
           />
+          <div className={styles.dimensions}>
+            <input
+              type="number"
+              placeholder="Width (px)"
+              value={width}
+              onChange={(e) => setWidth(e.target.value)}
+              disabled={!file && !url}
+            />
+            <input
+              type="number"
+              placeholder="Height (px)"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+              disabled={!file && !url}
+            />
+          </div>
           {preview && (
             <img src={preview} alt="Preview" className={styles.preview} />
           )}
           <div className={styles.actions}>
-            <button type="submit" className="btn btn-outline">
-              Confirm
-            </button>
-            <button type="button" className="btn btn-outline" onClick={onClose}>
-              Cancel
-            </button>
+            <button type="submit" className="btn btn-outline">Confirm</button>
+            <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
           </div>
         </form>
       </div>

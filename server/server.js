@@ -30,6 +30,7 @@ import newsletterRoutes from "./routes/newsletterRoutes.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
 import squareRoutes from "./routes/squareRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
+import imageRoutes from "./routes/imageRoutes.js";
 
 import { errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -70,6 +71,7 @@ app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/webhook", webhookRoutes);
 app.use("/api/square", squareRoutes);
 app.use("/api/favorites", favoriteRoutes);
+app.use("/images", imageRoutes);
 
 // Global error handler
 app.use(errorHandler);

@@ -1,4 +1,4 @@
-// server/models/Page.js
+// models/Page.js
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
 
@@ -10,7 +10,11 @@ const Page = sequelize.define("Page", {
   },
   content: {
     type: DataTypes.TEXT("long"),
-    allowNull: false,
+    allowNull: true,
+  },
+  draftContent: {
+    type: DataTypes.TEXT("long"), // нове поле для чернетки
+    allowNull: true,
   },
 });
 
