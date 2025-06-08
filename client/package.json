@@ -19,6 +19,7 @@
     "clsx": "^2.1.1",
     "dompurify": "^3.2.6",
     "dotenv": "^16.5.0",
+    "framer-motion": "^12.16.0",
     "i18next": "^25.2.0",
     "i18next-browser-languagedetector": "^8.1.0",
     "lucide-react": "^0.511.0",

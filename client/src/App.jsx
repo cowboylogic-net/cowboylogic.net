@@ -1,8 +1,6 @@
 import { Routes, Route } from "react-router-dom";
-import { lazy, Suspense, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { lazy, Suspense } from "react";
 import styles from "./App.module.css";
-import { fetchCurrentUser } from "./store/slices/authSlice";
 
 import Loader from "./components/Loader/Loader";
 import Header from "./components/Header/Header";
@@ -52,18 +50,6 @@ const UserManagement = lazy(() => import("./pages/Admin/UserManagement"));
 const Newsletter = lazy(() => import("./pages/Admin/Newsletter"));
 
 const App = () => {
-  const dispatch = useDispatch();
-  const { token, user, isLoading } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    if (token && user === null) {
-      dispatch(fetchCurrentUser(token));
-    }
-  }, [dispatch, token, user]);
-
-  // Показуємо лоадер, поки токен є, user ще не підтягнутий, і запит триває
-  if (token && user === null && isLoading) return <Loader />;
-
   return (
     <div className={styles.container}>
       <Header />
