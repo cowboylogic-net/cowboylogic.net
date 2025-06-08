@@ -18,24 +18,16 @@ pipeline {
   }
 
   stages {
-    stage('Checkout') {
+    stage('checkout scm') {
       steps {
         checkout scm
       }
     }
 
-    stage('Verify Node Env') {
+    stage('verify node env') {
       steps {
         bat 'node -v'
         bat 'npm -v'
-      }
-    }
-
-    stage('Install Server Dependencies') {
-      steps {
-        dir("${env.CODEBASE_SERVER_DIR}") {
-          bat 'npm ci'
-        }
       }
     }
 
