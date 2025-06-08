@@ -59,15 +59,26 @@ const EditablePage = ({ slug, title }) => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isEditing, localContent, draft]);
 
-useEffect(() => {
-  if (!isEditing || isPreviewing) return;
-  const interval = setInterval(() => {
-    if (localContent !== draft) {
-      handleSaveDraft();
+  const handleSaveDraft = useCallback(async () => {
+    const cleanContent = DOMPurify.sanitize(localContent);
+    try {
+      await dispatch(
+        saveDraftContent({ slug, content: cleanContent, token })
+      ).unwrap();
+    } catch (err) {
+      console.error("Draft save failed:", err);
     }
-  }, 10000);
-  return () => clearInterval(interval);
-}, [localContent, draft, isEditing, isPreviewing, handleSaveDraft]);
+  }, [dispatch, localContent, slug, token]);
+
+  useEffect(() => {
+    if (!isEditing || isPreviewing) return;
+    const interval = setInterval(() => {
+      if (localContent !== draft) {
+        handleSaveDraft();
+      }
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [localContent, draft, isEditing, isPreviewing, handleSaveDraft]);
 
   const execCmd = (command, value = null) => {
     document.execCommand(command, false, value);
@@ -79,22 +90,15 @@ useEffect(() => {
   const handleSave = async () => {
     const cleanContent = DOMPurify.sanitize(localContent);
     try {
-      await dispatch(updatePageContent({ slug, content: cleanContent, token })).unwrap();
+      await dispatch(
+        updatePageContent({ slug, content: cleanContent, token })
+      ).unwrap();
       setIsEditing(false);
       setIsPreviewing(false);
     } catch (err) {
       console.error("Publish failed:", err);
     }
   };
-
-const handleSaveDraft = useCallback(async () => {
-  const cleanContent = DOMPurify.sanitize(localContent);
-  try {
-    await dispatch(saveDraftContent({ slug, content: cleanContent, token })).unwrap();
-  } catch (err) {
-    console.error("Draft save failed:", err);
-  }
-}, [dispatch, localContent, slug, token]);
 
   const handleCancel = () => {
     if (localContent !== draft) {
@@ -168,14 +172,14 @@ const handleSaveDraft = useCallback(async () => {
             onClick={handleSaveDraft}
             disabled={isDraftSaving}
           >
-            💾 Save Draft
+            Save Draft
           </button>
           <button
             className="btn btn-outline"
             onClick={handleSave}
             disabled={isUpdating}
           >
-            ✅ Publish
+            Publish
           </button>
         </div>
       )}
