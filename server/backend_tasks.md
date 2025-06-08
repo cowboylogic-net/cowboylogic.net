@@ -9,6 +9,7 @@ This checklist summarizes all remaining backend work based on current implementa
 Цей список підсумовує всі завдання, які залишилися для серверної частини на основі реалізованого функціоналу.
 
 ## ✅ Implemented / Реалізовано
+
 - [x] Auth (login, Google, 2FA, token validation)
 - [x] Role middleware (`protect`, `isAdmin`, `isSuperAdmin`, `requireRole`)
 - [x] Favorites (CRUD)
@@ -23,6 +24,7 @@ This checklist summarizes all remaining backend work based on current implementa
 ## 🔁 To Do / Що потрібно зробити
 
 ### 🔒 Security / Безпека
+
 - [ ] Add CSRF protection (if using cookies in future)
 - [ ] Add login IP/user-agent logging (session audit)
 - [ ] Email notification on login or password change (optional)
@@ -30,25 +32,30 @@ This checklist summarizes all remaining backend work based on current implementa
 - [ ] Add global error response formatting (standard JSON with status/code)
 
 ### 🔐 Auth & Tokens
+
 - [ ] Finalize `tokenVersion` migration in database
 - [ ] Implement refresh token endpoint + reissue logic
 - [ ] Revoke all sessions on password reset via `tokenVersion++`
 
 ### 📄 Pages / Контент
+
 - [ ] Auto-create page if not found on PUT (currently 404)
 - [ ] Add scheduled cleanup for old draft versions (optional)
 
 ### 🧪 Testing
+
 - [ ] Unit tests for: uploadMiddleware, pagesController, favoriteController
 - [ ] Integration tests with mock auth for protected endpoints
 - [ ] Test for webhook signature verification (Square)
 
 ### 📝 Docs
+
 - [ ] Add sample payloads to `api_documentation.md` (especially POST)
 - [ ] Add Swagger/OpenAPI spec (optional)
 - [ ] Document `resetPassword`, `verify-code`, `request-code` usage clearly
 
 ### 🧩 Misc
+
 - [ ] Move square logic to `services/squareService.js` cleanly
 - [ ] Add `logger.js` entries to more critical routes (orders, auth)
 - [ ] Implement generic `validateIdParam()` for routes with `:id`

@@ -4,7 +4,8 @@
 
 Admins and superadmins can edit page content using the `EditablePage` component. Content is fetched from `/api/pages/:slug`, edited in WYSIWYG, and saved via PUT.
 
-### Features:
+### Features
+
 - Rich text formatting with internal toolbar (`EditableToolbar`)
 - Image insertion via `ImageInsertModal`
 - Table and link support
@@ -16,7 +17,8 @@ Admins and superadmins can edit page content using the `EditablePage` component.
 
 Адміни та супер-адміни можуть редагувати контент сторінок через компонент `EditablePage`. Контент отримується з `/api/pages/:slug`, редагується у форматі WYSIWYG та зберігається через PUT.
 
-### Можливості:
+### Можливості
+
 - Форматування тексту через `EditableToolbar`
 - Вставка зображень (`ImageInsertModal`)
 - Підтримка таблиць і лінків

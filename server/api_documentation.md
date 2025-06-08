@@ -1,6 +1,6 @@
 # 📘 API Documentation — Cowboylogic Strategies / Publishing
 
-_Last updated: 2025-06-08_
+_Last updated: 2025-06-08
 
 ---
 

@@ -9,6 +9,7 @@ This is the frontend of CowboyLogic built with React + Vite. It supports multili
 Це клієнтська частина CowboyLogic, реалізована на React + Vite. Підтримує мультимовний інтерфейс, ролі користувачів, редагування контенту, обране та захищений вхід.
 
 ## ✅ Features
+
 - Login + 2FA + Google
 - Role-based routes (`user`, `admin`, `superadmin`)
 - Redux Toolkit: auth, books, cart, orders, pages, favorites, notifications

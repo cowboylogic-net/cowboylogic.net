@@ -1,5 +1,5 @@
-import axios from "../store/axios"; // використовує твою готову інстанцію
-import { getToken } from "./authHelpers"; // (додамо нижче) — отримання токена
+import axios from "../store/axios"; 
+import { getToken } from "./authHelpers"; 
 
 // Додає Authorization заголовок автоматично
 const authHeaders = () => {

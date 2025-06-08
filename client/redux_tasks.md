@@ -10,7 +10,8 @@ This checklist outlines the remaining work related to Redux Toolkit in the Cowbo
 
 ---
 
-## ✅ State Slices (Already Implemented) / Вже реалізовано:
+## ✅ State Slices (Already Implemented) / Вже реалізовано
+
 - [x] `authSlice` — authentication
 - [x] `bookSlice` — books (list, details)
 - [x] `cartSlice` — shopping cart
@@ -22,6 +23,7 @@ This checklist outlines the remaining work related to Redux Toolkit in the Cowbo
 ---
 
 ## ✅ Thunks & Async Logic
+
 - [x] Thunks for `authSlice`: login, logout, getCurrentUser
 - [x] Thunks for `book`, `cart`, `favorites`, `orders`, `pages`
 - [x] Auto-dismiss thunk for `notificationSlice`
@@ -31,6 +33,7 @@ This checklist outlines the remaining work related to Redux Toolkit in the Cowbo
 ---
 
 ## ✅ Selectors
+
 - [x] Selectors for `auth` (e.g., `user`, `token`, `isLoading`)
 - [x] Selectors for `notification` added
 - [x] Refactor usage to consistently use selectors across the app
@@ -38,18 +41,22 @@ This checklist outlines the remaining work related to Redux Toolkit in the Cowbo
 ---
 
 ## ✅ Loading/Error States
+
 - [x] Add `isLoading` and `error` to all slices (`book`, `page`, `orders`, etc.)
 - [x] Show `<Loader />` based on loading state from Redux
 
 ---
 
 ## 🧪 Testing
+
 - [ ] Unit tests for all slices using Vitest
+- [ ] Unit tests for all selectors
 - [ ] Add tests for selectors and thunks (mock API calls)
 - [ ] Snapshot tests for Redux-driven UI (`BookList`, `Orders`)
 
 ---
 
 ## 🧩 Integration
+
 - [x] All axios calls moved into thunks
-- [ ] Ensure store structure is scalable for future features (e.g., ratings, reviews)
+- [x] Ensure store structure is scalable for future features (e.g., ratings, reviews)

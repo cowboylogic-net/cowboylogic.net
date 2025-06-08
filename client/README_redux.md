@@ -8,7 +8,8 @@ We use Redux Toolkit for global state management. The state is organized into sl
 
 Ми використовуємо Redux Toolkit для керування глобальним станом. Стан організовано за слайсами, кожен має свої санки (thunks) та селектори.
 
-### ✅ Slices / Слайси:
+### ✅ Slices / Слайси
+
 - `authSlice.js` — authentication, user session
 - `bookSlice.js` — list of books, book details
 - `cartSlice.js` — shopping cart
@@ -17,14 +18,17 @@ We use Redux Toolkit for global state management. The state is organized into sl
 - `pageSlice.js` — editable content pages
 - `notificationSlice.js` — alerts and messages
 
-### 🪝 Thunks (Async Logic) / Санки:
+### 🪝 Thunks (Async Logic) / Санки
+
 - `bookThunks.js`, `cartThunks.js`, `favoritesThunks.js`, `ordersThunks.js`, `pageThunks.js`
 - Each thunk handles async fetch, create, update, delete operations.
 
-### 🔍 Selectors / Селектори:
+### 🔍 Selectors / Селектори
+
 - Located in `store/selectors/`
 - Examples: `bookSelectors.js`, `orderSelectors.js`, `pageSelectors.js`
 
-### 🧠 Integration:
+### 🧠 Integration
+
 - All slices are connected via `store.jsx`
 - `<Provider store={store}>` wraps the app in `main.jsx`
