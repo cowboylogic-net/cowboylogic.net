@@ -7,7 +7,7 @@ import { GoogleLogin } from "@react-oauth/google";
 
 import styles from "./RegisterForm.module.css";
 import axios from "../../store/axios";
-import { fetchCurrentUser } from "../../store/slices/authSlice";
+import { fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
 
 // 🔒 Yup валідація
