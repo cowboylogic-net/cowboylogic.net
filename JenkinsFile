@@ -1,26 +1,50 @@
 pipeline {
-    agent {
-        node {
-            label 'built-in'
-        }
+  agent {
+    node {
+      label 'built-in'
+    }
+  }
+
+  tools {
+    nodejs 'node24'
+  }
+
+  environment {
+    DEPLOY_DIR = 'E:\\deploy\\dev'
+    SERVER_DIR = 'server'
+  }
+
+  stages {
+    stage('Checkout') {
+      steps {
+        checkout scm
+      }
     }
 
-    tools {
-        nodejs 'node24'
+    stage('Verify Node Env') {
+      steps {
+        bat 'node -v'
+        bat 'npm -v'
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
+    stage('Install Server Dependencies') {
+      steps {
+        dir("${env.SERVER_DIR}") {
+          bat 'npm ci'
         }
-
-        stage('Verify Node Environment') {
-            steps {
-                bat 'node -v'
-                bat 'npm -v'
-            }
-        }
+      }
     }
+
+    stage('Copy to DEV Folder') {
+      steps {
+        bat """
+          if not exist "${env.DEPLOY_DIR}" (
+            mkdir "${env.DEPLOY_DIR}"
+          )
+          robocopy ${env.SERVER_DIR} ${env.DEPLOY_DIR} /MIR /NFL /NDL /NJH /NJS /NP
+        """
+      }
+    }
+  }
 }
