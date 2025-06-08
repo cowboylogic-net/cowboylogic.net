@@ -1,70 +1,139 @@
-# 🐎 CowboyLogic Strategies / Publishing
 
-## 🇺🇸 English
+# 📘 CowboyLogic — Fullstack Web Platform (Detailed Overview)
 
-CowboyLogic is a full-stack publishing and strategy platform for local authors and business thinkers. It supports secure login, role-based permissions, book publishing, dynamic editable pages, and payment processing.
+_Last updated: 2025-06-08
 
-## 🇺🇦 Українською
+CowboyLogic is a full-featured bilingual (EN/UA) publishing and strategy platform built with a modern tech stack
 
-CowboyLogic — це повноцінна платформа для публікацій та стратегій місцевих авторів і підприємців. Підтримує безпечну авторизацію, розподіл прав доступу, публікацію книг, редаговані сторінки та оплату.
+- **Frontend:** React + Vite + Redux Toolkit + i18n
+- **Backend:** Node.js + Express + Sequelize + MySQL
+- **Deployment:** HostGator (Frontend), Physical Server with DuckDNS (Backend)
+- **Security:** JWT, 2FA, role-based access, input validation, upload security
 
 ---
 
-## 🔧 Tech Stack / Технології
-- Frontend: React + Vite + Redux Toolkit + i18n
-- Backend: Node.js + Express + Sequelize + MySQL
-- Auth: JWT + 2FA + Google
-- Payment: Square API
+## 🚀 Features
 
-## 📚 Features / Функціональність
-- 🔐 Authentication with email, Google, 2FA
-- 📚 Book management (CRUD) for admins
-- 🛒 Shopping cart & orders
-- 💳 Payment integration (Square)
-- ✍️ Editable content pages with draft & image upload
-- 🧩 Favorites, Notifications, Role control
-- 🌍 Multilingual interface (EN / ES)
-- 📬 Newsletter & contact form
-- 📦 RESTful API with JWT middleware
+### 🔐 Authentication & Authorization
 
-## 🛡 Security / Безпека
-- Token versioning & logout everywhere
-- Rate limiting, upload sanitization, role-based access
-- SuperAdmin activity logging
+- JWT-based login with 2FA (email code)
+- Google OAuth login supported
+- Role-based routing: `user`, `admin`, `superadmin`
+- Middleware protection: `protect`, `isAdmin`, `isSuperAdmin`, `requireRole`
 
-## 🚀 Deployment / Деплой
-- `.env.example` provided
-- Works with Vercel, Railway, Docker or custom VPS
+### 📚 Bookstore
 
-## 🧪 Getting Started / Початок роботи
+- Browse, add, edit, and delete books (admin only)
+- Favorites system: `GET/POST/DELETE /api/favorites`
+- Book rating feature (planned)
 
-### 🖥 Backend
-```bash
-cd server
-cp .env.example .env       # configure your DB, JWT, etc.
-npm install
-npx sequelize-cli db:migrate
-npm run seed               # optional: create SuperAdmin
-npm run dev                # or use pm2
-```
+### 🛒 Cart & Checkout
 
-### 💻 Frontend
-```bash
-cd client
-npm install
-npm run dev
-```
+- Add/remove items from cart
+- Integrated Square payment
+- Success and Cancel pages
+- Orders stored and accessible by users/admins
 
-### 🌍 Environment / Змінні середовища
-- FRONTEND: see `client/.env` or `vite.config.js`
-- BACKEND: set JWT_SECRET, DB credentials, 2FA config, Square keys
+### ✍️ Editable Pages
 
-### ✅ Testing
-- Unit tests planned with Vitest / React Testing Library (frontend)
-- For backend: Jest or integration tests (Postman, etc.)
+- Admins can edit static pages via WYSIWYG editor
+- Supports bold/italic, tables, links, and image uploads
+- Version history, draft saving, and HTML confirmation modals
 
-### 🌐 Deployment Notes / Розгортання
-- Use Vercel for frontend (static hosting + SPA)
-- Use Railway / Docker / VPS for backend
-- Don't push `.env` to repo!
-- On Vercel: set env variables via dashboard
+### 📬 Newsletter & Contact
+
+- Newsletter signup and admin-only sending
+- Contact form with email forwarding
+- Subscriptions stored in DB
+
+### 🧪 Testing (Planned)
+
+- Unit tests (Redux slices)
+- Snapshot tests
+- API route testing
+
+---
+
+## 🛡 Security Architecture
+
+- **JWT + Middleware:** Protects all private routes
+- **Brute-force protection:** Rate limiter on login
+- **2FA:** Code via email with expiration
+- **SuperAdmin:** Cannot be deleted or modified by others
+- **Upload protection:** MIME type, extension, filename sanitation
+- **Webhook validation:** Square signature check on `/webhook/square`
+
+---
+
+## 🌍 Internationalization (i18n)
+
+- Fully supports English and Ukrainian
+- Language switcher in UI
+- Translations stored in `public/locales/{lang}`
+- Editable content remains language-agnostic (stored per slug)
+
+---
+
+## 🧩 Tech Stack
+
+| Layer         | Technology                         |
+|---------------|-------------------------------------|
+| Frontend      | React, Vite, Redux Toolkit          |
+| Styling       | CSS Modules, custom themes          |
+| i18n          | react-i18next                       |
+| State         | Redux Toolkit (slices + thunks)     |
+| Backend       | Node.js, Express                    |
+| ORM           | Sequelize                           |
+| Database      | MySQL                               |
+| Auth          | JWT, 2FA (email codes)              |
+| Payment       | Square Checkout API                 |
+| Hosting       | HostGator (Frontend), VPS (Backend) |
+| CI/CD         | Jenkins + PM2                       |
+
+---
+
+## 📦 Folder Structure (Mono-Repo)
+
+cowboylogic.net/
+├── client/               # React frontend
+│   ├── src/components/   # Modular components
+│   ├── src/pages/        # Route pages
+│   ├── src/store/        # Redux logic
+├── server/               # Express backend
+│   ├── controllers/      # Route logic
+│   ├── models/           # Sequelize models
+│   ├── routes/           # API routing
+│   ├── middleware/       # Custom middleware
+│   ├── services/         # Email/Square integrations
+
+---
+
+## 👥 Roles & Permissions
+
+| Role        | Permissions Summary |
+|-------------|---------------------|
+| **User**    | View books, manage cart, place orders, edit profile |
+| **Admin**   | Manage content, books, orders, newsletters |
+| **SuperAdmin** | Full control including user management and protected deletion |
+
+---
+
+## 🧠 Developer Tips
+
+- Environment variables must be configured via `.env` (not committed)
+- Use `vite` for frontend dev and `nodemon` / `pm2` for backend dev/prod
+- Database schema changes should be done via Sequelize CLI (migrations)
+- For i18n: avoid hardcoded strings; use `t("key")` and proper locale files
+
+---
+
+## 🔧 TODO Highlights (See full TODO)
+
+- [ ] Finalize validation and error handling
+- [ ] Translate all pages/components to full bilingual
+- [ ] Add tests (Vitest + Jest or React Testing Library)
+- [ ] Enhance SEO and performance
+
+---
+
+CowboyLogic is under active development and gradually approaching production stability. Contributions and code reviews welcome.
