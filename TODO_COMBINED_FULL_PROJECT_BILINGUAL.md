@@ -32,9 +32,13 @@
 
 ## ✍️ Контент і редактор / Editable Content
 
-- [x] EditablePage з Redux (sanitized)
+- [x] EditablePage з Redux (published/draft розділення)
 - [x] Toolbar з групованими кнопками (Bold, Insert, Table, Colors...)
 - [x] Вставка зображень через `ImageInsertModal`
+- [x] Автозбереження чернеток (autosave)
+- [x] Попередження при закритті з незбереженими змінами
+- [x] ConfirmModal при спробі закрити із незбереженими змінами
+- [x] Попередній перегляд чернетки
 - [ ] Підтвердження перед вставкою HTML
 - [ ] Переклад усіх модалок (Insert, Confirm, Table)
 
