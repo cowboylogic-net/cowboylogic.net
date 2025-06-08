@@ -1,81 +1,70 @@
+# 🐎 CowboyLogic Strategies / Publishing
 
-# 🧠 CowboyLogic Full Project README / Повна документація проєкту CowboyLogic
+## 🇺🇸 English
 
-## 📘 Опис / Description
+CowboyLogic is a full-stack publishing and strategy platform for local authors and business thinkers. It supports secure login, role-based permissions, book publishing, dynamic editable pages, and payment processing.
 
-**🇺🇸 English:**  
-CowboyLogic is a bilingual full-stack web platform for showcasing and selling books by local authors. It also offers editable content pages, consulting service promotion, secure login with 2FA, Square payments, and role-based access for users, admins, and superadmins.
+## 🇺🇦 Українською
 
-**🇺🇦 Українською:**  
-CowboyLogic — це двомовна повноцінна веб-платформа для демонстрації й продажу книг місцевих авторів. Платформа також дозволяє редагувати контент сторінок, просувати консультаційні послуги, підтримує захищений вхід з 2FA, оплату через Square та контроль доступу за ролями (юзер, адмін, супер-адмін).
-
----
-
-## 🛠 Технології / Tech Stack
-
-- **Frontend:** React + Vite + Redux Toolkit
-- **Backend:** Node.js + Express
-- **Database:** MySQL + Sequelize ORM
-- **Security:** JWT, 2FA (email), rate-limiting, role-based access, upload validation
-- **Payment Integration:** Square Webhooks
-- **UI/UX:** Editable content, WYSIWYG editor, modals, multilingual (en, es)
+CowboyLogic — це повноцінна платформа для публікацій та стратегій місцевих авторів і підприємців. Підтримує безпечну авторизацію, розподіл прав доступу, публікацію книг, редаговані сторінки та оплату.
 
 ---
 
-## 🔐 Аутентифікація та Ролі / Authentication & Roles
+## 🔧 Tech Stack / Технології
+- Frontend: React + Vite + Redux Toolkit + i18n
+- Backend: Node.js + Express + Sequelize + MySQL
+- Auth: JWT + 2FA + Google
+- Payment: Square API
 
-- Email/Password login + optional 2FA (email code)
-- Google login (OAuth)
-- Role hierarchy:
-  - `user`: standard features (view, cart, order)
-  - `admin`: manage content (books, pages, newsletters)
-  - `superadmin`: manage users, assign roles, audit logs
+## 📚 Features / Функціональність
+- 🔐 Authentication with email, Google, 2FA
+- 📚 Book management (CRUD) for admins
+- 🛒 Shopping cart & orders
+- 💳 Payment integration (Square)
+- ✍️ Editable content pages with draft & image upload
+- 🧩 Favorites, Notifications, Role control
+- 🌍 Multilingual interface (EN / ES)
+- 📬 Newsletter & contact form
+- 📦 RESTful API with JWT middleware
 
----
+## 🛡 Security / Безпека
+- Token versioning & logout everywhere
+- Rate limiting, upload sanitization, role-based access
+- SuperAdmin activity logging
 
-## 📦 Основний функціонал / Key Features
+## 🚀 Deployment / Деплой
+- `.env.example` provided
+- Works with Vercel, Railway, Docker or custom VPS
 
-- 📚 Book Management (CRUD, image upload)
-- 🛒 Shopping Cart & Orders
-- 💳 Square Payment Integration
-- ✍️ Editable Pages (WYSIWYG)
-- 🌍 Multilingual (English, Spanish)
-- 🧩 Redux Global State
-- 🔔 Notifications + Modals + Validation
+## 🧪 Getting Started / Початок роботи
 
----
+### 🖥 Backend
+```bash
+cd server
+cp .env.example .env       # configure your DB, JWT, etc.
+npm install
+npx sequelize-cli db:migrate
+npm run seed               # optional: create SuperAdmin
+npm run dev                # or use pm2
+```
 
-## 🧩 Структура проєкту / Project Structure
+### 💻 Frontend
+```bash
+cd client
+npm install
+npm run dev
+```
 
-**Backend:**  
-See → [server_structure_FULL_FACTUAL.txt](./server_structure_FULL_FACTUAL.txt)
+### 🌍 Environment / Змінні середовища
+- FRONTEND: see `client/.env` or `vite.config.js`
+- BACKEND: set JWT_SECRET, DB credentials, 2FA config, Square keys
 
-**Frontend:**  
-See → [frontend_structure_FULL_FACTUAL.txt](./frontend_structure_FULL_FACTUAL.txt)
+### ✅ Testing
+- Unit tests planned with Vitest / React Testing Library (frontend)
+- For backend: Jest or integration tests (Postman, etc.)
 
----
-
-## ✅ Завершено / Completed
-
-- [x] REST API with validation and error handling
-- [x] Auth + 2FA + Role control
-- [x] Newsletter system
-- [x] Editable pages with image modals
-- [x] Favorites system
-- [x] Square Webhook integration
-- [x] Admin dashboard
-- [x] Security audit + protection
-
----
-
-## 🔜 У розробці / In Progress
-
-- [ ] Vitest / RTL тестування (Front)
-- [ ] Swagger / OpenAPI (Back)
-- [ ] Мультимовність на всіх сторінках
-- [ ] Повідомлення після оплати (SuccessPage)
-- [ ] CSRF + Audit logs + Upload security
-
----
-
-_Last updated: 2025-06-06_
+### 🌐 Deployment Notes / Розгортання
+- Use Vercel for frontend (static hosting + SPA)
+- Use Railway / Docker / VPS for backend
+- Don't push `.env` to repo!
+- On Vercel: set env variables via dashboard

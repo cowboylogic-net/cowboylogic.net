@@ -9,7 +9,10 @@ import { useTranslation } from "react-i18next";
 
 import styles from "./LoginForm.module.css";
 import axios from "../../store/axios";
-import { loginUser, fetchCurrentUser } from "../../store/slices/authSlice";
+import { loginUser } from "../../store/thunks/authThunks";         // ✅ виправлено
+import { fetchCurrentUser } from "../../store/thunks/authThunks"; // вже правильно
+
+
 import { showNotification } from "../../store/slices/notificationSlice";
 
 // ✅ Схема валідації для кроку 1

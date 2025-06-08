@@ -6,7 +6,7 @@ const initialState = {
   orders: [],
   loading: false,
   error: null,
-  lastFetched: null, // 🕓 додано
+  lastFetched: null,
 };
 
 const ordersSlice = createSlice({
@@ -22,20 +22,20 @@ const ordersSlice = createSlice({
       .addCase(fetchOrders.fulfilled, (state, action) => {
         state.orders = action.payload;
         state.loading = false;
-        state.lastFetched = Date.now(); // 🕓 оновлюємо timestamp
+        state.lastFetched = Date.now();
       })
       .addCase(fetchOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
       .addCase(deleteOrder.fulfilled, (state, action) => {
-        state.orders = state.orders.filter((order) => order.id !== action.payload);
+        state.orders = state.orders.filter((o) => o.id !== action.payload);
       })
       .addCase(logout, (state) => {
         state.orders = [];
         state.loading = false;
         state.error = null;
-        state.lastFetched = null; // 🧹 очищення
+        state.lastFetched = null;
       });
   },
 });

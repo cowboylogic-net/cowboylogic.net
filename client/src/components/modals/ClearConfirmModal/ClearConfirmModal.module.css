@@ -21,7 +21,10 @@
   color: white;
   backdrop-filter: blur(6px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  pointer-events: auto; /* 🆕 додаємо */
+  z-index: 1001;         /* 🆕 переконайся, що вище overlay */
 }
+
 
 .modal h3 {
   font-size: 1.4rem;
@@ -41,4 +44,8 @@
   display: flex;
   justify-content: center;
   gap: 1rem;
+}
+.actions button {
+  z-index: 1002;
+  position: relative;
 }

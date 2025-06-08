@@ -1,0 +1,101 @@
+# 📂 Повна структура серверної частини (фактологічна, оновлено 2025-06-07)
+
+└── .
+    ├── .env.example
+    ├── .sequelizerc
+    ├── Dockerfile
+    ├── api_documentation.md
+    ├── api_endpoints.md
+    ├── backend_TODO_FULL_bilingual.md
+    ├── backend_todo_tokenVersion_fix_bilingual.md
+    ├── db_schema.md
+    ├── package-lock.json
+    ├── package.json
+    ├── roles_and_permissions.md
+    ├── security_audit_summary.md
+    ├── security_todo.md
+    ├── server.js
+    ├── server_structure.txt
+    ├── server_structure_FULL_FACTUAL.txt
+    └── config
+        ├── config.js
+        ├── config.json
+        ├── db.js
+    └── controllers
+        ├── authController.js
+        ├── bookController.js
+        ├── cartController.js
+        ├── contactController.js
+        ├── favoriteController.js
+        ├── googleAuthController.js
+        ├── newsletterController.js
+        ├── orderController.js
+        ├── pagesController.js
+        ├── requestCodeController.js
+        ├── resetPasswordController.js
+        ├── squareController.js
+        ├── userController.js
+        ├── verifyCodeController.js
+        ├── webhookController.js
+    └── helpers
+        ├── HttpError.js
+        ├── ctrlWrapper.js
+    └── middleware
+        ├── authLimiter.js
+        ├── authMiddleware.js
+        ├── errorMiddleware.js
+        ├── logSuperAdminAccess.js
+        ├── requireRole.js
+        ├── uploadMiddleware.js
+        ├── validateBody.js
+    └── migrations
+        ├── 20250522190919-create-users.js
+    └── models
+        ├── Book.js
+        ├── CartItem.js
+        ├── Favorite.js
+        ├── LoginCode.js
+        ├── Order.js
+        ├── OrderItem.js
+        ├── Page.js
+        ├── Subscriber.js
+        ├── User.js
+        ├── index.js
+    └── public
+        └── uploads
+            ├── Untitled (1)-1749267980618.png
+            ├── Untitled (1)-1749269822525.png
+            ├── Untitled (1)-1749343760526.png
+            ├── Untitled (1)-1749344257179.png
+            ├── Untitled (1)-1749344275999.png
+            ├── Untitled (1)-1749344438232.png
+            ├── Untitled (1)-1749344772876.png
+            ├── Untitled (1)-1749344814252.png
+            ├── Untitled (1)-1749345029375.png
+            ├── Untitled (1)-1749345236348.png
+            ├── Untitled (1)-1749346944949.png
+            ├── photo_2025-06-04_12-26-19-1749344790806.jpg
+    └── routes
+        ├── authRoutes.js
+        ├── bookRoutes.js
+        ├── cartRoutes.js
+        ├── contactRoutes.js
+        ├── favoriteRoutes.js
+        ├── imageRoutes.js
+        ├── newsletterRoutes.js
+        ├── orderRoutes.js
+        ├── pagesRoutes.js
+        ├── squareRoutes.js
+        ├── userRoutes.js
+        ├── webhookRoutes.js
+    └── schemas
+        ├── authSchema.js
+        ├── bookSchema.js
+        ├── contactSchema.js
+    └── seeds
+        ├── seedSuperAdmin.js
+    └── services
+        ├── emailService.js
+        ├── squareService.js
+    └── utils
+        ├── logger.js

@@ -1,30 +1,35 @@
-// === pageThunks.js ===
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../../store/axios";
-import { showNotification } from "../slices/notificationSlice";
+// src/store/thunks/pageThunks.js
 
-// 1. Завантажити обидві версії контенту
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import axios from '../../store/axios';
+import {
+  showSuccess,
+  showError,
+  showTemporaryNotification,
+} from './notificationThunks';
+
+// 1. Завантажити опублікований і драфтовий контент
 export const fetchPageVersions = createAsyncThunk(
-  "pages/fetchPageVersions",
+  'pages/fetchPageVersions',
   async (slug, { rejectWithValue, dispatch }) => {
     try {
       const res = await axios.get(`/pages/${slug}`);
       return {
         slug,
-        published: res.data.content || "",
-        draft: res.data.draftContent || res.data.content || "",
+        published: res.data.content || '',
+        draft: res.data.draftContent || res.data.content || '',
       };
     } catch {
       const msg = `Failed to load page: ${slug}`;
-      dispatch(showNotification({ type: "error", message: msg }));
+      dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }
 );
 
-// 2. Зберегти лише чернетку
+// 2. Зберегти чернетку (не публікується)
 export const saveDraftContent = createAsyncThunk(
-  "pages/saveDraftContent",
+  'pages/saveDraftContent',
   async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
     try {
       await axios.put(
@@ -32,19 +37,19 @@ export const saveDraftContent = createAsyncThunk(
         { draftContent: content },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      dispatch(showNotification({ type: "info", message: `Draft saved for ${slug}` }));
+      dispatch(showTemporaryNotification({ type: 'info', message: `Draft saved for ${slug}` }));
       return { slug, content };
     } catch {
       const msg = `Failed to save draft for ${slug}`;
-      dispatch(showNotification({ type: "error", message: msg }));
+      dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }
 );
 
-// 3. Оновити (опублікувати) контент
+// 3. Зберегти і опублікувати сторінку
 export const updatePageContent = createAsyncThunk(
-  "pages/updatePageContent",
+  'pages/updatePageContent',
   async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
     try {
       await axios.put(
@@ -52,11 +57,11 @@ export const updatePageContent = createAsyncThunk(
         { content },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      dispatch(showNotification({ type: "success", message: `Changes published for ${slug}` }));
+      dispatch(showSuccess(`Changes published for ${slug}`));
       return { slug, content };
     } catch {
       const msg = `Failed to publish page: ${slug}`;
-      dispatch(showNotification({ type: "error", message: msg }));
+      dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }

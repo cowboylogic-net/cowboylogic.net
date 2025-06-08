@@ -2,22 +2,29 @@ import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { hideNotification } from "../../store/slices/notificationSlice";
 import styles from "./Notification.module.css";
+import {
+  selectNotificationMessage,
+  selectNotificationType,
+  selectNotificationVisible,
+} from "../../store/selectors/notificationSelectors";
 
 const Notification = () => {
   const dispatch = useDispatch();
-  const { message, type } = useSelector((state) => state.notification);
+  const message = useSelector(selectNotificationMessage);
+  const type = useSelector(selectNotificationType);
+  const isVisible = useSelector(selectNotificationVisible);
 
   useEffect(() => {
-    if (message) {
+    if (isVisible) {
       const timer = setTimeout(() => {
         dispatch(hideNotification());
       }, 3000);
 
       return () => clearTimeout(timer);
     }
-  }, [message, dispatch]);
+  }, [isVisible, dispatch]);
 
-  if (!message) return null;
+  if (!isVisible || !message) return null;
 
   return (
     <div className={`${styles.toast} ${styles[type]}`}>

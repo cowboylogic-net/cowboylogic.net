@@ -4,15 +4,15 @@ export const selectOrdersState = (state) => state.orders;
 
 export const selectAllOrders = createSelector(
   [selectOrdersState],
-  (ordersState) => ordersState.orders
+  (state) => state.orders
 );
 
 export const selectOrdersLoading = createSelector(
   [selectOrdersState],
-  (ordersState) => ordersState.loading
+  (state) => state.loading
 );
 
 export const selectOrdersError = createSelector(
   [selectOrdersState],
-  (ordersState) => ordersState.error
+  (state) => state.error
 );

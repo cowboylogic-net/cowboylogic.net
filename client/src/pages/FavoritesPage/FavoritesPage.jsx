@@ -1,8 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  fetchFavorites
-} from "../../store/thunks/favoritesThunks";
+import { fetchFavorites } from "../../store/thunks/favoritesThunks";
 import {
   selectFavorites,
   selectFavoritesLoading,
@@ -10,6 +8,7 @@ import {
 } from "../../store/selectors/favoritesSelectors";
 import { useNavigate } from "react-router-dom";
 import FavoriteButton from "../../components/FavoriteButton/FavoriteButton";
+import Loader from "../../components/Loader/Loader";
 import styles from "./FavoritesPage.module.css";
 
 const FavoritesPage = () => {
@@ -21,12 +20,10 @@ const FavoritesPage = () => {
   const error = useSelector(selectFavoritesError);
 
   useEffect(() => {
-    if (favorites.length === 0) {
-      dispatch(fetchFavorites());
-    }
-  }, [dispatch, favorites.length]);
+    dispatch(fetchFavorites());
+  }, [dispatch]);
 
-  if (loading) return <h2>Loading favorites...</h2>;
+  if (loading) return <Loader />;
   if (error) return <h2 style={{ color: "red" }}>{error}</h2>;
 
   return (

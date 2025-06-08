@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 
 import { fetchBookById } from "../../store/thunks/bookThunks";
 import { addToCartThunk } from "../../store/thunks/cartThunks";
-import { selectSelectedBook } from "../../store/selectors/bookSelectors";
+import { selectSelectedBook, selectLoadingFlags } from "../../store/selectors/bookSelectors";
 
 import styles from "./BookDetails.module.css";
 import FavoriteButton from "../../components/FavoriteButton/FavoriteButton";
@@ -14,9 +14,10 @@ const BookDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
 
-  const user = useSelector((state) => state.auth.user);
+  const { isFetchingById } = useSelector(selectLoadingFlags);
+  const error = useSelector((state) => state.books.error);
   const book = useSelector(selectSelectedBook);
-  const { isFetchingById, error } = useSelector((state) => state.books);
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     if (id) dispatch(fetchBookById(id));
@@ -67,7 +68,7 @@ const BookDetails = () => {
               Add to Cart
             </button>
             <button onClick={handleBuyNow} className="btn btn-outline">
-              Buy Now 💳
+              Buy Now
             </button>
             <FavoriteButton bookId={book.id} />
           </div>

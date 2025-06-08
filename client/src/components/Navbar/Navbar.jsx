@@ -1,10 +1,11 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import styles from "./Navbar.module.css";
-import clsx from "clsx";
-import searchIcon from "/assets/svg/search-icon.svg";
 import { useSelector } from "react-redux";
+import clsx from "clsx";
+import styles from "./Navbar.module.css";
+import searchIcon from "/assets/svg/search-icon.svg";
 import { ROLES } from "../../constants/roles";
+import { selectUser, selectIsAuth } from "../../store/selectors/authSelectors";
 
 const buildLinkClass = ({ isActive }) =>
   clsx(styles.navLink, isActive && styles.active);
@@ -18,7 +19,9 @@ const Navbar = () => {
   const clPublishingRef = useRef(null);
   const navbarRef = useRef(null);
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user);
+
+  const user = useSelector(selectUser);
+  const isAuth = useSelector(selectIsAuth);
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -110,7 +113,7 @@ const Navbar = () => {
             )}
           </div>
 
-          {user && [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role) && (
+          {user?.role && [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role) && (
             <NavLink to="/admin" className={buildLinkClass} onClick={handleCloseDropdown}>
               Admin Dashboard
             </NavLink>
@@ -122,13 +125,13 @@ const Navbar = () => {
         </nav>
 
         <div className={styles.navRight}>
-          {user && (
+          {isAuth && (
             <NavLink to="/profile" className={buildLinkClass}>
-              👤 
+              👤
             </NavLink>
           )}
           <NavLink to="/favorites" className={buildLinkClass}>
-            ❤️ 
+            ❤️
           </NavLink>
 
           <button

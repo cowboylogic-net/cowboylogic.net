@@ -9,6 +9,7 @@ import {
   selectOrdersLoading,
   selectOrdersError,
 } from "../../store/selectors/orderSelectors";
+import Loader from "../../components/Loader/Loader";
 import styles from "./Orders.module.css";
 
 const TEN_MINUTES = 10 * 60 * 1000;
@@ -16,19 +17,17 @@ const TEN_MINUTES = 10 * 60 * 1000;
 const Orders = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
-  const token = useSelector((state) => state.auth.token);
-
-  const orders = useSelector(selectAllOrders);
+    const orders = useSelector(selectAllOrders);
   const loading = useSelector(selectOrdersLoading);
   const error = useSelector(selectOrdersError);
   const lastFetched = useSelector((state) => state.orders.lastFetched);
 
   useEffect(() => {
     const isStale = !lastFetched || Date.now() - lastFetched > TEN_MINUTES;
-    if (user?.id && (orders.length === 0 || isStale)) {
+    if (user?.id && isStale) {
       dispatch(fetchOrders());
     }
-  }, [dispatch, user?.id, token, orders.length, lastFetched]);
+  }, [dispatch, user?.id, lastFetched]);
 
   const handleDeleteOrder = (orderId) => {
     if (window.confirm("Are you sure you want to delete this order?")) {
@@ -39,12 +38,12 @@ const Orders = () => {
   return (
     <div className={styles.ordersPage}>
       <h2>My Orders</h2>
-      {error && <p className={styles.error}>{error}</p>}
-      {loading ? (
-        <p>Loading...</p>
-      ) : orders.length === 0 ? (
-        <p>No orders yet.</p>
-      ) : (
+
+      {loading && <Loader />}
+      {!loading && error && <p className={styles.error}>{error}</p>}
+      {!loading && !error && orders.length === 0 && <p>No orders yet.</p>}
+
+      {!loading && !error && orders.length > 0 && (
         orders.map((order) => (
           <div key={order.id} className={styles.orderCard}>
             <h4>Order #{order.id}</h4>
@@ -73,4 +72,3 @@ const Orders = () => {
 };
 
 export default Orders;
-

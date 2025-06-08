@@ -10,11 +10,15 @@ import {
   updateBook,
   fetchBookById,
 } from "../../store/thunks/bookThunks";
-import { selectBookById } from "../../store/selectors/bookSelectors";
+import {
+  selectBookById,
+  selectLoadingFlags,
+} from "../../store/selectors/bookSelectors";
+
 import styles from "./BookForm.module.css";
 import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal";
+import Loader from "../Loader/Loader";
 
-// ✅ Yup schema
 const schema = yup.object().shape({
   title: yup.string().required("Title is required"),
   author: yup.string().required("Author is required"),
@@ -31,8 +35,11 @@ const BookForm = ({ onSuccess, onError }) => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const numericId = Number(id);
 
-  const existingBook = useSelector(selectBookById(Number(id)));
+  const existingBook = useSelector(selectBookById(numericId));
+  const { isCreating, isUpdating, isFetchingById } = useSelector(selectLoadingFlags);
+  const error = useSelector((state) => state.books.error);
 
   const {
     register,
@@ -56,12 +63,14 @@ const BookForm = ({ onSuccess, onError }) => {
   const [preview, setPreview] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
 
+  // ⏬ Завантажити книгу за ID, якщо не завантажена
   useEffect(() => {
-    if (id) {
-      dispatch(fetchBookById(id));
+    if (id && !existingBook) {
+      dispatch(fetchBookById(numericId));
     }
-  }, [dispatch, id]);
+  }, [dispatch, id, existingBook, numericId]);
 
+  // 🌀 Заповнити форму, коли зʼявилася книга
   useEffect(() => {
     if (existingBook) {
       reset({
@@ -105,7 +114,7 @@ const BookForm = ({ onSuccess, onError }) => {
 
     try {
       if (id) {
-        await dispatch(updateBook({ id, formData })).unwrap();
+        await dispatch(updateBook({ id: numericId, formData })).unwrap();
         onSuccess?.("✅ Book updated successfully");
       } else {
         await dispatch(createBook(formData)).unwrap();
@@ -117,9 +126,14 @@ const BookForm = ({ onSuccess, onError }) => {
     }
   };
 
+  if (isFetchingById) return <Loader />;
+  if (id && !existingBook) return <p className={styles.error}>Book not found</p>;
+  if (error) return <p className={styles.error}>{error}</p>;
+
   return (
     <div className={styles.bookForm}>
       <h2>{id ? "Edit Book" : "Add New Book"}</h2>
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="text" placeholder="Title" {...register("title")} />
         {errors.title && <p className={styles.error}>{errors.title.message}</p>}
@@ -128,14 +142,16 @@ const BookForm = ({ onSuccess, onError }) => {
         {errors.author && <p className={styles.error}>{errors.author.message}</p>}
 
         <textarea placeholder="Description" {...register("description")} />
-        {errors.description && (
-          <p className={styles.error}>{errors.description.message}</p>
-        )}
+        {errors.description && <p className={styles.error}>{errors.description.message}</p>}
 
         <input type="number" placeholder="Price" step="0.01" {...register("price")} />
         {errors.price && <p className={styles.error}>{errors.price.message}</p>}
 
-        <button type="button" className="btn btn-outline" onClick={() => setShowImageModal(true)}>
+        <button
+          type="button"
+          className="btn btn-outline"
+          onClick={() => setShowImageModal(true)}
+        >
           Choose Image
         </button>
 
@@ -151,7 +167,15 @@ const BookForm = ({ onSuccess, onError }) => {
           In Stock
         </label>
 
-        <button type="submit">{id ? "Update Book" : "Create Book"}</button>
+        <button type="submit" disabled={isCreating || isUpdating}>
+          {id
+            ? isUpdating
+              ? "Updating..."
+              : "Update Book"
+            : isCreating
+            ? "Creating..."
+            : "Create Book"}
+        </button>
       </form>
 
       {showImageModal && (

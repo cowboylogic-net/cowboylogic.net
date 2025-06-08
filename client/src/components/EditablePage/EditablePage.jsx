@@ -1,12 +1,12 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useCallback } from "react";
 import DOMPurify from "dompurify";
 import styles from "./EditablePage.module.css";
 
 import { ROLES } from "../../constants/roles";
 import EditableToolbar from "../../components/EditableToolbar/EditableToolbar";
 import ConfirmModal from "../../components/modals/ConfirmModal/ConfirmModal";
+import Loader from "../../components/Loader/Loader";
 
 import {
   fetchPageVersions,
@@ -19,6 +19,7 @@ import {
   selectPublishedContentBySlug,
   selectPageDraftSaving,
   selectPageUpdating,
+  selectPageFetching,
 } from "../../store/selectors/pageSelectors";
 
 const EditablePage = ({ slug, title }) => {
@@ -30,6 +31,7 @@ const EditablePage = ({ slug, title }) => {
   const published = useSelector(selectPublishedContentBySlug(slug));
   const isDraftSaving = useSelector(selectPageDraftSaving);
   const isUpdating = useSelector(selectPageUpdating);
+  const isFetching = useSelector(selectPageFetching);
 
   const [localContent, setLocalContent] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -62,9 +64,7 @@ const EditablePage = ({ slug, title }) => {
   const handleSaveDraft = useCallback(async () => {
     const cleanContent = DOMPurify.sanitize(localContent);
     try {
-      await dispatch(
-        saveDraftContent({ slug, content: cleanContent, token })
-      ).unwrap();
+      await dispatch(saveDraftContent({ slug, content: cleanContent, token })).unwrap();
     } catch (err) {
       console.error("Draft save failed:", err);
     }
@@ -90,9 +90,7 @@ const EditablePage = ({ slug, title }) => {
   const handleSave = async () => {
     const cleanContent = DOMPurify.sanitize(localContent);
     try {
-      await dispatch(
-        updatePageContent({ slug, content: cleanContent, token })
-      ).unwrap();
+      await dispatch(updatePageContent({ slug, content: cleanContent, token })).unwrap();
       setIsEditing(false);
       setIsPreviewing(false);
     } catch (err) {
@@ -117,6 +115,10 @@ const EditablePage = ({ slug, title }) => {
     setLocalContent(draft);
   };
 
+  if (isFetching || isDraftSaving || isUpdating) {
+    return <Loader />;
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.titleRow}>
@@ -129,7 +131,6 @@ const EditablePage = ({ slug, title }) => {
             >
               {isEditing ? "Cancel" : "Edit Page"}
             </button>
-
             {isEditing && (
               <button
                 className="btn btn-outline"

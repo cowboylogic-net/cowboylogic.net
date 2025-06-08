@@ -45,12 +45,12 @@ const TableInsertModal = ({ onInsert, onClose }) => {
             />
           </label>
           <div className={styles["modal-actions"]}>
-            <button type="submit" className={styles.btn}>
+            <button type="submit" className="btn btn-outline">
               Insert
             </button>
             <button
               type="button"
-              className={styles.btn}
+              className="btn btn-outline"
               onClick={onClose}
             >
               Cancel

@@ -51,6 +51,12 @@ const bookSlice = createSlice({
       .addCase(fetchBookById.fulfilled, (state, action) => {
         state.selectedBook = action.payload;
         state.isFetchingById = false;
+
+        // 🧠 Додаємо в books[], якщо її ще немає
+        const exists = state.books.find((b) => b.id === action.payload.id);
+        if (!exists) {
+          state.books.push(action.payload);
+        }
       })
       .addCase(fetchBookById.rejected, (state, action) => {
         state.error = action.payload;
@@ -79,9 +85,11 @@ const bookSlice = createSlice({
       .addCase(updateBook.fulfilled, (state, action) => {
         const index = state.books.findIndex((book) => book.id === action.payload.id);
         if (index !== -1) state.books[index] = action.payload;
+
         if (state.selectedBook?.id === action.payload.id) {
           state.selectedBook = action.payload;
         }
+
         state.isUpdating = false;
       })
       .addCase(updateBook.rejected, (state, action) => {
