@@ -31,16 +31,23 @@ pipeline {
       }
     }
 
-    stage('server/client code to DEV deployment dest') {
+    stage('server code to DEV deployment dest') {
       steps {
         bat """
           if not exist "${env.DEV_DEPLOY_SERVER_DIR}" (
             mkdir "${env.DEV_DEPLOY_SERVER_DIR}"
           )
+          robocopy ${env.CODEBASE_SERVER_DIR} ${env.DEV_DEPLOY_SERVER_DIR} /MIR /NFL /NDL /NJH /NJS /NP
+        """
+      }
+    }
+
+    stage('client code to DEV deployment dest') {
+      steps {
+        bat """
           if not exist "${env.DEV_DEPLOY_CLIENT_DIR}" (
             mkdir "${env.DEV_DEPLOY_CLIENT_DIR}"
           )
-          robocopy ${env.CODEBASE_SERVER_DIR} ${env.DEV_DEPLOY_SERVER_DIR} /MIR /NFL /NDL /NJH /NJS /NP
           robocopy ${env.CODEBASE_CLIENT_DIR} ${env.DEV_DEPLOY_CLIENT_DIR} /MIR /NFL /NDL /NJH /NJS /NP
         """
       }
