@@ -1,19 +1,45 @@
-import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { apiService } from "../../services/axiosService";
 import { showNotification } from "../../store/slices/notificationSlice"; // ✅
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
 import styles from "./Newsletter.module.css";
 
 const Newsletter = () => {
-  const [subject, setSubject] = useState("");
-  const [content, setContent] = useState("");
   const dispatch = useDispatch();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const schema = yup.object().shape({
+    subject: yup
+      .string()
+      .trim()
+      .min(3, "Subject is too short")
+      .required("Subject is required"),
+    content: yup
+      .string()
+      .trim()
+      .min(10, "Content is too short")
+      .required("Content is required"),
+  });
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm({ resolver: yupResolver(schema) });
+
+  const onSubmit = async (data) => {
     try {
-      await apiService.post("/newsletter/send", { subject, content }, true);
-      dispatch(showNotification({ message: "✅ Newsletter sent successfully", type: "success" }));
+      await apiService.post("/newsletter/send", data, true);
+      reset();
+      dispatch(
+        showNotification({
+          message: "✅ Newsletter sent successfully",
+          type: "success",
+        })
+      );
+      reset();
     } catch (err) {
       dispatch(
         showNotification({
@@ -27,26 +53,26 @@ const Newsletter = () => {
   return (
     <div className={styles.container}>
       <h2>Send Newsletter</h2>
-      <form onSubmit={handleSubmit} className={styles.form}>
+      <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         <label>
           Subject:
-          <input
-            type="text"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            required
-          />
+          <input type="text" {...register("subject")} />
+          {errors.subject && (
+            <p className={styles.error}>{errors.subject.message}</p>
+          )}
         </label>
+
         <label>
           Content (HTML allowed):
-          <textarea
-            rows={10}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            required
-          ></textarea>
+          <textarea rows={10} {...register("content")} />
+          {errors.content && (
+            <p className={styles.error}>{errors.content.message}</p>
+          )}
         </label>
-        <button type="submit">Send Newsletter</button>
+
+        <button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? "Sending..." : "Send Newsletter"}
+        </button>
       </form>
     </div>
   );

@@ -40,8 +40,14 @@ export const fetchCurrentUser = createAsyncThunk(
 // 🚪 Logout thunk → очищення Redux і localStorage
 export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
-  async (_, { dispatch }) => {
-    dispatch(logout());
-    dispatch(showNotification({ type: 'success', message: 'Logged out' }));
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      dispatch(logout());
+      dispatch(showNotification({ type: 'success', message: 'Logged out' }));
+    } catch (err) {
+      const msg = err.message || 'Logout failed';
+      dispatch(showNotification({ type: 'error', message: msg }));
+      return rejectWithValue(msg);
+    }
   }
 );

@@ -6,6 +6,11 @@
 - [x] Google Login інтегровано
 - [x] Role-based routing (`AdminRoute`, `PrivateRoute`)
 - [ ] Валідація форм (Reset, Register, AddBook, EditBook, Newsletter)
+  - [x] `ResetPasswordForm` — валідація реалізована (Yup)
+  - [x] `RegisterForm` — валідація реалізована (Yup)
+  - [ ] `AddBook` — ❌ валідація відсутня
+  - [ ] `EditBook` — ❌ валідація відсутня
+  - [ ] `Newsletter` — ❌ валідація відсутня
 
 ## 🌍 Мультимовність / Internationalization
 
