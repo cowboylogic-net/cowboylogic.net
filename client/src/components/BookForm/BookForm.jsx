@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import { useTranslation } from "react-i18next";
 
 import {
   createBook,
@@ -19,23 +20,24 @@ import styles from "./BookForm.module.css";
 import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal";
 import Loader from "../Loader/Loader";
 
-const schema = yup.object().shape({
-  title: yup.string().required("Title is required"),
-  author: yup.string().required("Author is required"),
-  description: yup.string(),
-  price: yup
-    .number()
-    .typeError("Price must be a number")
-    .positive("Price must be positive")
-    .required("Price is required"),
-  inStock: yup.boolean(),
-});
-
 const BookForm = ({ onSuccess, onError }) => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const numericId = Number(id);
+
+  const schema = yup.object().shape({
+    title: yup.string().required(t("bookForm.titleRequired")),
+    author: yup.string().required(t("bookForm.authorRequired")),
+    description: yup.string(),
+    price: yup
+      .number()
+      .typeError(t("bookForm.priceType"))
+      .positive(t("bookForm.pricePositive"))
+      .required(t("bookForm.priceRequired")),
+    inStock: yup.boolean(),
+  });
 
   const existingBook = useSelector(selectBookById(numericId));
   const { isCreating, isUpdating, isFetchingById } = useSelector(selectLoadingFlags);
@@ -63,14 +65,12 @@ const BookForm = ({ onSuccess, onError }) => {
   const [preview, setPreview] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
 
-  // ⏬ Завантажити книгу за ID, якщо не завантажена
   useEffect(() => {
     if (id && !existingBook) {
       dispatch(fetchBookById(numericId));
     }
   }, [dispatch, id, existingBook, numericId]);
 
-  // 🌀 Заповнити форму, коли зʼявилася книга
   useEffect(() => {
     if (existingBook) {
       reset({
@@ -115,36 +115,41 @@ const BookForm = ({ onSuccess, onError }) => {
     try {
       if (id) {
         await dispatch(updateBook({ id: numericId, formData })).unwrap();
-        onSuccess?.("✅ Book updated successfully");
+        onSuccess?.(t("bookForm.successUpdate"));
       } else {
         await dispatch(createBook(formData)).unwrap();
-        onSuccess?.("✅ Book created successfully");
+        onSuccess?.(t("bookForm.successCreate"));
       }
       navigate("/bookstore");
     } catch (err) {
-      onError?.(err || "❌ Failed to save book");
+      onError?.(err || t("bookForm.failSave"));
     }
   };
 
   if (isFetchingById) return <Loader />;
-  if (id && !existingBook) return <p className={styles.error}>Book not found</p>;
+  if (id && !existingBook) return <p className={styles.error}>{t("bookForm.notFound")}</p>;
   if (error) return <p className={styles.error}>{error}</p>;
 
   return (
     <div className={styles.bookForm}>
-      <h2>{id ? "Edit Book" : "Add New Book"}</h2>
+      <h2>{id ? t("bookForm.edit") : t("bookForm.add")}</h2>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <input type="text" placeholder="Title" {...register("title")} />
+        <input type="text" placeholder={t("bookForm.title")} {...register("title")} />
         {errors.title && <p className={styles.error}>{errors.title.message}</p>}
 
-        <input type="text" placeholder="Author" {...register("author")} />
+        <input type="text" placeholder={t("bookForm.author")} {...register("author")} />
         {errors.author && <p className={styles.error}>{errors.author.message}</p>}
 
-        <textarea placeholder="Description" {...register("description")} />
+        <textarea placeholder={t("bookForm.description")} {...register("description")} />
         {errors.description && <p className={styles.error}>{errors.description.message}</p>}
 
-        <input type="number" placeholder="Price" step="0.01" {...register("price")} />
+        <input
+          type="number"
+          placeholder={t("bookForm.price")}
+          step="0.01"
+          {...register("price")}
+        />
         {errors.price && <p className={styles.error}>{errors.price.message}</p>}
 
         <button
@@ -152,29 +157,29 @@ const BookForm = ({ onSuccess, onError }) => {
           className="btn btn-outline"
           onClick={() => setShowImageModal(true)}
         >
-          Choose Image
+          {t("bookForm.chooseImage")}
         </button>
 
         {preview && (
           <div className={styles.preview}>
-            <p>Image Preview:</p>
+            <p>{t("bookForm.imagePreview")}</p>
             <img src={preview} alt="Preview" className={styles.previewImage} />
           </div>
         )}
 
         <label>
           <input type="checkbox" {...register("inStock")} />
-          In Stock
+          {t("bookForm.inStock")}
         </label>
 
         <button type="submit" disabled={isCreating || isUpdating}>
           {id
             ? isUpdating
-              ? "Updating..."
-              : "Update Book"
+              ? t("bookForm.updating")
+              : t("bookForm.update")
             : isCreating
-            ? "Creating..."
-            : "Create Book"}
+            ? t("bookForm.creating")
+            : t("bookForm.create")}
         </button>
       </form>
 

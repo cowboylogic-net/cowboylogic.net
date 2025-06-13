@@ -1,16 +1,19 @@
 {
-  "login": {
-    "title": "Login",
-    "email": "Email",
-    "password": "Password",
-    "continue": "Continue",
-    "codeSent": "Verification code sent to your email.",
-    "loginFailed": "Login failed",
-    "codePlaceholder": "Enter verification code",
-    "verify": "Verify",
-    "codeInvalid": "Invalid or expired code",
-    "googleSuccess": "Logged in with Google!",
-    "googleFailed": "Google login failed",
-    "welcomeBack": "Welcome back!"
-  }
+  "title": "Login",
+  "registerTitle": "Register",
+  "email": "Email",
+  "password": "Password",
+  "continue": "Continue",
+  "verify": "Verify",
+  "loggingIn": "Logging in...",
+  "codePlaceholder": "Enter verification code",
+  "codeSent": "Verification code sent to your email.",
+  "codeInvalid": "Invalid or expired code",
+  "loginFailed": "Login failed",
+  "registerFailed": "Registration failed",
+  "registered": "Account created successfully!",
+  "registering": "Registering...",
+  "welcomeBack": "Welcome back!",
+  "googleSuccess": "Logged in with Google!",
+  "googleFailed": "Google login failed"
 }

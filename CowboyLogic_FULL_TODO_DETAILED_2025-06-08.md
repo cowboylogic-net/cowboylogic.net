@@ -1,122 +1,85 @@
+# ✅ TODO для фронту / Frontend TODO (v2025-06-12 — fully verified)
 
-# 📋 CowboyLogic: Full TODO (Detailed & Verified) / Повний Тудушник (Фактологічний Аналіз)
+## 🔐 Аутентифікація / Authentication
 
-_Last full scan: 2025-06-08
+- [x] Login + 2FA реалізовано (`LoginForm.jsx`, `request-code`, `verify-code`)
+- [x] Google Login інтегровано (`POST /api/google`)
+- [x] Role-based routing (`AdminRoute`, `PrivateRoute`)
+- [x] Валідація форм через Yup:
+  - [x] ResetPasswordForm
+  - [x] RegisterForm
+  - [x] AddBook (через BookForm)
+  - [x] EditBook (через BookForm)
+  - [x] Newsletter
 
----
+## 🌍 Мультимовність / Internationalization
 
-## ✅ GENERAL STATUS
+- [x] Перекладено: LoginForm, Header, LanguageSwitcher
+- [x] Перекласти: Navbar, Footer, CartPage, FavoritesPage, AdminDashboard
+- [x] Перекласти модалки: ConfirmModal, ImageInsertModal, TableInsertModal, LinkInsertModal
+- [x] Додати i18n для Notification і повідомлень помилок (formik/yup)
 
-- 🔍 All 3 ZIP archives analyzed (`client`, `server`, `full_project`)
-- 📁 Client folder is nested under `client/client/`
-- 🧠 All Redux slices, pages, and components are physically present
-- 🧪 Test files are **not** present — testing still not implemented
-- 🛡 Security logic confirmed via backend structure and middleware
+- [x] Navbar
+- [x] BookCard
+- [x] BookDetails
+- [x] CartPage
+- [x] FavoritesPage
+- [x] OrdersPage
+- [x] Footer
+- [x] Notification
+- [x] EditablePage
+- [x] AdminDashboard
+- [x] AdminUserManagement
+- [x] BookForm
+- [x] SuccessPage / CancelPage
+- [x] Search
+- [ ] NotFoundPage
 
----
+## 📦 Redux Toolkit
 
-### 🧩 FRONTEND TODO (Detailed)
+- [x] Реалізовано всі слайси: auth, cart, book, favorites, orders, page, notification
+- [x] Всі асинхронні санки присутні: fetch, create, update, delete
+- [x] Помилки обробляються через try/catch у всіх санках
 
-#### 🔐 Authentication
+## ✍️ Editable Pages
 
-- [x] Login + 2FA (`LoginForm.jsx`, `authThunks.js`)
-- [x] Google Login (`/auth/google`)
-- [x] Role-based routing (`AdminRoute.jsx`, `PrivateRoute.jsx`)
-- [ ] ⏳ Form validation (partial)
-  - [x] `ResetPasswordForm` — implemented (Yup)
-  - [x] `RegisterForm` — implemented (Yup)
-  - [x] `AddBook` — missing
-  - [x] `EditBook` — missing
-  - [x] `Newsletter` — missing
+- [x] EditablePage з Toolbar
+- [x] Автозбереження драфтів (через debounce + saveDraft)
+- [x] `isDirty` перевірка перед збереженням
+- [x] Підтримка draftContent і `/pages/:slug/draft`
+- [x] Підтримка версій (`/pages/:slug/versions`)
+- [x] Вставка зображень, лінків, таблиць
+- [x] ConfirmModal реалізовано (але вставка HTML не підтверджується — UX-дизайн)
+- [x] Переклад усіх модалок
+- [x] Рефактор попереджень і банерів (cancelDraft банер не завжди ховається)
 
-#### 🌍 i18n
+## 💳 Оплата / Payment Integration
 
-- [x] LoginForm and LanguageSwitcher implemented
-- [x] `i18n.js` + locales/en + locales/es present
-- [ ] ❗ Translate Footer, Navbar, Cart, FavoritesPage, AdminDashboard
-- [ ] ❗ Translate all modals: `ConfirmModal`, `ImageInsertModal`, etc.
-- [ ] ❗ Add i18n to Notification system and form errors
-
-#### 📦 Redux
-
-- [x] All slices present
-- [x] All thunks present
-- [x] ✅ Error handling added to all thunks (try/catch)
-
-#### ✍️ Editable Pages
-
-- [x] EditablePage with working toolbar
-- [x] Modals for image, link, confirm
-- [x] `/pages/:slug`, `/draft`, `/versions` support
-- [x] Autosave implemented via `debounce` + `saveDraft`
-- [x] Improve autosave: debounce + isDirty check implemented
-- [x] Confirm before HTML insert — **skipped by design (UX decision)**
-- [x] Draft rendering preview polished: correct cursor handling on return from preview
-- [ ] Fix bugs: Oleg
-
-#### 💳 Payments
-
-- [x] Square logic implemented (`create-checkout-session`)
 - [x] SuccessPage, CancelPage
-- [ ] ❗ Show spinner during payment
-- [ ] ❗ Clear cart on payment success
+- [x] `paymentService.js` з create-checkout-session
+- [ ] Додати spinner під час транзакцій
+- [ ] Зняти книги з кошика після успішної оплати
 
-#### 📱 UI/UX
+## 🧪 Тестування / Testing
 
-- [ ] Improve mobile modals
-- [ ] Fix hover states on links, navbar, buttons
-- [ ] Add alt-text to all `<img>`
-- [ ] Add react-helmet
-- [ ] Add 404 fallback
-- [ ] Lazy load Orders, BookDetails
+- [ ] Немає тестів у репозиторії
+- [ ] Додати Vitest або React Testing Library
+- [ ] Написати юніт-тести для Redux slices
+- [ ] Snapshot-тести для BookList, EditablePage
 
-#### 🧪 Testing
+## 📱 UX/UI покращення
 
-- [ ] Add Vitest or RTL
-- [ ] Unit tests for Redux slices
-- [ ] Snapshot tests for BookList, EditablePage
+- [ ] alt-тексти для зображень (у BookCard, Slider, Header і т.д.)
+- [ ] react-helmet для SEO
+- [ ] hover-ефекти (посилання, кнопки, мовні перемикачі)
+- [ ] адаптивність модалок (особливо в `modals/`)
+- [ ] UX Checkout: loading, redirect, error handling
+- [ ] fallback сторінка 404
+- [ ] Lazy load для Orders, BookDetails
 
-## 🛠 BACKEND TODO (Detailed)
+## 🧩 Інше / Misc
 
-### ✅ Implemented
-
-- [x] Favorite controller + routes + model
-- [x] resetPasswordController.js
-- [x] Square integration: squareController.js + webhook
-- [x] Upload via uploadMiddleware.js with MIME/type check
-- [x] Role-based middleware: protect, requireRole, isAdmin, isSuperAdmin
-
-### 🔐 Security Enhancements
-
-- [x] 2FA via email codes
-- [x] tokenVersion support in controller (migration pending)
-- [x] Brute-force limiter: authLimiter.js
-- [ ] ❗ CSRF protection (for cookie-based auth)
-- [ ] ❗ Email login/change notifications
-- [ ] ⏳ Session audit (IP/user-agent logging)
-- [ ] ⏳ Swagger or OpenAPI spec
-
-### 📚 Store Features
-
-- [ ] ✅ Implement pagination for BookList / магазин
-- [ ] ✅ Optimize uploaded images (resize, compress before upload)
-- [ ] ✅ Add history of user orders (`GET /orders` by user ID)
-
-### 🔁 TokenVersion Migration (Planned)
-
-- [ ] Migration file creation for tokenVersion in User
-- [ ] Apply migration and update seedSuperAdmin
-- [ ] Remove try/catch fallback in server.js
-
-### 🧪 Tests
-
-- [x] /auth, /reset-password, /webhook/square
-- [ ] ❗ Add tests for Favorites, Upload, Editable Pages (pagesController)
-
-### 📘 Documentation
-
-- [x] api_documentation.md present
-- [ ] ❗ POST body examples still missing
-- [ ] ❗ Server README lacks updated feature list
-
----
+- [x] FavoritesPage реалізована
+- [x] UserManagement.jsx реалізована
+- [x] Notification система є
+- [x] Валідація перед збереженням редагованих сторінок (`EditablePage`)

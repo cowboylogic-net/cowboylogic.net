@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { ROLES } from "../../constants/roles";
 import { apiService } from "../../services/axiosService";
 import { showNotification } from "../../store/slices/notificationSlice";
@@ -8,6 +9,7 @@ import styles from "./UserManagement.module.css";
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const fetchUsers = useCallback(async () => {
     try {
@@ -16,10 +18,10 @@ const UserManagement = () => {
     } catch (err) {
       console.error("Failed to fetch users", err);
       dispatch(
-        showNotification({ message: "❌ Failed to fetch users", type: "error" })
+        showNotification({ message: t("users.fetchError"), type: "error" })
       );
     }
-  }, [dispatch]);
+  }, [dispatch, t]);
 
   useEffect(() => {
     fetchUsers();
@@ -30,12 +32,12 @@ const UserManagement = () => {
       await apiService.patch(`/users/${id}/role`, { role: newRole }, true);
       fetchUsers();
       dispatch(
-        showNotification({ message: "✅ User role updated", type: "success" })
+        showNotification({ message: t("users.roleUpdated"), type: "success" })
       );
     } catch (err) {
       dispatch(
         showNotification({
-          message: err.response?.data?.message || "❌ Update failed",
+          message: err.response?.data?.message || t("users.updateFailed"),
           type: "error",
         })
       );
@@ -43,17 +45,17 @@ const UserManagement = () => {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    if (!window.confirm(t("users.confirmDelete"))) return;
     try {
       await apiService.delete(`/users/${id}`, true);
       fetchUsers();
       dispatch(
-        showNotification({ message: "✅ User deleted", type: "success" })
+        showNotification({ message: t("users.userDeleted"), type: "success" })
       );
     } catch (err) {
       dispatch(
         showNotification({
-          message: err.response?.data?.message || "❌ Delete failed",
+          message: err.response?.data?.message || t("users.deleteFailed"),
           type: "error",
         })
       );
@@ -62,14 +64,14 @@ const UserManagement = () => {
 
   return (
     <div className={styles.container}>
-      <h2>User Management</h2>
+      <h2>{t("users.managementTitle")}</h2>
       <table className={styles.userTable}>
         <thead>
           <tr>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Created</th>
-            <th>Actions</th>
+            <th>{t("users.email")}</th>
+            <th>{t("users.role")}</th>
+            <th>{t("users.createdAt")}</th>
+            <th>{t("users.actions")}</th>
           </tr>
         </thead>
         <tbody>
@@ -81,21 +83,23 @@ const UserManagement = () => {
               </td>
               <td>
                 {u.isSuperAdmin ? (
-                  <strong>super admin</strong>
+                  <strong>{t("users.superAdmin")}</strong>
                 ) : (
                   <select
                     value={u.role}
                     onChange={(e) => handleRoleChange(u.id, e.target.value)}
                   >
-                    <option value={ROLES.USER}>user</option>
-                    <option value={ROLES.ADMIN}>admin</option>
+                    <option value={ROLES.USER}>{t("users.user")}</option>
+                    <option value={ROLES.ADMIN}>{t("users.admin")}</option>
                   </select>
                 )}
               </td>
               <td>{new Date(u.createdAt).toLocaleDateString()}</td>
               <td>
                 {!u.isSuperAdmin && (
-                  <button onClick={() => handleDelete(u.id)}>Delete</button>
+                  <button onClick={() => handleDelete(u.id)}>
+                    {t("users.delete")}
+                  </button>
                 )}
               </td>
             </tr>

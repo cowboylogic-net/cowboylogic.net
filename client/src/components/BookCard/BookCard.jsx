@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import styles from "./BookCard.module.css";
 import FavoriteButton from "../FavoriteButton/FavoriteButton";
 
@@ -10,6 +11,8 @@ const BookCard = ({
   isAdmin,
   isLoggedIn,
 }) => {
+  const { t } = useTranslation();
+
   const getImageUrl = (url) => {
     if (!url) return "/fallback-image.png";
     if (url.startsWith("http")) return url;
@@ -28,8 +31,8 @@ const BookCard = ({
       <div className={styles.info}>
         {isAdmin && (
           <div className={styles.actions}>
-            <button onClick={() => onEdit(book.id)}>Edit</button>
-            <button onClick={() => onDeleteClick(book.id)}>Delete</button>
+            <button onClick={() => onEdit(book.id)}>{t("book.edit")}</button>
+            <button onClick={() => onDeleteClick(book.id)}>{t("book.delete")}</button>
           </div>
         )}
 
@@ -39,7 +42,9 @@ const BookCard = ({
 
         <p>{book.author}</p>
         <p>${book.price}</p>
-        <p>{book.inStock ? "In Stock" : "Out of Stock"}</p>
+        <p>
+          {book.inStock ? t("book.inStock") : t("book.outOfStock")}
+        </p>
 
         {isLoggedIn && (
           <div className={styles.actionRow}>
@@ -47,7 +52,7 @@ const BookCard = ({
               onClick={() => onAddToCart(book.id)}
               className={styles.actionButton}
             >
-              Add to Cart
+              {t("book.addToCart")}
             </button>
             <FavoriteButton bookId={book.id} small />
           </div>
@@ -58,4 +63,3 @@ const BookCard = ({
 };
 
 export default BookCard;
-

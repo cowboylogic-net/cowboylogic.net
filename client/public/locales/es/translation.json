@@ -1,0 +1,278 @@
+{
+  "welcome": "Bienvenido a CowboyLogic",
+  "edit": "Editar",
+  "save": "Guardar",
+  "cancel": "Cancelar",
+  "insertImage": "Insertar imagen",
+  "clearFormatting": "Borrar formato",
+  "clearAll": "Limpiar todo",
+  "modals": {
+    "chooseImage": "Elegir imagen",
+    "or": "o",
+    "enterUrl": "Ingresar URL de la imagen...",
+    "widthPlaceholder": "Ancho (px)",
+    "heightPlaceholder": "Alto (px)",
+    "originalSize": "Original: {{w}}×{{h}}",
+    "reset": "Restablecer",
+    "keepRatio": "Mantener proporción",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "insertLinkTitle": "Insertar enlace",
+    "linkPlaceholder": "Ingresa la URL...",
+    "insert": "Insertar",
+    "clearAllTitle": "Borrar todo el contenido",
+    "clearAllMessage": "¿Estás seguro de que deseas borrar todo el contenido?",
+    "clearAllConfirm": "Sí, borrar",
+    "insertConfirmTitle": "¿Insertar {{type}}?",
+    "table": "tabla",
+    "link": "enlace",
+    "discardTitle": "¿Descartar cambios?",
+    "discardMessage": "Tienes cambios sin guardar. ¿Estás seguro de que deseas cancelar la edición?",
+    "deleteBookMessage": "¿Estás seguro de que deseas eliminar este libro?",
+    "delete": "Eliminar",
+    "insertTableTitle": "Insertar tabla",
+    "rows": "Filas",
+    "columns": "Columnas"
+  },
+  "navbar": {
+    "home": "Inicio",
+    "about": "Acerca de",
+    "clStrategies": "Estrategias CL",
+    "clStrategiesHome": "Inicio Estrategias CL",
+    "ccConsulting": "Cowboy College Consultoría",
+    "ccStartup": "Cowboy College Start-up",
+    "ccLeadership": "Cowboy College Liderazgo",
+    "clPublishing": "CL Publicaciones",
+    "clPublishingHome": "Inicio CL Publicaciones",
+    "ccPubAuthor": "Cowboy College Pub/Autor",
+    "b2bBookstores": "Librerías B2B",
+    "adminDashboard": "Panel de Admin",
+    "bookStore": "Tienda de Libros CLP",
+    "searchPlaceholder": "Buscar..."
+  },
+  "book": {
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "inStock": "Disponible",
+    "outOfStock": "Agotado",
+    "loading": "Cargando...",
+    "byAuthor": "Por {{author}}",
+    "addToCart": "Agregar al carrito",
+    "buyNow": "Comprar ahora",
+    "favorite": "Agregar a favoritos",
+    "unfavorite": "Quitar de favoritos"
+  },
+  "cart": {
+    "title": "Mi carrito",
+    "loading": "Cargando carrito...",
+    "empty": "Tu carrito está vacío.",
+    "total": "Total",
+    "checkout": "Pagar con Square 💳",
+    "quantityUpdated": "Cantidad actualizada",
+    "quantityUpdateError": "Error al actualizar la cantidad",
+    "itemRemoved": "Producto eliminado del carrito",
+    "itemRemoveError": "Error al eliminar el producto",
+    "checkoutError": "Error al procesar el pago con Square",
+    "remove": "Eliminar",
+    "removing": "Eliminando..."
+  },
+  "bookForm": {
+    "add": "Agregar nuevo libro",
+    "edit": "Editar libro",
+    "title": "Título",
+    "author": "Autor",
+    "description": "Descripción",
+    "price": "Precio",
+    "inStock": "En stock",
+    "chooseImage": "Elegir imagen",
+    "imagePreview": "Vista previa de la imagen:",
+    "create": "Crear libro",
+    "creating": "Creando...",
+    "update": "Actualizar libro",
+    "updating": "Actualizando...",
+    "titleRequired": "Se requiere título",
+    "authorRequired": "Se requiere autor",
+    "priceRequired": "Se requiere precio",
+    "pricePositive": "El precio debe ser positivo",
+    "priceType": "El precio debe ser un número",
+    "successCreate": "✅ Libro creado exitosamente",
+    "successUpdate": "✅ Libro actualizado exitosamente",
+    "failSave": "❌ Error al guardar el libro",
+    "notFound": "Libro no encontrado"
+  },
+  "favorites": {
+    "heading": "Mis libros favoritos",
+    "empty": "Aún no tienes favoritos.",
+    "inStock": "Disponible",
+    "outOfStock": "Agotado"
+  },
+  "header": {
+    "tagline": "Estrategias/Publicaciones CowboyLogic"
+  },
+  "userMenu": {
+    "cart": "Carrito",
+    "orders": "Mis pedidos",
+    "profile": "Mi perfil",
+    "welcome": "Bienvenido, {{email}}",
+    "logout": "Cerrar sesión",
+    "login": "Iniciar sesión",
+    "register": "Registrarse"
+  },
+  "footer": {
+    "navigation": "Navegación",
+    "contact": "Contáctanos",
+    "about": "Acerca de",
+    "consulting": "Consultoría",
+    "followUs": "Síguenos",
+    "newsletter": "Mantente informado",
+    "copyright": "Copyright © {{year}}",
+    "rights": "Todos los derechos reservados."
+},
+  "newsletter": {
+    "label": "Suscríbete a nuestro boletín:",
+    "placeholder": "Tu correo electrónico",
+    "button": "Suscribirse",
+    "success": "✅ ¡Suscripción exitosa!",
+    "error": "❌ Error al suscribirse. Inténtalo de nuevo."
+},
+  "editable": {
+    "edit": "Editar página",
+    "cancel": "Cancelar",
+    "preview": "Vista previa",
+    "backToEdit": "Volver a editar",
+    "saveDraft": "Guardar borrador",
+    "publish": "Publicar",
+    "banner": {
+      "previewingDraft": "Estás viendo un borrador guardado. Este contenido aún no está publicado.",
+      "draftExists": "Existe una versión en borrador. Haz clic en “Editar página” para revisarla y publicarla.",
+      "previewingPublished": "Vista previa de la versión publicada actual."
+    },
+    "emptyContentError": "❌ El contenido no puede estar vacío o solo contener formato."
+},
+
+  "toolbar": {
+    "bold": "Negrita",
+    "italic": "Cursiva",
+    "underline": "Subrayado",
+    "strikethrough": "Tachado",
+    "superscript": "Superíndice",
+    "subscript": "Subíndice",
+    "alignLeft": "Alinear a la izquierda",
+    "alignCenter": "Centrar",
+    "alignRight": "Alinear a la derecha",
+    "heading": "Encabezado",
+    "paragraph": "Párrafo",
+    "heading1": "Encabezado 1",
+    "heading2": "Encabezado 2",
+    "heading3": "Encabezado 3",
+    "blockquote": "Cita",
+    "pre": "Bloque de código",
+    "bulletList": "Lista con viñetas",
+    "numberedList": "Lista numerada",
+    "insertTable": "Insertar tabla",
+    "insertLink": "Insertar enlace",
+    "insertImage": "Insertar imagen",
+    "insertLine": "Insertar línea",
+    "textColor": "Color del texto",
+    "highlight": "Resaltar",
+    "undo": "Deshacer",
+    "redo": "Rehacer",
+    "clearFormatting": "Quitar formato",
+    "clearAll": "Borrar todo"
+},
+ "orders": {
+    "title": "Mis pedidos",
+    "noOrders": "Aún no hay pedidos.",
+    "orderNumber": "Pedido #{{id}}",
+    "status": "Estado",
+    "total": "Total",
+    "pcs": "uds",
+    "cancel": "Cancelar pedido",
+    "confirmDelete": "¿Estás seguro de que deseas eliminar este pedido?"
+  },
+  "profile": {
+    "title": "Mi perfil",
+    "email": "Correo electrónico",
+    "role": "Rol",
+    "favorites": "❤️ Favoritos",
+    "changePassword": "Cambiar contraseña"
+  },
+  "resetPassword": {
+    "title": "Restablecer la contraseña",
+    "currentPlaceholder": "Contraseña actual",
+    "newPlaceholder": "Nueva contraseña",
+    "button": "Actualizar contraseña",
+    "success": "✅ Contraseña actualizada y correo de confirmación enviado. Cerrando sesión...",
+    "error": "❌ Error al actualizar la contraseña"
+  },
+  
+  "auth": {
+    "success": "✅ ¡Inicio de sesión exitoso!",
+    "error": "❌ Correo electrónico o contraseña inválidos"
+  },
+  "admin": {
+    "accessDenied": "❌ Acceso denegado",
+    "dashboardTitle": "Panel de Administración",
+    "addBook": "Agregar Nuevo Libro",
+    "userManagement": "Gestión de Usuarios",
+    "sendNewsletter": "Enviar Boletín"
+  },
+  "users": {
+    "managementTitle": "Gestión de Usuarios",
+    "email": "Correo electrónico",
+    "role": "Rol",
+    "createdAt": "Creado",
+    "actions": "Acciones",
+    "user": "usuario",
+    "admin": "administrador",
+    "superAdmin": "super administrador",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Está seguro de que desea eliminar este usuario?",
+    "fetchError": "❌ Error al obtener usuarios",
+    "roleUpdated": "✅ Rol del usuario actualizado",
+    "updateFailed": "❌ Error al actualizar",
+    "userDeleted": "✅ Usuario eliminado",
+    "deleteFailed": "❌ Error al eliminar"
+  },
+  "search": {
+    "resultsFor": "Resultados de búsqueda para \"{{query}}\"",
+    "noResults": "No se encontraron resultados"
+},
+  "success": {
+    "title": "🎉 ¡Pago exitoso!",
+    "confirmed": "Tu pedido #{{orderId}} ha sido confirmado.\n¡Gracias por tu compra!",
+    "redirect": "Serás redirigido a tus pedidos en breve...",
+    "viewOrders": "Ver pedidos ahora",
+    "missingTokenTitle": "⚠️ Token faltante",
+    "missingTokenText": "Debes iniciar sesión para confirmar tu pedido.",
+    "goToLogin": "Ir a iniciar sesión",
+    "errorTitle": "⚠️ Error",
+    "tryAgain": "Intentar de nuevo"
+},
+  "contact": {
+    "title": "Contáctanos",
+    "firstNamePlaceholder": "Nombre*",
+    "lastNamePlaceholder": "Apellido*",
+    "emailPlaceholder": "Correo electrónico*",
+    "commentPlaceholder": "Comentario",
+    "submit": "Enviar",
+    "success": "✅ ¡Mensaje enviado con éxito!",
+    "error": "❌ Error al enviar el mensaje"
+  },
+  "cancel": {
+    "title": "Pago cancelado",
+    "description": "Algo salió mal o cancelaste el proceso de pago.",
+    "redirectInfo": "Serás redirigido a tu carrito en 5 segundos.",
+    "button": "Volver al carrito ahora",
+    "notification": "El pago fue cancelado. Redirigiendo al carrito..."
+  },
+  "bookstore": {
+    "title": "Librería CLP",
+    "addBook": "Agregar libro"
+  }
+}
+
+
+
+
+

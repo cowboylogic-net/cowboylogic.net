@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { showNotification } from "../../store/slices/notificationSlice";
 import styles from "./CancelPage.module.css";
 
@@ -9,6 +10,7 @@ const CancelPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const progressRef = useRef(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     console.warn("Payment canceled:", location?.state || "No additional data");
@@ -16,11 +18,10 @@ const CancelPage = () => {
     dispatch(
       showNotification({
         type: "warning",
-        message: "Payment was canceled. Redirecting to your cart...",
+        message: t("cancel.notification"),
       })
     );
 
-    // 🔁 Анімація прогрес-бару
     if (progressRef.current) {
       progressRef.current.style.transition = "width 5s linear";
       progressRef.current.style.width = "100%";
@@ -31,7 +32,7 @@ const CancelPage = () => {
     }, 5000);
 
     return () => clearTimeout(timer);
-  }, [dispatch, location, navigate]);
+  }, [dispatch, location, navigate, t]);
 
   return (
     <div className={styles.wrapper}>
@@ -40,15 +41,15 @@ const CancelPage = () => {
       </div>
 
       <div className={styles.centered}>
-        <h2>❌ Payment Canceled</h2>
+        <h2>❌ {t("cancel.title")}</h2>
         <p>
-          Something went wrong or you canceled the payment process.
+          {t("cancel.description")}{" "}
           <br />
-          You’ll be redirected to your cart in <strong>5 seconds</strong>.
+          <strong>{t("cancel.redirectInfo")}</strong>
         </p>
 
         <Link to="/cart" className="btn btn-outline">
-          Return to Cart Now
+          {t("cancel.button")}
         </Link>
       </div>
     </div>
@@ -56,5 +57,3 @@ const CancelPage = () => {
 };
 
 export default CancelPage;
-
-

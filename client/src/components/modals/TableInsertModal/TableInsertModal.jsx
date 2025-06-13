@@ -1,7 +1,9 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./TableInsertModal.module.css";
 
 const TableInsertModal = ({ onInsert, onClose }) => {
+  const { t } = useTranslation();
   const [rows, setRows] = useState(2);
   const [cols, setCols] = useState(2);
 
@@ -22,10 +24,10 @@ const TableInsertModal = ({ onInsert, onClose }) => {
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h3>Insert Table</h3>
+        <h3>{t("modals.insertTableTitle")}</h3>
         <form onSubmit={handleSubmit}>
           <label>
-            Rows:
+            {t("modals.rows")}:
             <input
               type="number"
               value={rows}
@@ -35,7 +37,7 @@ const TableInsertModal = ({ onInsert, onClose }) => {
             />
           </label>
           <label>
-            Columns:
+            {t("modals.columns")}:
             <input
               type="number"
               value={cols}
@@ -46,14 +48,14 @@ const TableInsertModal = ({ onInsert, onClose }) => {
           </label>
           <div className={styles["modal-actions"]}>
             <button type="submit" className="btn btn-outline">
-              Insert
+              {t("modals.insert")}
             </button>
             <button
               type="button"
               className="btn btn-outline"
               onClick={onClose}
             >
-              Cancel
+              {t("modals.cancel")}
             </button>
           </div>
         </form>

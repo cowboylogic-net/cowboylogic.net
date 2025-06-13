@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { fetchCartItems } from "../../store/thunks/cartThunks";
 import {
   updateItemQuantity,
@@ -16,6 +17,8 @@ import CartItem from "../../components/CartItem/CartItem";
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
 
@@ -34,9 +37,9 @@ const Cart = () => {
     try {
       await apiService.patch(`/cart/${itemId}`, { quantity: newQuantity }, token);
       dispatch(updateItemQuantity({ itemId, quantity: newQuantity }));
-      toast.success("Quantity updated");
+      toast.success(t("cart.quantityUpdated"));
     } catch {
-      toast.error("Failed to update quantity");
+      toast.error(t("cart.quantityUpdateError"));
     }
   };
 
@@ -44,9 +47,9 @@ const Cart = () => {
     try {
       await apiService.delete(`/cart/${itemId}`, token);
       dispatch(removeItemById(itemId));
-      toast.success("Item removed from cart");
+      toast.success(t("cart.itemRemoved"));
     } catch {
-      toast.error("Failed to remove item");
+      toast.error(t("cart.itemRemoveError"));
     }
   };
 
@@ -64,20 +67,20 @@ const Cart = () => {
       );
       window.location.href = res.data.checkoutUrl;
     } catch (err) {
-      toast.error("Square checkout failed");
+      toast.error(t("cart.checkoutError"));
       console.error(err);
     }
   };
 
-  if (isFetching) return <h2>Loading cart...</h2>;
+  if (isFetching) return <h2>{t("cart.loading")}</h2>;
 
   return (
     <div className={styles.cartPage}>
-      <h2>My Cart</h2>
+      <h2>{t("cart.title")}</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {items.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <p>{t("cart.empty")}</p>
       ) : (
         <>
           <ul className={styles.cartList}>
@@ -91,13 +94,15 @@ const Cart = () => {
             ))}
           </ul>
 
-          <h3 className={styles.total}>Total: ${totalPrice.toFixed(2)}</h3>
+          <h3 className={styles.total}>
+            {t("cart.total")}: ${totalPrice.toFixed(2)}
+          </h3>
           <button
             onClick={handleSquareCheckout}
             className={styles.checkoutBtn}
             disabled={isAdding}
           >
-            Checkout with Square 💳
+            {t("cart.checkout")}
           </button>
         </>
       )}

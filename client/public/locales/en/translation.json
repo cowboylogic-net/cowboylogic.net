@@ -1,0 +1,280 @@
+{
+  "welcome": "Welcome to CowboyLogic",
+  "edit": "Edit",
+  "save": "Save",
+  "cancel": "Cancel",
+  "insertImage": "Insert Image",
+  "clearFormatting": "Clear Formatting",
+  "clearAll": "Clear All",
+  "modals": {
+    "chooseImage": "Choose Image",
+    "or": "or",
+    "enterUrl": "Enter image URL...",
+    "widthPlaceholder": "Width (px)",
+    "heightPlaceholder": "Height (px)",
+    "originalSize": "Original: {{w}}×{{h}}",
+    "reset": "Reset",
+    "keepRatio": "Keep aspect ratio",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "insertLinkTitle": "Insert Link",
+    "linkPlaceholder": "Enter URL...",
+    "insert": "Insert",
+    "clearAllTitle": "Clear All Content",
+    "clearAllMessage": "Are you sure you want to clear all content?",
+    "clearAllConfirm": "Yes, clear",
+    "insertConfirmTitle": "Insert {{type}}?",
+    "table": "table",
+    "link": "link",
+    "discardTitle": "Discard Changes?",
+    "discardMessage": "You have unsaved changes. Are you sure you want to cancel editing?",
+    "deleteBookMessage": "Are you sure you want to delete this book?",
+    "delete": "Delete",
+    "insertTableTitle": "Insert Table",
+    "rows": "Rows",
+    "columns": "Columns"
+  },
+  "navbar": {
+    "home": "Home",
+    "about": "About",
+    "clStrategies": "CLStrategies",
+    "clStrategiesHome": "CLStrategies Home",
+    "ccConsulting": "Cowboy College Consulting",
+    "ccStartup": "Cowboy College Start-up",
+    "ccLeadership": "Cowboy College Leadership",
+    "clPublishing": "CLPublishing",
+    "clPublishingHome": "CLPublishing Home",
+    "ccPubAuthor": "Cowboy College Pub/Author",
+    "b2bBookstores": "B2B Bookstores",
+    "adminDashboard": "Admin Dashboard",
+    "bookStore": "CLP Book Store",
+    "searchPlaceholder": "Search..."
+  },
+  "book": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "loading": "Loading...",
+    "byAuthor": "By {{author}}",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "favorite": "Add to favorites",
+    "unfavorite": "Remove from favorites"
+  },
+  "cart": {
+    "title": "My Cart",
+    "loading": "Loading cart...",
+    "empty": "Your cart is empty.",
+    "total": "Total",
+    "checkout": "Checkout with Square 💳",
+    "quantityUpdated": "Quantity updated",
+    "quantityUpdateError": "Failed to update quantity",
+    "itemRemoved": "Item removed from cart",
+    "itemRemoveError": "Failed to remove item",
+    "checkoutError": "Square checkout failed",
+    "remove": "Remove",
+    "removing": "Removing..."
+  },
+  "bookForm": {
+    "add": "Add New Book",
+    "edit": "Edit Book",
+    "title": "Title",
+    "author": "Author",
+    "description": "Description",
+    "price": "Price",
+    "inStock": "In Stock",
+    "chooseImage": "Choose Image",
+    "imagePreview": "Image Preview:",
+    "create": "Create Book",
+    "creating": "Creating...",
+    "update": "Update Book",
+    "updating": "Updating...",
+    "titleRequired": "Title is required",
+    "authorRequired": "Author is required",
+    "priceRequired": "Price is required",
+    "pricePositive": "Price must be positive",
+    "priceType": "Price must be a number",
+    "successCreate": "✅ Book created successfully",
+    "successUpdate": "✅ Book updated successfully",
+    "failSave": "❌ Failed to save book",
+    "notFound": "Book not found"
+  },
+  "favorites": {
+    "heading": "My Favorite Books",
+    "empty": "You do not have any favorites yet.",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock"
+  },
+  "header": {
+    "tagline": "CowboyLogic Strategies/Publishing"
+  },
+  "userMenu": {
+    "cart": "Cart",
+    "orders": "My Orders",
+    "profile": "My Profile",
+    "welcome": "Welcome, {{email}}",
+    "logout": "Logout",
+    "login": "Login",
+    "register": "Register"
+  },
+  "footer": {
+    "navigation": "Navigation",
+    "contact": "Contact Us",
+    "about": "About",
+    "consulting": "Consulting",
+    "followUs": "Follow Us",
+    "newsletter": "Stay Updated",
+    "copyright": "Copyright © {{year}}",
+    "rights": "All Rights Reserved."
+  },
+  "newsletter": {
+    "label": "Subscribe to our newsletter:",
+    "placeholder": "Your email",
+    "button": "Subscribe",
+    "success": "✅ Subscribed successfully!",
+    "error": "❌ Subscription failed. Try again."
+  },
+  "editable": {
+    "edit": "Edit Page",
+    "cancel": "Cancel",
+    "preview": "Preview",
+    "backToEdit": "Back to Edit",
+    "saveDraft": "Save Draft",
+    "publish": "Publish",
+    "banner": {
+      "previewingDraft": "You are previewing a saved draft. This content is not yet published.",
+      "draftExists": "A draft version exists. Click “Edit Page” to review and publish it.",
+      "previewingPublished": "Previewing current published version."
+    },
+    "emptyContentError": "❌ Content cannot be empty or contain only formatting."
+  },
+  "toolbar": {
+    "bold": "Bold",
+    "italic": "Italic",
+    "underline": "Underline",
+    "strikethrough": "Strikethrough",
+    "superscript": "Superscript",
+    "subscript": "Subscript",
+    "alignLeft": "Align Left",
+    "alignCenter": "Align Center",
+    "alignRight": "Align Right",
+    "heading": "Heading",
+    "paragraph": "Paragraph",
+    "heading1": "Heading 1",
+    "heading2": "Heading 2",
+    "heading3": "Heading 3",
+    "blockquote": "Quote",
+    "pre": "Code Block",
+    "bulletList": "Bullet List",
+    "numberedList": "Numbered List",
+    "insertTable": "Insert Table",
+    "insertLink": "Insert Link",
+    "insertLine": "Insert Horizontal Line",
+    "textColor": "Text Color",
+    "highlight": "Highlight",
+    "undo": "Undo",
+    "redo": "Redo"
+  },
+  "orders": {
+    "title": "My Orders",
+    "noOrders": "No orders yet.",
+    "orderNumber": "Order #{{id}}",
+    "status": "Status",
+    "total": "Total",
+    "pcs": "pcs",
+    "confirmDelete": "Are you sure you want to delete this order?"
+  },
+  "profile": {
+    "title": "My Profile",
+    "email": "Email",
+    "role": "Role",
+    "favorites": "❤️ Favorites",
+    "changePassword": "Change Password"
+  },
+  "resetPassword": {
+    "title": "Reset Password",
+    "currentPlaceholder": "Current Password",
+    "newPlaceholder": "New Password",
+    "button": "Update Password",
+    "success": "✅ Password updated and confirmation email sent. Logging out...",
+    "error": "❌ Error updating password"
+  },
+  "auth": {
+    "success": "✅ Logged in successfully!",
+    "error": "❌ Invalid email or password"
+  },
+  "admin": {
+    "accessDenied": "❌ Access denied",
+    "dashboardTitle": "Admin Dashboard",
+    "addBook": "Add New Book",
+    "userManagement": "User Management",
+    "sendNewsletter": "Send Newsletter"
+  },
+  "users": {
+    "managementTitle": "User Management",
+    "email": "Email",
+    "role": "Role",
+    "createdAt": "Created",
+    "actions": "Actions",
+    "user": "user",
+    "admin": "admin",
+    "superAdmin": "super admin",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this user?",
+    "fetchError": "❌ Failed to fetch users",
+    "roleUpdated": "✅ User role updated",
+    "updateFailed": "❌ Update failed",
+    "userDeleted": "✅ User deleted",
+    "deleteFailed": "❌ Delete failed"
+  },
+  "search": {
+    "resultsFor": "Search results for \"{{query}}\"",
+    "noResults": "No results found"
+  },
+  "success": {
+    "title": "🎉 Payment Successful!",
+    "confirmed": "Your order #{{orderId}} has been confirmed.\nThank you for your purchase!",
+    "redirect": "You will be redirected to your orders shortly...",
+    "viewOrders": "View Orders Now",
+    "missingTokenTitle": "⚠️ Missing token",
+    "missingTokenText": "You must be logged in to confirm your order.",
+    "goToLogin": "Go to Login",
+    "errorTitle": "⚠️ Error",
+    "tryAgain": "Try Again"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "firstNamePlaceholder": "First Name*",
+    "lastNamePlaceholder": "Last Name*",
+    "emailPlaceholder": "Email*",
+    "commentPlaceholder": "Comment",
+    "submit": "Submit",
+    "success": "✅ Message sent successfully!",
+    "error": "❌ Failed to send message"
+  },
+  "cancel": {
+    "title": "Payment Canceled",
+    "description": "Something went wrong or you canceled the payment process.",
+    "redirectInfo": "You will be redirected to your cart in 5 seconds.",
+    "button": "Return to Cart Now",
+    "notification": "Payment was canceled. Redirecting to your cart..."
+  },
+  "bookstore": {
+    "title": "CLP BookStore",
+    "addBook": "Add Book"
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

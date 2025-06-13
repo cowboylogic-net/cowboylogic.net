@@ -1,7 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import styles from "./ImageInsertModal.module.css";
 
 const ImageInsertModal = ({ onInsert, onClose }) => {
+  const { t } = useTranslation();
+
   const [url, setUrl] = useState("");
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState("");
@@ -87,29 +90,29 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h3>Choose Image</h3>
+        <h3>{t("modals.chooseImage")}</h3>
         <form onSubmit={handleSubmit}>
           <input type="file" accept="image/*" onChange={handleFileChange} />
-          <p>or</p>
+          <p>{t("modals.or")}</p>
           <input
             type="text"
             value={url}
             onChange={handleUrlChange}
-            placeholder="Enter image URL..."
+            placeholder={t("modals.enterUrl")}
             disabled={!!file}
           />
 
           <div className={styles.dimensions}>
             <input
               type="number"
-              placeholder="Width (px)"
+              placeholder={t("modals.widthPlaceholder")}
               value={width}
               onChange={handleWidthChange}
               disabled={!file && !url}
             />
             <input
               type="number"
-              placeholder="Height (px)"
+              placeholder={t("modals.heightPlaceholder")}
               value={height}
               onChange={handleHeightChange}
               disabled={!file && !url}
@@ -118,13 +121,16 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
 
           {originalSize.w && originalSize.h && (
             <div className={styles.originalSize}>
-              Original: {originalSize.w}×{originalSize.h}
+              {t("modals.originalSize", {
+                w: originalSize.w,
+                h: originalSize.h,
+              })}
               <button
                 type="button"
                 className="btn btn-small"
                 onClick={resetToOriginal}
               >
-                Reset
+                {t("modals.reset")}
               </button>
             </div>
           )}
@@ -135,7 +141,7 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
               checked={lockRatio}
               onChange={() => setLockRatio(!lockRatio)}
             />
-            Keep aspect ratio
+            {t("modals.keepRatio")}
           </label>
 
           {preview && (
@@ -143,8 +149,16 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
           )}
 
           <div className={styles.actions}>
-            <button type="submit" className="btn btn-outline">Confirm</button>
-            <button type="button" className="btn btn-outline" onClick={onClose}>Cancel</button>
+            <button type="submit" className="btn btn-outline">
+              {t("modals.confirm")}
+            </button>
+            <button
+              type="button"
+              className="btn btn-outline"
+              onClick={onClose}
+            >
+              {t("modals.cancel")}
+            </button>
           </div>
         </form>
       </div>

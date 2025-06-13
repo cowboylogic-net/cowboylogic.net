@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { hideNotification } from "../../store/slices/notificationSlice";
 import styles from "./Notification.module.css";
 import {
@@ -10,6 +11,7 @@ import {
 
 const Notification = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const message = useSelector(selectNotificationMessage);
   const type = useSelector(selectNotificationType);
   const isVisible = useSelector(selectNotificationVisible);
@@ -26,9 +28,11 @@ const Notification = () => {
 
   if (!isVisible || !message) return null;
 
+  const translatedMessage = t(message, message); // якщо перекладу немає — поверне оригінальний текст
+
   return (
     <div className={`${styles.toast} ${styles[type]}`}>
-      {message}
+      {translatedMessage}
     </div>
   );
 };

@@ -1,4 +1,4 @@
-// src/components/CartItem/CartItem.jsx
+import { useTranslation } from "react-i18next";
 import styles from "./CartItem.module.css";
 
 const CartItem = ({
@@ -8,6 +8,8 @@ const CartItem = ({
   isUpdating = false,
   isRemoving = false,
 }) => {
+  const { t } = useTranslation();
+
   const handleQuantityChange = (e) => {
     const newQty = Number(e.target.value);
     if (newQty >= 1) {
@@ -37,7 +39,7 @@ const CartItem = ({
           disabled={isRemoving}
           className="btn btn-outline"
         >
-          {isRemoving ? "Removing..." : "Remove"}
+          {isRemoving ? t("cart.removing") : t("cart.remove")}
         </button>
       </div>
     </li>

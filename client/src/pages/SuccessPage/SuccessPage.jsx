@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../store/axios";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
+import axios from "../../store/axios";
 import { clearCart } from "../../store/slices/cartSlice";
 import { showNotification } from "../../store/slices/notificationSlice";
 import Loader from "../../components/Loader/Loader";
@@ -10,6 +11,7 @@ import styles from "./SuccessPage.module.css";
 const SuccessPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
   const progressRef = useRef(null);
 
   const token = useSelector((state) => state.auth.token);
@@ -35,13 +37,13 @@ const SuccessPage = () => {
         dispatch(
           showNotification({
             type: "success",
-            message: `Order #${res.data.id} confirmed successfully`,
+            message: t("success.confirmed", { orderId: res.data.id }),
           })
         );
       } catch (err) {
         const msg =
           err.response?.data?.message ||
-          "Could not confirm or fetch the order.";
+          t("success.errorDefault");
         setError(msg);
         dispatch(showNotification({ type: "error", message: msg }));
       } finally {
@@ -50,7 +52,7 @@ const SuccessPage = () => {
     };
 
     if (token) confirmOrder();
-  }, [token, dispatch]);
+  }, [token, dispatch, t]);
 
   useEffect(() => {
     if (orderId && progressRef.current) {
@@ -69,10 +71,10 @@ const SuccessPage = () => {
   if (!token) {
     return (
       <div className={styles.centered}>
-        <h2>⚠️ Missing token</h2>
-        <p>You must be logged in to confirm your order.</p>
+        <h2>{t("success.missingTokenTitle")}</h2>
+        <p>{t("success.missingTokenText")}</p>
         <button className="btn btn-outline" onClick={() => navigate("/login")}>
-          Go to Login
+          {t("success.goToLogin")}
         </button>
       </div>
     );
@@ -91,24 +93,21 @@ const SuccessPage = () => {
       <div className={styles.centered}>
         {error ? (
           <>
-            <h2>⚠️ Error</h2>
+            <h2>{t("success.errorTitle")}</h2>
             <p>{error}</p>
             <button className="btn btn-outline" onClick={() => navigate("/")}>
-              Try Again
+              {t("success.tryAgain")}
             </button>
           </>
         ) : (
           <>
-            <h2>🎉 Payment Successful!</h2>
-            <p>
-              Your order <strong>#{orderId}</strong> has been confirmed.
-              <br /> Thank you for your purchase!
-            </p>
+            <h2>{t("success.title")}</h2>
+            <p>{t("success.confirmed", { orderId })}</p>
             <p className={styles.muted}>
-              You will be redirected to your orders shortly...
+              {t("success.redirect")}
             </p>
             <button className="btn btn-outline" onClick={() => navigate("/orders")}>
-              View Orders Now
+              {t("success.viewOrders")}
             </button>
           </>
         )}

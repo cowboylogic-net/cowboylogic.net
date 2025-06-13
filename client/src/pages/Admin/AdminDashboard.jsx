@@ -1,39 +1,41 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { showNotification } from "../../store/slices/notificationSlice";
 
 import { ROLES } from "../../constants/roles";
 import styles from "./AdminDashboard.module.css";
 
 const AdminDashboard = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     if (!user || ![ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role)) {
       dispatch(
-        showNotification({ message: "❌ Access denied", type: "error" })
+        showNotification({ message: t("admin.accessDenied"), type: "error" })
       );
     }
-  }, [user, dispatch]);
+  }, [user, dispatch, t]);
 
   if (!user || ![ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role)) {
-    return <p>Access denied</p>;
+    return <p>{t("admin.accessDenied")}</p>;
   }
 
   return (
     <div className={styles.container}>
-      <h2>Admin Dashboard</h2>
+      <h2>{t("admin.dashboardTitle")}</h2>
       <ul className={styles.menu}>
         <li>
-          <Link to="/admin/books/new">Add New Book</Link>
+          <Link to="/admin/books/new">{t("admin.addBook")}</Link>
         </li>
         <li>
-          <Link to="/admin/users">User Management</Link>
+          <Link to="/admin/users">{t("admin.userManagement")}</Link>
         </li>
         <li>
-          <Link to="/admin/newsletter">Send Newsletter</Link>
+          <Link to="/admin/newsletter">{t("admin.sendNewsletter")}</Link>
         </li>
       </ul>
     </div>
@@ -41,3 +43,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

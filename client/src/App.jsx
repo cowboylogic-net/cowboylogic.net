@@ -20,6 +20,7 @@ const BookDetails = lazy(() => import("./pages/BookDetails/BookDetails"));
 const CLStrategies = lazy(() => import("./pages/CLStrategies/CLStrategies"));
 const CLPublishing = lazy(() => import("./pages/CLPublishing/CLPublishing"));
 const FavoritesPage = lazy(() => import("./pages/FavoritesPage/FavoritesPage"));
+const SearchResults = lazy(() => import("./pages/SearchResult/SearchResult")); 
 
 // ✅ CLStrategies Pages
 const CLStrategiesHome = lazy(() => import("./pages/CLStrategiesHome/CLStrategiesHome"));
@@ -66,6 +67,7 @@ const App = () => {
             <Route path="/register" element={<Register />} />
             <Route path="/success" element={<SuccessPage />} />
             <Route path="/cancel" element={<CancelPage />} />
+            <Route path="/search" element={<SearchResults />} />
 
             {/* Bookstore */}
             <Route path="/bookstore" element={<BookStore />} />

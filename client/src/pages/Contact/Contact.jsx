@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import styles from "./Contact.module.css";
 import axios from "../../store/axios";
 import { showNotification } from "../../store/slices/notificationSlice";
 
 const Contact = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -19,12 +21,11 @@ const Contact = () => {
 
       dispatch(
         showNotification({
-          message: "✅ Message sent successfully!",
+          message: t("contact.success"),
           type: "success",
         })
       );
 
-      // Очистити форму після успішної відправки
       setFirstName("");
       setLastName("");
       setEmail("");
@@ -32,7 +33,7 @@ const Contact = () => {
     } catch {
       dispatch(
         showNotification({
-          message: "❌ Failed to send message",
+          message: t("contact.error"),
           type: "error",
         })
       );
@@ -42,35 +43,35 @@ const Contact = () => {
   return (
     <div className={styles.container}>
       <div className={styles.contact}>
-        <h2>Contact Us</h2>
+        <h2>{t("contact.title")}</h2>
         <form className={styles.form} onSubmit={handleSubmit}>
           <input
             type="text"
-            placeholder="First Name*"
+            placeholder={t("contact.firstNamePlaceholder")}
             value={firstName}
             onChange={(e) => setFirstName(e.target.value)}
             required
           />
           <input
             type="text"
-            placeholder="Last Name*"
+            placeholder={t("contact.lastNamePlaceholder")}
             value={lastName}
             onChange={(e) => setLastName(e.target.value)}
             required
           />
           <input
             type="email"
-            placeholder="Email*"
+            placeholder={t("contact.emailPlaceholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
           <textarea
-            placeholder="Comment"
+            placeholder={t("contact.commentPlaceholder")}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
           />
-          <button type="submit">Submit</button>
+          <button type="submit">{t("contact.submit")}</button>
         </form>
       </div>
     </div>

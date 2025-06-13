@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import clsx from "clsx";
 import styles from "./Navbar.module.css";
 import searchIcon from "/assets/svg/search-icon.svg";
@@ -11,6 +12,7 @@ const buildLinkClass = ({ isActive }) =>
   clsx(styles.navLink, isActive && styles.active);
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchVisible, setSearchVisible] = useState(false);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -58,10 +60,10 @@ const Navbar = () => {
       <div className={styles.navbar}>
         <nav className={styles.navLeft}>
           <NavLink to="/" className={buildLinkClass} onClick={handleCloseDropdown}>
-            Home
+            {t("navbar.home")}
           </NavLink>
           <NavLink to="/about" className={buildLinkClass} onClick={handleCloseDropdown}>
-            About
+            {t("navbar.about")}
           </NavLink>
 
           <div className={styles.dropdown} ref={clStrategiesRef}>
@@ -70,21 +72,21 @@ const Navbar = () => {
               className={clsx(styles.navLink, styles.dropdownButton)}
               onClick={(e) => toggleDropdown("clstrategies", e)}
             >
-              CLStrategies
+              {t("navbar.clStrategies")}
             </NavLink>
             {openDropdown === "clstrategies" && (
               <div className={styles.dropdownMenu}>
                 <NavLink to="/clstrategies" className={styles.dropdownItem} onClick={handleCloseDropdown}>
-                  CLStrategies Home
+                  {t("navbar.clStrategiesHome")}
                 </NavLink>
                 <NavLink to="/clstrategies/cowboy-college-consulting" className={styles.dropdownItem} onClick={handleCloseDropdown}>
-                  Cowboy College Consulting
+                  {t("navbar.ccConsulting")}
                 </NavLink>
                 <NavLink to="/clstrategies/cowboy-college-start-up" className={styles.dropdownItem} onClick={handleCloseDropdown}>
-                  Cowboy College Start-up
+                  {t("navbar.ccStartup")}
                 </NavLink>
                 <NavLink to="/clstrategies/cowboy-college-leadership" className={styles.dropdownItem} onClick={handleCloseDropdown}>
-                  Cowboy College Leadership
+                  {t("navbar.ccLeadership")}
                 </NavLink>
               </div>
             )}
@@ -96,18 +98,18 @@ const Navbar = () => {
               className={clsx(styles.navLink, styles.dropdownButton)}
               onClick={(e) => toggleDropdown("clpublishing", e)}
             >
-              CLPublishing
+              {t("navbar.clPublishing")}
             </NavLink>
             {openDropdown === "clpublishing" && (
               <div className={styles.dropdownMenu}>
                 <NavLink to="/clpublishing" className={styles.dropdownItem} onClick={handleCloseDropdown}>
-                  CLPublishing Home
+                  {t("navbar.clPublishingHome")}
                 </NavLink>
                 <NavLink to="/clpublishing/cowboy-college-pub/author" className={styles.dropdownItem} onClick={handleCloseDropdown}>
-                  Cowboy College Pub/Author
+                  {t("navbar.ccPubAuthor")}
                 </NavLink>
                 <NavLink to="/clpublishing/b2b-bookstores" className={styles.dropdownItem} onClick={handleCloseDropdown}>
-                  B2B Bookstores
+                  {t("navbar.b2bBookstores")}
                 </NavLink>
               </div>
             )}
@@ -115,12 +117,12 @@ const Navbar = () => {
 
           {user?.role && [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role) && (
             <NavLink to="/admin" className={buildLinkClass} onClick={handleCloseDropdown}>
-              Admin Dashboard
+              {t("navbar.adminDashboard")}
             </NavLink>
           )}
 
           <NavLink to="/bookstore" className={buildLinkClass} onClick={handleCloseDropdown}>
-            CLP Book Store
+            {t("navbar.bookStore")}
           </NavLink>
         </nav>
 
@@ -151,7 +153,7 @@ const Navbar = () => {
             <form className={styles.searchForm} onSubmit={handleSearch}>
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder={t("navbar.searchPlaceholder")}
                 className={styles.searchInput}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

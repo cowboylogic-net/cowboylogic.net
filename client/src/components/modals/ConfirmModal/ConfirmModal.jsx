@@ -1,18 +1,20 @@
-// components/modals/ConfirmModal/ConfirmModal.jsx
+import { useTranslation } from "react-i18next";
 import styles from "./ConfirmModal.module.css";
 
 const ConfirmModal = ({ message, onConfirm, onClose }) => {
+  const { t } = useTranslation();
+
   return (
     <div className={styles.overlay}>
       <div className={styles.modal}>
-        <h3>Discard Changes?</h3>
-        <p>{message || "You have unsaved changes. Are you sure you want to cancel editing?"}</p>
+        <h3>{t("modals.discardTitle")}</h3>
+        <p>{message || t("modals.discardMessage")}</p>
         <div className={styles.actions}>
           <button className="btn btn-outline" onClick={onClose}>
-            Cancel
+            {t("modals.cancel")}
           </button>
           <button className="btn btn-outline" onClick={onConfirm}>
-            Confirm
+            {t("modals.confirm")}
           </button>
         </div>
       </div>

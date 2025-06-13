@@ -1,10 +1,12 @@
-// src/components/Header/Header.jsx
 import { Link } from "react-router-dom";
 import styles from "./Header.module.css";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
-import UserMenu from "../UserMenu/UserMenu"; // ⬅️ новий імпорт
+import UserMenu from "../UserMenu/UserMenu";
+import { useTranslation } from "react-i18next"; // 🔁
 
 const Header = () => {
+  const { t } = useTranslation();
+
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -12,11 +14,13 @@ const Header = () => {
           <Link to="/" className={styles.logo}>
             CowboyLogic
           </Link>
-          <p className={styles.tagline}>CowboyLogic Strategies/Publishing</p>
+          <p className={styles.tagline}>
+            {t("header.tagline")}
+          </p>
         </div>
 
         <div className={styles.authBlock}>
-          <UserMenu /> {/* 🔄 замість старої логіки */}
+          <UserMenu />
           <div className={styles.langSwitcher}>
             <LanguageSwitcher />
           </div>
@@ -26,5 +30,4 @@ const Header = () => {
   );
 };
 
-export default Header; // test
-
+export default Header;

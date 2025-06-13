@@ -2,12 +2,14 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DOMPurify from "dompurify";
 import debounce from "lodash/debounce";
+import { useTranslation } from "react-i18next"; // 🔹
 import styles from "./EditablePage.module.css";
 
 import { ROLES } from "../../constants/roles";
 import EditableToolbar from "../../components/EditableToolbar/EditableToolbar";
 import ConfirmModal from "../../components/modals/ConfirmModal/ConfirmModal";
 import Loader from "../../components/Loader/Loader";
+import { showNotification } from "../../store/slices/notificationSlice";
 
 import {
   fetchPageVersions,
@@ -24,6 +26,7 @@ import {
 } from "../../store/selectors/pageSelectors";
 
 const EditablePage = ({ slug, title }) => {
+  const { t } = useTranslation(); // 🔹
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
@@ -41,7 +44,6 @@ const EditablePage = ({ slug, title }) => {
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const editorRef = useRef(null);
-
   const debouncedSaveRef = useRef(null);
 
   useEffect(() => {
@@ -55,7 +57,9 @@ const EditablePage = ({ slug, title }) => {
   const handleSaveDraft = useCallback(async () => {
     const cleanContent = DOMPurify.sanitize(localContent);
     try {
-      await dispatch(saveDraftContent({ slug, content: cleanContent, token })).unwrap();
+      await dispatch(
+        saveDraftContent({ slug, content: cleanContent, token })
+      ).unwrap();
       if (editorRef.current) {
         editorRef.current.innerHTML = cleanContent;
       }
@@ -70,10 +74,7 @@ const EditablePage = ({ slug, title }) => {
         handleSaveDraft();
       }
     }, 1000);
-
-    return () => {
-      debouncedSaveRef.current?.cancel();
-    };
+    return () => debouncedSaveRef.current?.cancel();
   }, [handleSaveDraft]);
 
   const prevPreviewRef = useRef(false);
@@ -98,7 +99,6 @@ const EditablePage = ({ slug, title }) => {
         e.returnValue = "";
       }
     };
-
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [isEditing, localContent, initialDraft]);
@@ -121,6 +121,28 @@ const EditablePage = ({ slug, title }) => {
 
   const handleSave = async () => {
     const cleanContent = DOMPurify.sanitize(localContent);
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = cleanContent;
+
+    const hasVisibleText = (node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent
+          .replace(/\s/g, "")
+          .replace(/\u00a0/g, "")
+          .replace(/\u200B/g, "");
+        return text.length > 0;
+      }
+      for (const child of node.childNodes) {
+        if (hasVisibleText(child)) return true;
+      }
+      return false;
+    };
+
+    if (!hasVisibleText(tempDiv)) {
+      dispatch(showNotification({ message: t("editable.emptyContentError"), type: "error" }));
+      return;
+    }
+
     try {
       await dispatch(updatePageContent({ slug, content: cleanContent, token })).unwrap();
       setIsEditing(false);
@@ -132,9 +154,8 @@ const EditablePage = ({ slug, title }) => {
 
   const startEditing = () => {
     setIsEditing(true);
-    setInitialDraft(draft || "");         // потрібен для перевірки unsaved changes
-    setLastPublished(published || "");    // зберігаємо останній публічний вміст
-
+    setInitialDraft(draft || "");
+    setLastPublished(published || "");
     setTimeout(() => {
       if (editorRef.current) {
         editorRef.current.innerHTML = DOMPurify.sanitize(draft || published || "");
@@ -161,20 +182,16 @@ const EditablePage = ({ slug, title }) => {
     }, 0);
   };
 
-const confirmDiscardChanges = () => {
-  setShowConfirm(false);
-  setIsEditing(false);
-  setIsPreviewing(false);
-  setLocalContent(lastPublished);
-
-  if (editorRef.current) {
-    editorRef.current.innerHTML = DOMPurify.sanitize(lastPublished || "");
-  }
-
-  // 💥 Скидаємо драфт до null або published — щоб не показувався банер
-  dispatch(saveDraftContent({ slug, content: published || "", token }));
-};
-
+  const confirmDiscardChanges = () => {
+    setShowConfirm(false);
+    setIsEditing(false);
+    setIsPreviewing(false);
+    setLocalContent(lastPublished);
+    if (editorRef.current) {
+      editorRef.current.innerHTML = DOMPurify.sanitize(lastPublished || "");
+    }
+    dispatch(saveDraftContent({ slug, content: published || "", token }));
+  };
 
   if (isFetching || isDraftSaving || isUpdating) {
     return <Loader />;
@@ -188,24 +205,18 @@ const confirmDiscardChanges = () => {
         <h1 className={styles.title}>{title}</h1>
         {(user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN) && (
           <div className={styles.editControls}>
-            <button
-              className="btn btn-outline"
-              onClick={() => (isEditing ? handleCancel() : startEditing())}
-            >
-              {isEditing ? "Cancel" : "Edit Page"}
+            <button className="btn btn-outline" onClick={() => (isEditing ? handleCancel() : startEditing())}>
+              {isEditing ? t("editable.cancel") : t("editable.edit")}
             </button>
             {isEditing && (
-              <button
-                className="btn btn-outline"
-                onClick={() => {
-                  if (isPreviewing) {
-                    handleBackToEdit();
-                  } else {
-                    setIsPreviewing(true);
-                  }
-                }}
-              >
-                {isPreviewing ? "Back to Edit" : "Preview"}
+              <button className="btn btn-outline" onClick={() => {
+                if (isPreviewing) {
+                  handleBackToEdit();
+                } else {
+                  setIsPreviewing(true);
+                }
+              }}>
+                {isPreviewing ? t("editable.backToEdit") : t("editable.preview")}
               </button>
             )}
           </div>
@@ -214,19 +225,17 @@ const confirmDiscardChanges = () => {
 
       {isPreviewing && isDraftDifferent && (
         <div className={styles.draftBanner}>
-          ⚠️ You are previewing a saved draft. This content is not yet published.
+          ⚠️ {t("editable.banner.previewingDraft")}
         </div>
       )}
-
       {!isEditing && isDraftDifferent && (
         <div className={styles.draftBanner}>
-          📝 A draft version exists. Click “Edit Page” to review and publish it.
+          📝 {t("editable.banner.draftExists")}
         </div>
       )}
-
       {isPreviewing && !isDraftDifferent && (
         <div className={styles.draftBanner}>
-          👀 Previewing current published version.
+          👀 {t("editable.banner.previewingPublished")}
         </div>
       )}
 
@@ -257,26 +266,17 @@ const confirmDiscardChanges = () => {
 
       {isEditing && !isPreviewing && (
         <div className={styles.bottomSave}>
-          <button
-            className="btn btn-outline"
-            onClick={handleSaveDraft}
-            disabled={isDraftSaving}
-          >
-            Save Draft
+          <button className="btn btn-outline" onClick={handleSaveDraft} disabled={isDraftSaving}>
+            {t("editable.saveDraft")}
           </button>
-          <button
-            className="btn btn-outline"
-            onClick={handleSave}
-            disabled={isUpdating}
-          >
-            Publish
+          <button className="btn btn-outline" onClick={handleSave} disabled={isUpdating}>
+            {t("editable.publish")}
           </button>
         </div>
       )}
 
       {showConfirm && (
         <ConfirmModal
-          message="You have unsaved changes. Discard them?"
           onConfirm={confirmDiscardChanges}
           onClose={() => setShowConfirm(false)}
         />
