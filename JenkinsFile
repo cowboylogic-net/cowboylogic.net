@@ -18,37 +18,41 @@ pipeline {
   }
 
   stages {
-    stage('checkout scm') {
+    stage('Checkout SCM') {
       steps {
         checkout scm
       }
     }
 
-    stage('verify node env') {
+    stage('Verify Node Environment') {
       steps {
-        bat 'node -v'
-        bat 'npm -v'
+        powershell 'node -v'
+        powershell 'npm -v'
       }
     }
 
-    stage('server code to DEV deployment dest') {
+    stage('Server Code → DEV Deploy') {
       steps {
-        bat """
-          if not exist "${env.DEV_DEPLOY_SERVER_DIR}" (
-            mkdir "${env.DEV_DEPLOY_SERVER_DIR}"
-          )
-          robocopy ${env.CODEBASE_SERVER_DIR} ${env.DEV_DEPLOY_SERVER_DIR} /MIR /NP
+        powershell """
+          if (-Not (Test-Path '${env.DEV_DEPLOY_SERVER_DIR}')) {
+            New-Item -ItemType Directory -Path '${env.DEV_DEPLOY_SERVER_DIR}' | Out-Null
+          } else {
+            Remove-Item '${env.DEV_DEPLOY_SERVER_DIR}\\*' -Recurse -Force
+          }
+          Copy-Item '${env.CODEBASE_SERVER_DIR}\\*' -Destination '${env.DEV_DEPLOY_SERVER_DIR}' -Recurse -Force
         """
       }
     }
-	
-	stage('Client code base replication to DEV deployment destination') {
+
+    stage('Client Code → DEV Deploy') {
       steps {
-        bat """
-          if not exist "${env.DEV_DEPLOY_CLIENT_DIR}" (
-            mkdir "${env.DEV_DEPLOY_CLIENT_DIR}"
-          )
-          robocopy ${env.CODEBASE_CLIENT_DIR} ${env.DEV_DEPLOY_CLIENT_DIR} /MIR /NFL /NDL /NJH /NJS /NP
+        powershell """
+          if (-Not (Test-Path '${env.DEV_DEPLOY_CLIENT_DIR}')) {
+            New-Item -ItemType Directory -Path '${env.DEV_DEPLOY_CLIENT_DIR}' | Out-Null
+          } else {
+            Remove-Item '${env.DEV_DEPLOY_CLIENT_DIR}\\*' -Recurse -Force
+          }
+          Copy-Item '${env.CODEBASE_CLIENT_DIR}\\*' -Destination '${env.DEV_DEPLOY_CLIENT_DIR}' -Recurse -Force
         """
       }
     }
