@@ -15,6 +15,7 @@ pipeline {
 
     DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\dev\\server'
     DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\dev\\client'
+	DEV_ENV_DATA = credentials('dev.env')
   }
 
   stages {
@@ -54,6 +55,12 @@ pipeline {
           }
           Copy-Item '${env.CODEBASE_CLIENT_DIR}\\*' -Destination '${env.DEV_DEPLOY_CLIENT_DIR}' -Recurse -Force
         """
+      }
+    }
+	
+	stage('Write .env to DEV Server') {
+	  steps {
+        writeFile file: "${env.DEV_DEPLOY_SERVER_DIR}\\.env", text: "${env.DEV_ENV_DATA}"
       }
     }
   }
