@@ -15,7 +15,6 @@ pipeline {
 
     DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\dev\\server'
     DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\dev\\client'
-	DEV_ENV_DATA = credentials('dev.env')
   }
 
   stages {
@@ -57,10 +56,14 @@ pipeline {
         """
       }
     }
-	
+
     stage('Write .env to DEV Server') {
-	  steps {
-        writeFile file: "${env.DEV_DEPLOY_SERVER_DIR}\\.env", text: "${env.DEV_ENV_DATA}"
+      steps {
+        withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
+          powershell """
+            Copy-Item -Path '${env.DEV_ENV_FILE}' -Destination '${env.DEV_DEPLOY_SERVER_DIR}\\.env' -Force
+          """
+        }
       }
     }
   }
