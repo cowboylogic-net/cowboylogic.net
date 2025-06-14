@@ -49,5 +49,16 @@ pipeline {
         """
       }
     }
+	
+	stage('Client code base replication to DEV deployment destination') {
+      steps {
+        bat """
+          if not exist "${env.DEV_DEPLOY_CLIENT_DIR}" (
+            mkdir "${env.DEV_DEPLOY_CLIENT_DIR}"
+          )
+          robocopy ${env.CODEBASE_CLIENT_DIR} ${env.DEV_DEPLOY_CLIENT_DIR} /MIR /NFL /NDL /NJH /NJS /NP
+        """
+      }
+    }
   }
 }
