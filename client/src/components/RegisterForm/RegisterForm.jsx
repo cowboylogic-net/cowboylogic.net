@@ -4,19 +4,20 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { GoogleLogin } from "@react-oauth/google";
+import { useTranslation } from "react-i18next";
 
 import styles from "./RegisterForm.module.css";
 import axios from "../../store/axios";
-import { fetchCurrentUser } from "../../store/slices/authSlice";
+import { fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
 
-// 🔒 Yup валідація
 const schema = yup.object().shape({
   email: yup.string().email("Invalid email").required("Email is required"),
   password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
 });
 
 const RegisterForm = () => {
+  const { t } = useTranslation("login");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -31,12 +32,12 @@ const RegisterForm = () => {
   const onSubmit = async (form) => {
     try {
       await axios.post("/auth/register", form);
-      dispatch(showNotification({ message: "Account created successfully!", type: "success" }));
+      dispatch(showNotification({ message: t("registered"), type: "success" }));
 
       await axios.post("/auth/login", form);
       await axios.post("/auth/request-code", { email: form.email });
 
-      const code = prompt("Enter the verification code sent to email:");
+      const code = prompt(t("codePlaceholder"));
       const verifyRes = await axios.post("/auth/verify-code", {
         email: form.email,
         code,
@@ -44,16 +45,13 @@ const RegisterForm = () => {
 
       localStorage.setItem("token", verifyRes.data.token);
       dispatch(fetchCurrentUser(verifyRes.data.token));
-
-      dispatch(showNotification({ message: "Welcome!", type: "success" }));
+      dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
       navigate("/");
     } catch (err) {
-      dispatch(
-        showNotification({
-          message: err.response?.data?.message || "Registration failed",
-          type: "error",
-        })
-      );
+      dispatch(showNotification({
+        message: err.response?.data?.message || t("registerFailed"),
+        type: "error",
+      }));
     }
   };
 
@@ -66,34 +64,33 @@ const RegisterForm = () => {
       localStorage.setItem("token", res.data.token);
       dispatch(fetchCurrentUser(res.data.token));
 
-      dispatch(showNotification({ message: "Logged in with Google!", type: "success" }));
+      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
       navigate("/");
-    } catch (err) {
-      console.error("Google signup error", err);
-      dispatch(showNotification({ message: "Google signup failed", type: "error" }));
+    } catch {
+      dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
     }
   };
 
   return (
     <div className={styles.container}>
-      <h2>Register</h2>
+      <h2>{t("registerTitle")}</h2>
       <form onSubmit={handleSubmit(onSubmit)}>
         <input
           type="email"
-          placeholder="Email"
+          placeholder={t("email")}
           {...register("email")}
         />
         {errors.email && <p className={styles.error}>{errors.email.message}</p>}
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder={t("password")}
           {...register("password")}
         />
         {errors.password && <p className={styles.error}>{errors.password.message}</p>}
 
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Registering..." : "Register"}
+          {isSubmitting ? t("registering") : t("register")}
         </button>
       </form>
 
@@ -101,7 +98,7 @@ const RegisterForm = () => {
         <GoogleLogin
           onSuccess={handleGoogleSignup}
           onError={() =>
-            dispatch(showNotification({ message: "Google signup failed", type: "error" }))
+            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
           }
         />
       </div>

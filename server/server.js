@@ -30,6 +30,8 @@ import newsletterRoutes from "./routes/newsletterRoutes.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
 import squareRoutes from "./routes/squareRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
+import imageRoutes from "./routes/imageRoutes.js";
+import searchRoutes from "./routes/searchRoutes.js"; // ✅ новий роут
 
 import { errorHandler } from "./middleware/errorMiddleware.js";
 
@@ -45,18 +47,15 @@ app.use(morgan("dev"));
 app.use(helmet());
 
 // 🖼 Доступ до завантажених зображень
-// app.use("/uploads", express.static("public/uploads"));
 app.use(
   "/uploads",
   (req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*"); // ✅ дозвіл на всі origin
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin"); // ✅ це критично для зображень
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     next();
   },
   express.static("public/uploads")
 );
-
-
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -70,6 +69,8 @@ app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/webhook", webhookRoutes);
 app.use("/api/square", squareRoutes);
 app.use("/api/favorites", favoriteRoutes);
+app.use("/images", imageRoutes);
+app.use("/api/search", searchRoutes); // ✅ новий ендпоїнт пошуку
 
 // Global error handler
 app.use(errorHandler);

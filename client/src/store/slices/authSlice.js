@@ -1,38 +1,7 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../axios';
-import { showNotification } from './notificationSlice';
+// src/store/slices/authSlice.js
 
-// 🔐 Login: email + code → JWT
-export const loginUser = createAsyncThunk(
-  'auth/loginUser',
-  async ({ email, code }, { rejectWithValue, dispatch }) => {
-    try {
-      const res = await axios.post('/auth/verify-code', { email, code });
-      dispatch(showNotification({ type: 'success', message: 'Welcome back!' }));
-      return res.data;
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed';
-      dispatch(showNotification({ type: 'error', message: msg }));
-      return rejectWithValue(msg);
-    }
-  }
-);
-
-// ✅ Перевірка JWT → отримати поточного користувача
-export const fetchCurrentUser = createAsyncThunk(
-  'auth/fetchCurrentUser',
-  async (token, { rejectWithValue, dispatch }) => {
-    try {
-      const res = await axios.get('/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data;
-    } catch {
-      dispatch(showNotification({ type: 'error', message: 'Session expired' }));
-      return rejectWithValue('Token invalid or expired');
-    }
-  }
-);
+import { createSlice } from '@reduxjs/toolkit';
+import { loginUser, fetchCurrentUser, logoutUser } from '../thunks/authThunks';
 
 const authSlice = createSlice({
   name: 'auth',
@@ -51,6 +20,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // 🔐 loginUser
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -66,6 +36,7 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
 
+      // ✅ fetchCurrentUser
       .addCase(fetchCurrentUser.pending, (state) => {
         state.isLoading = true;
       })
@@ -74,6 +45,14 @@ const authSlice = createSlice({
         state.isLoading = false;
       })
       .addCase(fetchCurrentUser.rejected, (state) => {
+        state.user = null;
+        state.token = null;
+        state.isLoading = false;
+        localStorage.removeItem('token');
+      })
+
+      // 🚪 logoutUser
+      .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.isLoading = false;

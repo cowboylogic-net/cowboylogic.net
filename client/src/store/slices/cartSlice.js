@@ -1,13 +1,10 @@
-// cartSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchCartItems, addToCartThunk } from "../thunks/cartThunks";
-
-const localCart = JSON.parse(localStorage.getItem("cart")) || [];
 
 const cartSlice = createSlice({
   name: "cart",
   initialState: {
-    items: localCart,
+    items: [],
     error: null,
     isFetching: false,
     isAdding: false,
@@ -15,15 +12,12 @@ const cartSlice = createSlice({
   reducers: {
     removeFromCart: (state, action) => {
       state.items = state.items.filter((item) => item.id !== action.payload);
-      localStorage.setItem("cart", JSON.stringify(state.items));
     },
     clearCart: (state) => {
       state.items = [];
-      localStorage.removeItem("cart");
     },
     replaceCart: (state, action) => {
       state.items = action.payload;
-      localStorage.setItem("cart", JSON.stringify(action.payload));
     },
     updateItemQuantity: (state, action) => {
       const { itemId, quantity } = action.payload;
@@ -46,27 +40,19 @@ const cartSlice = createSlice({
       .addCase(fetchCartItems.fulfilled, (state, action) => {
         state.items = action.payload;
         state.isFetching = false;
-        localStorage.setItem("cart", JSON.stringify(action.payload));
       })
       .addCase(fetchCartItems.rejected, (state, action) => {
         state.error = action.payload;
         state.isFetching = false;
       })
+
       .addCase(addToCartThunk.pending, (state) => {
         state.isAdding = true;
         state.error = null;
       })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
-        const existing = state.items.find(
-          (item) => item.id === action.payload.id
-        );
-        if (existing) {
-          existing.quantity += action.payload.quantity;
-        } else {
-          state.items.push(action.payload);
-        }
+        state.items = action.payload; // ✅ payload — це повний масив з fetchCartItems
         state.isAdding = false;
-        localStorage.setItem("cart", JSON.stringify(state.items));
       })
       .addCase(addToCartThunk.rejected, (state, action) => {
         state.error = action.payload;
@@ -83,5 +69,5 @@ export const {
   removeItemById,
 } = cartSlice.actions;
 
-
 export default cartSlice.reducer;
+

@@ -1,10 +1,11 @@
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 
 import { fetchBookById } from "../../store/thunks/bookThunks";
 import { addToCartThunk } from "../../store/thunks/cartThunks";
-import { selectSelectedBook } from "../../store/selectors/bookSelectors";
+import { selectSelectedBook, selectLoadingFlags } from "../../store/selectors/bookSelectors";
 
 import styles from "./BookDetails.module.css";
 import FavoriteButton from "../../components/FavoriteButton/FavoriteButton";
@@ -13,10 +14,13 @@ import { createSquarePayment } from "../../services/paymentService";
 const BookDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { t } = useTranslation();
 
-  const user = useSelector((state) => state.auth.user);
+  const { isFetchingById } = useSelector(selectLoadingFlags);
+  const error = useSelector((state) => state.books.error);
   const book = useSelector(selectSelectedBook);
-  const { isFetchingById, error } = useSelector((state) => state.books);
+  const user = useSelector((state) => state.auth.user);
+  // const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
     if (id) dispatch(fetchBookById(id));
@@ -46,7 +50,8 @@ const BookDetails = () => {
     }
   };
 
-  if (isFetchingById || !book) return <h2 className={styles.loading}>Loading...</h2>;
+  if (isFetchingById || !book)
+    return <h2 className={styles.loading}>{t("book.loading")}</h2>;
   if (error) return <h2 className={styles.error}>{error}</h2>;
 
   return (
@@ -57,17 +62,17 @@ const BookDetails = () => {
 
       <div className={styles.info}>
         <h1 className={styles.title}>{book.title}</h1>
-        <p className={styles.author}>By {book.author}</p>
+        <p className={styles.author}>{t("book.byAuthor", { author: book.author })}</p>
         <p className={styles.description}>{book.description}</p>
         <p className={styles.price}>${book.price.toFixed(2)}</p>
 
         {user && (
           <div className={styles.actions}>
             <button onClick={handleAddToCart} className="btn btn-outline">
-              Add to Cart
+              {t("book.addToCart")}
             </button>
             <button onClick={handleBuyNow} className="btn btn-outline">
-              Buy Now 💳
+              {t("book.buyNow")}
             </button>
             <FavoriteButton bookId={book.id} />
           </div>

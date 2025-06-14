@@ -1,6 +1,6 @@
 # 📘 API Documentation — Cowboylogic Strategies / Publishing
 
-This documentation describes all available REST API endpoints for the backend of Cowboylogic. It follows best practices for clarity, consistency, and role-based access awareness.
+_Last updated: 2025-06-08
 
 ---
 
@@ -9,136 +9,104 @@ This documentation describes all available REST API endpoints for the backend of
 - **Local**: `http://localhost:5000/api`
 - **Production**: `http://clpit.duckdns.org:64660/api`
 
----
+## ⭐ Favorites Endpoints (`/api/...`)
 
-## 🔐 Authentication Endpoints (`/auth`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | - |
+| POST | `/` | - |
+| DELETE | `/:bookId` | - |
 
-| Method | Endpoint                    | Description                              | Access        |
-|--------|-----------------------------|------------------------------------------|----------------|
-| POST   | `/auth/register`            | Register new user                        | Public         |
-| POST   | `/auth/login`               | Login with email and password            | Public         |
-| POST   | `/auth/request-code`        | Request 2FA verification code            | Public         |
-| POST   | `/auth/verify-code`         | Verify 2FA code and receive JWT token    | Public         |
-| POST   | `/auth/logout`              | Invalidate JWT token                     | Authenticated  |
-| GET    | `/auth/me`                  | Get current user info                    | Authenticated  |
-| GET    | `/auth/google`              | Initiate Google login                    | Public         |
-| GET    | `/auth/google/callback`     | Google login callback                    | Public         |
+## 🌐 Webhooks Endpoints (`/api/...`)
 
----
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/square` | - |
 
-## 📚 Book Endpoints (`/books`)
+## 👥 Users Endpoints (`/api/...`)
 
-| Method | Endpoint        | Description         | Access       |
-|--------|-----------------|---------------------|--------------|
-| GET    | `/books`        | Get all books       | Public       |
-| GET    | `/books/:id`    | Get book by ID      | Public       |
-| POST   | `/books`        | Create book         | Admin only   |
-| PUT    | `/books/:id`    | Update book         | Admin only   |
-| DELETE | `/books/:id`    | Delete book         | Admin only   |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | - |
+| PATCH | `/:id/role` | - |
+| DELETE | `/:id` | - |
 
----
+## 💳 Square Endpoints (`/api/...`)
 
-## 🛒 Cart Endpoints (`/cart`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/create-payment` | - |
 
-| Method | Endpoint        | Description                  | Access         |
-|--------|-----------------|------------------------------|----------------|
-| GET    | `/cart`         | Get user's cart              | Authenticated  |
-| POST   | `/cart`         | Add item to cart             | Authenticated  |
-| PATCH  | `/cart/:id`     | Update item quantity         | Authenticated  |
-| DELETE | `/cart/:id`     | Remove item from cart        | Authenticated  |
-| DELETE | `/cart`         | Clear entire cart            | Authenticated  |
+## 📄 Pages Endpoints (`/api/...`)
 
----
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/:slug` | - |
+| GET | `/:slug/versions` | - |
+| PUT | `/:slug/draft` | - |
+| PUT | `/:slug` | - |
 
-## 📦 Order Endpoints (`/orders`)
+## 📚 Books Endpoints (`/api/...`)
 
-| Method | Endpoint            | Description               | Access         |
-|--------|---------------------|---------------------------|----------------|
-| GET    | `/orders`           | Get current user's orders | Authenticated  |
-| GET    | `/orders/all`       | Get all orders            | Admin only     |
-| POST   | `/orders`           | Create a new order        | Authenticated  |
-| PATCH  | `/orders/:id/status`| Update order status       | Admin only     |
-| DELETE | `/orders/:id`       | Delete an order           | Admin only     |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | - |
+| GET | `/:id` | - |
+| DELETE | `/:id` | - |
+| POST | `/` | - |
+| PUT | `/` | - |
 
----
+## 📢 Newsletter Endpoints (`/api/...`)
 
-## 📄 Page Endpoints (`/pages`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/subscribe` | - |
+| POST | `/send` | - |
 
-| Method | Endpoint         | Description                       | Access       |
-|--------|------------------|-----------------------------------|--------------|
-| GET    | `/pages/:slug`   | Get page content by slug          | Public       |
-| POST   | `/pages`         | Create new page                   | Admin only   |
-| PUT    | `/pages/:slug`   | Update existing page content      | Admin only   |
+## 📦 Orders Endpoints (`/api/...`)
 
----
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/` | - |
+| GET | `/` | - |
+| GET | `/all` | - |
+| PATCH | `/:id/status` | - |
+| DELETE | `/:id` | - |
+| GET | `/latest` | - |
+| POST | `/create-checkout-session` | - |
+| POST | `/confirm-stripe-order` | - |
 
-## 📬 Newsletter Endpoints (`/newsletter`)
+## 📬 Contact Endpoints (`/api/...`)
 
-| Method | Endpoint               | Description              | Access       |
-|--------|------------------------|--------------------------|--------------|
-| POST   | `/newsletter/subscribe`| Subscribe to newsletter  | Public       |
-| POST   | `/newsletter/send`     | Send newsletter          | Admin only   |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/` | - |
 
----
+## 🔐 Auth Endpoints (`/api/...`)
 
-## 🧾 Contact Endpoint (`/contact`)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/` | - |
+| POST | `/` | - |
+| POST | `/logout` | - |
+| GET | `/me` | - |
+| POST | `/google` | - |
+| POST | `/request-code` | - |
+| POST | `/verify-code` | - |
+| PATCH | `/reset-password` | - |
 
-| Method | Endpoint      | Description              | Access       |
-|--------|---------------|--------------------------|--------------|
-| POST   | `/contact`    | Send contact form data   | Public       |
+## 🖼️ Images Endpoints (`/api/...`)
 
----
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/upload` | - |
 
-## 👥 User Management (`/users`) — SuperAdmin Only
+## 🛒 Cart Endpoints (`/api/...`)
 
-| Method | Endpoint                 | Description              | Access         |
-|--------|--------------------------|--------------------------|----------------|
-| GET    | `/users`                | Get all users            | SuperAdmin     |
-| PATCH  | `/users/:id/role`       | Update user role         | SuperAdmin     |
-| DELETE | `/users/:id`            | Delete user              | SuperAdmin     |
-
----
-
-## 🔔 Stripe Webhook (`/webhook/stripe`)
-
-| Method | Endpoint              | Description                         | Access   |
-|--------|-----------------------|-------------------------------------|----------|
-| POST   | `/webhook/stripe`     | Stripe payment webhook handler      | Stripe   |
-
-### 📦 Example Payload
-
-```json
-{
-  "id": "evt_1OaL5hK2hZTf5aAbcXJjIYbY",
-  "type": "payment_intent.succeeded",
-  "data": {
-    "object": {
-      "id": "pi_3OaL4xK2hZTf5aAb1GJhUYd2",
-      "amount": 2500,
-      "currency": "usd",
-      "status": "succeeded",
-      "metadata": {
-        "userId": "42",
-        "bookId": "17"
-      }
-    }
-  }
-}
-```
-
-### 🔒 Security Notes
-- Always verify Stripe signature using your Stripe secret.
-- Process `payment_intent.succeeded` events only.
-- Log and handle any mismatches or errors.
-
----
-
-## 🧩 Notes
-- All admin and superadmin routes are protected by middleware (`isAdmin`, `isSuperAdmin`, `requireRole`).
-- 2FA flow requires `request-code` then `verify-code`.
-- JWT-based sessions use `Authorization: Bearer <token>`.
-- Superadmin activity is logged in `logs/superadmin.log`.
-
----
-
-_Last updated: 2025-05-23_
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/` | - |
+| POST | `/` | - |
+| PATCH | `/:itemId` | - |
+| DELETE | `/:itemId` | - |
+| DELETE | `/` | - |

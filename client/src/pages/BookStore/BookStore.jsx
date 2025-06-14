@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useTranslation } from "react-i18next";
 import BookList from "../../components/BookList/BookList";
 import axios from "../../store/axios";
 import styles from "./BookStore.module.css";
@@ -9,6 +10,7 @@ const BookStore = () => {
   const [books, setBooks] = useState([]);
   const navigate = useNavigate();
   const user = useSelector((state) => state.auth.user);
+  const { t } = useTranslation();
 
   useEffect(() => {
     axios
@@ -21,19 +23,18 @@ const BookStore = () => {
     navigate("/admin/books/new");
   };
 
-  // 🗑️ Видалення книги з локального стану
+  // 🗑️ Remove book from local list (after deletion)
   const handleDelete = (id) => {
     setBooks((prev) => prev.filter((book) => book.id !== id));
   };
 
   return (
     <div className={styles.bookStore}>
-      {/* <h1>CLP BookStore</h1> */}
+      <h1>{t("bookstore.title")}</h1>
 
-      {/* 🔐 Кнопка "Add Book" тільки для адміна */}
       {user?.role === "admin" && (
         <button onClick={handleAddBook} className={styles.addButton}>
-          Add Book
+          {t("bookstore.addBook")}
         </button>
       )}
 

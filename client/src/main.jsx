@@ -5,20 +5,18 @@ import { Provider } from "react-redux";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { store } from "./store/store";
 import App from "./App";
-import Loader from "./components/Loader/Loader"; // 👈 додамо
-import { fetchCurrentUser } from "./store/slices/authSlice";
+import Loader from "./components/Loader/Loader";
+import { fetchCurrentUser } from "./store/thunks/authThunks"; // ✅ правильний імпорт
 
-import './i18n';
-import './index.css';
+import "./i18n";
+import "./index.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
-// 🧠 Глобальний fetch перед рендером App
 const renderApp = async () => {
   const token = localStorage.getItem("token");
 
   if (token) {
-    // спробуємо отримати користувача
     await store.dispatch(fetchCurrentUser(token));
   }
 
@@ -35,6 +33,5 @@ const renderApp = async () => {
   );
 };
 
-// Поки не підтягнемо токен — Loader
 root.render(<Loader />);
 renderApp();

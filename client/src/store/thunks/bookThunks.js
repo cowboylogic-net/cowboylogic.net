@@ -1,75 +1,99 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../../store/axios";
-import { showNotification } from "../slices/notificationSlice";
+// src/store/thunks/bookThunks.js
 
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import axios from '../../store/axios';
+import { showSuccess, showError } from './notificationThunks';
+
+// 📚 Отримати всі книги
 export const fetchBooks = createAsyncThunk(
-  "books/fetchBooks",
-  async (_, { rejectWithValue }) => {
+  'books/fetchBooks',
+  async (_, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.get("/books");
+      const response = await axios.get('/books');
       return response.data;
     } catch {
-      return rejectWithValue("Failed to load books");
+      const msg = 'Failed to load books';
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
     }
   }
 );
 
+// 🔍 Отримати книгу за ID
 export const fetchBookById = createAsyncThunk(
-  "books/fetchBookById",
-  async (id, { rejectWithValue }) => {
+  'books/fetchBookById',
+  async (id, { rejectWithValue, dispatch }) => {
     try {
       const response = await axios.get(`/books/${id}`);
       return response.data;
     } catch {
-      return rejectWithValue("Failed to fetch book by ID");
-    }
-  }
-);
-
-export const createBook = createAsyncThunk(
-  "books/createBook",
-  async (formData, { rejectWithValue, dispatch }) => {
-    try {
-      const response = await axios.post("/books", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      dispatch(showNotification({ type: "success", message: "Book added successfully!" }));
-      return response.data;
-    } catch (err) {
-      const msg = err.response?.data?.message || "Failed to create book";
-      dispatch(showNotification({ type: "error", message: msg }));
+      const msg = 'Failed to fetch book by ID';
+      dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }
 );
 
+// ➕ Створити нову книгу
+export const createBook = createAsyncThunk(
+  'books/createBook',
+  async (formData, { rejectWithValue, dispatch, getState }) => {
+    const { token } = getState().auth;
+    try {
+      const response = await axios.post('/books', formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      dispatch(showSuccess('Book added successfully!'));
+      return response.data;
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to create book';
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+// ✏️ Оновити існуючу книгу
 export const updateBook = createAsyncThunk(
-  "books/updateBook",
-  async ({ id, formData }, { rejectWithValue, dispatch }) => {
+  'books/updateBook',
+  async ({ id, formData }, { rejectWithValue, dispatch, getState }) => {
+    const { token } = getState().auth;
     try {
       const response = await axios.put(`/books/${id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'multipart/form-data',
+        },
       });
-      dispatch(showNotification({ type: "success", message: "Book updated successfully!" }));
+      dispatch(showSuccess('Book updated successfully!'));
       return response.data;
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to update book";
-      dispatch(showNotification({ type: "error", message: msg }));
+      const msg = err.response?.data?.message || 'Failed to update book';
+      dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }
 );
 
+// 🗑️ Видалити книгу
 export const deleteBook = createAsyncThunk(
-  "books/deleteBook",
-  async (id, { rejectWithValue, dispatch }) => {
+  'books/deleteBook',
+  async (id, { rejectWithValue, dispatch, getState }) => {
+    const { token } = getState().auth;
     try {
-      await axios.delete(`/books/${id}`);
-      dispatch(showNotification({ type: "success", message: "Book deleted successfully!" }));
+      await axios.delete(`/books/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      dispatch(showSuccess('Book deleted successfully!'));
       return id;
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to delete book";
-      dispatch(showNotification({ type: "error", message: msg }));
+      const msg = err.response?.data?.message || 'Failed to delete book';
+      dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }

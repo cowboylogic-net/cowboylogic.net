@@ -1,43 +1,67 @@
-// === pageThunks.js ===
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../../store/axios";
-import { showNotification } from "../slices/notificationSlice";
+// src/store/thunks/pageThunks.js
 
-export const fetchPageContent = createAsyncThunk(
-  "pages/fetchPageContent",
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import axios from '../../store/axios';
+import {
+  showSuccess,
+  showError,
+  showTemporaryNotification,
+} from './notificationThunks';
+
+// 1. Завантажити опублікований і драфтовий контент
+export const fetchPageVersions = createAsyncThunk(
+  'pages/fetchPageVersions',
   async (slug, { rejectWithValue, dispatch }) => {
     try {
       const res = await axios.get(`/pages/${slug}`);
-      return { slug, content: res.data.content };
+      return {
+        slug,
+        published: res.data.content || '',
+        draft: res.data.draftContent || res.data.content || '',
+      };
     } catch {
       const msg = `Failed to load page: ${slug}`;
-      dispatch(showNotification({ type: "error", message: msg }));
+      dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }
 );
 
-export const updatePageContent = createAsyncThunk(
-  "pages/updatePageContent",
+// 2. Зберегти чернетку (не публікується)
+export const saveDraftContent = createAsyncThunk(
+  'pages/saveDraftContent',
   async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
     try {
-      const res = await axios.put(
+      await axios.put(
+        `/pages/${slug}/draft`,
+        { draftContent: content },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      dispatch(showTemporaryNotification({ type: 'info', message: `Draft saved for ${slug}` }));
+      return { slug, content };
+    } catch {
+      const msg = `Failed to save draft for ${slug}`;
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+// 3. Зберегти і опублікувати сторінку
+export const updatePageContent = createAsyncThunk(
+  'pages/updatePageContent',
+  async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
+    try {
+      await axios.put(
         `/pages/${slug}`,
         { content },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-      dispatch(
-        showNotification({
-          type: "success",
-          message: `Saved changes for ${slug}`,
-        })
-      );
-      return { slug, content: res.data.content };
+      dispatch(showSuccess(`Changes published for ${slug}`));
+      return { slug, content };
     } catch {
-      const msg = `Failed to update page: ${slug}`;
-      dispatch(showNotification({ type: "error", message: msg }));
+      const msg = `Failed to publish page: ${slug}`;
+      dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }

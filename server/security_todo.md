@@ -1,52 +1,63 @@
+
 # ✅ Implemented Security Features — Cowboylogic
 
-This file lists all completed backend security improvements as of 2025-05-23.
+## Updated as of 2025-06-06
 
 ---
 
 ### 🔐 Authentication & Access Control
+
 - JWT-based auth with `protect` middleware
 - Role separation: `user`, `admin`, `superadmin`
 - Role-based route protection: `isAdmin`, `isSuperAdmin`, `requireRole([...])`
 - Token invalidation with `tokenVersion`
 
 ### 🔁 Password Management
+
 - Password hashing with bcrypt
-- Password reset endpoint for authorized users with `tokenVersion++`
+- Password reset endpoint with `tokenVersion++`
 
 ### 🧠 Authorization Features
-- Superadmin role is protected from deletion and modification
-- Admins have limited content editing privileges
-- Middleware `authLimiter` limits login attempts (brute-force protection)
+
+- Superadmin role protected from deletion/modification
+- Admins limited to content editing only
+- `authLimiter` limits brute-force login attempts
 
 ### 📝 Logging & Auditing
+
 - Superadmin actions logged to `logs/superadmin.log`
-- User activity logging via `protect` middleware
+- General user actions logged via `protect` middleware
 
 ### 🔐 Two-Factor Authentication (2FA)
-- Email code step after login
-- Endpoints: `/auth/request-code`, `/auth/verify-code`
-- Code expires after 5 minutes
+
+- Email code required after login
+- `/auth/request-code` + `/auth/verify-code`
+- 5-minute expiration for codes
 
 ### 📦 Input Validation & Protection
-- Joi-based validation via `validateBody`
-- `sanitize-html` used to clean HTML content
-- `helmet()` middleware applied globally
 
-### 🧾 .env and Deployment Guidelines
-- Never commit `.env` files
-- Use platform secrets for production
-- Only use secrets for cryptographic operations
+- Joi-based validation (`validateBody`)
+- `sanitize-html` for HTML input
+- `helmet()` middleware for headers
+
+### 🖼 Upload Security
+
+- Implemented `uploadMiddleware.js`
+- MIME type and file extension checked
+- Filename sanitized, uploads restricted to images
+
+### 💳 Square Integration
+
+- Webhook implemented at `/webhook/square`
+- Signature verification with secret key
+- Handles successful payment creation (`payment.created`)
 
 ---
 
 ## 🔜 Optional Security Enhancements
 
-- File upload hardening (MIME type check, size, unique filenames)
 - CSRF protection (if using cookies)
-- Session auditing: log IP, user agent, location
+- Session auditing (log IP, user-agent)
 - Email notifications on login or password change
 - Refresh token flow
-
----
-
+- Swagger/OpenAPI documentation

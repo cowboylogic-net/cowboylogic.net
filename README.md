@@ -1,81 +1,139 @@
 
-# 🧠 CowboyLogic Full Project README / Повна документація проєкту CowboyLogic
+# 📘 CowboyLogic — Fullstack Web Platform (Detailed Overview)
 
-## 📘 Опис / Description
+_Last updated: 2025-06-08
 
-**🇺🇸 English:**  
-CowboyLogic is a bilingual full-stack web platform for showcasing and selling books by local authors. It also offers editable content pages, consulting service promotion, secure login with 2FA, Square payments, and role-based access for users, admins, and superadmins.
+CowboyLogic is a full-featured bilingual (EN/UA) publishing and strategy platform built with a modern tech stack
 
-**🇺🇦 Українською:**  
-CowboyLogic — це двомовна повноцінна веб-платформа для демонстрації й продажу книг місцевих авторів. Платформа також дозволяє редагувати контент сторінок, просувати консультаційні послуги, підтримує захищений вхід з 2FA, оплату через Square та контроль доступу за ролями (юзер, адмін, супер-адмін).
-
----
-
-## 🛠 Технології / Tech Stack
-
-- **Frontend:** React + Vite + Redux Toolkit
-- **Backend:** Node.js + Express
-- **Database:** MySQL + Sequelize ORM
-- **Security:** JWT, 2FA (email), rate-limiting, role-based access, upload validation
-- **Payment Integration:** Square Webhooks
-- **UI/UX:** Editable content, WYSIWYG editor, modals, multilingual (en, es)
+- **Frontend:** React + Vite + Redux Toolkit + i18n
+- **Backend:** Node.js + Express + Sequelize + MySQL
+- **Deployment:** HostGator (Frontend), Physical Server with DuckDNS (Backend)
+- **Security:** JWT, 2FA, role-based access, input validation, upload security
 
 ---
 
-## 🔐 Аутентифікація та Ролі / Authentication & Roles
+## 🚀 Features
 
-- Email/Password login + optional 2FA (email code)
-- Google login (OAuth)
-- Role hierarchy:
-  - `user`: standard features (view, cart, order)
-  - `admin`: manage content (books, pages, newsletters)
-  - `superadmin`: manage users, assign roles, audit logs
+### 🔐 Authentication & Authorization
 
----
+- JWT-based login with 2FA (email code)
+- Google OAuth login supported
+- Role-based routing: `user`, `admin`, `superadmin`
+- Middleware protection: `protect`, `isAdmin`, `isSuperAdmin`, `requireRole`
 
-## 📦 Основний функціонал / Key Features
+### 📚 Bookstore
 
-- 📚 Book Management (CRUD, image upload)
-- 🛒 Shopping Cart & Orders
-- 💳 Square Payment Integration
-- ✍️ Editable Pages (WYSIWYG)
-- 🌍 Multilingual (English, Spanish)
-- 🧩 Redux Global State
-- 🔔 Notifications + Modals + Validation
+- Browse, add, edit, and delete books (admin only)
+- Favorites system: `GET/POST/DELETE /api/favorites`
+- Book rating feature (planned)
 
----
+### 🛒 Cart & Checkout
 
-## 🧩 Структура проєкту / Project Structure
+- Add/remove items from cart
+- Integrated Square payment
+- Success and Cancel pages
+- Orders stored and accessible by users/admins
 
-**Backend:**  
-See → [server_structure_FULL_FACTUAL.txt](./server_structure_FULL_FACTUAL.txt)
+### ✍️ Editable Pages
 
-**Frontend:**  
-See → [frontend_structure_FULL_FACTUAL.txt](./frontend_structure_FULL_FACTUAL.txt)
+- Admins can edit static pages via WYSIWYG editor
+- Supports bold/italic, tables, links, and image uploads
+- Version history, draft saving, and HTML confirmation modals
 
----
+### 📬 Newsletter & Contact
 
-## ✅ Завершено / Completed
+- Newsletter signup and admin-only sending
+- Contact form with email forwarding
+- Subscriptions stored in DB
 
-- [x] REST API with validation and error handling
-- [x] Auth + 2FA + Role control
-- [x] Newsletter system
-- [x] Editable pages with image modals
-- [x] Favorites system
-- [x] Square Webhook integration
-- [x] Admin dashboard
-- [x] Security audit + protection
+### 🧪 Testing (Planned)
+
+- Unit tests (Redux slices)
+- Snapshot tests
+- API route testing
 
 ---
 
-## 🔜 У розробці / In Progress
+## 🛡 Security Architecture
 
-- [ ] Vitest / RTL тестування (Front)
-- [ ] Swagger / OpenAPI (Back)
-- [ ] Мультимовність на всіх сторінках
-- [ ] Повідомлення після оплати (SuccessPage)
-- [ ] CSRF + Audit logs + Upload security
+- **JWT + Middleware:** Protects all private routes
+- **Brute-force protection:** Rate limiter on login
+- **2FA:** Code via email with expiration
+- **SuperAdmin:** Cannot be deleted or modified by others
+- **Upload protection:** MIME type, extension, filename sanitation
+- **Webhook validation:** Square signature check on `/webhook/square`
 
 ---
 
-_Last updated: 2025-06-06_
+## 🌍 Internationalization (i18n)
+
+- Fully supports English and Ukrainian
+- Language switcher in UI
+- Translations stored in `public/locales/{lang}`
+- Editable content remains language-agnostic (stored per slug)
+
+---
+
+## 🧩 Tech Stack
+
+| Layer         | Technology                         |
+|---------------|-------------------------------------|
+| Frontend      | React, Vite, Redux Toolkit          |
+| Styling       | CSS Modules, custom themes          |
+| i18n          | react-i18next                       |
+| State         | Redux Toolkit (slices + thunks)     |
+| Backend       | Node.js, Express                    |
+| ORM           | Sequelize                           |
+| Database      | MySQL                               |
+| Auth          | JWT, 2FA (email codes)              |
+| Payment       | Square Checkout API                 |
+| Hosting       | HostGator (Frontend), VPS (Backend) |
+| CI/CD         | Jenkins + PM2                       |
+
+---
+
+## 📦 Folder Structure (Mono-Repo)
+
+cowboylogic.net/
+├── client/               # React frontend
+│   ├── src/components/   # Modular components
+│   ├── src/pages/        # Route pages
+│   ├── src/store/        # Redux logic
+├── server/               # Express backend
+│   ├── controllers/      # Route logic
+│   ├── models/           # Sequelize models
+│   ├── routes/           # API routing
+│   ├── middleware/       # Custom middleware
+│   ├── services/         # Email/Square integrations
+
+---
+
+## 👥 Roles & Permissions
+
+| Role        | Permissions Summary |
+|-------------|---------------------|
+| **User**    | View books, manage cart, place orders, edit profile |
+| **Admin**   | Manage content, books, orders, newsletters |
+| **SuperAdmin** | Full control including user management and protected deletion |
+
+---
+
+## 🧠 Developer Tips
+
+- Environment variables must be configured via `.env` (not committed)
+- Use `vite` for frontend dev and `nodemon` / `pm2` for backend dev/prod
+- Database schema changes should be done via Sequelize CLI (migrations)
+- For i18n: avoid hardcoded strings; use `t("key")` and proper locale files
+
+---
+
+## 🔧 TODO Highlights (See full TODO)
+
+- [ ] Finalize validation and error handling
+- [ ] Translate all pages/components to full bilingual
+- [ ] Add tests (Vitest + Jest or React Testing Library)
+- [ ] Enhance SEO and performance
+
+---
+
+CowboyLogic is under active development and gradually approaching production stability. Contributions and code reviews welcome.

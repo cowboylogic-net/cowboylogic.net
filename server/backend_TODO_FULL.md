@@ -56,4 +56,4 @@
 
 ---
 
-_Last updated: 2025-06-06_
+_Last updated: 2025-06-06

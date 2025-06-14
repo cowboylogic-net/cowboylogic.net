@@ -9,7 +9,10 @@ import { useTranslation } from "react-i18next";
 
 import styles from "./LoginForm.module.css";
 import axios from "../../store/axios";
-import { loginUser, fetchCurrentUser } from "../../store/slices/authSlice";
+import { loginUser } from "../../store/thunks/authThunks";         // ✅ виправлено
+import { fetchCurrentUser } from "../../store/thunks/authThunks"; // вже правильно
+
+
 import { showNotification } from "../../store/slices/notificationSlice";
 
 // ✅ Схема валідації для кроку 1
@@ -24,7 +27,7 @@ const codeSchema = yup.object().shape({
 });
 
 const LoginForm = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation("login");
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isLoading = useSelector((state) => state.auth.isLoading);
@@ -46,20 +49,16 @@ const LoginForm = () => {
       await axios.post("/auth/request-code", { email: data.email });
 
       setEmail(data.email);
-
-      // Очищуємо email і password при переході на step 2
       setValue("email", "");
       setValue("password", "");
-
       setStep(2);
-      dispatch(showNotification({ message: t("login.codeSent"), type: "info" }));
+
+      dispatch(showNotification({ message: t("codeSent"), type: "info" }));
     } catch (err) {
-      dispatch(
-        showNotification({
-          message: err.response?.data?.message || t("login.loginFailed"),
-          type: "error",
-        })
-      );
+      dispatch(showNotification({
+        message: err.response?.data?.message || t("loginFailed"),
+        type: "error",
+      }));
     }
   };
 
@@ -67,19 +66,17 @@ const LoginForm = () => {
     try {
       const result = await dispatch(loginUser({ email, code: data.code }));
       if (loginUser.fulfilled.match(result)) {
-        dispatch(showNotification({ message: t("login.welcomeBack"), type: "success" }));
+        dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
         dispatch(fetchCurrentUser(result.payload.token));
         navigate("/");
       } else {
-        dispatch(
-          showNotification({
-            message: result.payload || t("login.codeInvalid"),
-            type: "error",
-          })
-        );
+        dispatch(showNotification({
+          message: result.payload || t("codeInvalid"),
+          type: "error",
+        }));
       }
     } catch {
-      dispatch(showNotification({ message: t("login.codeInvalid"), type: "error" }));
+      dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
     }
   };
 
@@ -91,34 +88,34 @@ const LoginForm = () => {
 
       localStorage.setItem("token", res.data.token);
       dispatch(fetchCurrentUser(res.data.token));
-      dispatch(showNotification({ message: t("login.googleSuccess"), type: "success" }));
+      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
       navigate("/");
     } catch {
-      dispatch(showNotification({ message: t("login.googleFailed"), type: "error" }));
+      dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
     }
   };
 
   return (
     <div className={styles.container}>
-      <h2>{t("Login")}</h2>
+      <h2>{t("title")}</h2>
 
       {step === 1 ? (
         <form onSubmit={handleSubmit(onLogin)}>
-          <input type="email" placeholder={t("Email")} {...register("email")} />
+          <input type="email" placeholder={t("email")} {...register("email")} />
           {errors.email && <p className={styles.error}>{errors.email.message}</p>}
 
-          <input type="password" placeholder={t("Password")} {...register("password")} />
+          <input type="password" placeholder={t("password")} {...register("password")} />
           {errors.password && <p className={styles.error}>{errors.password.message}</p>}
 
-          <button type="submit">{t("Continue")}</button>
+          <button type="submit">{t("continue")}</button>
         </form>
       ) : (
         <form onSubmit={handleSubmit(onVerify)}>
-          <input type="text" placeholder={t("Placeholder")} {...register("code")} />
+          <input type="text" placeholder={t("codePlaceholder")} {...register("code")} />
           {errors.code && <p className={styles.error}>{errors.code.message}</p>}
 
           <button type="submit" disabled={isLoading}>
-            {isLoading ? t("LoggingIn") : t("Verify")}
+            {isLoading ? t("loggingIn") : t("verify")}
           </button>
         </form>
       )}
@@ -127,7 +124,7 @@ const LoginForm = () => {
         <GoogleLogin
           onSuccess={handleGoogleLogin}
           onError={() =>
-            dispatch(showNotification({ message: t("login.googleFailed"), type: "error" }))
+            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
           }
         />
       </div>
@@ -136,4 +133,3 @@ const LoginForm = () => {
 };
 
 export default LoginForm;
-

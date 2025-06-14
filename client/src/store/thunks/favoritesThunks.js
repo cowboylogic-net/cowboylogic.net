@@ -1,68 +1,69 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../axios";
-import { showNotification } from "../slices/notificationSlice";
+// src/store/thunks/favoritesThunks.js
+
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import axios from '../axios';
+import { showSuccess, showError } from './notificationThunks';
 
 export const fetchFavorites = createAsyncThunk(
-  "favorites/fetchFavorites",
-  async (_, { rejectWithValue, getState }) => {
+  'favorites/fetchFavorites',
+  async (_, { rejectWithValue, getState, dispatch }) => {
     const token = getState().auth.token;
-    if (!token) return rejectWithValue("No auth token provided");
+    if (!token) {
+      dispatch(showError('No auth token provided'));
+      return rejectWithValue('No auth token');
+    }
 
     try {
-      const res = await axios.get("/favorites", {
+      const res = await axios.get('/favorites', {
         headers: { Authorization: `Bearer ${token}` },
       });
       return res.data;
     } catch (err) {
-      return rejectWithValue(
-        err.response?.data?.message || "Failed to load favorites"
-      );
+      const msg = err.response?.data?.message || 'Failed to load favorites';
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
     }
   }
 );
 
 export const addFavorite = createAsyncThunk(
-  "favorites/addFavorite",
+  'favorites/addFavorite',
   async (bookId, { rejectWithValue, dispatch, getState }) => {
     try {
       const token = getState().auth.token;
-
       await axios.post(
-        "/favorites",
+        '/favorites',
         { bookId },
         {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
 
-      dispatch(
-        showNotification({ type: "success", message: "Added to favorites" })
-      );
-
-      // 🔁 Повертаємо лише bookId — завжди надійно
+      dispatch(showSuccess('Added to favorites'));
       return bookId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Add failed");
+      const msg = err.response?.data?.message || 'Add to favorites failed';
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
     }
   }
 );
+
 export const removeFavorite = createAsyncThunk(
-  "favorites/removeFavorite",
+  'favorites/removeFavorite',
   async (bookId, { rejectWithValue, dispatch, getState }) => {
     try {
       const token = getState().auth.token;
       await axios.delete(`/favorites/${bookId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      dispatch(
-        showNotification({
-          type: "success",
-          message: "Removed from favorites",
-        })
-      );
+
+      dispatch(showSuccess('Removed from favorites'));
       return bookId;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Remove failed");
+      const msg = err.response?.data?.message || 'Remove from favorites failed';
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
     }
   }
 );

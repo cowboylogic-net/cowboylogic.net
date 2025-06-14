@@ -1,16 +1,19 @@
 {
-  "login": {
-    "title": "Iniciar sesión",
-    "email": "Correo electrónico",
-    "password": "Contraseña",
-    "continue": "Continuar",
-    "codePlaceholder": "Ingresa el código de verificación",
-    "verify": "Verificar",
-    "codeSent": "Código de verificación enviado a tu correo.",
-    "loginFailed": "Error al iniciar sesión",
-    "codeInvalid": "Código inválido o expirado",
-    "welcomeBack": "¡Bienvenido de nuevo!",
-    "googleFailed": "Error al iniciar sesión con Google",
-    "googleSuccess": "¡Sesión iniciada con Google!"
-  }
+  "title": "Iniciar sesión",
+  "registerTitle": "Registrarse",
+  "email": "Correo electrónico",
+  "password": "Contraseña",
+  "continue": "Continuar",
+  "verify": "Verificar",
+  "loggingIn": "Iniciando sesión...",
+  "codePlaceholder": "Ingresa el código de verificación",
+  "codeSent": "El código de verificación fue enviado a tu correo.",
+  "codeInvalid": "Código inválido o expirado",
+  "loginFailed": "Error al iniciar sesión",
+  "registerFailed": "Error al registrarse",
+  "registered": "¡Cuenta creada exitosamente!",
+  "registering": "Registrando...",
+  "welcomeBack": "¡Bienvenido de nuevo!",
+  "googleSuccess": "¡Sesión iniciada con Google!",
+  "googleFailed": "Error al iniciar sesión con Google"
 }

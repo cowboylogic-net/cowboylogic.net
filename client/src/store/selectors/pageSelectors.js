@@ -1,11 +1,39 @@
 import { createSelector } from "reselect";
 
-const selectPages = (state) => state.pages.pages;
+// --- Base selectors
+const selectPagesState = (state) => state.pages;
+const selectPublishedPages = (state) => state.pages.published;
+const selectDraftPages = (state) => state.pages.drafts;
 
-export const selectPageContentBySlug = (slug) =>
-  createSelector([selectPages], (pages) => pages[slug] || "");
-export const selectPageError = (state) => state.pages.error;
-export const selectPageFetching = (state) => state.pages.isFetching;
-export const selectPageUpdating = (state) => state.pages.isUpdating;
-export const selectAllPages = (state) => state.pages.pages;
+// --- Опублікований контент
+export const selectPublishedContentBySlug = (slug) =>
+  createSelector([selectPublishedPages], (published) => published[slug] || "");
 
+// --- Чернетковий контент
+export const selectDraftContentBySlug = (slug) =>
+  createSelector([selectDraftPages], (drafts) => drafts[slug] || "");
+
+// --- Статуси
+export const selectPageError = createSelector(
+  [selectPagesState],
+  (pages) => pages.error
+);
+
+export const selectPageFetching = createSelector(
+  [selectPagesState],
+  (pages) => pages.isFetching
+);
+
+export const selectPageUpdating = createSelector(
+  [selectPagesState],
+  (pages) => pages.isUpdating
+);
+
+export const selectPageDraftSaving = createSelector(
+  [selectPagesState],
+  (pages) => pages.isDraftSaving
+);
+
+// --- Всі сторінки
+export const selectAllPublishedPages = selectPublishedPages;
+export const selectAllDraftPages = selectDraftPages;

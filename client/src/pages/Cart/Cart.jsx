@@ -1,55 +1,57 @@
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
 import { fetchCartItems } from "../../store/thunks/cartThunks";
 import {
   updateItemQuantity,
   removeItemById,
 } from "../../store/slices/cartSlice";
+import {
+  selectCartItems,
+  selectCartTotal,
+} from "../../store/selectors/cartSelectors";
 import { toast } from "react-toastify";
 import { apiService } from "../../services/axiosService";
 import styles from "./Cart.module.css";
+import CartItem from "../../components/CartItem/CartItem";
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const { t } = useTranslation();
+
   const token = useSelector((state) => state.auth.token);
   const user = useSelector((state) => state.auth.user);
-  const items = useSelector((state) => state.cart.items);
-  const error = useSelector((state) => state.cart.error);
 
-  // ✅ Завантаження кошика лише якщо він порожній
+  const items = useSelector(selectCartItems);
+  const totalPrice = useSelector(selectCartTotal);
+  const { isFetching, isAdding, error } = useSelector((state) => state.cart);
+
   useEffect(() => {
     if (!items.length) {
       dispatch(fetchCartItems());
     }
   }, [dispatch, items.length]);
 
-  // ✅ Оновлення кількості без повторного fetch
   const handleQuantityChange = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
     try {
       await apiService.patch(`/cart/${itemId}`, { quantity: newQuantity }, token);
       dispatch(updateItemQuantity({ itemId, quantity: newQuantity }));
-      toast.success("Quantity updated");
+      toast.success(t("cart.quantityUpdated"));
     } catch {
-      toast.error("Failed to update quantity");
+      toast.error(t("cart.quantityUpdateError"));
     }
   };
 
-  // ✅ Видалення без refetch
   const handleRemove = async (itemId) => {
     try {
       await apiService.delete(`/cart/${itemId}`, token);
       dispatch(removeItemById(itemId));
-      toast.success("Item removed from cart");
+      toast.success(t("cart.itemRemoved"));
     } catch {
-      toast.error("Failed to remove item");
+      toast.error(t("cart.itemRemoveError"));
     }
   };
-
-  // ✅ Мемоізація totalPrice
-  const totalPrice = useMemo(() => {
-    return items.reduce((sum, item) => sum + item.quantity * item.Book.price, 0);
-  }, [items]);
 
   const handleSquareCheckout = async () => {
     try {
@@ -65,44 +67,42 @@ const Cart = () => {
       );
       window.location.href = res.data.checkoutUrl;
     } catch (err) {
-      toast.error("Square checkout failed");
+      toast.error(t("cart.checkoutError"));
       console.error(err);
     }
   };
 
+  if (isFetching) return <h2>{t("cart.loading")}</h2>;
+
   return (
-    <div className={styles["cart-page"]}>
-      <h2>My Cart</h2>
+    <div className={styles.cartPage}>
+      <h2>{t("cart.title")}</h2>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {items.length === 0 ? (
-        <p>Your cart is empty.</p>
+        <p>{t("cart.empty")}</p>
       ) : (
         <>
-          <ul>
+          <ul className={styles.cartList}>
             {items.map((item) => (
-              <li key={item.id}>
-                <strong>{item.Book.title}</strong>
-                <span className={styles.price}> — ${item.Book.price}</span>
-                <input
-                  type="number"
-                  min="1"
-                  value={item.quantity}
-                  onChange={(e) =>
-                    handleQuantityChange(item.id, Number(e.target.value))
-                  }
-                />
-                <button onClick={() => handleRemove(item.id)}>Remove</button>
-              </li>
+              <CartItem
+                key={item.id}
+                item={item}
+                onQuantityChange={handleQuantityChange}
+                onRemove={handleRemove}
+              />
             ))}
           </ul>
 
-          <h3>Total: ${totalPrice.toFixed(2)}</h3>
+          <h3 className={styles.total}>
+            {t("cart.total")}: ${totalPrice.toFixed(2)}
+          </h3>
           <button
             onClick={handleSquareCheckout}
-            className="btn btn-outline btn-checkout"
+            className={styles.checkoutBtn}
+            disabled={isAdding}
           >
-            Checkout with Square 💳
+            {t("cart.checkout")}
           </button>
         </>
       )}

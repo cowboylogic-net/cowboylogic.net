@@ -1,29 +1,34 @@
 import { Link } from "react-router-dom";
 import { FaFacebook, FaInstagram } from "react-icons/fa";
+import { useTranslation } from "react-i18next";
 import NewsletterSignup from "../NewsletterSignup/NewsletterSignup";
 import styles from "./Footer.module.css";
 
 export default function Footer() {
+  const { t } = useTranslation();
+
   return (
     <footer className={styles.container}>
       <div className={styles.topSection}>
         <div className={styles.column}>
-          <h3 className={styles.heading}>Navigation</h3>
+          <h3 className={styles.heading}>{t("footer.navigation")}</h3>
           <ul className={styles.navList}>
             <li>
-              <Link to="/contact">Contact Us</Link>
+              <Link to="/contact">{t("footer.contact")}</Link>
             </li>
             <li>
-              <Link to="/about">About</Link>
+              <Link to="/about">{t("footer.about")}</Link>
             </li>
             <li>
-              <Link to="/clstrategies/cowboy-college-consulting">Consulting</Link>
+              <Link to="/clstrategies/cowboy-college-consulting">
+                {t("footer.consulting")}
+              </Link>
             </li>
           </ul>
         </div>
 
         <div className={styles.column}>
-          <h3 className={styles.heading}>Follow Us</h3>
+          <h3 className={styles.heading}>{t("footer.followUs")}</h3>
           <ul className={styles.socialList}>
             <li>
               <a
@@ -46,15 +51,15 @@ export default function Footer() {
           </ul>
         </div>
         <div className={styles.column}>
-          <h3 className={styles.heading}>Stay Updated</h3>
+          <h3 className={styles.heading}>{t("footer.newsletter")}</h3>
           <NewsletterSignup />
         </div>
       </div>
 
       <div className={styles.bottomSection}>
         <p className={styles.footer_content}>
-          Copyright © 2025 <Link to="/">Roger Haller</Link>. All Rights
-          Reserved.
+          {t("footer.copyright", { year: "2025" })}{" "}
+          <Link to="/">Roger Haller</Link>. {t("footer.rights")}
         </p>
       </div>
     </footer>

@@ -1,64 +1,83 @@
-# API Endpoints Reference
+# 📌 API Endpoints Reference
 
-This file contains a list of main API routes based on the structure of the project in `server/routes/`. Each route is prefixed with `/api`.
+_Last updated: 2025-06-08
 
 ---
 
-## 📚 Books
-- `GET /api/books` — Get all books
-- `GET /api/books/:id` — Get a book by ID
-- `POST /api/books` — Create a new book (admin only)
-- `PUT /api/books/:id` — Update book (admin only)
-- `DELETE /api/books/:id` — Delete book (admin only)
+## ⭐ Favorites
 
-## 👤 Auth
-- `POST /api/auth/request-code` — Request a login verification code (for 2FA)
-- `POST /api/auth/verify-code` — Verify code and get token
+- `GET /api/`
+- `POST /api/`
+- `DELETE /api/:bookId`
 
-- `POST /api/auth/register` — Register new user
-- `POST /api/auth/login` — Login
-- `POST /api/auth/logout` - Logout
-- `GET /api/auth/me` — Get current user
-- `GET /api/auth/google` — Google auth init
-- `GET /api/auth/google/callback` — Google auth callback
+## 🌐 Webhooks
 
-## 🛒 Cart
-- `GET /api/cart` — Get user's cart
-- `POST /api/cart` — Add item to cart
-- `PATCH /api/cart/:id` — Update quantity
-- `DELETE /api/cart` — Clear cart
-- `DELETE /api/cart/:id` — Remove item from cart
-
-## 📦 Orders
-- `GET /api/orders` — Get user orders (user)
-- `GET /api/orders/all` — Get all orders (admin)
-- `POST /api/orders` — Create new order
-- `PATCH /api/orders/:id/status` — Update qrder status
-- `DELETE /api/orders/:id` — Delete order
-
-## 📄 Pages
-- `GET /api/pages/:slug` — Get page content by slug
-- `POST /api/pages/` — Create new page
-- `PUT /api/pages/:slug` — Update page content (admin)
-
-## 📬 Newsletter
-- `POST /api/newsletter/subscribe` — Subscribe to newsletter
-- `POST /api/newsletter/send` — Send newsletter (admin)
-
-## 🧾 Contact
-- `POST /api/contact` — Send contact message
+- `POST /api/square`
 
 ## 👥 Users
-- `GET /api/users` — Get all users (superadmin only, logs access)
-- `PATCH /api/users/:id/role` — Change user role (superadmin only, logs action)
-- `DELETE /api/users/:id` — Delete user (superadmin only, logs action)
 
-## 🌐 Webhook
-- `POST /api/webhook/stripe` — Stripe payment webhook
+- `GET /api/`
+- `PATCH /api/:id/role`
+- `DELETE /api/:id`
 
----
+## 💳 Square
 
-🔐 **Notes:**
-- Routes like `POST /books`, `PUT /pages/:slug`, `GET /users` are protected and require admin/superadmin roles.
-- Superadmin activity is logged in `logs/superadmin.log` via `logger.js`.
-- Google Auth is handled via `auth/google` and `auth/google/callback`.
+- `POST /api/create-payment`
+
+## 📄 Pages
+
+- `GET /api/:slug`
+- `GET /api/:slug/versions`
+- `PUT /api/:slug/draft`
+- `PUT /api/:slug`
+
+## 📚 Books
+
+- `GET /api/`
+- `GET /api/:id`
+- `DELETE /api/:id`
+- `POST /api/`
+- `PUT /api/`
+
+## 📢 Newsletter
+
+- `POST /api/subscribe`
+- `POST /api/send`
+
+## 📦 Orders
+
+- `POST /api/`
+- `GET /api/`
+- `GET /api/all`
+- `PATCH /api/:id/status`
+- `DELETE /api/:id`
+- `GET /api/latest`
+- `POST /api/create-checkout-session`
+- `POST /api/confirm-stripe-order`
+
+## 📬 Contact
+
+- `POST /api/`
+
+## 🔐 Auth
+
+- `POST /api/`
+- `POST /api/`
+- `POST /api/logout`
+- `GET /api/me`
+- `POST /api/google`
+- `POST /api/request-code`
+- `POST /api/verify-code`
+- `PATCH /api/reset-password`
+
+## 🖼️ Images
+
+- `POST /api/upload`
+
+## 🛒 Cart
+
+- `GET /api/`
+- `POST /api/`
+- `PATCH /api/:itemId`
+- `DELETE /api/:itemId`
+- `DELETE /api/`

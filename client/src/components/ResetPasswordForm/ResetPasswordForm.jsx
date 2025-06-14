@@ -6,8 +6,9 @@ import { logout } from "../../store/slices/authSlice";
 import { showNotification } from "../../store/slices/notificationSlice";
 import styles from "./ResetPasswordForm.module.css";
 import axios from "../../store/axios";
+import { useTranslation } from "react-i18next";
 
-// ✅ Yup schema
+// ✅ Yup schema (локалізуємо в UI, не тут)
 const schema = yup.object().shape({
   oldPassword: yup.string().required("Current password is required"),
   newPassword: yup
@@ -17,6 +18,7 @@ const schema = yup.object().shape({
 });
 
 const ResetPasswordForm = () => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
 
@@ -37,7 +39,7 @@ const ResetPasswordForm = () => {
 
       dispatch(
         showNotification({
-          message: "✅ Password updated and confirmation email sent. Logging out...",
+          message: t("resetPassword.success"),
           type: "success",
         })
       );
@@ -47,7 +49,7 @@ const ResetPasswordForm = () => {
     } catch (err) {
       dispatch(
         showNotification({
-          message: err.response?.data?.message || "❌ Error updating password",
+          message: err.response?.data?.message || t("resetPassword.error"),
           type: "error",
         })
       );
@@ -56,11 +58,11 @@ const ResetPasswordForm = () => {
 
   return (
     <div className={styles.container}>
-      <h2>Reset Password</h2>
+      <h2>{t("resetPassword.title")}</h2>
       <form onSubmit={handleSubmit(onSubmit)}>
         <input
           type="password"
-          placeholder="Current Password"
+          placeholder={t("resetPassword.currentPlaceholder")}
           {...register("oldPassword")}
         />
         {errors.oldPassword && (
@@ -69,14 +71,14 @@ const ResetPasswordForm = () => {
 
         <input
           type="password"
-          placeholder="New Password"
+          placeholder={t("resetPassword.newPlaceholder")}
           {...register("newPassword")}
         />
         {errors.newPassword && (
           <p className={styles.error}>{errors.newPassword.message}</p>
         )}
 
-        <button type="submit">Update Password</button>
+        <button type="submit">{t("resetPassword.button")}</button>
       </form>
     </div>
   );
