@@ -79,5 +79,23 @@ pipeline {
         }
       }
     }
+
+    stage('Start Server with PM2 (DEV)') {
+      steps {
+        powershell """
+          Set-Location '${env.DEV_DEPLOY_SERVER_DIR}'
+
+          if (pm2 list | Select-String 'clp-dev') {
+            Write-Host '🔁 Restarting existing PM2 process...'
+            pm2 restart clp-dev
+          } else {
+            Write-Host '🚀 Starting new PM2 process in DEV mode...'
+            pm2 start server.js --name clp-dev --env development
+          }
+
+          pm2 save
+        """
+      }
+    }
   }
 }
