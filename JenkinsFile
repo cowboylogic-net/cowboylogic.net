@@ -37,7 +37,7 @@ pipeline {
           if not exist "${env.DEV_DEPLOY_SERVER_DIR}" (
             mkdir "${env.DEV_DEPLOY_SERVER_DIR}"
           )
-          robocopy ${env.CODEBASE_SERVER_DIR} ${env.DEV_DEPLOY_SERVER_DIR} /MIR /NFL /NDL /NJH /NJS /NP
+          robocopy ${env.CODEBASE_SERVER_DIR} ${env.DEV_DEPLOY_SERVER_DIR} /MIR /NP
         """
       }
     }
