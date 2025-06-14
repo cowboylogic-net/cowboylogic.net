@@ -31,6 +31,19 @@ pipeline {
       }
     }
 
+    stage('Check & Install PM2 if Missing') {
+      steps {
+        powershell """
+          if (-not (Get-Command pm2 -ErrorAction SilentlyContinue)) {
+            Write-Host '🔧 PM2 not found. Installing globally...'
+            npm install -g pm2
+          } else {
+            Write-Host '✅ PM2 is already installed.'
+          }
+        """
+      }
+    }
+
     stage('Server Code → DEV Deploy') {
       steps {
         powershell """
