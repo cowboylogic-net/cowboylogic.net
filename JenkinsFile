@@ -15,6 +15,8 @@ pipeline {
 
     DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\dev\\server'
     DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\dev\\client'
+
+    HOME = 'C:\\Users\\clp-jenkins' // 👈 Required for PM2
   }
 
   stages {
@@ -31,70 +33,48 @@ pipeline {
       }
     }
 
-    stage('Check & Install PM2 if Missing') {
-      steps {
-        powershell """
-          if (-not (Get-Command pm2 -ErrorAction SilentlyContinue)) {
-            Write-Host '🔧 PM2 not found. Installing globally...'
-            npm install -g pm2
-          } else {
-            Write-Host '✅ PM2 is already installed.'
-          }
-        """
-      }
-    }
-
-    stage('Server Code → DEV Deploy') {
-      steps {
-        powershell """
-          if (-Not (Test-Path '${env.DEV_DEPLOY_SERVER_DIR}')) {
-            New-Item -ItemType Directory -Path '${env.DEV_DEPLOY_SERVER_DIR}' | Out-Null
-          } else {
-            Remove-Item '${env.DEV_DEPLOY_SERVER_DIR}\\*' -Recurse -Force
-          }
-          Copy-Item '${env.CODEBASE_SERVER_DIR}\\*' -Destination '${env.DEV_DEPLOY_SERVER_DIR}' -Recurse -Force
-        """
-      }
-    }
-
-    stage('Client Code → DEV Deploy') {
-      steps {
-        powershell """
-          if (-Not (Test-Path '${env.DEV_DEPLOY_CLIENT_DIR}')) {
-            New-Item -ItemType Directory -Path '${env.DEV_DEPLOY_CLIENT_DIR}' | Out-Null
-          } else {
-            Remove-Item '${env.DEV_DEPLOY_CLIENT_DIR}\\*' -Recurse -Force
-          }
-          Copy-Item '${env.CODEBASE_CLIENT_DIR}\\*' -Destination '${env.DEV_DEPLOY_CLIENT_DIR}' -Recurse -Force
-        """
-      }
-    }
-
-    stage('Write .env to DEV Server') {
+    stage('Deploy & Start DEV Server') {
       steps {
         withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
           powershell """
+            # === Prepare Server Directory ===
+            if (-Not (Test-Path '${env.DEV_DEPLOY_SERVER_DIR}')) {
+              New-Item -ItemType Directory -Path '${env.DEV_DEPLOY_SERVER_DIR}' | Out-Null
+            } else {
+              Remove-Item '${env.DEV_DEPLOY_SERVER_DIR}\\*' -Recurse -Force
+            }
+            Copy-Item '${env.CODEBASE_SERVER_DIR}\\*' -Destination '${env.DEV_DEPLOY_SERVER_DIR}' -Recurse -Force
+
+            # === Prepare Client Directory ===
+            if (-Not (Test-Path '${env.DEV_DEPLOY_CLIENT_DIR}')) {
+              New-Item -ItemType Directory -Path '${env.DEV_DEPLOY_CLIENT_DIR}' | Out-Null
+            } else {
+              Remove-Item '${env.DEV_DEPLOY_CLIENT_DIR}\\*' -Recurse -Force
+            }
+            Copy-Item '${env.CODEBASE_CLIENT_DIR}\\*' -Destination '${env.DEV_DEPLOY_CLIENT_DIR}' -Recurse -Force
+
+            # === Inject .env ===
             Copy-Item -Path '${env.DEV_ENV_FILE}' -Destination '${env.DEV_DEPLOY_SERVER_DIR}\\.env' -Force
+
+            # === Ensure PM2 ===
+            if (-not (Get-Command pm2 -ErrorAction SilentlyContinue)) {
+              Write-Host '🔧 Installing PM2 globally...'
+              npm install -g pm2
+            }
+
+            # === Start or Restart PM2 Process ===
+            Set-Location '${env.DEV_DEPLOY_SERVER_DIR}'
+            if (pm2 list | Select-String 'clp-dev') {
+              Write-Host '🔁 Restarting clp-dev...'
+              pm2 restart clp-dev
+            } else {
+              Write-Host '🚀 Starting clp-dev...'
+              pm2 start server.js --name clp-dev --env development
+            }
+
+            pm2 save
           """
         }
-      }
-    }
-
-    stage('Start Server with PM2 (DEV)') {
-      steps {
-        powershell """
-          Set-Location '${env.DEV_DEPLOY_SERVER_DIR}'
-
-          if (pm2 list | Select-String 'clp-dev') {
-            Write-Host '🔁 Restarting existing PM2 process...'
-            pm2 restart clp-dev
-          } else {
-            Write-Host '🚀 Starting new PM2 process in DEV mode...'
-            pm2 start server.js --name clp-dev --env development
-          }
-
-          pm2 save
-        """
       }
     }
   }
