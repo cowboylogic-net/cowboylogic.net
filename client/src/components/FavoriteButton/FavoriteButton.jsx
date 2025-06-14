@@ -9,9 +9,11 @@ import {
 } from "../../store/selectors/favoritesSelectors";
 import { Heart, HeartPulse, LoaderCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import styles from "./FavoriteButton.module.css";
 
 const FavoriteButton = ({ bookId, small = false }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
   const favorites = useSelector(selectFavorites);
@@ -39,7 +41,9 @@ const FavoriteButton = ({ bookId, small = false }) => {
           ? styles.favoriteIconOnly
           : `${styles.favoriteButton} ${isFavorite ? styles.filled : ""}`
       }
-      title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+      title={
+        isFavorite ? t("book.unfavorite") : t("book.favorite")
+      }
       disabled={isLoading}
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -59,7 +63,7 @@ const FavoriteButton = ({ bookId, small = false }) => {
           )}
         </motion.div>
       </AnimatePresence>
-      {!small && <span>{isFavorite ? "Remove" : "Add to Favorites"}</span>}
+      {!small && <span>{isFavorite ? t("book.unfavorite") : t("book.favorite")}</span>}
     </button>
   );
 };

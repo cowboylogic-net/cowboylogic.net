@@ -21,6 +21,7 @@ const CLStrategies = lazy(() => import("./pages/CLStrategies/CLStrategies"));
 const CLPublishing = lazy(() => import("./pages/CLPublishing/CLPublishing"));
 const FavoritesPage = lazy(() => import("./pages/FavoritesPage/FavoritesPage"));
 const SearchResults = lazy(() => import("./pages/SearchResult/SearchResult")); 
+const NotFound = lazy(() => import("./pages/NotFound/NotFound"));
 
 // ✅ CLStrategies Pages
 const CLStrategiesHome = lazy(() => import("./pages/CLStrategiesHome/CLStrategiesHome"));
@@ -97,6 +98,9 @@ const App = () => {
             <Route path="/admin/books/edit/:id" element={<AdminRoute><EditBook /></AdminRoute>} />
             <Route path="/admin/users" element={<AdminRoute><UserManagement /></AdminRoute>} />
             <Route path="/admin/newsletter" element={<AdminRoute><Newsletter /></AdminRoute>} />
+
+            {/* Not Found */}
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </Suspense>

@@ -17,12 +17,12 @@ const LanguageSwitcher = () => {
       >
         EN
       </button>
-      <button
+      {/* <button
         onClick={() => handleLanguageChange("es")}
         className={currentLang === "es" ? styles.active : ""}
       >
         ES
-      </button>
+      </button> */}
     </div>
   );
 };

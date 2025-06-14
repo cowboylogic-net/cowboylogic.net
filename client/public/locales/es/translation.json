@@ -269,7 +269,52 @@
   "bookstore": {
     "title": "Librería CLP",
     "addBook": "Agregar libro"
+  },
+  "newsletter": {
+    "label": "Suscríbete a nuestro boletín:",
+    "placeholder": "Tu correo electrónico",
+    "button": "Suscribirse",
+    "success": "✅ ¡Suscripción exitosa!",
+    "error": "❌ Error al suscribirse. Inténtalo de nuevo.",
+    "subject": "Asunto",
+    "subjectPlaceholder": "Escribe el asunto...",
+    "content": "Contenido (HTML permitido)",
+    "contentPlaceholder": "Escribe el contenido...",
+    "submit": "Enviar boletín",
+    "sending": "Enviando...",
+    "subjectRequired": "Se requiere el asunto",
+    "subjectTooShort": "El asunto es demasiado corto",
+    "contentRequired": "Se requiere contenido",
+    "contentTooShort": "El contenido es demasiado corto"
+},
+  "notifications": {
+    "newsletterSent": "✅ Boletín enviado con éxito",
+    "newsletterFailed": "❌ Error al enviar el boletín",
+    "subscribedSuccess": "✅ ¡Suscripción exitosa!",
+    "subscribedFailed": "❌ Error al suscribirse. Inténtalo de nuevo.",
+    "cartQuantityUpdated": "Cantidad actualizada",
+    "cartQuantityUpdateError": "Error al actualizar la cantidad",
+    "itemRemovedFromCart": "Artículo eliminado del carrito",
+    "itemRemoveError": "Error al eliminar el artículo",
+    "checkoutError": "Error al procesar el pago con Square",
+    "bookCreatedSuccess": "✅ Libro creado exitosamente",
+    "bookUpdatedSuccess": "✅ Libro actualizado exitosamente",
+    "bookSaveFailed": "❌ Error al guardar el libro",
+    "usersFetchFailed": "❌ Error al obtener usuarios",
+    "roleUpdated": "✅ Rol del usuario actualizado",
+    "updateFailed": "❌ Error al actualizar",
+    "userDeleted": "✅ Usuario eliminado",
+    "deleteFailed": "❌ Error al eliminar",
+    "passwordUpdatedSuccess": "✅ Contraseña actualizada y correo de confirmación enviado. Cerrando sesión...",
+    "passwordUpdateError": "❌ Error al actualizar la contraseña",
+    "loginSuccess": "✅ ¡Inicio de sesión exitoso!",
+    "loginError": "❌ Correo electrónico o contraseña inválidos",
+    "contactSuccess": "✅ ¡Mensaje enviado con éxito!",
+    "contactError": "❌ Error al enviar el mensaje"
   }
+
+
+
 }
 
 
