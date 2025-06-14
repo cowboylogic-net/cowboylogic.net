@@ -60,7 +60,9 @@ pipeline {
 	
 	stage('Write .env to DEV Server') {
 	  steps {
-        writeFile file: "${env.DEV_DEPLOY_SERVER_DIR}\\.env", text: "${env.DEV_ENV_DATA}"
+        powershell """
+        Set-Content -Path '${env.DEV_DEPLOY_SERVER_DIR}\\.env' -Value @'${env.DEV_ENV_DATA}'@
+      """
       }
     }
   }
