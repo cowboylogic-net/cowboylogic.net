@@ -23,7 +23,7 @@ const sendContactEmail = async (req, res) => {
 
   const mailOptions = {
     from: `"${firstName} ${lastName}" <${process.env.MAIL_USER}>`,
-    to: process.env.ADMIN_EMAIL,
+    to: process.env.MAIL_ADMIN,
     replyTo: email,
     subject: "New Contact Form Submission",
     html: `

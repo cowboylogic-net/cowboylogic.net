@@ -1,0 +1,9 @@
+.adminContainer {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  padding: var(--spacing-md);
+}
+
+.main {
+  padding-top: var(--spacing-lg);
+}
