@@ -1,0 +1,167 @@
+/* .container {
+  width: 100%;
+  max-width: var(--max-width-container);
+  padding: var(--spacing-lg);
+  margin: 0 auto;
+  background-color: var(--color-darker);
+}
+
+.image {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition-fast);
+}
+
+.btn-primary {
+  background-color: var(--color-dark);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-light-grey);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+}
+
+.btn-outline:hover {
+  background: white;
+  color: var(--color-dark);
+}
+
+.slide {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.overlay {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparent;
+  color: white;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+} */
+
+
+/* ===== layout.css (Updated with best practices and cowboy style retention) ===== */
+
+/* ===== layout.css (Finalized with variable use) ===== */
+
+.container {
+  width: 100%;
+  max-width: var(--max-width-container);
+  padding: var(--spacing-lg);
+  margin: 0 auto;
+  background-color: var(--color-darker);
+  box-shadow: var(--shadow-card);
+  border-radius: var(--radius-md);
+}
+
+.image {
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+  border-radius: var(--radius-sm);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  width: 100%;
+  max-width: 100%;
+}
+
+.btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  text-transform: var(--btn-transform);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.btn-primary {
+  background-color: var(--color-dark);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-light-grey);
+  color: white;
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.15);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+}
+
+.btn-outline:hover {
+  background: white;
+  color: var(--color-dark);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+}
+
+.slide {
+  position: relative;
+  width: 100%;
+  height: 60vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--color-grey);
+  border-radius: var(--radius-md);
+}
+
+.overlay {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--overlay-bg);
+  backdrop-filter: var(--overlay-blur);
+  color: white;
+  padding: var(--spacing-md) var(--spacing-xl);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: var(--shadow-card);
+}
