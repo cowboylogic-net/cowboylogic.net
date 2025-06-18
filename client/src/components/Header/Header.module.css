@@ -1,87 +1,66 @@
-.header {
-  padding: var(--spacing-md) var(--spacing-lg);
-}
-
-.container {
+.headerInner {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
+  gap: var(--spacing-md);
+  width: 100%;
   position: relative;
 }
 
-.leftBlock {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
 .logo {
-  font-family: var(--font-family-logo);
-  font-size: 2rem;
+  font-family: var(--font-logo);
+  font-size: 2.4rem;
   font-weight: bold;
   letter-spacing: 2px;
   text-decoration: none;
-  color: white;
+  color: var(--color-text);
 }
 
 .tagline {
   font-weight: bold;
   letter-spacing: 1px;
-  color: white;
   font-size: 0.9rem;
+  color: var(--color-text);
+  white-space: nowrap;
 }
 
 .desktopMenu {
   display: none;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: flex-end;
 }
 
 .mobileMenu {
   display: block;
-  position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-lg);
+  margin-left: auto;
+  position: relative;
   z-index: 10;
 }
 
-@media (min-width: 481px) {
-  .logo {
-    font-size: 2.4rem;
+@media (min-width: 768px) and (max-width: 1023px) {
+  .desktopMenu {
+    display: none;
   }
-}
 
-@media (min-width: 768px) {
+  .mobileMenu {
+    display: block;
+  }
+
   .logo {
     font-size: 3rem;
   }
+
   .tagline {
     font-size: 0.95rem;
   }
 }
 
-@media (min-width: 900px) {
-  .logo {
-    font-size: 3.4rem;
-  }
-  .tagline {
-    display: block;
-  }
-}
-
 @media (min-width: 1024px) {
-  .container {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-
   .desktopMenu {
     display: flex;
-    gap: var(--spacing-md);
-    align-items: center;
-    justify-content: flex-end;
-    flex-wrap: wrap;
   }
 
   .mobileMenu {

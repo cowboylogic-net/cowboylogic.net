@@ -10,7 +10,7 @@ const Header = () => {
 
   return (
     <header className={styles.header}>
-      <div className={styles.container}>
+      <div className={`layoutContainer ${styles.headerInner}`}>
         <div className={styles.leftBlock}>
           <Link to="/" className={styles.logo}>
             CowboyLogic
@@ -18,16 +18,16 @@ const Header = () => {
           <p className={styles.tagline}>{t("header.tagline")}</p>
         </div>
 
-        <div className={styles.desktopMenu}>
-          <UserMenu />
-          
-          <div className={styles.langSwitcher}>
-            <LanguageSwitcher />
+        <div className={styles.rightBlock}>
+          <div className={styles.desktopMenu}>
+            <UserMenu />
+            <div className={styles.langSwitcher}>
+              <LanguageSwitcher />
+            </div>
           </div>
-        </div>
-
-        <div className={styles.mobileMenu}>
-          <BurgerNavbar />
+          <div className={styles.mobileMenu}>
+            <BurgerNavbar />
+          </div>
         </div>
       </div>
     </header>

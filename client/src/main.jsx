@@ -26,9 +26,9 @@ root.render(
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <Provider store={store}>
         <BrowserRouter>
-+         <ErrorBoundary>
+         <ErrorBoundary>
             <App />
-+         </ErrorBoundary>
+         </ErrorBoundary>
         </BrowserRouter>
       </Provider>
     </GoogleOAuthProvider>

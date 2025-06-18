@@ -7,7 +7,7 @@ import styles from "./AdminLayout.module.css";
 
 const AdminLayout = () => {
   return (
-    <div className={styles.adminContainer}>
+    <div className={styles.adminLayout}>
       <Header />
       <Notification />
       <main className={styles.main}>

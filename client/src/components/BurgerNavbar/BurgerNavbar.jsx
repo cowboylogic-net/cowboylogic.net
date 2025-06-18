@@ -5,6 +5,7 @@ import { ROLES } from "../../constants/roles";
 import styles from "./BurgerNavbar.module.css";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 import { logout } from "../../store/slices/authSlice";
+import BaseButton from "../BaseButton/BaseButton";
 
 const BurgerNavbar = () => {
   const [open, setOpen] = useState(false);
@@ -39,9 +40,9 @@ const BurgerNavbar = () => {
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
-      <button className="btn btn-outline" onClick={() => setOpen(!open)}>
+      <BaseButton variant="outline" size="small" onClick={() => setOpen(!open)}>
         ☰
-      </button>
+      </BaseButton>
 
       {open && (
         <nav className={styles.menu}>
@@ -50,7 +51,6 @@ const BurgerNavbar = () => {
           <NavLink to="/bookstore" onClick={() => setOpen(false)}>Bookstore</NavLink>
           <NavLink to="/favorites" onClick={() => setOpen(false)}>Favorites</NavLink>
 
-          {/* Submenu: CL Strategies */}
           <button onClick={() => toggleSubmenu("clstrategies")}>CL Strategies ▾</button>
           {openSubmenu === "clstrategies" && (
             <div className={styles.submenu}>
@@ -61,7 +61,6 @@ const BurgerNavbar = () => {
             </div>
           )}
 
-          {/* Submenu: CL Publishing */}
           <button onClick={() => toggleSubmenu("clpublishing")}>CL Publishing ▾</button>
           {openSubmenu === "clpublishing" && (
             <div className={styles.submenu}>
@@ -76,17 +75,19 @@ const BurgerNavbar = () => {
               <NavLink to="/profile" onClick={() => setOpen(false)}>Profile</NavLink>
               <NavLink to="/orders" onClick={() => setOpen(false)}>Orders</NavLink>
               <NavLink to="/cart" onClick={() => setOpen(false)}>Cart</NavLink>
-              <button onClick={handleLogout} className="btn btn-outline">Logout</button>
+              <BaseButton variant="outline" size="small" onClick={handleLogout}>
+                Logout
+              </BaseButton>
             </>
           )}
 
-          {user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN ? (
+          {(user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN) && (
             <>
               <NavLink to="/admin" onClick={() => setOpen(false)}>Dashboard</NavLink>
               <NavLink to="/admin/newsletter" onClick={() => setOpen(false)}>Newsletter</NavLink>
               <NavLink to="/admin/users" onClick={() => setOpen(false)}>Users</NavLink>
             </>
-          ) : null}
+          )}
 
           {!user && (
             <>

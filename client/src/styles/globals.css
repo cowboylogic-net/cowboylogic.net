@@ -1,5 +1,21 @@
 /* ===== globals.css (Updated with best practices & expanded variables) ===== */
 
+@font-face {
+  font-family: 'Marlboro';
+  src: url('/Fonts/Marlboro.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PlayfairDisplay-VariableFont_wght';
+  src: url('/Fonts/PlayfairDisplay-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Fonts */
   --font-body: 'PlayfairDisplay-VariableFont_wght', serif;
@@ -15,6 +31,7 @@
   --color-overlay: rgba(0, 0, 0, 0.5);
   --color-inner-buttons: #8b4513;
   --color-link: #5D5FEF;
+  --color-bg-header: rgba(27, 18, 10, 0.8);
 
   /* Radius */
   --radius-sm: 4px;
@@ -39,7 +56,6 @@
   /* UI Tokens */
   --overlay-bg: rgba(0, 0, 0, 0.4);
   --overlay-blur: blur(2px);
-  --btn-transform: uppercase;
 }
 
 /* Reset */
@@ -65,6 +81,7 @@ body {
   background-position: center;
   min-height: 100vh;
   color: var(--color-text);
+    overflow-x: hidden;
 }
 
 a {
@@ -75,10 +92,9 @@ a {
 
 a:hover,
 a:focus {
-  color: var(--color-inner-buttons); /* м'який ковбойський ефект */
-  text-decoration: none; /* ❗️ Видаляє підкреслення навіть при фокусі */
+  color: var(--color-inner-buttons);
+  text-decoration: none;
 }
-
 
 button,
 input,
@@ -100,4 +116,8 @@ select:focus {
 :focus-visible {
   outline: 2px dashed var(--color-brown);
   outline-offset: 3px;
+}
+.app-layout {
+  background-color: transparent;
+  color: var(--color-text);
 }

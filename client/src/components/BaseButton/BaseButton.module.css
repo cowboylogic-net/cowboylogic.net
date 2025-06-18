@@ -1,0 +1,57 @@
+.btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  font-family: var(--font-body);
+  text-transform: none; /* ✅ Ключовий рядок */
+}
+
+
+/* Variants */
+.primary {
+  background-color: var(--color-dark);
+  color: white;
+}
+.primary:hover {
+  background-color: var(--color-light-grey);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
+}
+
+.outline {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+}
+.outline:hover {
+  background: white;
+  color: var(--color-dark);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+}
+
+/* Sizes */
+.default {
+  font-size: 1rem;
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.small {
+  font-size: 0.875rem;
+  padding: 0.3rem 0.6rem;
+}
+
+.large {
+  font-size: 1.125rem;
+  padding: 0.75rem 1.5rem;
+}
+
+/* Disabled state */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}

@@ -1,48 +1,65 @@
-/* ===== media.css (Optimized for scale and readability) ===== */
+/* ===== media.css (Optimized & Cleaned) ===== */
 
-@media (min-width: 600px) {
-  .container {
-    padding: var(--spacing-xl);
+/* === Tablet (≥768px) === */
+@media (min-width: 768px) {
+  .layoutContainer {
+    padding: var(--spacing-lg);
   }
 
-  .overlay {
+  .heroOverlay {
     font-size: 2rem;
   }
-}
 
-@media (min-width: 1024px) {
-  .container {
-    padding: 2rem 4rem;
-  }
-
-  .slide {
-    height: 80vh;
-  }
-}
-
-@media (min-width: 1440px) {
-  .container {
-    padding: 3rem 6rem;
-  }
-}
-
-/* Additional responsive typography control */
-@media (min-width: 768px) {
-  .title {
+  .pageTitle {
     font-size: 2.5rem;
   }
 
-  .subtitle {
+  .sectionSubtitle {
     font-size: 1.5rem;
   }
 }
 
-@media (min-width: 1200px) {
-  .title {
+/* === Small Desktop (≥1024px) === */
+@media (min-width: 1024px) {
+  .layoutContainer {
+    padding: 0 2rem;
+  }
+
+  .heroSlide {
+    height: 80vh;
+  }
+}
+
+/* === Large Desktop (≥1440px) === */
+@media (min-width: 1440px) {
+  .layoutContainer {
+    padding: 0 3rem;
+  }
+
+  .pageTitle {
     font-size: 3rem;
   }
 
-  .subtitle {
+  .sectionSubtitle {
     font-size: 1.75rem;
+  }
+}
+
+/* === Ultra-Wide (≥1920px) === */
+@media (min-width: 1920px) {
+  .layoutContainer {
+    padding: 0 4rem;
+  }
+
+  .heroOverlay {
+    font-size: 2.25rem;
+  }
+
+  .pageTitle {
+    font-size: 3.25rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 2rem;
   }
 }

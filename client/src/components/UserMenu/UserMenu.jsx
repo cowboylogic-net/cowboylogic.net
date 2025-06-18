@@ -2,8 +2,10 @@ import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { logout } from "../../store/slices/authSlice";
 import { selectUser } from "../../store/selectors/authSelectors";
+import { useTranslation } from "react-i18next";
+
 import styles from "./UserMenu.module.css";
-import { useTranslation } from "react-i18next"; // 🧠
+import BaseButton from "../BaseButton/BaseButton";
 
 const UserMenu = () => {
   const dispatch = useDispatch();
@@ -18,16 +20,30 @@ const UserMenu = () => {
     <>
       {user ? (
         <>
-          <Link to="/cart" className={styles.authBtn}>🛒 {t("userMenu.cart")}</Link>
-          <Link to="/orders" className={styles.authBtn}>{t("userMenu.orders")}</Link>
-          <Link to="/profile" className={styles.authBtn}>{t("userMenu.profile")}</Link>
-          <span className={styles.userEmail}>{t("userMenu.welcome", { email: user.email })}</span>
-          <button className={styles.logoutBtn} onClick={handleLogout}>{t("userMenu.logout")}</button>
+          <Link to="/cart">
+            <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>
+          </Link>
+          <Link to="/orders">
+            <BaseButton variant="outline">{t("userMenu.orders")}</BaseButton>
+          </Link>
+          <Link to="/profile">
+            <BaseButton variant="outline">{t("userMenu.profile")}</BaseButton>
+          </Link>
+          <span className={styles.userEmail}>
+            {t("userMenu.welcome", { email: user.email })}
+          </span>
+          <BaseButton variant="outline" onClick={handleLogout}>
+            {t("userMenu.logout")}
+          </BaseButton>
         </>
       ) : (
         <>
-          <Link to="/login" className={styles.authBtn}>{t("userMenu.login")}</Link>
-          <Link to="/register" className={styles.authBtn}>{t("userMenu.register")}</Link>
+          <Link to="/login">
+            <BaseButton variant="outline">{t("userMenu.login")}</BaseButton>
+          </Link>
+          <Link to="/register">
+            <BaseButton variant="outline">{t("userMenu.register")}</BaseButton>
+          </Link>
         </>
       )}
     </>
@@ -35,4 +51,3 @@ const UserMenu = () => {
 };
 
 export default UserMenu;
-
