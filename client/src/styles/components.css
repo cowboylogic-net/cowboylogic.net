@@ -1,0 +1,51 @@
+/* ===== components.css ===== */
+
+/* === Card === */
+.card {
+  background-color: var(--color-grey);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+
+/* === Badge === */
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.5em;
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-inner-buttons);
+  color: white;
+  font-weight: 500;
+}
+
+/* === Tag === */
+.tag {
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--color-light-grey);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--color-text);
+}
+
+/* === Tooltip === */
+.tooltip {
+  position: absolute;
+  z-index: 10;
+  background-color: var(--color-dark);
+  color: white;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.75rem;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  box-shadow: var(--shadow-card);
+}
+
+/* === Modal Overlay === */
+.modalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--overlay-bg);
+  backdrop-filter: var(--overlay-blur);
+  z-index: 1000;
+}

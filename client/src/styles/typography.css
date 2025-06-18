@@ -36,6 +36,25 @@ p {
   line-height: 1.4;
 }
 
+.caption {
+  font-size: 0.75rem;
+  color: var(--color-light-grey);
+  font-style: italic;
+}
+
+.small {
+  font-size: 0.875rem;
+  color: var(--color-grey);
+}
+
+.quote {
+  font-style: italic;
+  border-left: 2px solid var(--color-inner-buttons);
+  padding-left: var(--spacing-sm);
+  color: var(--color-light-grey);
+}
+
+
 /* === Responsive Sizes === */
 @media (min-width: 768px) {
   .pageTitle {
@@ -44,6 +63,9 @@ p {
 
   .sectionSubtitle {
     font-size: 1.5rem;
+  }
+    .quote {
+    padding-left: var(--spacing-md);
   }
 }
 
@@ -54,5 +76,9 @@ p {
 
   .sectionSubtitle {
     font-size: 1.75rem;
+  }
+    .quote {
+    font-size: 1.125rem;
+    padding-left: var(--spacing-lg);
   }
 }

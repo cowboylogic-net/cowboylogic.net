@@ -1,4 +1,4 @@
-/* ===== globals.css (Updated with best practices & expanded variables) ===== */
+/* ===== globals.css (Cleaned) ===== */
 
 @font-face {
   font-family: 'Marlboro';
@@ -14,48 +14,6 @@
   font-weight: normal;
   font-style: normal;
   font-display: swap;
-}
-
-:root {
-  /* Fonts */
-  --font-body: 'PlayfairDisplay-VariableFont_wght', serif;
-  --font-logo: 'Marlboro', sans-serif;
-
-  /* Colors */
-  --color-bg: #1b1b1b;
-  --color-text: #ffffff;
-  --color-dark: #222;
-  --color-grey: #333;
-  --color-light-grey: #555;
-  --color-brown: #5a2d0c;
-  --color-overlay: rgba(0, 0, 0, 0.5);
-  --color-inner-buttons: #8b4513;
-  --color-link: #5D5FEF;
-  --color-bg-header: rgba(27, 18, 10, 0.8);
-
-  /* Radius */
-  --radius-sm: 4px;
-  --radius-md: 5px;
-  --radius-lg: 8px;
-  --radius-full: 50%;
-
-  /* Spacing */
-  --spacing-0: 0;
-  --spacing-xs: 0.2rem;
-  --spacing-sm: 0.4rem;
-  --spacing-md: 0.75rem;
-  --spacing-lg: 1rem;
-  --spacing-xl: 1.5rem;
-  --spacing-xxl: 2rem;
-
-  /* Layout */
-  --max-width-container: 1200px;
-  --transition-fast: 0.3s ease-in-out;
-  --shadow-card: 0 4px 12px rgba(0,0,0,0.1);
-
-  /* UI Tokens */
-  --overlay-bg: rgba(0, 0, 0, 0.4);
-  --overlay-blur: blur(2px);
 }
 
 /* Reset */
@@ -81,7 +39,7 @@ body {
   background-position: center;
   min-height: 100vh;
   color: var(--color-text);
-    overflow-x: hidden;
+  overflow-x: hidden;
 }
 
 a {
@@ -117,6 +75,7 @@ select:focus {
   outline: 2px dashed var(--color-brown);
   outline-offset: 3px;
 }
+
 .app-layout {
   background-color: transparent;
   color: var(--color-text);
