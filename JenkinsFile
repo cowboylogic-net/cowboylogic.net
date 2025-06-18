@@ -28,57 +28,53 @@ pipeline {
 
     stage('Verify Node Environment') {
       steps {
-        powershell 'node -v'
-        powershell 'npm -v'
+        bat 'node -v'
+        bat 'npm -v'
       }
     }
 
     stage('Deploy & Start DEV Server') {
       steps {
         withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
-          powershell """
-            # === Prepare Server Directory ===
-            if (-Not (Test-Path '${env.DEV_DEPLOY_SERVER_DIR}')) {
-              New-Item -ItemType Directory -Path '${env.DEV_DEPLOY_SERVER_DIR}' | Out-Null
-            } else {
-              Remove-Item '${env.DEV_DEPLOY_SERVER_DIR}\\*' -Recurse -Force
-            }
-            Copy-Item '${env.CODEBASE_SERVER_DIR}\\*' -Destination '${env.DEV_DEPLOY_SERVER_DIR}' -Recurse -Force
+          bat """
+            REM === Prepare Server Directory ===
+            IF NOT EXIST "${env.DEV_DEPLOY_SERVER_DIR}" (
+              mkdir "${env.DEV_DEPLOY_SERVER_DIR}"
+            ) ELSE (
+              rmdir /S /Q "${env.DEV_DEPLOY_SERVER_DIR}"
+              mkdir "${env.DEV_DEPLOY_SERVER_DIR}"
+            )
+            xcopy /E /I /Y "${env.CODEBASE_SERVER_DIR}\\*" "${env.DEV_DEPLOY_SERVER_DIR}"
 
-            # === Prepare Client Directory ===
-            if (-Not (Test-Path '${env.DEV_DEPLOY_CLIENT_DIR}')) {
-              New-Item -ItemType Directory -Path '${env.DEV_DEPLOY_CLIENT_DIR}' | Out-Null
-            } else {
-              Remove-Item '${env.DEV_DEPLOY_CLIENT_DIR}\\*' -Recurse -Force
-            }
-            Copy-Item '${env.CODEBASE_CLIENT_DIR}\\*' -Destination '${env.DEV_DEPLOY_CLIENT_DIR}' -Recurse -Force
+            REM === Prepare Client Directory ===
+            IF NOT EXIST "${env.DEV_DEPLOY_CLIENT_DIR}" (
+              mkdir "${env.DEV_DEPLOY_CLIENT_DIR}"
+            ) ELSE (
+              rmdir /S /Q "${env.DEV_DEPLOY_CLIENT_DIR}"
+              mkdir "${env.DEV_DEPLOY_CLIENT_DIR}"
+            )
+            xcopy /E /I /Y "${env.CODEBASE_CLIENT_DIR}\\*" "${env.DEV_DEPLOY_CLIENT_DIR}"
 
-            # === Inject .env ===
-            Copy-Item -Path '${env.DEV_ENV_FILE}' -Destination '${env.DEV_DEPLOY_SERVER_DIR}\\.env' -Force
+            REM === Inject .env ===
+            copy /Y "%DEV_ENV_FILE%" "${env.DEV_DEPLOY_SERVER_DIR}\\.env"
 
-            # === Ensure PM2 ===
-            if (-not (Get-Command pm2 -ErrorAction SilentlyContinue)) {
-              Write-Host '🔧 Installing PM2 globally...'
-              npm install -g pm2
-            }
+            REM === Ensure PM2 is installed ===
+            call npm install -g pm2
 
-            # === Switch to Server Directory ===
-            Set-Location '${env.DEV_DEPLOY_SERVER_DIR}'
+            REM === Change to server dir and restart PM2 ===
+            pushd "${env.DEV_DEPLOY_SERVER_DIR}"
 
-            # === Delete Existing Process if Present ===
-            if (pm2 list | Select-String 'clp-dev') {
-              Write-Host '🔁 Deleting previous clp-dev process...'
-              pm2 delete clp-dev
-            }
+            pm2 delete clp-dev >nul 2>&1
 
-            # === Start PM2 Detached ===
-            Write-Host '🚀 Starting new clp-dev process (detached)...'
+            echo 🚀 Starting new clp-dev process (detached)...
             cmd /c start "" pm2 start server.js --name clp-dev --env development --update-env
 
-            Start-Sleep -Seconds 5
+            timeout /t 5 /nobreak
             pm2 save
 
-            Write-Host '✅ Server deployed and started via PM2'
+            popd
+
+            echo ✅ Server deployed and started via PM2
           """
         }
       }
