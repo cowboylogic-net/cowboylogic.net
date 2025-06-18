@@ -10,7 +10,7 @@ import { fetchCurrentUser } from "./store/thunks/authThunks"; // ✅ прави�
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 
 import "./i18n";
-import "./index.css";
+import "./styles/index.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
