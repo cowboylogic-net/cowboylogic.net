@@ -34,50 +34,14 @@ pipeline {
     }
 
     stage('Deploy & Start DEV Server') {
-      steps {
-        withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
-          bat """
-            REM === Prepare Server Directory ===
-            IF NOT EXIST "${env.DEV_DEPLOY_SERVER_DIR}" (
-              mkdir "${env.DEV_DEPLOY_SERVER_DIR}"
-            ) ELSE (
-              rmdir /S /Q "${env.DEV_DEPLOY_SERVER_DIR}"
-              mkdir "${env.DEV_DEPLOY_SERVER_DIR}"
-            )
-            xcopy /E /I /Y "${env.CODEBASE_SERVER_DIR}\\*" "${env.DEV_DEPLOY_SERVER_DIR}"
-
-            REM === Prepare Client Directory ===
-            IF NOT EXIST "${env.DEV_DEPLOY_CLIENT_DIR}" (
-              mkdir "${env.DEV_DEPLOY_CLIENT_DIR}"
-            ) ELSE (
-              rmdir /S /Q "${env.DEV_DEPLOY_CLIENT_DIR}"
-              mkdir "${env.DEV_DEPLOY_CLIENT_DIR}"
-            )
-            xcopy /E /I /Y "${env.CODEBASE_CLIENT_DIR}\\*" "${env.DEV_DEPLOY_CLIENT_DIR}"
-
-            REM === Inject .env ===
-            copy /Y "%DEV_ENV_FILE%" "${env.DEV_DEPLOY_SERVER_DIR}\\.env"
-
-            REM === Ensure PM2 is installed ===
-            call npm install -g pm2
-
-            REM === Change to server dir and restart PM2 ===
-            pushd "${env.DEV_DEPLOY_SERVER_DIR}"
-
-            pm2 delete clp-dev >nul 2>&1
-
-            echo 🚀 Starting new clp-dev process (detached)...
-            cmd /c start "" pm2 start server.js --name clp-dev --env development --update-env
-
-            timeout /t 5 /nobreak
-            pm2 save
-
-            popd
-
-            echo ✅ Server deployed and started via PM2
-          """
-        }
-      }
-    }
+	  steps {
+		withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
+		  bat 'E:\\deploy\\_scripts\\init-dev-folders.bat'
+		  bat "E:\\deploy\\_scripts\\copy-dev-code.bat ${env.CODEBASE_SERVER_DIR} ${env.CODEBASE_CLIENT_DIR}"
+		  bat "E:\\deploy\\_scripts\\inject-env.bat %DEV_ENV_FILE%"
+		  bat "E:\\deploy\\_scripts\\start-pm2-dev.bat"
+		}
+	  }
+	}
   }
 }
