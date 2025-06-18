@@ -34,14 +34,20 @@ pipeline {
     }
 
     stage('Deploy & Start DEV Server') {
-	  steps {
-		withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
-		  bat 'E:\\deploy\\_scripts\\init-dev-folders.bat'
-		  bat "E:\\deploy\\_scripts\\copy-dev-code.bat ${env.CODEBASE_SERVER_DIR} ${env.CODEBASE_CLIENT_DIR}"
-		  bat "E:\\deploy\\_scripts\\inject-env.bat %DEV_ENV_FILE%"
-		  bat "E:\\deploy\\_scripts\\start-pm2-dev.bat"
-		}
-	  }
-	}
+      steps {
+        withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
+          bat 'E:\\deploy\\_scripts\\init-dev-folders.bat'
+          bat "E:\\deploy\\_scripts\\copy-dev-code.bat ${env.CODEBASE_SERVER_DIR} ${env.CODEBASE_CLIENT_DIR}"
+          bat "E:\\deploy\\_scripts\\inject-env.bat %DEV_ENV_FILE%"
+          bat "E:\\deploy\\_scripts\\start-pm2-dev.bat"
+        }
+      }
+    }
+
+    stage('Build & Start DEV Client') {
+      steps {
+        bat "E:\\deploy\\_scripts\\start-pm2-client.bat"
+      }
+    }
   }
 }
