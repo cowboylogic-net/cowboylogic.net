@@ -62,16 +62,19 @@ pipeline {
               npm install -g pm2
             }
 
-            # === Start or Restart PM2 Process ===
+            # === Start or Restart PM2 Process (Detached) ===
             Set-Location '${env.DEV_DEPLOY_SERVER_DIR}'
-            if (pm2 list | Select-String 'clp-dev') {
-			  Write-Host '🔁 Deleting previous clp-dev process...'
-			  pm2 delete clp-dev
-			}
 
-			Write-Host '🚀 Starting new clp-dev process...'
-			pm2 start server.js --name clp-dev --env development --update-env
-			pm2 save
+            if (pm2 list | Select-String 'clp-dev') {
+              Write-Host '🔁 Deleting previous clp-dev process...'
+              pm2 delete clp-dev
+            }
+
+            Write-Host '🚀 Starting new clp-dev process (detached)...'
+            Start-Process -NoNewWindow -FilePath "pm2.cmd" -ArgumentList 'start server.js --name clp-dev --env development --update-env'
+
+            Start-Sleep -Seconds 3
+            pm2 save
           """
         }
       }
