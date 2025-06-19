@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react"; // ⬅️ useRef тут
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 
 import { fetchBookById } from "../../store/thunks/bookThunks";
 import { addToCartThunk } from "../../store/thunks/cartThunks";
+import { fetchFavorites } from "../../store/thunks/favoritesThunks"; // ⬅️ вже є
 import { selectSelectedBook, selectLoadingFlags } from "../../store/selectors/bookSelectors";
 
 import styles from "./BookDetails.module.css";
@@ -16,15 +17,23 @@ const BookDetails = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
+  const hasFetchedFavorites = useRef(false); // ⬅️ тут створюємо ref
+
   const { isFetchingById } = useSelector(selectLoadingFlags);
   const error = useSelector((state) => state.books.error);
   const book = useSelector(selectSelectedBook);
   const user = useSelector((state) => state.auth.user);
-  // const token = useSelector((state) => state.auth.token);
 
   useEffect(() => {
     if (id) dispatch(fetchBookById(id));
   }, [dispatch, id]);
+
+  useEffect(() => {
+    if (user && !hasFetchedFavorites.current) {
+      dispatch(fetchFavorites());
+      hasFetchedFavorites.current = true;
+    }
+  }, [user, dispatch]); // ⬅️ обмежуємо виклик до 1 разу
 
   const handleAddToCart = async () => {
     if (!book) return;
@@ -68,13 +77,13 @@ const BookDetails = () => {
 
         {user && (
           <div className={styles.actions}>
+            <FavoriteButton bookId={book.id} small />
             <button onClick={handleAddToCart} className="btn btn-outline">
               {t("book.addToCart")}
             </button>
             <button onClick={handleBuyNow} className="btn btn-outline">
               {t("book.buyNow")}
             </button>
-            <FavoriteButton bookId={book.id} />
           </div>
         )}
       </div>

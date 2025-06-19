@@ -3,9 +3,8 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import HttpBackend from "i18next-http-backend";
 
-import enLogin from "./locales/en/login.json"; // ✅ тепер з src
-import esLogin from "./locales/es/login.json";
-
+import enLogin from "./locales/en/login.json";
+import esLogin from "./locales/es/login.json"; // залишаємо, але не вмикаємо через supportedLngs
 
 i18n
   .use(HttpBackend)
@@ -13,27 +12,24 @@ i18n
   .use(initReactI18next)
   .init({
     fallbackLng: "en",
+    supportedLngs: ["en"], // ✅ тимчасово вимикає інші мови, включно з es
     debug: false,
     interpolation: {
       escapeValue: false,
     },
     ns: ["translation", "login"],
     defaultNS: "translation",
-
-    // 🔥 Окремо передаємо preloaded login, але не як `resources`
     partialBundledLanguages: true,
-    preload: ["en", "es"],
-
+    preload: ["en"], // можна залишити ["en"], бо es не використовується зараз
     backend: {
       loadPath: "/locales/{{lng}}/translation.json",
     },
-
-    // ✅ Додаємо login вручну після ініціалізації
     initImmediate: false,
   });
 
-// ⬇️ Додаємо вручну login namespace
+// ✅ login-namespace підключається вручну
 i18n.addResourceBundle("en", "login", enLogin, true, true);
+// es залишаємо підключеним на майбутнє
 i18n.addResourceBundle("es", "login", esLogin, true, true);
 
 export default i18n;

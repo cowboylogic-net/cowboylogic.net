@@ -1,0 +1,82 @@
+/* ===== globals.css (Cleaned) ===== */
+
+@font-face {
+  font-family: 'Marlboro';
+  src: url('/Fonts/Marlboro.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'PlayfairDisplay-VariableFont_wght';
+  src: url('/Fonts/PlayfairDisplay-VariableFont_wght.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Reset */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  background-image: linear-gradient(
+    rgba(46, 47, 66, 0.5),
+    rgba(46, 47, 66, 0.5)
+  ), url(/assets/images/body_bg_cowboy.jpg);
+  background-repeat: round;
+  background-attachment: scroll;
+  background-position: center;
+  min-height: 100vh;
+  color: var(--color-text);
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: var(--color-link);
+  transition: color var(--transition-fast);
+}
+
+a:hover,
+a:focus {
+  color: var(--color-inner-buttons);
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  transition: background var(--transition-fast), border var(--transition-fast);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--color-inner-buttons);
+  box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
+}
+
+:focus-visible {
+  outline: 2px dashed var(--color-brown);
+  outline-offset: 3px;
+}
+
+.app-layout {
+  background-color: transparent;
+  color: var(--color-text);
+}

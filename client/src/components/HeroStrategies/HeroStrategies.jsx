@@ -4,8 +4,9 @@ import styles from "./HeroStrategies.module.css";
 const HeroStrategies = () => {
   return (
     <section className={styles.hero_strategies}>
-      <SliderStrategies />
-   
+      <div className="layoutContainer">
+        <SliderStrategies />
+      </div>
     </section>
   );
 };

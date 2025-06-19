@@ -1,8 +1,15 @@
+/* ===== Navbar.module.css (Updated) ===== */
+
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
+  gap: 1rem;
+  padding: var(--spacing-md) var(--spacing-md);
+  background-color: var(--color-dark);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: var(--spacing-xl);
 }
 
 .navLeft {
@@ -16,20 +23,25 @@
   display: flex;
   align-items: center;
   position: relative;
+  gap: var(--spacing-sm);
 }
 
+/* === Links === */
 .navLink {
   text-decoration: none;
   color: white;
   font-size: 1rem;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.navLink:hover {
-  color: var(--color-accent);
+.navLink:hover,
+.dropdownButton:hover {
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
+/* === Dropdown === */
 .dropdown {
   position: relative;
 }
@@ -42,37 +54,37 @@
   cursor: pointer;
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
-}
-
-.dropdownButton:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .dropdownMenu {
   position: absolute;
-  top: 40px;
+  top: calc(100% + 5px);
   left: 0;
-  background-color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: var(--color-grey);
+  box-shadow: var(--shadow-card);
   border-radius: var(--radius-sm);
-  width: 180px;
+  width: 200px;
   display: flex;
   flex-direction: column;
   z-index: 100;
+  overflow: hidden;
 }
 
 .dropdownItem {
   text-decoration: none;
-  color: black;
+  color: var(--color-text);
   padding: var(--spacing-sm);
-  font-size: 14px;
-  border-bottom: 1px solid #ddd;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--color-light-grey);
+  transition: background var(--transition-fast);
 }
 
 .dropdownItem:hover {
-  background-color: #f5f5f5;
+  background-color: #444;
 }
 
+/* === Search === */
 .searchButton {
   background: transparent;
   border: 1px solid white;
@@ -82,12 +94,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s ease;
+  transition: background var(--transition-fast);
 }
 
 .searchIcon {
   filter: invert(1);
-  transition: filter 0.2s ease;
+  transition: filter var(--transition-fast);
 }
 
 .searchButton:hover .searchIcon {
@@ -98,15 +110,14 @@
   background-color: white;
 }
 
-/* ОНОВЛЕНИЙ пошук */
 .searchForm {
   position: absolute;
   top: 100%;
   right: 0;
-  background: white;
+  background: var(--color-dark);
   padding: var(--spacing-xs) var(--spacing-sm);
   border-radius: var(--radius-sm);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-card);
   z-index: 999;
   display: flex;
   align-items: center;
@@ -115,10 +126,35 @@
 
 .searchInput {
   max-width: 100%;
+  width: 180px;
   padding: var(--spacing-xs);
   border: 1px solid #ccc;
   font-size: 1rem;
   border-radius: var(--radius-sm);
   color: black;
-  background-color: white;
+  background-color: var(--color-dark);
+}
+
+/* === Responsive === */
+@media (max-width: 1024px) {
+  .navbar {
+    display: none;
+  }
+
+  .navLeft {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  .navRight {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: var(--spacing-sm);
+  }
+
+  .searchForm {
+    position: static;
+    margin-top: var(--spacing-sm);
+  }
 }

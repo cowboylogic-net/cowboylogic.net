@@ -1,0 +1,36 @@
+.container {
+  color: white;
+}
+
+.box {
+  background-color: rgba(20, 10, 0, 0.85);
+  padding: 2rem 3rem;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  text-align: center;
+}
+
+.box h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.box p {
+  font-size: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.box button {
+  background: none;
+  border: 1px solid white;
+  color: white;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.box button:hover {
+  background-color: white;
+  color: var(--color-brown);
+}

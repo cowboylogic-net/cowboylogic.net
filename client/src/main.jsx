@@ -7,9 +7,10 @@ import { store } from "./store/store";
 import App from "./App";
 import Loader from "./components/Loader/Loader";
 import { fetchCurrentUser } from "./store/thunks/authThunks"; // ✅ правильний імпорт
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 
 import "./i18n";
-import "./index.css";
+import "./styles/index.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -20,17 +21,19 @@ const renderApp = async () => {
     await store.dispatch(fetchCurrentUser(token));
   }
 
-  root.render(
-    <React.StrictMode>
-      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-        <Provider store={store}>
-          <BrowserRouter>
+root.render(
+  <React.StrictMode>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <Provider store={store}>
+        <BrowserRouter>
+         <ErrorBoundary>
             <App />
-          </BrowserRouter>
-        </Provider>
-      </GoogleOAuthProvider>
-    </React.StrictMode>
-  );
+         </ErrorBoundary>
+        </BrowserRouter>
+      </Provider>
+    </GoogleOAuthProvider>
+  </React.StrictMode>
+);
 };
 
 root.render(<Loader />);

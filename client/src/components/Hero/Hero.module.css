@@ -1,19 +1,7 @@
-/* .hero{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    background-image: url(../../assets/images/body_bg_cowboy.jpg);
-    background-repeat: no-repeat;
-    background-size: cover;
-    color: rgba(255, 255, 255, 0.87);
-} */
-
-/* .hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-   
-  }
-   */
+/* ===== Hero.module.css ===== */
+.hero {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}

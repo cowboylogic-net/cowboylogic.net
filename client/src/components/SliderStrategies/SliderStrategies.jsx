@@ -5,37 +5,26 @@ import styles from "./SliderStrategies.module.css";
 
 import img1 from "/assets/images/image002.jpg";
 import img2 from "/assets/images/image003.jpg";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 // Функція для кастомних стрілок
-const Arrow = ({ className, style, onClick, direction }) => (
-  <div
-    className={`${className} ${styles.arrow} ${direction === "left" ? styles.left : styles.right}`}
-    style={{ ...style }}
-    onClick={onClick}
-  >
-    {/* {direction === "left" ? "◀" : "▶"} */}
-  </div>
-);
-
 const SliderStrategies = () => {
   const slides = [
     { id: 1, image: img1, text: "#" },
     { id: 2, image: img2, text: "#" },
   ];
 
-  const settings = {
-    dots: true,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    arrows: true, // Увімкнути стрілки
-    prevArrow: <Arrow direction="left" />,
-    nextArrow: <Arrow direction="right" />,
-  };
-
+const settings = {
+  dots: false,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: true,
+  autoplaySpeed: 3000,
+  arrows: true, // Увімкнено стрілки
+};
   return (
     <div className={styles.sliderContainer}>
       <Slider {...settings}>

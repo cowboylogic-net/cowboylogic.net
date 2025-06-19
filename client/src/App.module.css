@@ -1,8 +1,6 @@
+/* App.module.css */
 .container {
-  max-width: 1200px; /* Максимальна ширина контейнера */
-  width: 100%; /* Щоб не було обрізання на маленьких екранах */
-  margin: 0 auto; /* Центруємо контент */
-  padding: 20px; /* Внутрішні відступи */ 
-  background-color: transparent;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DOMPurify from "dompurify";
 import debounce from "lodash/debounce";
-import { useTranslation } from "react-i18next"; // 🔹
+import { useTranslation } from "react-i18next";
 import styles from "./EditablePage.module.css";
 
 import { ROLES } from "../../constants/roles";
@@ -26,7 +26,7 @@ import {
 } from "../../store/selectors/pageSelectors";
 
 const EditablePage = ({ slug, title }) => {
-  const { t } = useTranslation(); // 🔹
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
@@ -53,6 +53,12 @@ const EditablePage = ({ slug, title }) => {
   useEffect(() => {
     setLocalContent(draft || published || "");
   }, [draft, published]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setInitialDraft(draft || "");
+    }
+  }, [draft, isEditing]);
 
   const handleSaveDraft = useCallback(async () => {
     const cleanContent = DOMPurify.sanitize(localContent);
@@ -177,6 +183,7 @@ const EditablePage = ({ slug, title }) => {
     setIsPreviewing(false);
     setTimeout(() => {
       if (editorRef.current) {
+        editorRef.current.focus();
         placeCursorAtEnd(editorRef.current);
       }
     }, 0);
@@ -223,20 +230,18 @@ const EditablePage = ({ slug, title }) => {
         )}
       </div>
 
+      {isDraftSaving && (
+        <div className={styles.draftBanner}>💾 {t("editable.savingDraft")}...</div>
+      )}
+
       {isPreviewing && isDraftDifferent && (
-        <div className={styles.draftBanner}>
-          ⚠️ {t("editable.banner.previewingDraft")}
-        </div>
+        <div className={styles.draftBanner}>⚠️ {t("editable.banner.previewingDraft")}</div>
       )}
       {!isEditing && isDraftDifferent && (
-        <div className={styles.draftBanner}>
-          📝 {t("editable.banner.draftExists")}
-        </div>
+        <div className={styles.draftBanner}>📝 {t("editable.banner.draftExists")}</div>
       )}
       {isPreviewing && !isDraftDifferent && (
-        <div className={styles.draftBanner}>
-          👀 {t("editable.banner.previewingPublished")}
-        </div>
+        <div className={styles.draftBanner}>👀 {t("editable.banner.previewingPublished")}</div>
       )}
 
       {isEditing && !isPreviewing && (

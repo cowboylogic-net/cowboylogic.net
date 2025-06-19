@@ -1,0 +1,84 @@
+/* ===== typography.css (Optimized & Scalable) ===== */
+
+/* === Headings === */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-weight: 700;
+}
+
+/* === Paragraphs === */
+p {
+  margin: 0 0 var(--spacing-md) 0;
+  line-height: 1.6;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+/* === Page Titles & Section Subtitles === */
+.pageTitle {
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1.3;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  text-transform: none;
+}
+
+.sectionSubtitle {
+  font-size: 1.25rem;
+  color: var(--color-light-grey);
+  font-weight: 500;
+  font-family: var(--font-body);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.4;
+}
+
+.caption {
+  font-size: 0.75rem;
+  color: var(--color-light-grey);
+  font-style: italic;
+}
+
+.small {
+  font-size: 0.875rem;
+  color: var(--color-grey);
+}
+
+.quote {
+  font-style: italic;
+  border-left: 2px solid var(--color-inner-buttons);
+  padding-left: var(--spacing-sm);
+  color: var(--color-light-grey);
+}
+
+
+/* === Responsive Sizes === */
+@media (min-width: 768px) {
+  .pageTitle {
+    font-size: 2.5rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 1.5rem;
+  }
+    .quote {
+    padding-left: var(--spacing-md);
+  }
+}
+
+@media (min-width: 1440px) {
+  .pageTitle {
+    font-size: 3rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 1.75rem;
+  }
+    .quote {
+    font-size: 1.125rem;
+    padding-left: var(--spacing-lg);
+  }
+}

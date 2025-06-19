@@ -263,7 +263,52 @@
   "bookstore": {
     "title": "CLP BookStore",
     "addBook": "Add Book"
+  },
+  "newsletter": {
+    "label": "Subscribe to our newsletter:",
+    "placeholder": "Your email",
+    "button": "Subscribe",
+    "success": "✅ Subscribed successfully!",
+    "error": "❌ Subscription failed. Try again.",
+    "subject": "Subject",
+    "subjectPlaceholder": "Enter the subject...",
+    "content": "Content (HTML allowed)",
+    "contentPlaceholder": "Enter the content...",
+    "submit": "Send Newsletter",
+    "sending": "Sending...",
+    "subjectRequired": "Subject is required",
+    "subjectTooShort": "Subject is too short",
+    "contentRequired": "Content is required",
+    "contentTooShort": "Content is too short"
+  },
+  "notifications": {
+    "newsletterSent": "✅ Newsletter sent successfully",
+    "newsletterFailed": "❌ Sending failed",
+    "subscribedSuccess": "✅ Subscribed successfully!",
+    "subscribedFailed": "❌ Subscription failed. Try again.",
+    "cartQuantityUpdated": "Quantity updated",
+    "cartQuantityUpdateError": "Failed to update quantity",
+    "itemRemovedFromCart": "Item removed from cart",
+    "itemRemoveError": "Failed to remove item",
+    "checkoutError": "Square checkout failed",
+    "bookCreatedSuccess": "✅ Book created successfully",
+    "bookUpdatedSuccess": "✅ Book updated successfully",
+    "bookSaveFailed": "❌ Failed to save book",
+    "usersFetchFailed": "❌ Failed to fetch users",
+    "roleUpdated": "✅ User role updated",
+    "updateFailed": "❌ Update failed",
+    "userDeleted": "✅ User deleted",
+    "deleteFailed": "❌ Delete failed",
+    "passwordUpdatedSuccess": "✅ Password updated and confirmation email sent. Logging out...",
+    "passwordUpdateError": "❌ Error updating password",
+    "loginSuccess": "✅ Logged in successfully!",
+    "loginError": "❌ Invalid email or password",
+    "contactSuccess": "✅ Message sent successfully!",
+    "contactError": "❌ Failed to send message"
   }
+
+
+
 }
 
 

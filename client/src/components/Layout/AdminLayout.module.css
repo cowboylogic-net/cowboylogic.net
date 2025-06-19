@@ -1,0 +1,15 @@
+/* AdminLayout.module.css */
+.adminLayout {
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  background-color: transparent; 
+}
+
+.main {
+  padding: var(--spacing-lg);
+  width: 100%;
+  max-width: var(--max-width-container);
+  margin: 0 auto;
+}
