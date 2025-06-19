@@ -18,6 +18,7 @@
   --color-bg-header: rgba(27, 18, 10, 0.8);
   --overlay-bg: rgba(0, 0, 0, 0.4);
   --overlay-blur: blur(2px);
+  --color-link: var(--color-text); /* або white */
 
   /* Radius */
   --radius-sm: 4px;
@@ -35,7 +36,7 @@
   --spacing-xxl: 2rem;
 
   /* Utility */
-  --max-width-container: 1200px;
+  --max-width-container: 1440px;
   --transition-fast: 0.3s ease-in-out;
   --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.1);
 

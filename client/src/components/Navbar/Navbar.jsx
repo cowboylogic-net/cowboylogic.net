@@ -56,7 +56,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <div className="container" ref={navbarRef}>
+    <div className="layoutContainer" ref={navbarRef}>
       <div className={styles.navbar}>
         <nav className={styles.navLeft}>
           <NavLink to="/" className={buildLinkClass} onClick={handleCloseDropdown}>

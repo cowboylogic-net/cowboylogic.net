@@ -4,8 +4,9 @@ import styles from "./Hero.module.css";
 const Hero = () => {
   return (
     <section className={styles.hero}>
-      <SliderComponent />
-   
+      <div className="layoutContainer">
+        <SliderComponent />
+      </div>
     </section>
   );
 };

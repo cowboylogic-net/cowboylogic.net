@@ -12,6 +12,6 @@
   width: 100%;
   max-width: var(--max-width-container);
   margin: 0 auto;
-  padding: var(--spacing-lg);
+  padding: 0;
   flex: 1;
 }

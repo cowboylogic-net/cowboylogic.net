@@ -5,16 +5,8 @@ import styles from "./SliderComponent.module.css";
 
 import img1 from "/assets/images/image001.jpg";
 import img2 from "/assets/images/image004.jpg";
-
-// Функція для кастомних стрілок
-const Arrow = ({ className, style, onClick, direction }) => (
-  <div
-    className={`${className} ${styles.arrow} ${direction === "left" ? styles.left : styles.right}`}
-    style={{ ...style }}
-    onClick={onClick}
-  >
-  </div>
-);
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 const SliderComponent = () => {
   const slides = [
@@ -22,19 +14,16 @@ const SliderComponent = () => {
     { id: 2, image: img2, text: "CLPublishing" },
   ];
 
-  const settings = {
-    dots: false,
-    infinite: true,
-    speed: 500,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    autoplay: true,
-    autoplaySpeed: 3000,
-    arrows: true, // Увімкнути стрілки
-    prevArrow: <Arrow direction="left" />,
-    nextArrow: <Arrow direction="right" />,
-  };
-
+const settings = {
+  dots: false,
+  infinite: true,
+  speed: 500,
+  slidesToShow: 1,
+  slidesToScroll: 1,
+  autoplay: true,
+  autoplaySpeed: 3000,
+  arrows: true, // Увімкнено стрілки
+};
   return (
     <div className={styles.sliderContainer}>
       <Slider {...settings}>

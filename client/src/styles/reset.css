@@ -42,3 +42,14 @@ select:focus {
   border-color: var(--color-inner-buttons);
   box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
 }
+a {
+  color: var(--color-link); /* або --color-text, якщо ти хочеш білий */
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover,
+a:focus {
+  color: var(--color-inner-buttons); /* або інший акцент */
+  text-decoration: none;
+}
