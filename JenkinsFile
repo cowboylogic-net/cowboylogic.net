@@ -16,8 +16,10 @@ pipeline {
     DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\dev\\server'
     DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\dev\\client'
 
-    HOME = 'C:\\Users\\clp-jenkins' // Required for PM2
+    HOME = 'C:\\Users\\clp-jenkins'
+    PM2_HOME = 'E:\\jenkins_pm2' // ✅ Fixes PM2 for Jenkins user
   }
+
 
   stages {
     stage('Checkout SCM') {
@@ -49,5 +51,27 @@ pipeline {
         bat "E:\\deploy\\_scripts\\start-pm2-client.bat"
       }
     }
+	
+	stage('PM2 Status and Logs') {
+	  steps {
+		bat '''
+		  set PM2_HOME=E:\\jenkins_pm2
+		  echo 📋 PM2 process list:
+		  pm2 list
+
+		  echo.
+		  echo 🔍 PM2 process details for clp-server:
+		  pm2 describe clp-server
+
+		  echo.
+		  echo 🔍 PM2 process details for clp-client:
+		  pm2 describe clp-client
+
+		  echo.
+		  echo 📄 PM2 logs tail:
+		  pm2 logs --lines 10
+		'''
+	  }
+	}
   }
 }
