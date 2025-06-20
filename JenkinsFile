@@ -41,17 +41,17 @@ pipeline {
     }
 
     stage('🚀 Deploy & Start Server') {
-	  steps {
-		withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
-		  powershell 'E:\\deploy\\_scripts\\Deploy-Server.ps1 -Environment "dev" -EnvFile "%DEV_ENV_FILE%"'
-		}
-	  }
-	}
+      steps {
+        withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
+          powershell "E:\\deploy\\_scripts\\Deploy-Server.ps1 -Environment 'dev' -EnvFile '${DEV_ENV_FILE}'"
+        }
+      }
+    }
 
-	stage('🛠️ Build & Start Client') {
-	  steps {
-		powershell 'E:\\deploy\\_scripts\\Deploy-Client.ps1 -Environment "dev"'
-	  }
-	}
+    stage('🛠️ Build & Start Client') {
+      steps {
+        powershell 'E:\\deploy\\_scripts\\Deploy-Client.ps1 -Environment "dev"'
+      }
+    }
   }
 }
