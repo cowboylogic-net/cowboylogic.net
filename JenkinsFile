@@ -20,8 +20,14 @@ pipeline {
     PM2_HOME = 'E:\\jenkins_pm2' // ✅ Fixes PM2 for Jenkins user
   }
 
-
   stages {
+
+    stage('🧹 Clean Old DEV Deployment') {
+      steps {
+        powershell 'E:\\deploy\\_scripts\\Clean-Data.ps1 -ENVIRONMENT "dev"'
+      }
+    }
+
     stage('Checkout SCM') {
       steps {
         checkout scm
@@ -51,27 +57,5 @@ pipeline {
         bat "E:\\deploy\\_scripts\\start-pm2-client.bat"
       }
     }
-	
-	stage('PM2 Status and Logs') {
-	  steps {
-		bat '''
-		  set PM2_HOME=E:\\jenkins_pm2
-		  echo 📋 PM2 process list:
-		  pm2 list
-
-		  echo.
-		  echo 🔍 PM2 process details for clp-server:
-		  pm2 describe clp-server
-
-		  echo.
-		  echo 🔍 PM2 process details for clp-client:
-		  pm2 describe clp-client
-
-		  echo.
-		  echo 📄 PM2 logs tail:
-		  pm2 logs --lines 10
-		'''
-	  }
-	}
   }
 }
