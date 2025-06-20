@@ -24,24 +24,23 @@ pipeline {
 
     stage('🧹 Clean Old DEV Deployment') {
       steps {
-        powershell 'E:\\deploy\\_scripts\\Clean-Data.ps1 -ENVIRONMENT "dev"'
+        powershell 'E:\\deploy\\_scripts\\Clean-DeploymentFolders.ps1 -ENVIRONMENT "dev"'
       }
     }
 
-    stage('Checkout SCM') {
+    stage('📥 Checkout SCM') {
       steps {
         checkout scm
       }
     }
 
-    stage('Verify Node Environment') {
+    stage('🧪 Verify Node Environment') {
       steps {
-        bat 'node -v'
-        bat 'npm -v'
+        powershell 'E:\\deploy\\_scripts\\Verify-NodeEnvironment.ps1'
       }
     }
 
-    stage('Deploy & Start DEV Server') {
+    stage('🚀 Deploy & Start DEV Server') {
       steps {
         withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
           bat 'E:\\deploy\\_scripts\\init-dev-folders.bat'
@@ -52,7 +51,7 @@ pipeline {
       }
     }
 
-    stage('Build & Start DEV Client') {
+    stage('🛠️ Build & Start DEV Client') {
       steps {
         bat "E:\\deploy\\_scripts\\start-pm2-client.bat"
       }
