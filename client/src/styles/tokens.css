@@ -65,4 +65,8 @@
     --color-bg: #fff;
     --color-text: #000;
   }
+  --color-toast-success: #2ecc71;
+  --color-toast-error: #e74c3c;
+  --color-toast-info: #3498db;
+  --color-toast-warning: #f39c12;
 }

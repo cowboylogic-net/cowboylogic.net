@@ -3,7 +3,7 @@ import styles from "./BaseButton.module.css";
 
 const BaseButton = ({
   children,
-  variant = "primary", // додано підтримку "auth"
+  variant = "primary",
   size = "default",
   type = "button",
   disabled = false,
@@ -21,7 +21,7 @@ const BaseButton = ({
         styles[size],
         fullWidth && styles.fullWidth,
         disabled && styles.disabled,
-        className // додаткові стилі ззовні
+        className
       )}
       {...props}
     >
@@ -31,3 +31,4 @@ const BaseButton = ({
 };
 
 export default BaseButton;
+

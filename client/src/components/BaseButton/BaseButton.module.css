@@ -14,13 +14,12 @@
   text-transform: none;
 }
 
-/* Focus-visible for accessibility */
 .btn:focus-visible {
   outline: 2px solid var(--color-link);
   outline-offset: 2px;
 }
 
-/* Variants */
+/* === Variants === */
 .primary {
   background-color: var(--color-dark);
   color: var(--color-text);
@@ -43,7 +42,44 @@
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
 }
 
-/* Sizes */
+.auth {
+  background-color: var(--color-inner-buttons);
+  color: var(--color-white);
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  width: 100%;
+  max-width: 300px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.auth:hover {
+  background-color: var(--color-brown);
+}
+
+.auth:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ✅ NEW: Card Button Variant */
+.card {
+  background-color: var(--color-inner-buttons);
+  color: var(--color-white);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  transition: background-color var(--transition-fast);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.card:hover {
+  background-color: var(--color-brown);
+}
+
+/* === Sizes === */
 .default {
   font-size: 1rem;
   padding: var(--spacing-sm) var(--spacing-md);
@@ -59,38 +95,14 @@
   padding: 0.75rem 1.5rem;
 }
 
-/* Disabled state */
+/* === Modifiers === */
 .disabled {
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
 }
 
-/* Optional fullWidth modifier */
 .fullWidth {
   width: 100%;
   display: block;
-}
-
-/* === AUTH Variant === */
-.auth {
-  background-color: var(--color-inner-buttons);
-  color: var(--color-white);
-  font-weight: 600;
-  padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-md);
-  border: none;
-  font-size: 1rem;
-  width: 100%;
-  max-width: 300px;
-  transition: background-color 0.2s ease-in-out;
-}
-
-.auth:hover {
-  background-color: var(--color-brown);
-}
-
-.auth:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }

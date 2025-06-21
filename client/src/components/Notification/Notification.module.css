@@ -1,31 +1,41 @@
 .toast {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  min-width: 200px;
-  padding: 1rem 1.5rem;
-  border-radius: 8px;
-  color: #fff;
-  z-index: 1000;
-  animation: fadeInOut 3s ease-in-out forwards;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  top: 1.5rem;
+  right: 1.5rem;
+  max-width: 90vw;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
   font-weight: 500;
+  padding: 0.8rem 1.2rem;
+  border-radius: var(--radius-md);
+  color: var(--color-white);
+  z-index: 1000;
+  box-shadow: var(--shadow-sm);
+  animation: fadeInOut 3s ease-in-out forwards;
+}
+
+.icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
 }
 
 .success {
-  background-color: #2ecc71;
+  background-color: var(--color-toast-success);
 }
 
 .error {
-  background-color: #e74c3c;
+  background-color: var(--color-toast-error);
 }
 
 .info {
-  background-color: #3498db;
+  background-color: var(--color-toast-info);
 }
 
 .warning {
-  background-color: #f39c12;
+  background-color: var(--color-toast-warning);
 }
 
 @keyframes fadeInOut {

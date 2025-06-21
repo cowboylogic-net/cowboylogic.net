@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import styles from "./BookCard.module.css";
 import FavoriteButton from "../FavoriteButton/FavoriteButton";
+import BaseButton from "../BaseButton/BaseButton";
 
 const BookCard = ({
   book,
@@ -29,13 +30,6 @@ const BookCard = ({
       />
 
       <div className={styles.info}>
-        {isAdmin && (
-          <div className={styles.actions}>
-            <button onClick={() => onEdit(book.id)}>{t("book.edit")}</button>
-            <button onClick={() => onDeleteClick(book.id)}>{t("book.delete")}</button>
-          </div>
-        )}
-
         <Link to={`/bookstore/book/${book.id}`} className={styles.titleLink}>
           <h3>{book.title}</h3>
         </Link>
@@ -46,17 +40,31 @@ const BookCard = ({
           {book.inStock ? t("book.inStock") : t("book.outOfStock")}
         </p>
 
-        {isLoggedIn && (
-          <div className={styles.actionRow}>
-            <button
-              onClick={() => onAddToCart(book.id)}
-              className={styles.actionButton}
-            >
-              {t("book.addToCart")}
-            </button>
-            <FavoriteButton bookId={book.id} small />
-          </div>
-        )}
+        <div className={styles.actionRow}>
+          {isLoggedIn && (
+            <>
+              <BaseButton
+                onClick={() => onAddToCart(book.id)}
+                size="sm"
+                variant="card"
+              >
+                {t("book.addToCart")}
+              </BaseButton>
+              <FavoriteButton bookId={book.id} small />
+            </>
+          )}
+
+          {isAdmin && (
+            <div className={styles.adminButtons}>
+              <BaseButton onClick={() => onEdit(book.id)} size="sm" variant="card">
+                {t("book.edit")}
+              </BaseButton>
+              <BaseButton onClick={() => onDeleteClick(book.id)} size="sm" variant="card">
+                {t("book.delete")}
+              </BaseButton>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -70,7 +70,7 @@ app.use("/api/webhook", webhookRoutes);
 app.use("/api/square", squareRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/images", imageRoutes);
-app.use("/api/search", searchRoutes); // ✅ новий ендпоїнт пошуку
+app.use("/api/search", searchRoutes); 
 
 // Global error handler
 app.use(errorHandler);
