@@ -1,5 +1,6 @@
-/* ===== globals.css (Cleaned) ===== */
+/* ===== globals.css (Cleaned & Final) ===== */
 
+/* Fonts */
 @font-face {
   font-family: 'Marlboro';
   src: url('/Fonts/Marlboro.ttf') format('truetype');
@@ -16,11 +17,7 @@
   font-display: swap;
 }
 
-/* Reset */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
+/* Base HTML elements */
 html {
   height: 100%;
   overflow-y: scroll;
@@ -28,8 +25,10 @@ html {
 }
 
 body {
+  min-height: 100vh;
   margin: 0;
   font-family: var(--font-body);
+  color: var(--color-text);
   background-image: linear-gradient(
     rgba(46, 47, 66, 0.5),
     rgba(46, 47, 66, 0.5)
@@ -37,14 +36,13 @@ body {
   background-repeat: round;
   background-attachment: scroll;
   background-position: center;
-  min-height: 100vh;
-  color: var(--color-text);
   overflow-x: hidden;
 }
 
+/* Links */
 a {
   text-decoration: none;
-  color: var(--color-link);
+  color: var(--color-text);
   transition: color var(--transition-fast);
 }
 
@@ -54,6 +52,7 @@ a:focus {
   text-decoration: none;
 }
 
+/* Form Elements */
 button,
 input,
 textarea,
@@ -66,17 +65,13 @@ select {
 input:focus,
 textarea:focus,
 select:focus {
-  outline: none;
   border-color: var(--color-inner-buttons);
   box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
 }
 
+/* Accessibility */
 :focus-visible {
   outline: 2px dashed var(--color-brown);
   outline-offset: 3px;
 }
 
-.app-layout {
-  background-color: transparent;
-  color: var(--color-text);
-}

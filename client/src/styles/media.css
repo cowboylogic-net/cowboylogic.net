@@ -63,3 +63,28 @@
     font-size: 2rem;
   }
 }
+@media (max-width: 768px) {
+  .editableContent {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow-x: hidden;           /* 🛡️ гарантує відсутність горизонтального скролу */
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .editableContent h1 { font-size: 1.75rem; }
+  .editableContent h2 { font-size: 1.5rem; }
+  .editableContent h3 { font-size: 1.25rem; }
+  .editableContent h4 { font-size: 1.1rem; }
+
+  .editableContent table {
+    width: 100%;                /* 🧷 важливо для запобігання overflow */
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    word-wrap: break-word;
+overflow-wrap: anywhere;
+  }
+}
+

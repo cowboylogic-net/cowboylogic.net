@@ -1,8 +1,9 @@
 .newsletter {
   display: flex;
-  text-align: center;
+  flex-direction: column;
   background: transparent;
   width: 100%;
+  max-width: 320px; /* ✅ обмежуємо ширину для компактності */
   text-align: left;
 }
 
@@ -16,41 +17,64 @@
   font-weight: 500;
 }
 
+.inputGroup {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+  flex-wrap: nowrap; /* ✅ щоб не ламалося */
+}
 
 .inputGroup {
   display: flex;
   justify-content: flex-start;
-  align-items: center; /* було: stretch */
+  align-items: center;
   gap: var(--spacing-sm);
   margin-top: var(--spacing-sm);
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
 }
 
 /* Поле вводу */
-input[type="email"] {
-  padding: 0.3rem 0.6rem; /* 🔽 зменшено по висоті */
+.newsletter input[type="email"] {
+  all: unset; /* скидує reset.css */
+  padding: 0.4rem 0.75rem;
   border: 1px solid var(--color-brown);
   border-radius: var(--radius-md);
-  width: 220px; /* 🔽 трохи менше */
   font-size: 0.95rem;
   background-color: #fefefe;
   color: var(--color-dark);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: border 0.2s ease, box-shadow 0.2s ease;
+    width: 100%;
+  max-width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
   outline: none;
-  height: auto; /* гарантуємо без зайвих обмежень */
+  box-sizing: border-box;
+}
+.newsletter input[type="email"]:focus {
+  /* додай уточнення до .newsletter */
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+input[type="email"]::placeholder {
+  color: #aaa;
 }
 
 /* Кнопка */
 .subscribeBtn {
   font-size: 0.95rem;
-  padding: 0.35rem 0.9rem; /* 🔽 менше по висоті */
+  padding: 0.5rem 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid white;
   border-radius: var(--radius-sm);
   color: white;
   cursor: pointer;
   background: transparent;
   transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
   line-height: 1;
   box-sizing: border-box;
 }
@@ -60,25 +84,16 @@ input[type="email"] {
   color: var(--color-dark);
 }
 
+/* 🔽 Адаптив */
+@media (max-width: 480px) {
+  .inputGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-input[type="email"]:focus {
-  border: 1px solid var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2); /* синій ефект */
-}
-
-input[type="email"]::placeholder {
-  color: #aaa;
-}
-
-
-
-.status {
-  margin-top: var(--spacing-sm);
-  color: var(--color-grey);
-  font-size: 0.9rem;
-}
-
-
-.subscribeButton {
-  height: 100%; /* 👈 повна висота в inputGroup */
+  .newsletter input[type="email"],
+  .newsletter .subscribeBtn {
+    max-width: 100%;
+    width: 100%;
+  }
 }

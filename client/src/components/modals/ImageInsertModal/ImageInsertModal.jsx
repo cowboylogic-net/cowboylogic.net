@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./ImageInsertModal.module.css";
+import BaseButton from "../../BaseButton/BaseButton";
 
 const ImageInsertModal = ({ onInsert, onClose }) => {
   const { t } = useTranslation();
@@ -88,12 +89,14 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h3>{t("modals.chooseImage")}</h3>
         <form onSubmit={handleSubmit}>
           <input type="file" accept="image/*" onChange={handleFileChange} />
-          <p>{t("modals.or")}</p>
+
+          <p className={styles.orText}>{t("modals.or")}</p>
+
           <input
             type="text"
             value={url}
@@ -125,13 +128,13 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
                 w: originalSize.w,
                 h: originalSize.h,
               })}
-              <button
+              <BaseButton
                 type="button"
-                className="btn btn-small"
+                variant="small"
                 onClick={resetToOriginal}
               >
                 {t("modals.reset")}
-              </button>
+              </BaseButton>
             </div>
           )}
 
@@ -149,16 +152,16 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
           )}
 
           <div className={styles.actions}>
-            <button type="submit" className="btn btn-outline">
+            <BaseButton type="submit" variant="outline">
               {t("modals.confirm")}
-            </button>
-            <button
+            </BaseButton>
+            <BaseButton
               type="button"
-              className="btn btn-outline"
+              variant="outline"
               onClick={onClose}
             >
               {t("modals.cancel")}
-            </button>
+            </BaseButton>
           </div>
         </form>
       </div>

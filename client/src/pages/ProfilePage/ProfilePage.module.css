@@ -1,39 +1,77 @@
-.profilePage {
-  max-width: 100%;
+.container {
+  max-width: 350px;
   margin: 6rem auto;
-  padding: 2rem;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
-  font-family: var(--font-family-body);
-  color: #fff6e6;
+  padding: 2.5rem 2rem 3rem;
+  background-color: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: var(--overlay-blur);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  text-align: left;
+  box-sizing: border-box;
 }
 
-.profilePage h1 {
+.profileColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+/* Контент профілю: аватар, текст, кнопка */
+.leftColumn {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Аватар */
+.avatarWrapper {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-accent);
+}
+
+/* Заголовок */
+.container h1 {
+  text-align: left;
   font-size: 2rem;
-  color: var(--color-titles);
-  font-family: var(--font-family-body);
-  text-align: left;
-  margin-bottom: 1rem;
+  margin-bottom: var(--spacing-md);
 }
 
-.profilePage h2 {
-  font-size: 1.3rem;
-  margin-top: 2rem;
-  margin-bottom: 0.5rem;
-  font-family: var(--font-family-body);
-  color: var(--color-titles);
-  text-align: left;
-}
-
-.profilePage p {
-  margin: 0.5rem 0;
+/* Профільна інформація */
+.container p {
+  margin: 0;
   font-size: 1rem;
-  color: #fff6e6;
-  text-align: left;
+  line-height: 1.6;
 }
 
-.profilePage strong {
+.container a {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--color-inner-buttons);
+  font-weight: 500;
+}
+
+.container strong {
+  font-weight: 600;
   color: var(--color-titles);
-  font-weight: bold;
+}
+
+
+/* Desktop — додатково залишаємо гнучкість на майбутнє */
+@media (min-width: 1024px) {
+  .profileColumn {
+    flex-direction: column; /* можна легко поміняти на row якщо треба */
+  }
 }

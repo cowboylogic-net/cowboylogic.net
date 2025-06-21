@@ -1,46 +1,77 @@
+/* .container {
+  width: 100%;
+  margin: var(--spacing-xxl) auto;
+  color: var(--color-text);
+} */
+
 .container {
-  max-width: 100%;
-  margin: 3rem auto;
-  color: white;
+  width: 100%;
+  max-width: var(--max-width-container); /* обмеження ширини */
+  margin: var(--spacing-xxl) auto;
+  padding: 0 var(--spacing-md); /* додатковий відступ, щоб не липло до країв */
+  color: var(--color-text);
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
+
 .title {
-  font-size: 2.2rem;
-  margin-bottom: 1.5rem;
+  font-size: 2rem;
+  margin-bottom: var(--spacing-md);
   color: var(--color-titles);
   text-align: left;
 }
 
-.editBar {
-  margin-bottom: 1rem;
-  text-align: right;
+.titleRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
 }
 
+.editControls {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+
 .editable {
+  width: 100%;
   font-size: 1rem;
   line-height: 1.6;
   transition: box-shadow 0.2s ease;
-  width: 100%;
 }
 
 .editingArea {
   background: #ffffff;
-  color: #222;
+  color: var(--color-dark);
   border: 1px solid var(--color-brown);
   border-radius: var(--radius-md);
-  padding: 1rem;
+  padding: var(--spacing-md);
   min-height: 300px;
-  width: 100%;
   box-sizing: border-box;
+  width: 100%;
+
+  /* Ось критичні властивості */
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
 }
+
+
 
 .staticView {
   background: transparent;
-  color: white;
+  color: var(--color-text);
   padding: 0;
   border: none;
   min-height: auto;
-  width: 100%;
   box-sizing: border-box;
 }
 
@@ -50,44 +81,37 @@
 }
 
 .bottomSave {
-  margin-top: 1rem;
   display: flex;
+  gap: 1rem;
   justify-content: flex-end;
-  gap: 0.5rem;
+  margin-top: 2rem;
+  border-top: 1px solid var(--color-border);
+  padding-top: 1.5rem;
 }
 
-.error {
-  color: #ffcccc;
-  font-weight: bold;
-  margin-bottom: 1rem;
-}
 
-.titleRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.draftBanner {
+  background-color: var(--color-dark);
+  color: var(--color-accent);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
   margin-bottom: var(--spacing-md);
-}
-
-.editControls {
-  margin-top: 1rem;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 600px) {
   .titleRow {
     flex-direction: column;
     align-items: flex-start;
-    gap: var(--spacing-sm);
   }
 
-  .titleRow h1 {
-    font-size: 1.8rem;
+  .title {
+    font-size: 1.6rem;
   }
-
+}
+@media (max-width: 768px) {
   .editControls {
-    align-self: flex-end;
+    flex-direction: column;
+    align-items: stretch;
   }
 }

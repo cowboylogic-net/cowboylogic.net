@@ -1,41 +1,40 @@
+/* components/modals/LinkInsertModal/LinkInsertModal.module.css */
 
 .overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: var(--color-overlay);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   z-index: 1000;
+  backdrop-filter: var(--overlay-blur);
 }
 
 .modal {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--overlay-bg);
+  color: var(--color-text);
   border: 1px solid var(--color-brown);
   border-radius: var(--radius-md);
-  padding: 2rem;
-  width: 90%;
+  padding: var(--spacing-xxl);
   max-width: 420px;
-  color: var(--color-text-dark);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  backdrop-filter: var(--overlay-blur);
 }
-
 .modal h3 {
-  margin-top: 0;
-  margin-bottom: 1rem;
-  color: var(--color-titles);
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: var(--color-titles, var(--color-text));
   text-align: center;
+  margin-bottom: var(--spacing-md);
 }
 
 .modal form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .inputWrapper {
@@ -44,19 +43,44 @@
 }
 
 .modal input[type="url"] {
+  all: unset;
+  border: 1px solid var(--color-brown);
+  border-radius: var(--radius-sm);
   padding: 0.5rem 0.75rem;
   font-size: 1rem;
-  border: 1px solid white;
-  border-radius: var(--radius-sm);
-  background-color: white;
-  color: black;
   width: 100%;
-  max-width: 100%;
+  background-color: #fff;
+  color: var(--color-dark);
+  box-sizing: border-box;
 }
 
 .actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: var(--spacing-md);
 }
 
+.actions button {
+  z-index: 1002;
+  position: relative;
+}
+
+/* 📱 Mobile tweaks */
+@media (max-width: 480px) {
+  .modal {
+    padding: var(--spacing-xl);
+  }
+
+  .modal h3 {
+    font-size: 1.2rem;
+  }
+
+  .modal input[type="url"] {
+    font-size: 0.95rem;
+  }
+
+  .actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}

@@ -311,7 +311,31 @@
     "loginError": "❌ Correo electrónico o contraseña inválidos",
     "contactSuccess": "✅ ¡Mensaje enviado con éxito!",
     "contactError": "❌ Error al enviar el mensaje"
+  },
+    "editable": {
+    "discardTitle": "¿Descartar los cambios no guardados?",
+    "discardMessage": "Perderás todas las ediciones no guardadas. ¿Estás seguro?",
+    "saveDraft": "Guardar borrador",
+    "publish": "Publicar",
+    "edit": "Editar página",
+    "cancel": "Cancelar",
+    "preview": "Vista previa",
+    "backToEdit": "Volver a editar",
+    "savingDraft": "Guardando borrador...",
+    "banner": {
+      "previewingDraft": "Estás viendo un borrador no guardado.",
+      "draftExists": "Hay cambios no guardados.",
+      "previewingPublished": "Estás viendo la versión publicada."
+    },
+    "emptyContentError": "El contenido está vacío. Agrega algo antes de guardar."
+  },
+  "confirm": {
+    "title": "¿Estás seguro?",
+    "message": "Esta acción no se puede deshacer.",
+    "confirm": "Sí, continuar",
+    "cancel": "Cancelar"
   }
+
 
 
 

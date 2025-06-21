@@ -34,7 +34,7 @@ const settings = {
           <div key={slide.id} className={styles.slide}>
             <img src={slide.image} alt={`Slide ${slide.id}`} className={styles.image} />
             <div className={styles.overlay}>
-              <h2>{slide.text}</h2>
+              {/* <h2>{slide.text}</h2> */}
             </div>
           </div>
         ))}

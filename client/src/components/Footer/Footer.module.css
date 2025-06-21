@@ -63,7 +63,7 @@
 
 .footerContent {
   margin: 0;
-  color: white;
+  color: var(--color-text);
   transition: color var(--transition-fast);
 }
 

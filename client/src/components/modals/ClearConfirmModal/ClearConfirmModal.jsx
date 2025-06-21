@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import styles from "./ClearConfirmModal.module.css";
+import BaseButton from "../../BaseButton/BaseButton";
 
 const ClearConfirmModal = ({ onConfirm, onClose }) => {
   const { t } = useTranslation();
@@ -10,12 +11,12 @@ const ClearConfirmModal = ({ onConfirm, onClose }) => {
         <h3>{t("modals.clearAllTitle")}</h3>
         <p>{t("modals.clearAllMessage")}</p>
         <div className={styles.actions}>
-          <button className="btn btn-outline" onClick={onConfirm}>
+          <BaseButton variant="outline" onClick={onConfirm}>
             {t("modals.clearAllConfirm")}
-          </button>
-          <button className="btn btn-outline" onClick={onClose}>
+          </BaseButton>
+          <BaseButton variant="outline" onClick={onClose}>
             {t("modals.cancel")}
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import styles from "./DeleteConfirmModal.module.css";
+import BaseButton from "../../BaseButton/BaseButton";
 
 const DeleteConfirmModal = ({ isOpen, onClose, onConfirm }) => {
   const { t } = useTranslation();
@@ -7,16 +8,20 @@ const DeleteConfirmModal = ({ isOpen, onClose, onConfirm }) => {
   if (!isOpen) return null;
 
   return (
-    <div className={styles.backdrop}>
-      <div className={styles.modal}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div
+        className={styles.modal}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h3>{t("modals.deleteTitle")}</h3>
         <p>{t("modals.deleteBookMessage")}</p>
-        <div className={styles.buttons}>
-          <button onClick={onClose} className="btn btn-outline">
+        <div className={styles.actions}>
+          <BaseButton variant="outline" onClick={onClose}>
             {t("modals.cancel")}
-          </button>
-          <button onClick={onConfirm} className="btn btn-outline">
+          </BaseButton>
+          <BaseButton variant="outline" onClick={onConfirm}>
             {t("modals.delete")}
-          </button>
+          </BaseButton>
         </div>
       </div>
     </div>

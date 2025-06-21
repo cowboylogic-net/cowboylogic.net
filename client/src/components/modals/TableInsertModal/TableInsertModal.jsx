@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./TableInsertModal.module.css";
+import BaseButton from "../../BaseButton/BaseButton";
 
 const TableInsertModal = ({ onInsert, onClose }) => {
   const { t } = useTranslation();
@@ -22,12 +23,12 @@ const TableInsertModal = ({ onInsert, onClose }) => {
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h3>{t("modals.insertTableTitle")}</h3>
         <form onSubmit={handleSubmit}>
           <label>
-            {t("modals.rows")}:
+            {t("modals.rows")}
             <input
               type="number"
               value={rows}
@@ -37,7 +38,7 @@ const TableInsertModal = ({ onInsert, onClose }) => {
             />
           </label>
           <label>
-            {t("modals.columns")}:
+            {t("modals.columns")}
             <input
               type="number"
               value={cols}
@@ -46,17 +47,13 @@ const TableInsertModal = ({ onInsert, onClose }) => {
               max="10"
             />
           </label>
-          <div className={styles["modal-actions"]}>
-            <button type="submit" className="btn btn-outline">
+          <div className={styles.actions}>
+            <BaseButton type="submit" variant="outline">
               {t("modals.insert")}
-            </button>
-            <button
-              type="button"
-              className="btn btn-outline"
-              onClick={onClose}
-            >
+            </BaseButton>
+            <BaseButton type="button" variant="outline" onClick={onClose}>
               {t("modals.cancel")}
-            </button>
+            </BaseButton>
           </div>
         </form>
       </div>

@@ -10,6 +10,7 @@ import EditableToolbar from "../../components/EditableToolbar/EditableToolbar";
 import ConfirmModal from "../../components/modals/ConfirmModal/ConfirmModal";
 import Loader from "../../components/Loader/Loader";
 import { showNotification } from "../../store/slices/notificationSlice";
+import BaseButton from "../BaseButton/BaseButton";
 
 import {
   fetchPageVersions,
@@ -145,12 +146,19 @@ const EditablePage = ({ slug, title }) => {
     };
 
     if (!hasVisibleText(tempDiv)) {
-      dispatch(showNotification({ message: t("editable.emptyContentError"), type: "error" }));
+      dispatch(
+        showNotification({
+          message: t("editable.emptyContentError"),
+          type: "error",
+        })
+      );
       return;
     }
 
     try {
-      await dispatch(updatePageContent({ slug, content: cleanContent, token })).unwrap();
+      await dispatch(
+        updatePageContent({ slug, content: cleanContent, token })
+      ).unwrap();
       setIsEditing(false);
       setIsPreviewing(false);
     } catch (err) {
@@ -164,7 +172,9 @@ const EditablePage = ({ slug, title }) => {
     setLastPublished(published || "");
     setTimeout(() => {
       if (editorRef.current) {
-        editorRef.current.innerHTML = DOMPurify.sanitize(draft || published || "");
+        editorRef.current.innerHTML = DOMPurify.sanitize(
+          draft || published || ""
+        );
       }
     }, 0);
   };
@@ -207,86 +217,122 @@ const EditablePage = ({ slug, title }) => {
   const isDraftDifferent = draft && draft !== published;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.titleRow}>
-        <h1 className={styles.title}>{title}</h1>
-        {(user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN) && (
-          <div className={styles.editControls}>
-            <button className="btn btn-outline" onClick={() => (isEditing ? handleCancel() : startEditing())}>
-              {isEditing ? t("editable.cancel") : t("editable.edit")}
-            </button>
-            {isEditing && (
-              <button className="btn btn-outline" onClick={() => {
-                if (isPreviewing) {
-                  handleBackToEdit();
-                } else {
-                  setIsPreviewing(true);
-                }
-              }}>
-                {isPreviewing ? t("editable.backToEdit") : t("editable.preview")}
-              </button>
-            )}
+    <section className="layoutContainer">
+      <div className={styles.container}>
+        <div className={styles.titleRow}>
+          <h1 className={styles.title}>{title}</h1>
+          {(user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN) && (
+            <div className={styles.editControls}>
+              <BaseButton
+                variant="outline"
+                onClick={() => (isEditing ? handleCancel() : startEditing())}
+              >
+                {isEditing ? t("editable.cancel") : t("editable.edit")}
+              </BaseButton>
+              {isEditing && (
+                <BaseButton
+                  variant="outline"
+                  onClick={() => {
+                    if (isPreviewing) {
+                      handleBackToEdit();
+                    } else {
+                      setIsPreviewing(true);
+                    }
+                  }}
+                >
+                  {isPreviewing
+                    ? t("editable.backToEdit")
+                    : t("editable.preview")}
+                </BaseButton>
+              )}
+            </div>
+          )}
+        </div>
+
+        {isDraftSaving && (
+          <div className={styles.draftBanner}>
+            💾 {t("editable.savingDraft")}...
           </div>
         )}
+
+        {isPreviewing && isDraftDifferent && (
+          <div className={styles.draftBanner}>
+            ⚠️ {t("editable.banner.previewingDraft")}
+          </div>
+        )}
+        {!isEditing && isDraftDifferent && (
+          <div className={styles.draftBanner}>
+            📝 {t("editable.banner.draftExists")}
+          </div>
+        )}
+        {isPreviewing && !isDraftDifferent && (
+          <div className={styles.draftBanner}>
+            👀 {t("editable.banner.previewingPublished")}
+          </div>
+        )}
+
+        {isEditing && !isPreviewing && (
+          <EditableToolbar execCmd={execCmd} editorRef={editorRef} />
+        )}
+
+        {isEditing && !isPreviewing ? (
+          <div
+            ref={editorRef}
+            className={`${styles.editable} ${styles.editingArea}`}
+            contentEditable
+            suppressContentEditableWarning
+            style={{
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              overflowWrap: "anywhere",
+              overflowX: "hidden",
+            }}
+            onInput={() => {
+              if (editorRef.current) {
+                const updatedContent = editorRef.current.innerHTML;
+                setLocalContent(updatedContent);
+                debouncedSaveRef.current(updatedContent, initialDraft);
+              }
+            }}
+          />
+        ) : (
+          <div
+            className={`editableContent ${styles.preview}`}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(localContent),
+            }}
+          />
+        )}
+
+        {isEditing && !isPreviewing && (
+          <div className={styles.bottomSave}>
+            <BaseButton
+              variant="outline"
+              onClick={handleSaveDraft}
+              disabled={isDraftSaving}
+            >
+              {t("editable.saveDraft")}
+            </BaseButton>
+            <BaseButton
+              variant="outline"
+              onClick={handleSave}
+              disabled={isUpdating}
+            >
+              {t("editable.publish")}
+            </BaseButton>
+          </div>
+        )}
+
+        {showConfirm && (
+          <ConfirmModal
+            onConfirm={confirmDiscardChanges}
+            onClose={() => setShowConfirm(false)}
+            title={t("editable.discardTitle")}
+            message={t("editable.discardMessage")}
+          />
+        )}
       </div>
-
-      {isDraftSaving && (
-        <div className={styles.draftBanner}>💾 {t("editable.savingDraft")}...</div>
-      )}
-
-      {isPreviewing && isDraftDifferent && (
-        <div className={styles.draftBanner}>⚠️ {t("editable.banner.previewingDraft")}</div>
-      )}
-      {!isEditing && isDraftDifferent && (
-        <div className={styles.draftBanner}>📝 {t("editable.banner.draftExists")}</div>
-      )}
-      {isPreviewing && !isDraftDifferent && (
-        <div className={styles.draftBanner}>👀 {t("editable.banner.previewingPublished")}</div>
-      )}
-
-      {isEditing && !isPreviewing && (
-        <EditableToolbar execCmd={execCmd} editorRef={editorRef} />
-      )}
-
-      {isEditing && !isPreviewing ? (
-        <div
-          ref={editorRef}
-          className={`${styles.editable} ${styles.editingArea}`}
-          contentEditable
-          suppressContentEditableWarning
-          onInput={() => {
-            if (editorRef.current) {
-              const updatedContent = editorRef.current.innerHTML;
-              setLocalContent(updatedContent);
-              debouncedSaveRef.current(updatedContent, initialDraft);
-            }
-          }}
-        />
-      ) : (
-        <div
-          className={styles.preview}
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(localContent) }}
-        />
-      )}
-
-      {isEditing && !isPreviewing && (
-        <div className={styles.bottomSave}>
-          <button className="btn btn-outline" onClick={handleSaveDraft} disabled={isDraftSaving}>
-            {t("editable.saveDraft")}
-          </button>
-          <button className="btn btn-outline" onClick={handleSave} disabled={isUpdating}>
-            {t("editable.publish")}
-          </button>
-        </div>
-      )}
-
-      {showConfirm && (
-        <ConfirmModal
-          onConfirm={confirmDiscardChanges}
-          onClose={() => setShowConfirm(false)}
-        />
-      )}
-    </div>
+    </section>
   );
 };
 
