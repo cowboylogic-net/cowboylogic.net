@@ -1,13 +1,14 @@
-// src/components/BaseButton/BaseButton.jsx
 import clsx from "clsx";
 import styles from "./BaseButton.module.css";
 
 const BaseButton = ({
   children,
-  variant = "primary", // 'primary' | 'outline'
-  size = "default",     // 'default' | 'small' | 'large'
+  variant = "primary", // додано підтримку "auth"
+  size = "default",
   type = "button",
   disabled = false,
+  fullWidth = false,
+  className,
   ...props
 }) => {
   return (
@@ -18,7 +19,9 @@ const BaseButton = ({
         styles.btn,
         styles[variant],
         styles[size],
-        disabled && styles.disabled
+        fullWidth && styles.fullWidth,
+        disabled && styles.disabled,
+        className // додаткові стилі ззовні
       )}
       {...props}
     >

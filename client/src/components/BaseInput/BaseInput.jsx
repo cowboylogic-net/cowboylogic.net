@@ -1,4 +1,3 @@
-// src/components/BaseInput/BaseInput.jsx
 import clsx from "clsx";
 import styles from "./BaseInput.module.css";
 

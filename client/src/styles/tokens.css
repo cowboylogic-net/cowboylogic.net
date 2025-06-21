@@ -1,24 +1,34 @@
-/* ===== tokens.css ===== */
-
 :root {
   /* Fonts */
   --font-body: "PlayfairDisplay-VariableFont_wght", serif;
   --font-logo: "Marlboro", sans-serif;
 
-  /* Colors */
+  /* Colors — Base */
   --color-bg: #1b1b1b;
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Text / UI */
   --color-text: #ffffff;
   --color-dark: #222;
   --color-grey: #333;
   --color-light-grey: #555;
+
+  /* Accent / Brand */
   --color-brown: #5a2d0c;
-  --color-overlay: rgba(0, 0, 0, 0.5);
   --color-inner-buttons: #8b4513;
   --color-link: #5d5fef;
+  --color-border: var(--color-brown);
+  --color-focus: var(--color-inner-buttons);
+
+  /* Form Feedback */
+  --color-error: #e74c3c;
+  --color-helper: #888;
+
+  /* Backgrounds */
   --color-bg-header: rgba(27, 18, 10, 0.8);
-  --overlay-bg: rgba(0, 0, 0, 0.4);
-  --overlay-blur: blur(2px);
-  --color-link: var(--color-text); /* або white */
+  --overlay-bg: rgba(0, 0, 0, 0.7);
+  --overlay-blur: blur(4px);
 
   /* Radius */
   --radius-sm: 4px;
@@ -40,14 +50,17 @@
   --transition-fast: 0.3s ease-in-out;
   --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.1);
 
+  /* Breakpoints */
   --breakpoint-sm: 768px;
   --breakpoint-md: 1024px;
   --breakpoint-lg: 1440px;
 
+  /* Themes */
   [data-theme="dark"] {
     --color-bg: #000;
     --color-text: #fff;
   }
+
   [data-theme="light"] {
     --color-bg: #fff;
     --color-text: #000;

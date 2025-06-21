@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./LinkInsertModal.module.css";
+import BaseButton from "../../BaseButton/BaseButton";
 
 const LinkInsertModal = ({ onInsert, onClose }) => {
   const { t } = useTranslation();
@@ -16,8 +17,8 @@ const LinkInsertModal = ({ onInsert, onClose }) => {
   };
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h3>{t("modals.insertLinkTitle")}</h3>
         <form onSubmit={handleSubmit}>
           <div className={styles.inputWrapper}>
@@ -31,12 +32,12 @@ const LinkInsertModal = ({ onInsert, onClose }) => {
           </div>
 
           <div className={styles.actions}>
-            <button type="submit" className="btn btn-outline">
+            <BaseButton type="submit" variant="outline">
               {t("modals.insert")}
-            </button>
-            <button type="button" className="btn btn-outline" onClick={onClose}>
+            </BaseButton>
+            <BaseButton type="button" variant="outline" onClick={onClose}>
               {t("modals.cancel")}
-            </button>
+            </BaseButton>
           </div>
         </form>
       </div>
@@ -45,3 +46,4 @@ const LinkInsertModal = ({ onInsert, onClose }) => {
 };
 
 export default LinkInsertModal;
+

@@ -1,21 +1,26 @@
-import { useTranslation } from "react-i18next";
-import styles from "./ConfirmModal.module.css";
 
-const ConfirmModal = ({ message, onConfirm, onClose }) => {
+import styles from "./ConfirmModal.module.css";
+import BaseButton from "../../BaseButton/BaseButton";
+import { useTranslation } from "react-i18next";
+
+const ConfirmModal = ({ onConfirm, onClose, title, message }) => {
   const { t } = useTranslation();
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
-        <h3>{t("modals.discardTitle")}</h3>
-        <p>{message || t("modals.discardMessage")}</p>
+    <div className={styles.overlay} onClick={onClose}>
+      <div
+        className={styles.modal}
+        onClick={(e) => e.stopPropagation()} // prevent modal close when clicking inside
+      >
+        <h3>{title || t("confirm.title")}</h3>
+        <p>{message || t("confirm.message")}</p>
         <div className={styles.actions}>
-          <button className="btn btn-outline" onClick={onClose}>
-            {t("modals.cancel")}
-          </button>
-          <button className="btn btn-outline" onClick={onConfirm}>
-            {t("modals.confirm")}
-          </button>
+          <BaseButton variant="outline" onClick={onClose}>
+            {t("confirm.cancel")}
+          </BaseButton>
+          <BaseButton variant="outline" onClick={onConfirm}>
+            {t("confirm.confirm")}
+          </BaseButton>
         </div>
       </div>
     </div>

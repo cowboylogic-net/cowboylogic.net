@@ -11,9 +11,16 @@ import axios from "../../store/axios";
 import { fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
 
+import BaseInput from "../BaseInput/BaseInput";
+import BaseButton from "../BaseButton/BaseButton";
+import BaseForm from "../BaseForm/BaseForm";
+
 const schema = yup.object().shape({
   email: yup.string().email("Invalid email").required("Email is required"),
-  password: yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
+  password: yup
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .required("Password is required"),
 });
 
 const RegisterForm = () => {
@@ -24,10 +31,8 @@ const RegisterForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: yupResolver(schema),
-  });
+    formState: { errors, isSubmitting, touchedFields },
+  } = useForm({ resolver: yupResolver(schema) });
 
   const onSubmit = async (form) => {
     try {
@@ -45,13 +50,17 @@ const RegisterForm = () => {
 
       localStorage.setItem("token", verifyRes.data.token);
       dispatch(fetchCurrentUser(verifyRes.data.token));
-      dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
+      dispatch(
+        showNotification({ message: t("welcomeBack"), type: "success" })
+      );
       navigate("/");
     } catch (err) {
-      dispatch(showNotification({
-        message: err.response?.data?.message || t("registerFailed"),
-        type: "error",
-      }));
+      dispatch(
+        showNotification({
+          message: err.response?.data?.message || t("registerFailed"),
+          type: "error",
+        })
+      );
     }
   };
 
@@ -63,8 +72,9 @@ const RegisterForm = () => {
 
       localStorage.setItem("token", res.data.token);
       dispatch(fetchCurrentUser(res.data.token));
-
-      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
+      dispatch(
+        showNotification({ message: t("googleSuccess"), type: "success" })
+      );
       navigate("/");
     } catch {
       dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
@@ -74,31 +84,35 @@ const RegisterForm = () => {
   return (
     <div className={styles.container}>
       <h2>{t("registerTitle")}</h2>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input
+      <BaseForm onSubmit={handleSubmit(onSubmit)}>
+        <BaseInput
           type="email"
           placeholder={t("email")}
           {...register("email")}
+          error={errors.email?.message}
+          touched={!!touchedFields.email}
+          required
         />
-        {errors.email && <p className={styles.error}>{errors.email.message}</p>}
-
-        <input
+        <BaseInput
           type="password"
           placeholder={t("password")}
           {...register("password")}
+          error={errors.password?.message}
+          touched={!!touchedFields.password}
+          required
         />
-        {errors.password && <p className={styles.error}>{errors.password.message}</p>}
+        <BaseButton type="submit" variant="auth" disabled={isSubmitting}>
+          {isSubmitting ? t("Registering") : t("Register")}
+        </BaseButton>
+      </BaseForm>
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? t("registering") : t("register")}
-        </button>
-      </form>
-
-      <div className={styles["google-signup"]}>
+      <div className={styles.googleSignup}>
         <GoogleLogin
           onSuccess={handleGoogleSignup}
           onError={() =>
-            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
+            dispatch(
+              showNotification({ message: t("googleFailed"), type: "error" })
+            )
           }
         />
       </div>

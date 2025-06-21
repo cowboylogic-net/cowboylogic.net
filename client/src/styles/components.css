@@ -49,3 +49,39 @@
   backdrop-filter: var(--overlay-blur);
   z-index: 1000;
 }
+
+/* === Form Elements === */
+.fieldWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  width: 100%;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: 0.25rem;
+}
+
+.helper {
+  font-size: 0.875rem;
+  color: var(--color-helper);
+}
+
+.error {
+  font-size: 0.875rem;
+  color: var(--color-error);
+}

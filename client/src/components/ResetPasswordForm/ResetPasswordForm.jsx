@@ -4,11 +4,14 @@ import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slices/authSlice";
 import { showNotification } from "../../store/slices/notificationSlice";
-import styles from "./ResetPasswordForm.module.css";
 import axios from "../../store/axios";
 import { useTranslation } from "react-i18next";
+import BaseButton from "../BaseButton/BaseButton";
+import BaseInput from "../BaseInput/BaseInput";
+import BaseForm from "../BaseForm/BaseForm";
+import styles from "./ResetPasswordForm.module.css";
 
-// ✅ Yup schema (локалізуємо в UI, не тут)
+
 const schema = yup.object().shape({
   oldPassword: yup.string().required("Current password is required"),
   newPassword: yup
@@ -17,7 +20,7 @@ const schema = yup.object().shape({
     .required("New password is required"),
 });
 
-const ResetPasswordForm = () => {
+const ResetPasswordForm = ({ onSuccess }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.auth.token);
@@ -31,55 +34,50 @@ const ResetPasswordForm = () => {
     resolver: yupResolver(schema),
   });
 
-  const onSubmit = async (data) => {
+  const handleResetPassword = async (data) => {
     try {
       await axios.patch("/auth/reset-password", data, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      dispatch(
-        showNotification({
-          message: t("resetPassword.success"),
-          type: "success",
-        })
-      );
+      dispatch(showNotification({
+        message: t("resetPassword.success"),
+        type: "success",
+      }));
 
       setTimeout(() => dispatch(logout()), 2000);
       reset();
+      if (onSuccess) onSuccess(); // ✅ Закриває модалку
     } catch (err) {
-      dispatch(
-        showNotification({
-          message: err.response?.data?.message || t("resetPassword.error"),
-          type: "error",
-        })
-      );
+      dispatch(showNotification({
+        message: err.response?.data?.message || t("resetPassword.error"),
+        type: "error",
+      }));
     }
   };
 
   return (
     <div className={styles.container}>
-      <h2>{t("resetPassword.title")}</h2>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input
+      <BaseForm onSubmit={handleSubmit(handleResetPassword)}>
+        <BaseInput
           type="password"
-          placeholder={t("resetPassword.currentPlaceholder")}
+          label={t("resetPassword.currentPlaceholder")}
+          error={errors.oldPassword?.message}
           {...register("oldPassword")}
         />
-        {errors.oldPassword && (
-          <p className={styles.error}>{errors.oldPassword.message}</p>
-        )}
 
-        <input
+        <BaseInput
           type="password"
-          placeholder={t("resetPassword.newPlaceholder")}
+          label={t("resetPassword.newPlaceholder")}
+          error={errors.newPassword?.message}
           {...register("newPassword")}
         />
-        {errors.newPassword && (
-          <p className={styles.error}>{errors.newPassword.message}</p>
-        )}
 
-        <button type="submit">{t("resetPassword.button")}</button>
-      </form>
+        <BaseButton type="submit" variant="auth">
+          {t("resetPassword.button")}
+        </BaseButton>
+        
+      </BaseForm>
     </div>
   );
 };

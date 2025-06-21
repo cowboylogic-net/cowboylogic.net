@@ -4,19 +4,28 @@
   font-size: 1rem;
   cursor: pointer;
   border: none;
-  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    background var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast);
   font-weight: 400;
   letter-spacing: 0.05em;
   font-family: var(--font-body);
-  text-transform: none; /* ✅ Ключовий рядок */
+  text-transform: none;
 }
 
+/* Focus-visible for accessibility */
+.btn:focus-visible {
+  outline: 2px solid var(--color-link);
+  outline-offset: 2px;
+}
 
 /* Variants */
 .primary {
   background-color: var(--color-dark);
-  color: white;
+  color: var(--color-text);
 }
+
 .primary:hover {
   background-color: var(--color-light-grey);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15);
@@ -24,11 +33,12 @@
 
 .outline {
   background: transparent;
-  border: 1px solid white;
-  color: white;
+  border: 1px solid var(--color-text);
+  color: var(--color-text);
 }
+
 .outline:hover {
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
   color: var(--color-dark);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
 }
@@ -54,4 +64,33 @@
   opacity: 0.6;
   cursor: not-allowed;
   pointer-events: none;
+}
+
+/* Optional fullWidth modifier */
+.fullWidth {
+  width: 100%;
+  display: block;
+}
+
+/* === AUTH Variant === */
+.auth {
+  background-color: var(--color-inner-buttons);
+  color: var(--color-white);
+  font-weight: 600;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 300px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.auth:hover {
+  background-color: var(--color-brown);
+}
+
+.auth:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }

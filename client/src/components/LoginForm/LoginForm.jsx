@@ -6,22 +6,24 @@ import * as yup from "yup";
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
+import BaseButton from "../BaseButton/BaseButton";
+import BaseInput from "../BaseInput/BaseInput";
+import BaseForm from "../BaseForm/BaseForm";
 
 import styles from "./LoginForm.module.css";
 import axios from "../../store/axios";
-import { loginUser } from "../../store/thunks/authThunks";         // ✅ виправлено
-import { fetchCurrentUser } from "../../store/thunks/authThunks"; // вже правильно
-
-
+import { loginUser, fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
 
-// ✅ Схема валідації для кроку 1
+// ✅ Валідація
 const loginSchema = yup.object().shape({
   email: yup.string().email("Invalid email").required("Email is required"),
-  password: yup.string().min(6, "Password too short").required("Password is required"),
+  password: yup
+    .string()
+    .min(6, "Password too short")
+    .required("Password is required"),
 });
 
-// ✅ Схема валідації для кроку 2
 const codeSchema = yup.object().shape({
   code: yup.string().required("Verification code required"),
 });
@@ -37,7 +39,7 @@ const LoginForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, touchedFields },
     setValue,
   } = useForm({
     resolver: yupResolver(step === 1 ? loginSchema : codeSchema),
@@ -55,10 +57,12 @@ const LoginForm = () => {
 
       dispatch(showNotification({ message: t("codeSent"), type: "info" }));
     } catch (err) {
-      dispatch(showNotification({
-        message: err.response?.data?.message || t("loginFailed"),
-        type: "error",
-      }));
+      dispatch(
+        showNotification({
+          message: err.response?.data?.message || t("loginFailed"),
+          type: "error",
+        })
+      );
     }
   };
 
@@ -66,14 +70,18 @@ const LoginForm = () => {
     try {
       const result = await dispatch(loginUser({ email, code: data.code }));
       if (loginUser.fulfilled.match(result)) {
-        dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
+        dispatch(
+          showNotification({ message: t("welcomeBack"), type: "success" })
+        );
         dispatch(fetchCurrentUser(result.payload.token));
         navigate("/");
       } else {
-        dispatch(showNotification({
-          message: result.payload || t("codeInvalid"),
-          type: "error",
-        }));
+        dispatch(
+          showNotification({
+            message: result.payload || t("codeInvalid"),
+            type: "error",
+          })
+        );
       }
     } catch {
       dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
@@ -88,7 +96,9 @@ const LoginForm = () => {
 
       localStorage.setItem("token", res.data.token);
       dispatch(fetchCurrentUser(res.data.token));
-      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
+      dispatch(
+        showNotification({ message: t("googleSuccess"), type: "success" })
+      );
       navigate("/");
     } catch {
       dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
@@ -100,31 +110,54 @@ const LoginForm = () => {
       <h2>{t("title")}</h2>
 
       {step === 1 ? (
-        <form onSubmit={handleSubmit(onLogin)}>
-          <input type="email" placeholder={t("email")} {...register("email")} />
-          {errors.email && <p className={styles.error}>{errors.email.message}</p>}
+        <BaseForm onSubmit={handleSubmit(onLogin)}>
+          <BaseInput
+            type="email"
+            placeholder={t("emailPlaceholder")}
+            {...register("email")}
+            error={errors.email?.message}
+            touched={!!touchedFields.email}
+            required
+          />
 
-          <input type="password" placeholder={t("password")} {...register("password")} />
-          {errors.password && <p className={styles.error}>{errors.password.message}</p>}
+          <BaseInput
+            type="password"
+            placeholder={t("passwordPlaceholder")}
+            {...register("password")}
+            error={errors.password?.message}
+            touched={!!touchedFields.password}
+            required
+          />
 
-          <button type="submit">{t("continue")}</button>
-        </form>
+          <BaseButton type="submit" variant="auth">
+            {t("continue")}
+          </BaseButton>
+        </BaseForm>
       ) : (
-        <form onSubmit={handleSubmit(onVerify)}>
-          <input type="text" placeholder={t("codePlaceholder")} {...register("code")} />
-          {errors.code && <p className={styles.error}>{errors.code.message}</p>}
+        <BaseForm onSubmit={handleSubmit(onVerify)}>
+          <BaseInput
+            type="text"
+            label={t("codePlaceholder")}
+            placeholder={t("codePlaceholder")}
+            {...register("code")}
+            error={errors.code?.message}
+            touched={!!touchedFields.code}
+            required
+          />
 
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? t("loggingIn") : t("verify")}
-          </button>
-        </form>
+          <BaseButton type="submit" variant="auth" disabled={isLoading}>
+            {isLoading ? t("LoggingIn") : t("Verify")}
+          </BaseButton>
+        </BaseForm>
       )}
 
       <div className={styles["google-login"]}>
         <GoogleLogin
           onSuccess={handleGoogleLogin}
           onError={() =>
-            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
+            dispatch(
+              showNotification({ message: t("googleFailed"), type: "error" })
+            )
           }
         />
       </div>

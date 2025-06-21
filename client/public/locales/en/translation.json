@@ -305,13 +305,67 @@
     "loginError": "❌ Invalid email or password",
     "contactSuccess": "✅ Message sent successfully!",
     "contactError": "❌ Failed to send message"
-  }
-
-
-
-}
-
-
+  },
+    "editable": {
+      "discardTitle": "Discard unsaved changes?",
+      "discardMessage": "You will lose all unsaved edits. Are you sure?",
+      "saveDraft": "Save Draft",
+      "publish": "Publish",
+      "edit": "Edit Page",
+      "cancel": "Cancel",
+      "preview": "Preview",
+      "backToEdit": "Back to Edit",
+      "savingDraft": "Saving draft...",
+      "banner": {
+        "previewingDraft": "You are previewing unsaved draft.",
+        "draftExists": "There are unsaved changes.",
+        "previewingPublished": "You are previewing the published version."
+      },
+      "emptyContentError": "Content is empty. Please add something before saving."
+  },
+    "confirm": {
+      "title": "Are you sure?",
+      "message": "This action cannot be undone.",
+      "confirm": "Yes, proceed",
+      "cancel": "Cancel"
+    },
+    "modals": {
+  "deleteTitle": "Confirm Deletion",
+  "deleteBookMessage": "Are you sure you want to delete this book?",
+  "cancel": "Cancel",
+  "delete": "Delete"
+},
+"modals": {
+  "chooseImage": "Insert Image",
+  "or": "or",
+  "enterUrl": "Enter image URL",
+  "widthPlaceholder": "Width",
+  "heightPlaceholder": "Height",
+  "originalSize": "Original size: {{w}} × {{h}}",
+  "reset": "Reset",
+  "keepRatio": "Keep aspect ratio",
+  "confirm": "Insert",
+  "cancel": "Cancel"
+},
+"modals": {
+  "clearAllTitle": "Clear All Content?",
+  "clearAllMessage": "This will remove all changes you've made. Are you sure?",
+  "clearAllConfirm": "Yes, clear all",
+  "cancel": "Cancel"
+},
+"modals": {
+  "insertLinkTitle": "Insert Link",
+  "linkPlaceholder": "Enter a valid URL",
+  "insert": "Insert",
+  "cancel": "Cancel"
+},
+"modals": {
+  "insertTableTitle": "Insert Table",
+  "rows": "Rows",
+  "columns": "Columns",
+  "insert": "Insert",
+  "cancel": "Cancel"
+}}
 
 
 
