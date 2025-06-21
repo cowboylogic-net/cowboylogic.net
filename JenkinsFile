@@ -1,26 +1,57 @@
 pipeline {
-    agent {
-        node {
-            label 'built-in'
-        }
+  agent {
+    node {
+      label 'built-in'
+    }
+  }
+
+  tools {
+    nodejs 'node24'
+  }
+
+  environment {
+    CODEBASE_SERVER_DIR = 'server'
+    CODEBASE_CLIENT_DIR = 'client'
+
+    DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\dev\\server'
+    DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\dev\\client'
+
+    HOME = 'C:\\Users\\clp-jenkins'
+    PM2_HOME = 'E:\\jenkins_pm2' // ✅ Fixes PM2 for Jenkins user
+  }
+
+  stages {
+
+    stage('🧹 Clean Old DEV Deployment') {
+      steps {
+        powershell 'E:\\deploy\\_scripts\\Clean-DeploymentFolders.ps1 -ENVIRONMENT "dev"'
+      }
     }
 
-    tools {
-        nodejs 'node24'
+    stage('📥 Checkout SCM') {
+      steps {
+        checkout scm
+      }
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        stage('Verify Node Environment') {
-            steps {
-                sh 'node -v'
-                sh 'npm -v'
-            }
-        }
+    stage('🧪 Verify Node Environment') {
+      steps {
+        powershell 'E:\\deploy\\_scripts\\Verify-NodeEnvironment.ps1'
+      }
     }
+
+    stage('🚀 Deploy & Start Server') {
+      steps {
+        withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
+          powershell "E:\\deploy\\_scripts\\Deploy-Server.ps1 -Environment 'dev' -EnvFile '${DEV_ENV_FILE}'"
+        }
+      }
+    }
+
+    stage('🛠️ Build & Start Client') {
+      steps {
+        powershell 'E:\\deploy\\_scripts\\Deploy-Client.ps1 -Environment "dev"'
+      }
+    }
+  }
 }
