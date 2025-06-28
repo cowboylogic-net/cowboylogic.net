@@ -1,37 +1,30 @@
 import dotenv from "dotenv";
-dotenv.config(); // 👈 Додай це сюди
+dotenv.config();
 
 import nodemailer from "nodemailer";
-
-console.log("ENV values:", {
-  MAIL_HOST: process.env.MAIL_HOST,
-  MAIL_PORT: process.env.MAIL_PORT,
-  MAIL_USER: process.env.MAIL_USER,
-  MAIL_PASS: process.env.MAIL_PASS,
-});
-
+import { convert } from "html-to-text"; // 👈 для генерації text-версії з HTML (потрібно `npm i html-to-text`)
 
 const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: Number(process.env.MAIL_PORT),
-  secure: true,
+  host: process.env.MAIL_HOST, // smtp.mailgun.org
+  port: Number(process.env.MAIL_PORT), // 587
+  secure: false, // для STARTTLS через порт 587
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
   },
-  tls: {
-    rejectUnauthorized: false, // 👈 дозволяє самопідписані сертифікати (на HostGator часто так)
-  },
 });
 
-
 export const sendEmail = async (to, subject, html) => {
+  const text = convert(html, {
+    wordwrap: 130,
+  });
+
   const mailOptions = {
     from: `"${process.env.MAIL_FROM_NAME}" <${process.env.MAIL_FROM_EMAIL}>`,
     to,
-     text: "Your verification code is 123456",
     subject,
     html,
+    text,
   };
 
   console.log("📨 Sending email to:", to, "via", transporter.options.host, "port:", transporter.options.port);
@@ -51,7 +44,7 @@ export const sendContactEmail = async ({ firstName, lastName, email, comment }) 
     <p><strong>Email:</strong> ${email}</p>
     <p><strong>Message:</strong><br/>${comment}</p>
   `;
-  await sendEmail(process.env.ADMIN_EMAIL, "New Contact Form Submission", html);
+  await sendEmail(process.env.EMAIL_ADMIN, "New Contact Form Submission", html);
 };
 
 export const sendOrderConfirmationEmail = async ({ to, order, items }) => {

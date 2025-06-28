@@ -21,6 +21,7 @@
     "express-rate-limit": "^7.5.0",
     "google-auth-library": "^9.15.1",
     "helmet": "^8.1.0",
+    "html-to-text": "^9.0.5",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
@@ -39,6 +40,6 @@
     "sequelize-cli": "^6.6.3"
   },
   "overrides": {
-  "axios": "^1.6.7"
-}
+    "axios": "^1.6.7"
+  }
 }
