@@ -1,48 +1,53 @@
 .bookDetails {
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
   gap: var(--spacing-xl);
   padding: var(--spacing-xl);
   margin: var(--spacing-xl) auto;
-  /* max-width: 1000px; */
+
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   border-radius: var(--radius-lg);
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
   color: #fff;
+  box-sizing: border-box;
 }
 
-@media (min-width: 768px) {
-  .bookDetails {
-    flex-direction: row;
-  }
-}
-
+/* Ліворуч: зображення */
 .imageContainer {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  flex: 0 0 250px;
+  max-width: 250px;
 }
 
 .imageContainer img {
-  max-width: 100%;
+  width: 100%;
   height: auto;
+  object-fit: contain;
   border-radius: var(--radius-md);
-  object-fit: cover;
 }
 
+/* Праворуч і знизу: основна інформація */
 .info {
-  flex: 2;
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
+  position: relative;
+  min-width: 0; /* запобігає розширенню flex-блоку */
+}
+
+/* Favorite — у верхній правий кут info */
+.favoriteTopRight {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: var(--spacing-sm);
 }
 
 .title {
   font-size: 2rem;
   font-family: var(--font-family-body);
-  color: var(--color-titles-light, #fff); /* щоб текст не злився */
+  color: var(--color-titles-light, #fff);
 }
 
 .author {
@@ -68,8 +73,42 @@
   margin-top: auto;
 }
 
-.loading,
-.error {
-  text-align: center;
-  color: var(--color-error);
+/* 🔁 Mobile */
+@media (max-width: 767px) {
+  .bookDetails {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .imageContainer {
+    width: 100%;
+    max-width: 80%;
+  }
+
+  .info {
+    width: 100%;
+    align-items: center;
+    position: relative;
+  }
+
+  .favoriteTopRight {
+    top: var(--spacing-sm);
+    right: var(--spacing-sm);
+  }
+
+  .title {
+    font-size: 1.5rem;
+  }
+
+  .author,
+  .description,
+  .price {
+    font-size: 0.95rem;
+  }
+
+  .actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
 }

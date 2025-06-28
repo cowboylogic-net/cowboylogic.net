@@ -10,7 +10,7 @@ import {
 } from "../../store/selectors/favoritesSelectors";
 
 import Loader from "../../components/Loader/Loader";
-import BookCard from "../../components/BookCard/BookCard"; // ✅
+import BookList from "../../components/BookList/BookList";
 import styles from "./FavoritesPage.module.css";
 
 const FavoritesPage = () => {
@@ -20,31 +20,30 @@ const FavoritesPage = () => {
   const favorites = useSelector(selectFavorites);
   const loading = useSelector(selectFavoritesLoading);
   const error = useSelector(selectFavoritesError);
-  const user = useSelector((state) => state.auth.user); // ✅
+  const user = useSelector((state) => state.auth.user);
 
   useEffect(() => {
-    dispatch(fetchFavorites());
-  }, [dispatch]);
+    if (user) {
+      dispatch(fetchFavorites());
+    }
+  }, [dispatch, user]);
 
+  if (!user) return <p>{t("favorites.unauthorized")}</p>;
   if (loading) return <Loader />;
   if (error) return <h2 style={{ color: "red" }}>{error}</h2>;
 
   return (
     <div className={styles.page}>
-      <h2 className={styles.heading}>❤️ {t("favorites.heading")}</h2>
+      <h1 className={styles.heading}>❤️ {t("favorites.heading")}</h1>
       {favorites.length === 0 ? (
         <p>{t("favorites.empty")}</p>
       ) : (
-        <div className={styles.bookList}>
-          {favorites.map((book) => (
-            <BookCard
-              key={book.id}
-              book={book}
-              isLoggedIn={!!user}
-              // ❌ admin-only props are left undefined
-            />
-          ))}
-        </div>
+        <BookList
+          books={favorites}
+          disableAutoFetch
+          showAdminActions={false}
+          showDeleteModal={false}
+        />
       )}
     </div>
   );

@@ -16,6 +16,7 @@ export default defineConfig({
   build: {
     outDir: "dist",
     target: "esnext",
+    cssCodeSplit: false,
     rollupOptions: {
       output: {
         format: "es",

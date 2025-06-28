@@ -1,28 +1,46 @@
 .bookList {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: var(--spacing-xl);
-  padding: var(--spacing-xl);
-   justify-content: start;
-}
-
-
-
-
-.cartButton {
-  background-color: var(--color-inner-buttons);
-  color: white;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-size: 1rem;
-  font-family: var(--font-family-body);
-  transition: background-color 0.3s ease;
-  margin-top: var(--spacing-sm);
   width: 100%;
+  box-sizing: border-box;
+  align-items: center;
 }
 
-.cartButton:hover {
-  background-color: #a0522d;
+/* ⬆️ MOBILE-FIRST (1 в колонку — вертикально) */
+.bookList > * {
+  flex: 1 1 100%;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  .bookList {
+    display: grid;
+    grid-template-columns: repeat(2, 300px); /* 🔥 чітко 2 колонки */
+    justify-content: center;                 /* центр контейнера */
+    gap: var(--spacing-xl);                 /* однакові відступи */
+  }
+
+  .bookList > * {
+    display: block; /* або flex, якщо треба, але без wrap/auto */
+    width: 100%;    /* 300px вже обмежується grid */
+  }
+}
+
+
+
+/* 💻 DESKTOP: 2 картки в ряд горизонтально */
+@media (min-width: 1025px) {
+  .bookList {
+    flex-wrap: wrap;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .bookList > * {
+    flex: 0 0 calc(50% - var(--spacing-xl) / 2);
+    max-width: calc(50% - var(--spacing-xl) / 2);
+  }
 }

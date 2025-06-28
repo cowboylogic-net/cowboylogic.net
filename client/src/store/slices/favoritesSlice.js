@@ -35,13 +35,15 @@ const favoritesSlice = createSlice({
       .addCase(addFavorite.pending, (state) => {
         state.isAdding = true;
       })
-.addCase(addFavorite.fulfilled, (state, action) => {
-  const exists = state.books.find((b) => String(b.id) === String(action.payload));
-  if (!exists) {
-    state.books.push({ id: action.payload }); // ✅ лише ID, бо немає інших полів
-  }
-  state.isAdding = false;
-})
+      .addCase(addFavorite.fulfilled, (state, action) => {
+        const exists = state.books.find(
+          (b) => String(b.id) === String(action.payload)
+        );
+        if (!exists) {
+          state.books.push({ id: action.payload }); // ✅ лише ID, бо немає інших полів
+        }
+        state.isAdding = false;
+      })
       .addCase(addFavorite.rejected, (state, action) => {
         state.error = action.payload;
         state.isAdding = false;

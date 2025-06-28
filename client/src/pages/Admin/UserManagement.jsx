@@ -5,6 +5,7 @@ import { ROLES } from "../../constants/roles";
 import { apiService } from "../../services/axiosService";
 import { showNotification } from "../../store/slices/notificationSlice";
 import styles from "./UserManagement.module.css";
+import BaseButton from "../../components/BaseButton/BaseButton";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -63,49 +64,55 @@ const UserManagement = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <h2>{t("users.managementTitle")}</h2>
-      <table className={styles.userTable}>
-        <thead>
-          <tr>
-            <th>{t("users.email")}</th>
-            <th>{t("users.role")}</th>
-            <th>{t("users.createdAt")}</th>
-            <th>{t("users.actions")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((u) => (
-            <tr key={u.id}>
-              <td>
-                {u.email}
-                {u.isSuperAdmin && " 👑"}
-              </td>
-              <td>
-                {u.isSuperAdmin ? (
-                  <strong>{t("users.superAdmin")}</strong>
-                ) : (
-                  <select
-                    value={u.role}
-                    onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                  >
-                    <option value={ROLES.USER}>{t("users.user")}</option>
-                    <option value={ROLES.ADMIN}>{t("users.admin")}</option>
-                  </select>
-                )}
-              </td>
-              <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-              <td>
-                {!u.isSuperAdmin && (
-                  <button onClick={() => handleDelete(u.id)}>
-                    {t("users.delete")}
-                  </button>
-                )}
-              </td>
+    <div className="layoutContainer">
+      <div className={styles.container}>
+        <h2>{t("users.managementTitle")}</h2>
+        <table className={styles.userTable}>
+          <thead>
+            <tr>
+              <th>{t("users.email")}</th>
+              <th>{t("users.role")}</th>
+              <th>{t("users.createdAt")}</th>
+              <th>{t("users.actions")}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id}>
+                <td>
+                  {u.email}
+                  {u.isSuperAdmin && " 👑"}
+                </td>
+                <td>
+                  {u.isSuperAdmin ? (
+                    <strong>{t("users.superAdmin")}</strong>
+                  ) : (
+                    <select
+                      value={u.role}
+                      onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                    >
+                      <option value={ROLES.USER}>{t("users.user")}</option>
+                      <option value={ROLES.ADMIN}>{t("users.admin")}</option>
+                    </select>
+                  )}
+                </td>
+                <td>{new Date(u.createdAt).toLocaleDateString()}</td>
+                <td>
+                  {!u.isSuperAdmin && (
+                    <BaseButton
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDelete(u.id)}
+                    >
+                      {t("users.delete")}
+                    </BaseButton>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

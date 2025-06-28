@@ -1,5 +1,4 @@
-// src/components/BookList/BookList.jsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -7,11 +6,9 @@ import {
   selectAllBooks,
   selectLoadingFlags,
   selectUser,
-  selectToken,
-} from "../../store/selectors/";
+} from "../../store/selectors";
 
 import { fetchBooks } from "../../store/thunks/bookThunks";
-import { fetchFavorites } from "../../store/thunks/favoritesThunks";
 import { addToCartThunk } from "../../store/thunks/cartThunks";
 import { deleteBook } from "../../store/thunks/bookThunks";
 
@@ -20,38 +17,39 @@ import BookCard from "../BookCard/BookCard";
 import DeleteConfirmModal from "../modals/DeleteConfirmModal/DeleteConfirmModal";
 import Loader from "../Loader/Loader";
 
-const BookList = ({ onDelete }) => {
+const BookList = ({
+  books: externalBooks,
+  onDelete,
+  onEdit,
+  onAddToCart,
+  disableAutoFetch = false,
+  showAdminActions = true,
+  showDeleteModal = true,
+}) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const books = useSelector(selectAllBooks);
+  const reduxBooks = useSelector(selectAllBooks);
+  const books = externalBooks ?? reduxBooks;
   const user = useSelector(selectUser);
-  const token = useSelector(selectToken);
   const { isFetching } = useSelector(selectLoadingFlags);
 
   const [bookToDelete, setBookToDelete] = useState(null);
-  const hasFetchedFavorites = useRef(false);
 
-  // 🧠 Фетчимо книги лише якщо ще не завантажені
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+  const isLoggedIn = !!user;
+
   useEffect(() => {
-    if (!books.length) {
+    if (!disableAutoFetch && !externalBooks && books.length === 0) {
       dispatch(fetchBooks());
     }
-  }, [dispatch, books.length]);
-
-  // ❤️ Фетчимо улюблені книги один раз
-  useEffect(() => {
-    if (token && !hasFetchedFavorites.current) {
-      dispatch(fetchFavorites());
-      hasFetchedFavorites.current = true;
-    }
-  }, [dispatch, token]);
+  }, [dispatch, externalBooks, books.length, disableAutoFetch]);
 
   const handleEdit = (id) => {
     navigate(`/admin/books/edit/${id}`);
   };
 
-  const confirmDelete = async () => {
+  const handleDelete = async () => {
     try {
       await dispatch(deleteBook(bookToDelete)).unwrap();
       onDelete?.(bookToDelete);
@@ -70,34 +68,38 @@ const BookList = ({ onDelete }) => {
     }
   };
 
-  return (
-    <>
-      {isFetching ? (
-        <Loader />
-      ) : (
-        <div className={styles.bookList}>
-          {books.map((book) => (
-            <BookCard
-              key={book.id}
-              book={book}
-              isAdmin={user?.role === "admin" || user?.role === "superadmin"}
-              isLoggedIn={!!user}
-              onEdit={handleEdit}
-              onDeleteClick={(id) => setBookToDelete(id)}
-              onAddToCart={handleAddToCart}
-            />
-          ))}
-        </div>
-      )}
+  // 💡 Показувати лоадер лише якщо дані відсутні + loading=true
+  if (!books || (books.length === 0 && !externalBooks && isFetching)) {
+    return <Loader />;
+  }
 
-      <DeleteConfirmModal
-        isOpen={!!bookToDelete}
-        onClose={() => setBookToDelete(null)}
-        onConfirm={confirmDelete}
-      />
-    </>
+  return (
+    <div className="layoutContainer">
+      <div className={styles.bookList}>
+        {books.map((book) => (
+          <BookCard
+            key={book.id}
+            book={book}
+            isAdmin={showAdminActions && isAdmin}
+            isLoggedIn={isLoggedIn}
+            onEdit={onEdit ?? handleEdit}
+            onDeleteClick={
+              showAdminActions ? (id) => setBookToDelete(id) : undefined
+            }
+            onAddToCart={onAddToCart ?? handleAddToCart}
+          />
+        ))}
+      </div>
+
+      {showDeleteModal && (
+        <DeleteConfirmModal
+          isOpen={!!bookToDelete}
+          onClose={() => setBookToDelete(null)}
+          onConfirm={handleDelete}
+        />
+      )}
+    </div>
   );
 };
 
 export default BookList;
-

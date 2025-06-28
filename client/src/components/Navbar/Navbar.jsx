@@ -62,9 +62,9 @@ const Navbar = () => {
           <NavLink to="/" className={buildLinkClass} onClick={handleCloseDropdown}>
             {t("navbar.home")}
           </NavLink>
-          <NavLink to="/about" className={buildLinkClass} onClick={handleCloseDropdown}>
+          {/* <NavLink to="/about" className={buildLinkClass} onClick={handleCloseDropdown}>
             {t("navbar.about")}
-          </NavLink>
+          </NavLink> */}
 
           <div className={styles.dropdown} ref={clStrategiesRef}>
             <NavLink

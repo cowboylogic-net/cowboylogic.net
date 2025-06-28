@@ -1,13 +1,20 @@
 .cartPage {
-  margin: var(--spacing-xl) auto;
-  padding: var(--spacing-lg);
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: var(--radius-lg);
-  color: white;
-  font-family: var(--font-family-body);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
   backdrop-filter: blur(4px);
-  max-width: 100%;
+  padding: var(--spacing-xl);
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 30px;
+}
+
+.cartPage h2 {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-lg);
+  font-weight: bold;
+  color: var(--color-text);
 }
 
 .cartList {
@@ -15,30 +22,37 @@
   padding-left: 0;
   margin-bottom: var(--spacing-lg);
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
 .total {
   text-align: right;
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   margin-top: var(--spacing-lg);
   margin-bottom: var(--spacing-md);
+  font-weight: 600;
+  color: var(--color-text);
+}
+.cartFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--spacing-lg);
+  gap: var(--spacing-lg);
+  flex-wrap: wrap;
 }
 
-.checkoutBtn {
-  display: block;
-  margin-left: auto;
-  margin-top: var(--spacing-md);
-  font-size: 1.1rem;
-  font-weight: bold;
-  padding: var(--spacing-sm) var(--spacing-xl);
-  background-color: var(--color-inner-buttons);
-  border: none;
-  border-radius: var(--radius-md);
-  color: white;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
+.total {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
 }
-
-.checkoutBtn:hover {
-  background-color: var(--color-light-grey);
+@media (max-width: 768px) {
+  .cartFooter {
+    flex-direction: column;
+    align-items: flex-end;
+  }
 }

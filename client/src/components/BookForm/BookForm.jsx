@@ -12,20 +12,25 @@ import {
   fetchBookById,
 } from "../../store/thunks/bookThunks";
 import {
-  selectBookById,
+  selectSelectedBook,
   selectLoadingFlags,
 } from "../../store/selectors/bookSelectors";
 
 import styles from "./BookForm.module.css";
 import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal";
 import Loader from "../Loader/Loader";
+import BaseButton from "../BaseButton/BaseButton"; // ✅ Глобальна кнопка
 
 const BookForm = ({ onSuccess, onError }) => {
   const { t } = useTranslation();
   const { id } = useParams();
+  const isEditMode = Boolean(id);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const numericId = Number(id);
+
+  const { isCreating, isUpdating, isFetchingById } = useSelector(selectLoadingFlags);
+  const error = useSelector((state) => state.books.error);
+  const selectedBook = useSelector(selectSelectedBook);
 
   const schema = yup.object().shape({
     title: yup.string().required(t("bookForm.titleRequired")),
@@ -38,10 +43,6 @@ const BookForm = ({ onSuccess, onError }) => {
       .required(t("bookForm.priceRequired")),
     inStock: yup.boolean(),
   });
-
-  const existingBook = useSelector(selectBookById(numericId));
-  const { isCreating, isUpdating, isFetchingById } = useSelector(selectLoadingFlags);
-  const error = useSelector((state) => state.books.error);
 
   const {
     register,
@@ -66,24 +67,24 @@ const BookForm = ({ onSuccess, onError }) => {
   const [showImageModal, setShowImageModal] = useState(false);
 
   useEffect(() => {
-    if (id && !existingBook) {
-      dispatch(fetchBookById(numericId));
+    if (isEditMode && id) {
+      dispatch(fetchBookById(id));
     }
-  }, [dispatch, id, existingBook, numericId]);
+  }, [dispatch, isEditMode, id]);
 
   useEffect(() => {
-    if (existingBook) {
+    if (isEditMode && selectedBook) {
       reset({
-        title: existingBook.title,
-        author: existingBook.author,
-        description: existingBook.description || "",
-        price: existingBook.price,
-        imageUrl: existingBook.imageUrl || "",
-        inStock: existingBook.inStock,
+        title: selectedBook.title,
+        author: selectedBook.author,
+        description: selectedBook.description || "",
+        price: selectedBook.price,
+        imageUrl: selectedBook.imageUrl || "",
+        inStock: selectedBook.inStock,
       });
-      setPreview(existingBook.imageUrl || null);
+      setPreview(selectedBook.imageUrl || null);
     }
-  }, [existingBook, reset]);
+  }, [selectedBook, reset, isEditMode]);
 
   const handleImageInsert = ({ file, url }) => {
     if (file) {
@@ -106,15 +107,20 @@ const BookForm = ({ onSuccess, onError }) => {
     formData.append("price", data.price);
     formData.append("inStock", data.inStock);
 
+    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+
     if (imageFile) {
       formData.append("image", imageFile);
-    } else if (data.imageUrl) {
-      formData.append("imageUrl", data.imageUrl);
+    } else if (data.imageUrl?.trim()) {
+      const fullUrl = data.imageUrl.startsWith("/")
+        ? `${baseUrl}${data.imageUrl}`
+        : data.imageUrl;
+      formData.append("imageUrl", fullUrl);
     }
 
     try {
-      if (id) {
-        await dispatch(updateBook({ id: numericId, formData })).unwrap();
+      if (isEditMode && id) {
+        await dispatch(updateBook({ id, formData })).unwrap();
         onSuccess?.(t("bookForm.successUpdate"));
       } else {
         await dispatch(createBook(formData)).unwrap();
@@ -126,13 +132,14 @@ const BookForm = ({ onSuccess, onError }) => {
     }
   };
 
-  if (isFetchingById) return <Loader />;
-  if (id && !existingBook) return <p className={styles.error}>{t("bookForm.notFound")}</p>;
+  if (isEditMode && isFetchingById) return <Loader />;
+  if (isEditMode && !selectedBook && !isFetchingById)
+    return <p className={styles.error}>{t("bookForm.notFound")}</p>;
   if (error) return <p className={styles.error}>{error}</p>;
 
   return (
     <div className={styles.bookForm}>
-      <h2>{id ? t("bookForm.edit") : t("bookForm.add")}</h2>
+      <h2>{isEditMode ? t("bookForm.edit") : t("bookForm.add")}</h2>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="text" placeholder={t("bookForm.title")} {...register("title")} />
@@ -144,21 +151,16 @@ const BookForm = ({ onSuccess, onError }) => {
         <textarea placeholder={t("bookForm.description")} {...register("description")} />
         {errors.description && <p className={styles.error}>{errors.description.message}</p>}
 
-        <input
-          type="number"
-          placeholder={t("bookForm.price")}
-          step="0.01"
-          {...register("price")}
-        />
+        <input type="number" placeholder={t("bookForm.price")} step="0.01" {...register("price")} />
         {errors.price && <p className={styles.error}>{errors.price.message}</p>}
 
-        <button
+        <BaseButton
           type="button"
-          className="btn btn-outline"
+          variant="outline"
           onClick={() => setShowImageModal(true)}
         >
           {t("bookForm.chooseImage")}
-        </button>
+        </BaseButton>
 
         {preview && (
           <div className={styles.preview}>
@@ -172,15 +174,21 @@ const BookForm = ({ onSuccess, onError }) => {
           {t("bookForm.inStock")}
         </label>
 
-        <button type="submit" disabled={isCreating || isUpdating}>
-          {id
-            ? isUpdating
-              ? t("bookForm.updating")
-              : t("bookForm.update")
-            : isCreating
-            ? t("bookForm.creating")
-            : t("bookForm.create")}
-        </button>
+        <div className={styles.buttonWrapper}>
+          <BaseButton
+            type="submit"
+            variant="outline"
+            disabled={isCreating || isUpdating}
+          >
+            {isEditMode
+              ? isUpdating
+                ? t("bookForm.updating")
+                : t("bookForm.update")
+              : isCreating
+              ? t("bookForm.creating")
+              : t("bookForm.create")}
+          </BaseButton>
+        </div>
       </form>
 
       {showImageModal && (

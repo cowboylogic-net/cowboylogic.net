@@ -1,11 +1,14 @@
+import styles from "./Newsletter.module.css";
+
 import { useDispatch } from "react-redux";
 import { apiService } from "../../services/axiosService";
 import { showNotification } from "../../store/slices/notificationSlice";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import styles from "./Newsletter.module.css";
+
 import { useTranslation } from "react-i18next";
+import BaseButton from "../../components/BaseButton/BaseButton";
 
 const Newsletter = () => {
   const dispatch = useDispatch();
@@ -52,7 +55,7 @@ const Newsletter = () => {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.newsletterContainer}>
       <h2>{t("admin.sendNewsletter")}</h2>
       <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
         <label>
@@ -79,9 +82,9 @@ const Newsletter = () => {
           )}
         </label>
 
-        <button type="submit" disabled={isSubmitting}>
+        <BaseButton type="submit" disabled={isSubmitting} variant="outline">
           {isSubmitting ? t("newsletter.sending") : t("newsletter.submit")}
-        </button>
+        </BaseButton>
       </form>
     </div>
   );

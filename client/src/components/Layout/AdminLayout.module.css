@@ -13,3 +13,12 @@
   max-width: var(--max-width-container);
   margin: 0 auto;
 }
+.navbarWrapper {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .navbarWrapper {
+    display: block;
+  }
+}

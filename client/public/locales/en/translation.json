@@ -86,7 +86,20 @@
     "addToCart": "Add to Cart",
     "buyNow": "Buy Now",
     "favorite": "Add to favorites",
-    "unfavorite": "Remove from favorites"
+    "unfavorite": "Remove from favorites",
+    "price": "${{price}}",
+    "inStock": "In stock",
+    "outOfStock": "Out of stock",
+    "addToCart": "Add to Cart",
+    "edit": "Edit",
+    "delete": "Delete",
+    "byAuthor": "by {{author}}",
+    "addToCart": "Add to Cart",
+    "buyNow": "Buy Now",
+    "loading": "Loading book...",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock",
+    "price": "${{price}}"
   },
   "cart": {
     "title": "My Cart",
@@ -291,7 +304,7 @@
     "success": "✅ Subscribed successfully!",
     "error": "❌ Subscription failed. Try again."
   },
-  "notifications": {
+  "notification": {
     "newsletterSent": "✅ Newsletter sent successfully",
     "newsletterFailed": "❌ Sending failed",
     "subscribedSuccess": "✅ Subscribed successfully!",
@@ -358,8 +371,6 @@
     "passwordUpdated": "Password updated successfully.",
     "uploadSuccess": "Image uploaded successfully.",
     "errorGeneric": "Something went wrong. Please try again.",
-    "bookAdded": "Book added successfully",
-    "bookRemoved": "Book removed",
     "errorOccurred": "Something went wrong"
   }
 }

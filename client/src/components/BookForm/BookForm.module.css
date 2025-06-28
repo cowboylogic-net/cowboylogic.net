@@ -59,35 +59,20 @@
   font-size: 1rem;
 }
 
-/* Стиль кнопок */
-.bookForm button,
-.bookForm .btn {
-  background: #8b4513;
-  color: #fff;
-  padding: 0.6rem 1.4rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.bookForm button:hover,
-.bookForm .btn:hover {
-  background: #a0522d;
-}
-
 .bookForm p {
   color: #ffaaaa;
   font-size: 0.9rem;
 }
 
-/* Уніфікований стиль прев’ю зображення */
 .previewImage {
   max-width: 200px;
   max-height: 250px;
   object-fit: contain;
   border-radius: var(--radius-sm);
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
+}
+
+.buttonWrapper {
+  display: flex;
+  justify-content: center;
 }

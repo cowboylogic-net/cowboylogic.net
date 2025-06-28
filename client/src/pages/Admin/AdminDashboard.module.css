@@ -1,27 +1,29 @@
-.container {
-  max-width: 100%;
-  margin: var(--spacing-xl) auto;
-  padding: var(--spacing-lg);
+.adminDashboard {
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: var(--radius-lg);
-  color: white;
-  font-family: var(--font-family-body);
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  color: var(--color-text);
+  box-shadow: var(--shadow-card);
   backdrop-filter: blur(4px);
+  padding: var(--spacing-xl);
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 30px;
+  
 }
 
 /* Заголовок */
-h2 {
+.adminDashboard h2 {
   font-size: 2rem;
   margin-bottom: var(--spacing-lg);
   font-weight: bold;
-  color: white;
+  color: var(--color-text);
 }
 
 /* Меню */
 .menu {
   list-style: none;
   padding-left: 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
@@ -31,7 +33,7 @@ h2 {
   padding: var(--spacing-sm) var(--spacing-md);
   background-color: rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-md);
-  transition: background-color 0.2s ease;
+  transition: background-color var(--transition-fast);
 }
 
 .menu li:hover {
@@ -39,7 +41,7 @@ h2 {
 }
 
 .menu a {
-  color: white;
+  color: var(--color-text);
   text-decoration: none;
   font-size: 1rem;
   font-weight: 500;
@@ -48,5 +50,31 @@ h2 {
 }
 
 .menu a:hover {
-  color: var(--color-accent);
+  color: var(--color-inner-buttons);
+}
+@media (min-width: 768px) {
+  .adminDashboard {
+    padding: var(--spacing-xl);
+    margin-top: 30px;
+  }
+
+  .adminDashboard h2 {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .menu {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+  }
+
+  .menu li {
+    flex: 1;
+    text-align: center;
+  }
+
+  .menu a {
+    font-size: 1.1rem;
+  }
 }

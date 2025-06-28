@@ -15,6 +15,18 @@ export const updateBookSchema = Joi.object({
   author: Joi.string().min(2).max(255),
   description: Joi.string().allow("").max(2000),
   price: Joi.number().precision(2).positive(),
-  imageUrl: Joi.string().uri(),
+  imageUrl: Joi.string()
+  .custom((value, helpers) => {
+    if (!value) return value;
+    if (value.startsWith("/uploads/")) return value;
+
+    try {
+      new URL(value);
+      return value;
+    } catch {
+      return helpers.error("any.invalid");
+    }
+  }, "imageUrl validation")
+  .optional(),
   inStock: Joi.boolean(),
 }).min(1); // при оновленні хоча б одне поле обов'язкове

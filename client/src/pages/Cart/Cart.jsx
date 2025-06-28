@@ -1,3 +1,4 @@
+import styles from "./Cart.module.css";
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -12,8 +13,8 @@ import {
 } from "../../store/selectors/cartSelectors";
 import { toast } from "react-toastify";
 import { apiService } from "../../services/axiosService";
-import styles from "./Cart.module.css";
 import CartItem from "../../components/CartItem/CartItem";
+import BaseButton from "../../components/BaseButton/BaseButton";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -35,7 +36,11 @@ const Cart = () => {
   const handleQuantityChange = async (itemId, newQuantity) => {
     if (newQuantity < 1) return;
     try {
-      await apiService.patch(`/cart/${itemId}`, { quantity: newQuantity }, token);
+      await apiService.patch(
+        `/cart/${itemId}`,
+        { quantity: newQuantity },
+        token
+      );
       dispatch(updateItemQuantity({ itemId, quantity: newQuantity }));
       toast.success(t("cart.quantityUpdated"));
     } catch {
@@ -75,37 +80,41 @@ const Cart = () => {
   if (isFetching) return <h2>{t("cart.loading")}</h2>;
 
   return (
-    <div className={styles.cartPage}>
-      <h2>{t("cart.title")}</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="layoutContainer">
+      <div className={styles.cartPage}>
+        <h1>{t("cart.title")}</h1>
+        {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {items.length === 0 ? (
-        <p>{t("cart.empty")}</p>
-      ) : (
-        <>
-          <ul className={styles.cartList}>
-            {items.map((item) => (
-              <CartItem
-                key={item.id}
-                item={item}
-                onQuantityChange={handleQuantityChange}
-                onRemove={handleRemove}
-              />
-            ))}
-          </ul>
+        {items.length === 0 ? (
+          <p>{t("cart.empty")}</p>
+        ) : (
+          <>
+            <ul className={styles.cartList}>
+              {items.map((item) => (
+                <CartItem
+                  key={item.id}
+                  item={item}
+                  onQuantityChange={handleQuantityChange}
+                  onRemove={handleRemove}
+                />
+              ))}
+            </ul>
 
-          <h3 className={styles.total}>
-            {t("cart.total")}: ${totalPrice.toFixed(2)}
-          </h3>
-          <button
-            onClick={handleSquareCheckout}
-            className={styles.checkoutBtn}
-            disabled={isAdding}
-          >
-            {t("cart.checkout")}
-          </button>
-        </>
-      )}
+            <div className={styles.cartFooter}>
+              <h3 className={styles.total}>
+                {t("cart.total")}: ${totalPrice.toFixed(2)}
+              </h3>
+              <BaseButton
+                onClick={handleSquareCheckout}
+                disabled={isAdding}
+                variant="outline"
+              >
+                {t("cart.checkout")}
+              </BaseButton>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };

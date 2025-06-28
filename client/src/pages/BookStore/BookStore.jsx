@@ -1,31 +1,86 @@
-import { useEffect, useState } from "react";
+// import { useEffect, useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { useSelector } from "react-redux";
+// import { useTranslation } from "react-i18next";
+// import BookList from "../../components/BookList/BookList";
+// import axios from "../../store/axios";
+// import styles from "./BookStore.module.css";
+// import BaseButton from "../../components/BaseButton/BaseButton";
+
+// const BookStore = () => {
+//   const [books, setBooks] = useState([]);
+//   const navigate = useNavigate();
+//   const user = useSelector((state) => state.auth.user);
+//   const { t } = useTranslation();
+
+//   useEffect(() => {
+//     axios
+//       .get("/books")
+//       .then((res) => setBooks(res.data))
+//       .catch((err) => console.error("Failed to fetch books:", err));
+//   }, []);
+
+//   const handleAddBook = () => {
+//     navigate("/admin/books/new");
+//   };
+
+//   const handleDelete = (id) => {
+//     setBooks((prev) => prev.filter((book) => book.id !== id));
+//   };
+
+//   return (
+//     <div className={styles.bookStore}>
+//       <h1>{t("bookstore.title")}</h1>
+
+//       {user?.role === "admin" && (
+//         <div className={styles.addButtonWrapper}>
+//           <BaseButton variant="outline" onClick={handleAddBook}>
+//             {t("bookstore.addBook")}
+//           </BaseButton>
+//         </div>
+//       )}
+
+//       <BookList books={books} onDelete={handleDelete} />
+//     </div>
+//   );
+// };
+
+// export default BookStore;
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
+
 import BookList from "../../components/BookList/BookList";
-import axios from "../../store/axios";
+import BaseButton from "../../components/BaseButton/BaseButton";
 import styles from "./BookStore.module.css";
 
+import { selectUser } from "../../store/selectors/authSelectors";
+import { selectAllBooks } from "../../store/selectors/bookSelectors";
+import { fetchBooks, deleteBook } from "../../store/thunks/bookThunks";
+
 const BookStore = () => {
-  const [books, setBooks] = useState([]);
   const navigate = useNavigate();
-  const user = useSelector((state) => state.auth.user);
+  const dispatch = useDispatch();
   const { t } = useTranslation();
 
+  const user = useSelector(selectUser);
+  const books = useSelector(selectAllBooks);
+
   useEffect(() => {
-    axios
-      .get("/books")
-      .then((res) => setBooks(res.data))
-      .catch((err) => console.error("Failed to fetch books:", err));
-  }, []);
+    dispatch(fetchBooks());
+  }, [dispatch]);
 
   const handleAddBook = () => {
     navigate("/admin/books/new");
   };
 
-  // 🗑️ Remove book from local list (after deletion)
-  const handleDelete = (id) => {
-    setBooks((prev) => prev.filter((book) => book.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await dispatch(deleteBook(id)).unwrap();
+    } catch (err) {
+      console.error("Failed to delete book:", err);
+    }
   };
 
   return (
@@ -33,12 +88,14 @@ const BookStore = () => {
       <h1>{t("bookstore.title")}</h1>
 
       {user?.role === "admin" && (
-        <button onClick={handleAddBook} className={styles.addButton}>
-          {t("bookstore.addBook")}
-        </button>
+        <div className={styles.addButtonWrapper}>
+          <BaseButton variant="outline" onClick={handleAddBook}>
+            {t("bookstore.addBook")}
+          </BaseButton>
+        </div>
       )}
 
-      <BookList books={books} onDelete={handleDelete} />
+      <BookList books={books} onDelete={handleDelete} disableAutoFetch/>
     </div>
   );
 };

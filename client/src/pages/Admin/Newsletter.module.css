@@ -1,20 +1,21 @@
-.container {
+.newsletterContainer {
+  width: 100%;
   max-width: 900px;
   margin: var(--spacing-xl) auto;
   padding: var(--spacing-lg);
   background-color: rgba(0, 0, 0, 0.5);
   border-radius: var(--radius-lg);
-  font-family: var(--font-family-body);
-  color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-card);
   backdrop-filter: blur(4px);
+  box-sizing: border-box;
 }
 
-h2 {
-  text-align: center;
-  font-size: 2rem;
+.newsletterContainer h2 {
+  font-size: 1.5rem;
   margin-bottom: var(--spacing-lg);
-  color: white;
+  text-align: center;
+  font-weight: bold;
+  color: var(--color-text);
 }
 
 .form {
@@ -26,9 +27,9 @@ h2 {
 label {
   display: flex;
   flex-direction: column;
-  font-weight: bold;
-  color: white;
+  font-weight: 600;
   font-size: 1rem;
+  color: var(--color-text);
 }
 
 input,
@@ -36,40 +37,38 @@ textarea {
   margin-top: var(--spacing-xs);
   padding: var(--spacing-sm);
   border-radius: var(--radius-md);
-  border: 1px solid var(--color-brown);
+  border: 1px solid var(--color-border);
   font-size: 1rem;
-  font-family: var(--font-family-body);
-  background-color: white;
+  font-family: var(--font-body);
+  background-color: var(--color-white);
   color: var(--color-dark);
+  transition: border var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 input:focus,
 textarea:focus {
+  border-color: var(--color-focus);
+  box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.2);
   outline: none;
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
 }
 
-button {
-  align-self: center;
-  padding: var(--spacing-sm) var(--spacing-xl);
-  font-size: 1rem;
-  background-color: var(--color-brown);
-  color: white;
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+.error {
+  font-size: 0.875rem;
+  color: var(--color-error);
+  margin-top: var(--spacing-xs);
+  text-align: left;
 }
 
-button:hover {
-  background-color: var(--color-light-grey);
-  color: white;
+/* 🖥️ Tablet & up */
+@media (min-width: 768px) {
+  .container h2 {
+    font-size: 2rem;
+  }
 }
 
-p {
-  text-align: center;
-  font-size: 1rem;
-  color: var(--color-accent);
-  margin-top: var(--spacing-md);
+/* 🖥️ Desktop & up */
+@media (min-width: 1024px) {
+  .form {
+    gap: var(--spacing-xl);
+  }
 }
