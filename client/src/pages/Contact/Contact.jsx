@@ -1,35 +1,41 @@
-import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import styles from "./Contact.module.css";
 import axios from "../../store/axios";
 import { showNotification } from "../../store/slices/notificationSlice";
 
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { contactFormSchema } from "../../validation/formSchemas";
+
+import BaseInput from "../../components/BaseInput/BaseInput";
+import BaseTextarea from "../../components/BaseTextarea/BaseTextarea";
+import BaseButton from "../../components/BaseButton/BaseButton";
+import FormGroup from "../../components/FormGroup/FormGroup";
+
 const Contact = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState("");
-  const [comment, setComment] = useState("");
+  const schema = contactFormSchema(t);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, touchedFields, isSubmitting },
+  } = useForm({ resolver: yupResolver(schema) });
+
+  const onSubmit = async (data) => {
     try {
-      await axios.post("/contact", { firstName, lastName, email, comment });
-
+      await axios.post("/contact", data);
       dispatch(
         showNotification({
           message: t("contact.success"),
           type: "success",
         })
       );
-
-      setFirstName("");
-      setLastName("");
-      setEmail("");
-      setComment("");
+      reset();
     } catch {
       dispatch(
         showNotification({
@@ -44,34 +50,61 @@ const Contact = () => {
     <div className={styles.container}>
       <div className={styles.contact}>
         <h2>{t("contact.title")}</h2>
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder={t("contact.firstNamePlaceholder")}
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
+        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+          <FormGroup
+            label={t("contact.firstName")}
+            error={errors.firstName?.message}
             required
-          />
-          <input
-            type="text"
-            placeholder={t("contact.lastNamePlaceholder")}
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
+          >
+            <BaseInput
+              type="text"
+              placeholder={t("contact.firstNamePlaceholder")}
+              {...register("firstName")}
+              touched={touchedFields.firstName}
+            />
+          </FormGroup>
+
+          <FormGroup
+            label={t("contact.lastName")}
+            error={errors.lastName?.message}
             required
-          />
-          <input
-            type="email"
-            placeholder={t("contact.emailPlaceholder")}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+          >
+            <BaseInput
+              type="text"
+              placeholder={t("contact.lastNamePlaceholder")}
+              {...register("lastName")}
+              touched={touchedFields.lastName}
+            />
+          </FormGroup>
+
+          <FormGroup
+            label={t("contact.email")}
+            error={errors.email?.message}
             required
-          />
-          <textarea
-            placeholder={t("contact.commentPlaceholder")}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-          />
-          <button type="submit">{t("contact.submit")}</button>
+          >
+            <BaseInput
+              type="email"
+              placeholder={t("contact.emailPlaceholder")}
+              {...register("email")}
+              touched={touchedFields.email}
+            />
+          </FormGroup>
+
+          <FormGroup
+            label={t("contact.comment")}
+            error={errors.message?.message}
+            required
+          >
+            <BaseTextarea
+              placeholder={t("contact.commentPlaceholder")}
+              {...register("message")}
+              touched={touchedFields.message}
+            />
+          </FormGroup>
+
+          <BaseButton type="submit" variant="outline" disabled={isSubmitting}>
+            {t("contact.submit")}
+          </BaseButton>
         </form>
       </div>
     </div>

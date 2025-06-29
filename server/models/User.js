@@ -28,6 +28,13 @@ const User = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+
+    // 🆕 Додай це:
+    avatarURL: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
     // tokenVersion: {
     //   type: DataTypes.INTEGER,
     //   defaultValue: 0,
@@ -38,7 +45,7 @@ const User = sequelize.define(
     indexes: [
       {
         unique: true,
-        fields: ["email"], // ✅ ЄДИНИЙ унікальний індекс
+        fields: ["email"],
       },
     ],
   }

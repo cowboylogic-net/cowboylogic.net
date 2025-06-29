@@ -22,12 +22,13 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ message: "Token has been invalidated" });
     }
 
-    req.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      isSuperAdmin: user.isSuperAdmin,
-    };
+    // req.user = {
+    //   id: user.id,
+    //   email: user.email,
+    //   role: user.role,
+    //   isSuperAdmin: user.isSuperAdmin,
+    // };
+    req.user = user;
 
     console.log(
       `[AUTH] User ${user.email} with role ${user.role} accessed ${req.method} ${req.originalUrl}`

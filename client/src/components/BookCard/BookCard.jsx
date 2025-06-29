@@ -14,14 +14,15 @@ const BookCard = ({
   isLoggedIn,
 }) => {
   const { t } = useTranslation();
- 
 
-  const getImageUrl = (url) => {
-    if (!url) return "/fallback-image.png";
-    if (url.startsWith("http")) return url;
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    return `${baseUrl}${url}`;
-  };
+const getImageUrl = (url) => {
+  if (!url) return "/fallback-image.png";
+  if (url.startsWith("http")) return url;
+
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  return `${baseUrl}${url}`; // не додаємо додатковий слеш!
+};
+
 
   return (
     <div className={styles.card}>

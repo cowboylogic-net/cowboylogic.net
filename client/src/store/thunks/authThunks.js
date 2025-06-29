@@ -4,6 +4,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../store/axios';
 import { logout } from '../slices/authSlice';
 import { showNotification } from '../slices/notificationSlice';
+import { updateUserAvatar } from '../slices/authSlice';
 
 // 🔐 Login: email + code → JWT
 export const loginUser = createAsyncThunk(
@@ -46,6 +47,27 @@ export const logoutUser = createAsyncThunk(
       dispatch(showNotification({ type: 'success', message: 'Logged out' }));
     } catch (err) {
       const msg = err.message || 'Logout failed';
+      dispatch(showNotification({ type: 'error', message: msg }));
+      return rejectWithValue(msg);
+    }
+  }
+);
+export const uploadAvatar = createAsyncThunk(
+  'auth/uploadAvatar',
+  async (file, { dispatch, rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append('avatar', file);
+
+      const res = await axios.patch('/users/avatar', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      dispatch(updateUserAvatar(res.data.avatarURL));
+      dispatch(showNotification({ type: 'success', message: 'Avatar updated' }));
+      return res.data.avatarURL;
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Upload failed';
       dispatch(showNotification({ type: 'error', message: msg }));
       return rejectWithValue(msg);
     }

@@ -19,50 +19,7 @@
   color: #fff6e6;
 }
 
-.bookForm form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  width: 100%;
-}
-
-.bookForm input,
-.bookForm textarea {
-  width: 100%;
-  max-width: 600px;
-  padding: 0.85rem 1rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  background-color: #fff;
-  color: #333;
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-  font-family: inherit;
-  transition: border 0.3s ease;
-}
-
-.bookForm input:focus,
-.bookForm textarea:focus {
-  outline: none;
-  border: 2px solid #a0522d;
-  transform: scale(1.01);
-}
-
-.bookForm textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.bookForm label {
-  color: #fff8dc;
-  font-size: 1rem;
-}
-
-.bookForm p {
-  color: #ffaaaa;
-  font-size: 0.9rem;
-}
+/* Видалено .bookForm form input/textarea — тепер їх стилізує Base-компонент */
 
 .previewImage {
   max-width: 200px;
@@ -76,3 +33,4 @@
   display: flex;
   justify-content: center;
 }
+

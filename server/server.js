@@ -32,7 +32,8 @@ import squareRoutes from "./routes/squareRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js"; // ✅ новий роут
-
+import userSelfRoutes from "./routes/userSelfRoutes.js";
+import staticCors from "./middleware/staticCors.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
@@ -46,16 +47,6 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(helmet());
 
-// 🖼 Доступ до завантажених зображень
-app.use(
-  "/uploads",
-  (req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    next();
-  },
-  express.static("public/uploads")
-);
 
 // Routes
 app.use("/api/auth", authRoutes);
@@ -71,6 +62,12 @@ app.use("/api/square", squareRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/images", imageRoutes);
 app.use("/api/search", searchRoutes); 
+app.use("/api/me", userSelfRoutes);
+app.use("/uploads", staticCors, express.static("public/uploads"));
+app.use("/avatars", staticCors, express.static("public/avatars"));
+app.use("/documents", staticCors, express.static("public/documents"));
+
+
 
 // Global error handler
 app.use(errorHandler);
@@ -78,6 +75,7 @@ app.use(errorHandler);
 // DB init
 connectDB().then(async () => {
   await sequelize.sync();
+  // await sequelize.sync({ alter: true });
   if (process.env.NODE_ENV !== "production") {
     try {
       await seedSuperAdmin();

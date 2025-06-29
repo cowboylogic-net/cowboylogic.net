@@ -19,7 +19,6 @@ import Loader from "../Loader/Loader";
 
 const BookList = ({
   books: externalBooks,
-  onDelete,
   onEdit,
   onAddToCart,
   disableAutoFetch = false,
@@ -51,8 +50,12 @@ const BookList = ({
 
   const handleDelete = async () => {
     try {
+      if (!bookToDelete) return;
+
       await dispatch(deleteBook(bookToDelete)).unwrap();
-      onDelete?.(bookToDelete);
+
+      // Оптимістичне очищення або оновлення Redux
+      dispatch(fetchBooks());
     } catch (err) {
       console.error("Delete failed", err);
     } finally {

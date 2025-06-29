@@ -3,7 +3,6 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -16,10 +15,17 @@ import {
   selectLoadingFlags,
 } from "../../store/selectors/bookSelectors";
 
+import { bookFormSchema } from "../../validation/formSchemas";
+
 import styles from "./BookForm.module.css";
 import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal";
 import Loader from "../Loader/Loader";
-import BaseButton from "../BaseButton/BaseButton"; // ✅ Глобальна кнопка
+import BaseButton from "../BaseButton/BaseButton";
+import BaseInput from "../BaseInput/BaseInput";
+import BaseTextarea from "../BaseTextarea/BaseTextarea";
+import BaseForm from "../BaseForm/BaseForm";
+import FormGroup from "../FormGroup/FormGroup";
+import BaseCheckbox from "../BaseCheckbox/BaseCheckbox";
 
 const BookForm = ({ onSuccess, onError }) => {
   const { t } = useTranslation();
@@ -28,28 +34,19 @@ const BookForm = ({ onSuccess, onError }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { isCreating, isUpdating, isFetchingById } = useSelector(selectLoadingFlags);
+  const { isCreating, isUpdating, isFetchingById } =
+    useSelector(selectLoadingFlags);
   const error = useSelector((state) => state.books.error);
   const selectedBook = useSelector(selectSelectedBook);
 
-  const schema = yup.object().shape({
-    title: yup.string().required(t("bookForm.titleRequired")),
-    author: yup.string().required(t("bookForm.authorRequired")),
-    description: yup.string(),
-    price: yup
-      .number()
-      .typeError(t("bookForm.priceType"))
-      .positive(t("bookForm.pricePositive"))
-      .required(t("bookForm.priceRequired")),
-    inStock: yup.boolean(),
-  });
+  const schema = bookFormSchema(t); // ✅ ОНОВЛЕНО
 
   const {
     register,
     handleSubmit,
     setValue,
     reset,
-    formState: { errors },
+    formState: { errors, touchedFields },
   } = useForm({
     resolver: yupResolver(schema),
     defaultValues: {
@@ -141,18 +138,57 @@ const BookForm = ({ onSuccess, onError }) => {
     <div className={styles.bookForm}>
       <h2>{isEditMode ? t("bookForm.edit") : t("bookForm.add")}</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <input type="text" placeholder={t("bookForm.title")} {...register("title")} />
-        {errors.title && <p className={styles.error}>{errors.title.message}</p>}
+      <BaseForm onSubmit={handleSubmit(onSubmit)}>
+        <FormGroup
+          label={t("bookForm.title")}
+          error={errors.title?.message}
+          required
+        >
+          <BaseInput
+            type="text"
+            placeholder={t("bookForm.title")}
+            {...register("title")}
+            touched={touchedFields.title}
+          />
+        </FormGroup>
 
-        <input type="text" placeholder={t("bookForm.author")} {...register("author")} />
-        {errors.author && <p className={styles.error}>{errors.author.message}</p>}
+        <FormGroup
+          label={t("bookForm.author")}
+          error={errors.author?.message}
+          required
+        >
+          <BaseInput
+            type="text"
+            placeholder={t("bookForm.author")}
+            {...register("author")}
+            touched={touchedFields.author}
+          />
+        </FormGroup>
 
-        <textarea placeholder={t("bookForm.description")} {...register("description")} />
-        {errors.description && <p className={styles.error}>{errors.description.message}</p>}
+        <FormGroup
+          label={t("bookForm.description")}
+          error={errors.description?.message}
+        >
+          <BaseTextarea
+            placeholder={t("bookForm.description")}
+            {...register("description")}
+            touched={touchedFields.description}
+          />
+        </FormGroup>
 
-        <input type="number" placeholder={t("bookForm.price")} step="0.01" {...register("price")} />
-        {errors.price && <p className={styles.error}>{errors.price.message}</p>}
+        <FormGroup
+          label={t("bookForm.price")}
+          error={errors.price?.message}
+          required
+        >
+          <BaseInput
+            type="number"
+            step="0.01"
+            placeholder={t("bookForm.price")}
+            {...register("price")}
+            touched={touchedFields.price}
+          />
+        </FormGroup>
 
         <BaseButton
           type="button"
@@ -169,10 +205,7 @@ const BookForm = ({ onSuccess, onError }) => {
           </div>
         )}
 
-        <label>
-          <input type="checkbox" {...register("inStock")} />
-          {t("bookForm.inStock")}
-        </label>
+        <BaseCheckbox label={t("bookForm.inStock")} {...register("inStock")} />
 
         <div className={styles.buttonWrapper}>
           <BaseButton
@@ -189,7 +222,7 @@ const BookForm = ({ onSuccess, onError }) => {
               : t("bookForm.create")}
           </BaseButton>
         </div>
-      </form>
+      </BaseForm>
 
       {showImageModal && (
         <ImageInsertModal

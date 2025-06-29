@@ -33,46 +33,14 @@
   gap: 1.5rem;
 }
 
-.form input,
-.form textarea {
+/* ❌ Видаляємо специфічні стилі для input/textarea/button — вони всередині Base-компонентів */
+
+/* Помилки — універсальні */
+.error {
+  font-size: 0.875rem;
+  color: var(--color-error);
+  margin-top: 0.25rem;
+  text-align: left;
   width: 100%;
   max-width: 600px;
-  box-sizing: border-box;
-  padding: 0.85rem 1rem;
-  font-size: 1rem;
-  border: none;
-  border-radius: 8px;
-  background-color: #fff;
-  color: #333;
-  box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3);
-  transition: border 0.3s ease;
-  font-family: inherit;
-}
-
-.form input:focus,
-.form textarea:focus {
-  outline: none;
-  border: 2px solid #a0522d;
-  transform: scale(1.01);
-}
-
-.form textarea {
-  resize: vertical;
-  min-height: 120px;
-}
-
-.form button {
-  background: #8b4513;
-  color: #fff;
-  padding: 0.85rem 2rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.form button:hover {
-  background: #a0522d;
 }

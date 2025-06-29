@@ -1,0 +1,28 @@
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs); /* відступ між label, input, error */
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+}
+
+.label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: 0.25rem;
+}
+
+.error {
+  font-size: 0.875rem;
+  color: var(--color-error);
+  margin-top: 0.25rem;
+  text-align: left;
+  line-height: 1.3;
+}

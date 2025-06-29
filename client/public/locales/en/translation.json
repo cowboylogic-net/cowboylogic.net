@@ -261,16 +261,6 @@
     "errorTitle": "⚠️ Error",
     "tryAgain": "Try Again"
   },
-  "contact": {
-    "title": "Contact Us",
-    "firstNamePlaceholder": "First Name*",
-    "lastNamePlaceholder": "Last Name*",
-    "emailPlaceholder": "Email*",
-    "commentPlaceholder": "Comment",
-    "submit": "Submit",
-    "success": "✅ Message sent successfully!",
-    "error": "❌ Failed to send message"
-  },
   "cancel": {
     "title": "Payment Canceled",
     "description": "Something went wrong or you canceled the payment process.",
@@ -372,5 +362,28 @@
     "uploadSuccess": "Image uploaded successfully.",
     "errorGeneric": "Something went wrong. Please try again.",
     "errorOccurred": "Something went wrong"
+  },
+  "contact": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email address",
+    "comment": "Your message",
+    "submit": "Send",
+    "firstNamePlaceholder": "Enter your first name",
+    "lastNamePlaceholder": "Enter your last name",
+    "emailPlaceholder": "Enter your email",
+    "commentPlaceholder": "Write your message here",
+    
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "emailRequired": "Email is required",
+    "invalidEmail": "Invalid email address",
+    "messageRequired": "Message is required",
+    "messageMin": "Message must be at least 10 characters",
+    
+    "success": "Your message was sent successfully!",
+    "error": "Something went wrong. Please try again.",
+    
+    "title": "Contact us"
   }
 }

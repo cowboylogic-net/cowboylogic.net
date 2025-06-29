@@ -4,8 +4,7 @@
   gap: var(--spacing-xs);
   margin-bottom: var(--spacing-md);
   width: 100%;
-  max-width: 300px;
-  
+  max-width: 600px;
 }
 
 .label {
@@ -41,6 +40,13 @@
 
 .errorInput {
   border-color: var(--color-error);
+}
+
+.disabled {
+  background-color: var(--color-light-grey);
+  color: var(--color-grey);
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .helper {

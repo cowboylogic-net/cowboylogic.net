@@ -18,32 +18,41 @@ const BaseInput = ({
   className,
   ...rest
 }) => {
+  const inputId = id || name;
+  const showError = Boolean(error && touched);
+
   return (
     <div className={clsx(styles.fieldWrapper, className)}>
       {label && (
-        <label htmlFor={id || name} className={styles.label}>
-          {label} {required && <span className={styles.required}>*</span>}
+        <label htmlFor={inputId} className={styles.label}>
+          {label}
+          {required && <span className={styles.required}>*</span>}
         </label>
       )}
 
       <input
-        id={id || name}
+        id={inputId}
         name={name}
         type={type}
         value={value}
         onChange={onChange}
         onBlur={onBlur}
         placeholder={placeholder}
-        className={clsx(styles.input, error && touched && styles.errorInput)}
+        className={clsx(
+          styles.input,
+          showError && styles.errorInput,
+          disabled && styles.disabled
+        )}
         disabled={disabled}
+        aria-invalid={showError}
+        aria-required={required}
         {...rest}
       />
 
-      {helperText && !error && (
+      {!showError && helperText && (
         <div className={styles.helper}>{helperText}</div>
       )}
-
-      {error && touched && <div className={styles.error}>{error}</div>}
+      {showError && <div className={styles.error}>{error}</div>}
     </div>
   );
 };

@@ -1,77 +1,63 @@
 .container {
-  max-width: 350px;
-  margin: 6rem auto;
-  padding: 2.5rem 2rem 3rem;
-  background-color: rgba(0, 0, 0, 0.6);
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 3rem 2rem;
+  background-color: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
   backdrop-filter: var(--overlay-blur);
-  border-radius: var(--radius-md);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  text-align: center;
   color: var(--color-text);
   font-family: var(--font-body);
-  text-align: left;
   box-sizing: border-box;
 }
 
-.profileColumn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xl);
-}
-
-/* Контент профілю: аватар, текст, кнопка */
-.leftColumn {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-/* Аватар */
 .avatarWrapper {
-  flex-shrink: 0;
-}
-
-.avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--color-accent);
-}
-
-/* Заголовок */
-.container h1 {
-  text-align: left;
-  font-size: 2rem;
+  display: flex;
+  justify-content: center;
   margin-bottom: var(--spacing-md);
 }
 
-/* Профільна інформація */
-.container p {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.6;
+.avatar {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-accent);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
 }
 
-.container a {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--spacing-xs);
+.title {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: var(--color-headings);
+  margin-bottom: var(--spacing-md);
+}
+
+.profileInfo {
+  text-align: left;
+  margin: var(--spacing-md) 0;
+  font-size: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profileInfo p {
+  margin: 0.5rem 0;
+}
+
+.profileInfo a {
   color: var(--color-inner-buttons);
   font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.container strong {
-  font-weight: 600;
-  color: var(--color-titles);
-}
-
-
-/* Desktop — додатково залишаємо гнучкість на майбутнє */
-@media (min-width: 1024px) {
-  .profileColumn {
-    flex-direction: column; /* можна легко поміняти на row якщо треба */
-  }
+.resetButton {
+  margin-top: var(--spacing-lg);
+  width: 100%;
+  max-width: 250px;
 }
