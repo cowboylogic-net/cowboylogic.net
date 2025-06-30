@@ -1,8 +1,5 @@
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
-
-import { fetchFavorites } from "../../store/thunks/favoritesThunks";
 import {
   selectFavorites,
   selectFavoritesLoading,
@@ -14,19 +11,12 @@ import BookList from "../../components/BookList/BookList";
 import styles from "./FavoritesPage.module.css";
 
 const FavoritesPage = () => {
-  const dispatch = useDispatch();
   const { t } = useTranslation();
 
   const favorites = useSelector(selectFavorites);
   const loading = useSelector(selectFavoritesLoading);
   const error = useSelector(selectFavoritesError);
   const user = useSelector((state) => state.auth.user);
-
-  useEffect(() => {
-    if (user) {
-      dispatch(fetchFavorites());
-    }
-  }, [dispatch, user]);
 
   if (!user) return <p>{t("favorites.unauthorized")}</p>;
   if (loading) return <Loader />;
