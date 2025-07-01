@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
+import { registerFormSchema, registerCodeSchema } from "../../validation/formSchemas";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
 
@@ -18,17 +18,6 @@ import BaseButton from "../BaseButton/BaseButton";
 import BaseForm from "../BaseForm/BaseForm";
 import FormGroup from "../FormGroup/FormGroup";
 
-const registerSchema = yup.object().shape({
-  email: yup.string().email("Invalid email").required("Email is required"),
-  password: yup
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
-});
-
-const codeSchema = yup.object().shape({
-  code: yup.string().required("Verification code required"),
-});
 
 const RegisterForm = () => {
   const { t } = useTranslation("login");
@@ -43,7 +32,7 @@ const RegisterForm = () => {
     formState: { errors, touchedFields },
     setValue,
   } = useForm({
-    resolver: yupResolver(step === 1 ? registerSchema : codeSchema),
+    resolver: yupResolver(step === 1 ? registerFormSchema(t) : registerCodeSchema(t)),
   });
 
   const onRegister = async (form) => {

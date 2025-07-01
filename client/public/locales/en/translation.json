@@ -418,5 +418,24 @@
     "columns": "Number of Columns",
     "insert": "Insert",
     "cancel": "Cancel"
+  },
+  "newsletter": {
+    "label": "Subscribe to updates",
+    "placeholder": "Enter your email",
+    "button": "Subscribe",
+    "success": "Successfully subscribed!",
+    "error": "Subscription failed. Please try again."
+  },
+  "form": {
+    "errors": {
+      "required": "This field is required",
+      "email": "Enter a valid email address",
+      "required": "This field is required",
+      "email": "Enter a valid email",
+      "passwordShort": "Password must be at least 6 characters",
+      "required": "This field is required",
+      "email": "Enter a valid email",
+      "passwordShort": "Password must be at least 6 characters"
+    }
   }
 }

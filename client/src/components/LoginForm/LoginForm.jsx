@@ -3,7 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
@@ -14,19 +13,8 @@ import axios from "../../store/axios";
 import { loginUser, fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
 import FormGroup from "../FormGroup/FormGroup";
+import { loginFormSchema, codeVerificationSchema } from "../../validation/formSchemas";
 
-// ✅ Валідація
-const loginSchema = yup.object().shape({
-  email: yup.string().email("Invalid email").required("Email is required"),
-  password: yup
-    .string()
-    .min(6, "Password too short")
-    .required("Password is required"),
-});
-
-const codeSchema = yup.object().shape({
-  code: yup.string().required("Verification code required"),
-});
 
 const LoginForm = () => {
   const { t } = useTranslation("login");
@@ -42,7 +30,7 @@ const LoginForm = () => {
     formState: { errors, touchedFields },
     setValue,
   } = useForm({
-    resolver: yupResolver(step === 1 ? loginSchema : codeSchema),
+    resolver: yupResolver(step === 1 ? loginFormSchema(t) : codeVerificationSchema(t)),
   });
 
   const onLogin = async (data) => {

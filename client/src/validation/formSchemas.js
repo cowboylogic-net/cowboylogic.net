@@ -29,8 +29,7 @@ export const contactFormSchema = (t) =>
       .required(t("contact.messageRequired")),
   });
 
-
-// NewsletterForm schema
+// Newsletter Admin schema (subject + content)
 export const newsletterFormSchema = (t) =>
   yup.object().shape({
     subject: yup
@@ -43,4 +42,43 @@ export const newsletterFormSchema = (t) =>
       .trim()
       .min(10, t("newsletter.contentTooShort"))
       .required(t("newsletter.contentRequired")),
+  });
+
+// Newsletter Signup schema (email only)
+export const newsletterSignupSchema = (t) =>
+  yup.object().shape({
+    email: yup
+      .string()
+      .email(t("form.errors.email"))
+      .required(t("form.errors.required")),
+  });
+
+  export const loginFormSchema = (t) =>
+  yup.object().shape({
+    email: yup.string().email(t("form.errors.email")).required(t("form.errors.required")),
+    password: yup
+      .string()
+      .min(6, t("form.errors.passwordShort"))
+      .required(t("form.errors.required")),
+  });
+
+// Code verification schema (Step 2)
+export const codeVerificationSchema = (t) =>
+  yup.object().shape({
+    code: yup.string().required(t("form.errors.required")),
+  });
+
+  export const registerFormSchema = (t) =>
+  yup.object().shape({
+    email: yup.string().email(t("form.errors.email")).required(t("form.errors.required")),
+    password: yup
+      .string()
+      .min(6, t("form.errors.passwordShort"))
+      .required(t("form.errors.required")),
+  });
+
+// Code verification schema (Step 2)
+export const registerCodeSchema = (t) =>
+  yup.object().shape({
+    code: yup.string().required(t("form.errors.required")),
   });
