@@ -82,7 +82,7 @@ const Cart = () => {
   return (
     <div className="layoutContainer">
       <div className={styles.cartPage}>
-        <h1>{t("cart.title")}</h1>
+        <h2>{t("cart.title")}</h2>
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         {items.length === 0 ? (

@@ -3,97 +3,61 @@
   flex-direction: column;
   background: transparent;
   width: 100%;
-  max-width: 320px; /* ✅ обмежуємо ширину для компактності */
+  max-width: 320px;
   text-align: left;
-}
-
-.form {
-  width: 100%;
+  gap: var(--spacing-sm);
 }
 
 .newsletter label {
-  color: white;
-  font-size: 1.1rem;
+  color: var(--color-text);
+  font-size: 1.05rem;
   font-weight: 500;
 }
 
 .inputGroup {
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
-  flex-wrap: nowrap; /* ✅ щоб не ламалося */
-}
-
-.inputGroup {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: var(--spacing-sm);
-  margin-top: var(--spacing-sm);
+  align-items: stretch; /* 👈 Гарантує однакову висоту дочірніх елементів */
+  gap: var(--spacing-xs);
   flex-wrap: nowrap;
+  width: 100%;
 }
 
-/* Поле вводу */
-.newsletter input[type="email"] {
-  all: unset; /* скидує reset.css */
-  padding: 0.4rem 0.75rem;
-  border: 1px solid var(--color-brown);
-  border-radius: var(--radius-md);
+/* Стилі для input */
+.newsletter :global(input) {
+  height: 2.5rem;              /* ⬅️ така ж як кнопка */
+  padding: 0 0.75rem;
   font-size: 0.95rem;
-  background-color: #fefefe;
-  color: var(--color-dark);
-  transition: border 0.2s ease, box-shadow 0.2s ease;
-    width: 100%;
-  max-width: 100%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-  outline: none;
   box-sizing: border-box;
-}
-.newsletter input[type="email"]:focus {
-  /* додай уточнення до .newsletter */
-  border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
 }
 
-input[type="email"]::placeholder {
-  color: #aaa;
-}
-
-/* Кнопка */
+/* Стилі для кнопки */
 .subscribeBtn {
+  height: 2.5rem;              /* ⬅️ така ж як інпут */
+  padding: 0 1rem;
   font-size: 0.95rem;
-  padding: 0.5rem 0.75rem;
+  white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid white;
-  border-radius: var(--radius-sm);
-  color: white;
-  cursor: pointer;
-  background: transparent;
-  transition: background 0.2s ease, color 0.2s ease;
-  white-space: nowrap;
+  min-width: max-content;
   line-height: 1;
-  box-sizing: border-box;
+  border-radius: var(--radius-md);
 }
 
-.subscribeBtn:hover {
-  background-color: white;
-  color: var(--color-dark);
-}
 
-/* 🔽 Адаптив */
+
+/* Для адаптиву */
 @media (max-width: 480px) {
   .inputGroup {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .newsletter input[type="email"],
-  .newsletter .subscribeBtn {
-    max-width: 100%;
+  .inputGroup > * {
     width: 100%;
   }
 }
+
+

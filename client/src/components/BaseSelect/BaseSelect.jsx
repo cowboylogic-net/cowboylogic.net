@@ -15,6 +15,7 @@ const BaseSelect = ({
   disabled = false,
   options = [],
   className,
+  compact = false,
   ...rest
 }) => {
   const selectId = id || name;
@@ -39,7 +40,8 @@ const BaseSelect = ({
         className={clsx(
           styles.select,
           showError && styles.errorInput,
-          disabled && styles.disabled
+          disabled && styles.disabled,
+          compact && "compactSelect"
         )}
         aria-invalid={showError}
         aria-required={required}

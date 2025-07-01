@@ -1,3 +1,4 @@
+import styles from "./RegisterForm.module.css";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +8,7 @@ import * as yup from "yup";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
 
-import styles from "./RegisterForm.module.css";
+
 import axios from "../../store/axios";
 import { fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
@@ -15,6 +16,7 @@ import { showNotification } from "../../store/slices/notificationSlice";
 import BaseInput from "../BaseInput/BaseInput";
 import BaseButton from "../BaseButton/BaseButton";
 import BaseForm from "../BaseForm/BaseForm";
+import FormGroup from "../FormGroup/FormGroup";
 
 const registerSchema = yup.object().shape({
   email: yup.string().email("Invalid email").required("Email is required"),
@@ -46,12 +48,6 @@ const RegisterForm = () => {
 
   const onRegister = async (form) => {
     try {
-      // await axios.post("/auth/register", form);
-      // dispatch(showNotification({ message: t("registered"), type: "success" }));
-
-      // await axios.post("/auth/login", form);
-
-      // await axios.post("/auth/request-code", { email: form.email });
       await axios.post("/auth/register", form);
       dispatch(showNotification({ message: t("registered"), type: "success" }));
       console.log("✅ Registered");
@@ -118,63 +114,76 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <h2>{t("registerTitle")}</h2>
+  <div className={styles.container}>
+    <h2>{t("registerTitle")}</h2>
 
-      {step === 1 ? (
-        <BaseForm onSubmit={handleSubmit(onRegister)}>
+    {step === 1 ? (
+      <BaseForm onSubmit={handleSubmit(onRegister)}>
+        <FormGroup
+          label={t("email")}
+          error={errors.email?.message}
+          required
+        >
           <BaseInput
             type="email"
-            placeholder={t("email")}
             {...register("email")}
-            error={errors.email?.message}
             touched={!!touchedFields.email}
-            required
           />
+        </FormGroup>
+
+        <FormGroup
+          label={t("password")}
+          error={errors.password?.message}
+          required
+        >
           <BaseInput
             type="password"
-            placeholder={t("password")}
             {...register("password")}
-            error={errors.password?.message}
             touched={!!touchedFields.password}
-            required
           />
-          <BaseButton type="submit" variant="auth">
-            {t("Register")}
-          </BaseButton>
-        </BaseForm>
-      ) : (
-        <BaseForm onSubmit={handleSubmit(onVerifyCode)}>
-          <p>
-            {t("codeSentTo")} {email}
-          </p>
+        </FormGroup>
 
+        <BaseButton type="submit" variant="auth">
+          {t("Register")}
+        </BaseButton>
+      </BaseForm>
+    ) : (
+      <BaseForm onSubmit={handleSubmit(onVerifyCode)}>
+        <p>
+          {t("codeSentTo")} {email}
+        </p>
+
+        <FormGroup
+          label={t("codePlaceholder")}
+          error={errors.code?.message}
+          required
+        >
           <BaseInput
             type="text"
-            placeholder={t("codePlaceholder")}
             {...register("code")}
-            error={errors.code?.message}
             touched={!!touchedFields.code}
-            required
           />
-          <BaseButton type="submit" variant="auth">
-            {t("Verify")}
-          </BaseButton>
-        </BaseForm>
-      )}
+        </FormGroup>
 
-      <div className={styles.googleSignup}>
-        <GoogleLogin
-          onSuccess={handleGoogleSignup}
-          onError={() =>
-            dispatch(
-              showNotification({ message: t("googleFailed"), type: "error" })
-            )
-          }
-        />
-      </div>
+        <BaseButton type="submit" variant="auth">
+          {t("Verify")}
+        </BaseButton>
+      </BaseForm>
+    )}
+
+    <div className={styles.googleSignup}>
+      <GoogleLogin
+        onSuccess={handleGoogleSignup}
+        onError={() =>
+          dispatch(
+            showNotification({ message: t("googleFailed"), type: "error" })
+          )
+        }
+      />
     </div>
-  );
+  </div>
+);
+
 };
 
 export default RegisterForm;

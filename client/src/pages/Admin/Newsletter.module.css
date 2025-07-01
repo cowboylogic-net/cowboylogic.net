@@ -33,6 +33,11 @@
   width: 100%;
   max-width: 600px;
 }
+.buttonWrapper {
+  display: flex;
+  justify-content: center; /* або center */
+  width: 100%;
+}
 
 /* 🖥️ Responsive */
 @media (min-width: 768px) {

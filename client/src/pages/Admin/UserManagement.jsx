@@ -1,11 +1,12 @@
+import styles from "./UserManagement.module.css";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { ROLES } from "../../constants/roles";
 import { apiService } from "../../services/axiosService";
 import { showNotification } from "../../store/slices/notificationSlice";
-import styles from "./UserManagement.module.css";
 import BaseButton from "../../components/BaseButton/BaseButton";
+import BaseSelect from "../../components/BaseSelect/BaseSelect";
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
@@ -67,51 +68,55 @@ const UserManagement = () => {
     <div className="layoutContainer">
       <div className={styles.container}>
         <h2>{t("users.managementTitle")}</h2>
-        <table className={styles.userTable}>
-          <thead>
-            <tr>
-              <th>{t("users.email")}</th>
-              <th>{t("users.role")}</th>
-              <th>{t("users.createdAt")}</th>
-              <th>{t("users.actions")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((u) => (
-              <tr key={u.id}>
-                <td>
-                  {u.email}
-                  {u.isSuperAdmin && " 👑"}
-                </td>
-                <td>
-                  {u.isSuperAdmin ? (
-                    <strong>{t("users.superAdmin")}</strong>
-                  ) : (
-                    <select
-                      value={u.role}
-                      onChange={(e) => handleRoleChange(u.id, e.target.value)}
-                    >
-                      <option value={ROLES.USER}>{t("users.user")}</option>
-                      <option value={ROLES.ADMIN}>{t("users.admin")}</option>
-                    </select>
-                  )}
-                </td>
-                <td>{new Date(u.createdAt).toLocaleDateString()}</td>
-                <td>
-                  {!u.isSuperAdmin && (
-                    <BaseButton
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDelete(u.id)}
-                    >
-                      {t("users.delete")}
-                    </BaseButton>
-                  )}
-                </td>
+        <div className={styles.tableWrapper}>
+          <table className={styles.userTable}>
+            <thead>
+              <tr>
+                <th>{t("users.email")}</th>
+                <th>{t("users.role")}</th>
+                <th>{t("users.createdAt")}</th>
+                <th>{t("users.actions")}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {users.map((u) => (
+                <tr key={u.id}>
+                  <td>
+                    {u.email}
+                    {u.isSuperAdmin && " 👑"}
+                  </td>
+                  <td>
+                    {u.isSuperAdmin ? (
+                      <strong>{t("users.superAdmin")}</strong>
+                    ) : (
+                      <BaseSelect
+                        value={u.role}
+                        onChange={(e) => handleRoleChange(u.id, e.target.value)}
+                        options={[
+                          { value: ROLES.USER, label: t("users.user") },
+                          { value: ROLES.ADMIN, label: t("users.admin") },
+                        ]}
+                        compact
+                      />
+                    )}
+                  </td>
+                  <td>{new Date(u.createdAt).toLocaleDateString()}</td>
+                  <td>
+                    {!u.isSuperAdmin && (
+                      <BaseButton
+                        variant="danger"
+                        size="sm"
+                        onClick={() => handleDelete(u.id)}
+                      >
+                        {t("users.delete")}
+                      </BaseButton>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

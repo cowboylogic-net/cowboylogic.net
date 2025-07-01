@@ -41,9 +41,7 @@
   gap: var(--spacing-sm);
 }
 
-.modal input[type="text"],
-.modal input[type="file"],
-.modal input[type="number"] {
+.modal input[type="file"] {
   padding: 0.5rem 0.75rem;
   border-radius: var(--radius-sm);
   border: 1px solid white;
@@ -83,12 +81,6 @@
   gap: var(--spacing-md);
 }
 
-.checkbox {
-  font-size: 0.9rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
 
 /* 📱 Mobile */
 @media (max-width: 480px) {

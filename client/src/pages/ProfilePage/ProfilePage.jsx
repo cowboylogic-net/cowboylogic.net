@@ -1,16 +1,15 @@
+
+import styles from "./ProfilePage.module.css";
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-
-import styles from "./ProfilePage.module.css";
-
 import BaseButton from "../../components/BaseButton/BaseButton";
 import ResetPasswordModal from "../../components/modals/ResetPasswordModal/ResetPasswordModal";
 import UploadAvatar from "../../components/UploadAvatar/UploadAvatar";
 import { apiService } from "../../services/axiosService";
 import { showNotification } from "../../store/slices/notificationSlice";
-import { updateUserAvatar } from "../../store/slices/authSlice"; // ✅ правильно
+import { updateUserAvatar } from "../../store/slices/authSlice"; 
 
 const ProfilePage = () => {
   const { t } = useTranslation();
@@ -24,7 +23,7 @@ const ProfilePage = () => {
 
     try {
       const response = await apiService.patch("/me/avatar", formData, true);
-      dispatch(updateUserAvatar(response.avatarURL)); // ✅ оновлюємо локально
+      dispatch(updateUserAvatar(response.avatarURL)); 
       dispatch(
         showNotification({
           type: "success",
@@ -44,14 +43,6 @@ const ProfilePage = () => {
   return (
     <div className="layoutContainer">
       <div className={styles.container}>
-        {/* {user?.avatarURL && (
-          <img
-            src={user.avatarURL}
-            alt="User Avatar"
-            className={styles.avatarImage}
-          />
-        )} */}
-
         <UploadAvatar
           currentAvatar={user?.avatarURL}
           onUpload={handleAvatarUpload}

@@ -75,3 +75,24 @@ select:focus {
   outline-offset: 3px;
 }
 
+/* === 🧱 Global Layout Safety Rules === */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* Якщо використовуєш layout wrapper */
+/* .layoutContainer,
+.container,
+.contentWrapper {
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+} */

@@ -16,14 +16,20 @@ const BaseInput = ({
   helperText,
   disabled = false,
   className,
+  inline = false,
   ...rest
 }) => {
   const inputId = id || name;
   const showError = Boolean(error && touched);
 
   return (
-    <div className={clsx(styles.fieldWrapper, className)}>
-      {label && (
+    <div
+      className={clsx(
+        inline ? styles.inlineWrapper : styles.fieldWrapper,
+        className
+      )}
+    >
+      {!inline && label && (
         <label htmlFor={inputId} className={styles.label}>
           {label}
           {required && <span className={styles.required}>*</span>}
@@ -49,10 +55,10 @@ const BaseInput = ({
         {...rest}
       />
 
-      {!showError && helperText && (
+      {!inline && !showError && helperText && (
         <div className={styles.helper}>{helperText}</div>
       )}
-      {showError && <div className={styles.error}>{error}</div>}
+      {!inline && showError && <div className={styles.error}>{error}</div>}
     </div>
   );
 };

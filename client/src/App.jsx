@@ -1,8 +1,9 @@
+
+import styles from "./App.module.css";
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import clsx from "clsx";
 
-import styles from "./App.module.css";
 
 import Loader from "./components/Loader/Loader";
 import Layout from "./components/Layout/Layout";

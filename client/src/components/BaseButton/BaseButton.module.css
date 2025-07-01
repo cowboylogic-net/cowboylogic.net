@@ -48,11 +48,10 @@
   background-color: var(--color-inner-buttons);
   color: var(--color-white);
   font-weight: 600;
-  padding: 1rem 1.25rem;
+ 
   border-radius: var(--radius-md);
   font-size: 1rem;
-  width: 100%;
-  max-width: 300px;
+    max-width: 300px;
   transition: background-color 0.2s ease-in-out;
 }
 

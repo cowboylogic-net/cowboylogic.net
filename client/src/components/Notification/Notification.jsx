@@ -43,12 +43,18 @@ const Notification = () => {
 
   if (!isVisible || !message) return null;
 
-  const translatedMessage = typeof message === "string"
-    ? message
-    : t(message.key, message.options);
+  const translatedMessage =
+    typeof message === "string"
+      ? message
+      : t(message.key, message.options);
 
   return (
-    <div className={`${styles.toast} ${styles[type]}`} role="alert" aria-live="assertive">
+    <div
+      className={`${styles.toast} ${styles[type]}`}
+      role="alert"
+      aria-live="assertive"
+      aria-atomic="true" 
+    >
       {getIcon(type)}
       <span>{translatedMessage}</span>
     </div>

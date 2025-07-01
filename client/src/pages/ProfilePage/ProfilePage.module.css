@@ -11,6 +11,18 @@
   color: var(--color-text);
   font-family: var(--font-body);
   box-sizing: border-box;
+  overflow: hidden; /* ✅ захист від вилазок контенту */
+  word-wrap: break-word; /* ✅ переносить слова при потребі */
+}
+
+.profileInfo {
+  text-align: left;
+  margin: var(--spacing-md) 0;
+  font-size: 1rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+  overflow-wrap: anywhere; /* ✅ автоматичний перенос */
 }
 
 .avatarWrapper {
@@ -35,25 +47,22 @@
   margin-bottom: var(--spacing-md);
 }
 
-.profileInfo {
-  text-align: left;
-  margin: var(--spacing-md) 0;
-  font-size: 1rem;
-  padding: 1rem 0;
-  border-top: 1px solid var(--color-border);
-  border-bottom: 1px solid var(--color-border);
-}
 
 .profileInfo p {
   margin: 0.5rem 0;
 }
 
 .profileInfo a {
-  color: var(--color-inner-buttons);
+  color: var(--color-text);
   font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+}
+.profileInfo a:hover,
+.profileInfo a:focus {
+  color: var(--color-inner-buttons);
+  text-decoration: none;
 }
 
 .resetButton {

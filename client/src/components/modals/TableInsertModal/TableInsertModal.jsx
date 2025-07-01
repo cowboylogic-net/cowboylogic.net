@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./TableInsertModal.module.css";
 import BaseButton from "../../BaseButton/BaseButton";
+import BaseInput from "../../BaseInput/BaseInput";
+import BaseForm from "../../BaseForm/BaseForm";
+import FormGroup from "../../FormGroup/FormGroup";
 
 const TableInsertModal = ({ onInsert, onClose }) => {
   const { t } = useTranslation();
@@ -26,27 +29,29 @@ const TableInsertModal = ({ onInsert, onClose }) => {
     <div className={styles.overlay} onClick={onClose}>
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h3>{t("modals.insertTableTitle")}</h3>
-        <form onSubmit={handleSubmit}>
-          <label>
-            {t("modals.rows")}
-            <input
+        <BaseForm onSubmit={handleSubmit}>
+          <FormGroup label={t("modals.rows")}>
+            <BaseInput
               type="number"
               value={rows}
               onChange={(e) => setRows(+e.target.value)}
               min="1"
               max="20"
+              required
             />
-          </label>
-          <label>
-            {t("modals.columns")}
-            <input
+          </FormGroup>
+
+          <FormGroup label={t("modals.columns")}>
+            <BaseInput
               type="number"
               value={cols}
               onChange={(e) => setCols(+e.target.value)}
               min="1"
               max="10"
+              required
             />
-          </label>
+          </FormGroup>
+
           <div className={styles.actions}>
             <BaseButton type="submit" variant="outline">
               {t("modals.insert")}
@@ -55,7 +60,7 @@ const TableInsertModal = ({ onInsert, onClose }) => {
               {t("modals.cancel")}
             </BaseButton>
           </div>
-        </form>
+        </BaseForm>
       </div>
     </div>
   );

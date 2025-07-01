@@ -4,20 +4,25 @@
 }
 
 .menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
+  position: fixed;
+  top: 60px;
+  right: 1rem;
   background: var(--color-dark);
   padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   border-radius: var(--radius-md);
-  z-index: 998;
+  z-index: 1000;
   min-width: 240px;
+  max-height: 90vh;
+  overflow-y: auto;
   box-shadow: var(--shadow-card);
   animation: fadeIn 0.3s ease;
 }
+
+
+
 
 @keyframes fadeIn {
   from {

@@ -1,4 +1,5 @@
-import { useEffect } from "react";
+import styles from "./Orders.module.css";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { fetchOrders, deleteOrder } from "../../store/thunks/ordersThunks";
@@ -8,8 +9,9 @@ import {
   selectOrdersError,
 } from "../../store/selectors/orderSelectors";
 import Loader from "../../components/Loader/Loader";
-import styles from "./Orders.module.css";
 import BaseButton from "../../components/BaseButton/BaseButton";
+import BaseSelect from "../../components/BaseSelect/BaseSelect";
+
 
 const TEN_MINUTES = 10 * 60 * 1000;
 
@@ -21,6 +23,8 @@ const Orders = () => {
   const loading = useSelector(selectOrdersLoading);
   const error = useSelector(selectOrdersError);
   const lastFetched = useSelector((state) => state.orders.lastFetched);
+
+  const [statusFilter, setStatusFilter] = useState("all");
 
   useEffect(() => {
     const isStale = !lastFetched || Date.now() - lastFetched > TEN_MINUTES;
@@ -35,21 +39,42 @@ const Orders = () => {
     }
   };
 
+  const filteredOrders =
+    statusFilter === "all"
+      ? orders
+      : orders.filter((order) => order.status === statusFilter);
+
   return (
     <div className="layoutContainer">
       <div className={styles.ordersPage}>
         <h2>{t("orders.title")}</h2>
 
+        <div style={{ marginBottom: "var(--spacing-md)" }}>
+          <BaseSelect
+            name="status"
+            label={t("orders.filterByStatus")}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            options={[
+              { value: "all", label: t("orders.all") },
+              { value: "pending", label: t("orders.pending") },
+              { value: "fulfilled", label: t("orders.fulfilled") },
+              { value: "cancelled", label: t("orders.cancelled") },
+            ]}
+            compact
+          />
+        </div>
+
         {loading && <Loader />}
         {!loading && error && <p className={styles.error}>{error}</p>}
-        {!loading && !error && orders.length === 0 && (
+        {!loading && !error && filteredOrders.length === 0 && (
           <p>{t("orders.noOrders")}</p>
         )}
 
         {!loading &&
           !error &&
-          orders.length > 0 &&
-          orders.map((order) => (
+          filteredOrders.length > 0 &&
+          filteredOrders.map((order) => (
             <div key={order.id} className={styles.orderCard}>
               <h4>{t("orders.orderNumber", { id: order.id })}</h4>
               <p>

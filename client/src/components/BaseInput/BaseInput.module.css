@@ -7,6 +7,20 @@
   max-width: 600px;
 }
 
+.inlineWrapper {
+  display: flex;
+  align-items: center;
+  height: 35px;
+}
+
+.inlineWrapper input {
+  height: 100%;
+  padding: 0 var(--spacing-xs);
+  font-size: var(--font-md);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
 .label {
   font-weight: 600;
   font-size: 0.95rem;

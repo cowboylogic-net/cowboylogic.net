@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import BaseButton from "../BaseButton/BaseButton";
+import BaseInput from "../BaseInput/BaseInput";
 import styles from "./CartItem.module.css";
 
 const CartItem = ({
@@ -27,20 +29,23 @@ const CartItem = ({
       </div>
 
       <div className={styles.controls}>
-        <input
-          type="number"
-          min="1"
-          value={item.quantity}
-          onChange={handleQuantityChange}
-          disabled={isUpdating}
-        />
-        <button
+        <BaseInput
+  type="number"
+  min="1"
+  value={item.quantity}
+  onChange={handleQuantityChange}
+  disabled={isUpdating}
+  aria-label={t("cart.quantity")}
+  inline
+/>
+
+        <BaseButton
+          variant="outline"
           onClick={() => onRemove(item.id)}
           disabled={isRemoving}
-          className="btn btn-outline"
         >
           {isRemoving ? t("cart.removing") : t("cart.remove")}
-        </button>
+        </BaseButton>
       </div>
     </li>
   );

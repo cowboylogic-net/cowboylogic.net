@@ -1,3 +1,4 @@
+import styles from "./ResetPasswordForm.module.css";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
@@ -9,7 +10,7 @@ import { useTranslation } from "react-i18next";
 import BaseButton from "../BaseButton/BaseButton";
 import BaseInput from "../BaseInput/BaseInput";
 import BaseForm from "../BaseForm/BaseForm";
-import styles from "./ResetPasswordForm.module.css";
+import FormGroup from "../FormGroup/FormGroup";
 
 
 const schema = yup.object().shape({
@@ -40,43 +41,54 @@ const ResetPasswordForm = ({ onSuccess }) => {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      dispatch(showNotification({
-        message: t("resetPassword.success"),
-        type: "success",
-      }));
+      dispatch(
+        showNotification({
+          message: t("resetPassword.success"),
+          type: "success",
+        })
+      );
 
       setTimeout(() => dispatch(logout()), 2000);
       reset();
       if (onSuccess) onSuccess(); // ✅ Закриває модалку
     } catch (err) {
-      dispatch(showNotification({
-        message: err.response?.data?.message || t("resetPassword.error"),
-        type: "error",
-      }));
+      dispatch(
+        showNotification({
+          message: err.response?.data?.message || t("resetPassword.error"),
+          type: "error",
+        })
+      );
     }
   };
 
   return (
     <div className={styles.container}>
       <BaseForm onSubmit={handleSubmit(handleResetPassword)}>
-        <BaseInput
-          type="password"
-          label={t("resetPassword.currentPlaceholder")}
+        <FormGroup
+          label={t("resetPassword.currentLabel")}
           error={errors.oldPassword?.message}
-          {...register("oldPassword")}
-        />
+        >
+          <BaseInput
+            type="password"
+            placeholder={t("resetPassword.currentPlaceholder")}
+            {...register("oldPassword")}
+          />
+        </FormGroup>
 
-        <BaseInput
-          type="password"
-          label={t("resetPassword.newPlaceholder")}
+        <FormGroup
+          label={t("resetPassword.newLabel")}
           error={errors.newPassword?.message}
-          {...register("newPassword")}
-        />
+        >
+          <BaseInput
+            type="password"
+            placeholder={t("resetPassword.newPlaceholder")}
+            {...register("newPassword")}
+          />
+        </FormGroup>
 
         <BaseButton type="submit" variant="auth">
           {t("resetPassword.button")}
         </BaseButton>
-        
       </BaseForm>
     </div>
   );

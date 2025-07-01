@@ -11,8 +11,7 @@
 }
 
 .cartPage h2 {
-  font-size: 2rem;
-  margin-bottom: var(--spacing-lg);
+  font-size: var(--font-xxl);
   font-weight: bold;
   color: var(--color-text);
 }

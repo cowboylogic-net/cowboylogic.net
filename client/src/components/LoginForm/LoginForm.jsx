@@ -1,3 +1,4 @@
+import styles from "./LoginForm.module.css";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -9,11 +10,10 @@ import { useTranslation } from "react-i18next";
 import BaseButton from "../BaseButton/BaseButton";
 import BaseInput from "../BaseInput/BaseInput";
 import BaseForm from "../BaseForm/BaseForm";
-
-import styles from "./LoginForm.module.css";
 import axios from "../../store/axios";
 import { loginUser, fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
+import FormGroup from "../FormGroup/FormGroup";
 
 // ✅ Валідація
 const loginSchema = yup.object().shape({
@@ -106,63 +106,71 @@ const LoginForm = () => {
   };
 
   return (
-    <div className={styles.container}>
-      <h2>{t("title")}</h2>
+  <div className={styles.container}>
+    <h2>{t("title")}</h2>
 
-      {step === 1 ? (
-        <BaseForm onSubmit={handleSubmit(onLogin)}>
+    {step === 1 ? (
+      <BaseForm onSubmit={handleSubmit(onLogin)}>
+        <FormGroup
+          label={t("emailPlaceholder")}
+          error={errors.email?.message}
+          required
+        >
           <BaseInput
             type="email"
-            placeholder={t("emailPlaceholder")}
             {...register("email")}
-            error={errors.email?.message}
             touched={!!touchedFields.email}
-            required
           />
+        </FormGroup>
 
+        <FormGroup
+          label={t("passwordPlaceholder")}
+          error={errors.password?.message}
+          required
+        >
           <BaseInput
             type="password"
-            placeholder={t("passwordPlaceholder")}
             {...register("password")}
-            error={errors.password?.message}
             touched={!!touchedFields.password}
-            required
           />
+        </FormGroup>
 
-          <BaseButton type="submit" variant="auth">
-            {t("continue")}
-          </BaseButton>
-        </BaseForm>
-      ) : (
-        <BaseForm onSubmit={handleSubmit(onVerify)}>
+        <BaseButton type="submit" variant="auth">
+          {t("continue")}
+        </BaseButton>
+      </BaseForm>
+    ) : (
+      <BaseForm onSubmit={handleSubmit(onVerify)}>
+        <FormGroup
+          label={t("codePlaceholder")}
+          error={errors.code?.message}
+          required
+        >
           <BaseInput
             type="text"
-            label={t("codePlaceholder")}
-            placeholder={t("codePlaceholder")}
             {...register("code")}
-            error={errors.code?.message}
             touched={!!touchedFields.code}
-            required
           />
+        </FormGroup>
 
-          <BaseButton type="submit" variant="auth" disabled={isLoading}>
-            {isLoading ? t("LoggingIn") : t("Verify")}
-          </BaseButton>
-        </BaseForm>
-      )}
+        <BaseButton type="submit" variant="auth" disabled={isLoading}>
+          {isLoading ? t("LoggingIn") : t("Verify")}
+        </BaseButton>
+      </BaseForm>
+    )}
 
-      <div className={styles["google-login"]}>
-        <GoogleLogin
-          onSuccess={handleGoogleLogin}
-          onError={() =>
-            dispatch(
-              showNotification({ message: t("googleFailed"), type: "error" })
-            )
-          }
-        />
-      </div>
+    <div className={styles["google-login"]}>
+      <GoogleLogin
+        onSuccess={handleGoogleLogin}
+        onError={() =>
+          dispatch(
+            showNotification({ message: t("googleFailed"), type: "error" })
+          )
+        }
+      />
     </div>
-  );
+  </div>
+);
 };
 
 export default LoginForm;

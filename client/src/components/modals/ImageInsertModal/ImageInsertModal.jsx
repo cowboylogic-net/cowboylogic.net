@@ -2,6 +2,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./ImageInsertModal.module.css";
 import BaseButton from "../../BaseButton/BaseButton";
+import FormGroup from "../../FormGroup/FormGroup";
+import BaseInput from "../../BaseInput/BaseInput";
+import BaseCheckbox from "../../BaseCheckbox/BaseCheckbox";
 
 const ImageInsertModal = ({ onInsert, onClose }) => {
   const { t } = useTranslation();
@@ -93,33 +96,41 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
       <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
         <h3>{t("modals.chooseImage")}</h3>
         <form onSubmit={handleSubmit}>
-          <input type="file" accept="image/*" onChange={handleFileChange} />
+          <FormGroup>
+            <input type="file" accept="image/*" onChange={handleFileChange} />
+          </FormGroup>
 
           <p className={styles.orText}>{t("modals.or")}</p>
 
-          <input
-            type="text"
-            value={url}
-            onChange={handleUrlChange}
-            placeholder={t("modals.enterUrl")}
-            disabled={!!file}
-          />
+          <FormGroup>
+            <BaseInput
+              type="text"
+              value={url}
+              onChange={handleUrlChange}
+              placeholder={t("modals.enterUrl")}
+              disabled={!!file}
+            />
+          </FormGroup>
 
           <div className={styles.dimensions}>
-            <input
-              type="number"
-              placeholder={t("modals.widthPlaceholder")}
-              value={width}
-              onChange={handleWidthChange}
-              disabled={!file && !url}
-            />
-            <input
-              type="number"
-              placeholder={t("modals.heightPlaceholder")}
-              value={height}
-              onChange={handleHeightChange}
-              disabled={!file && !url}
-            />
+            <FormGroup>
+              <BaseInput
+                type="number"
+                placeholder={t("modals.widthPlaceholder")}
+                value={width}
+                onChange={handleWidthChange}
+                disabled={!file && !url}
+              />
+            </FormGroup>
+            <FormGroup>
+              <BaseInput
+                type="number"
+                placeholder={t("modals.heightPlaceholder")}
+                value={height}
+                onChange={handleHeightChange}
+                disabled={!file && !url}
+              />
+            </FormGroup>
           </div>
 
           {originalSize.w && originalSize.h && (
@@ -138,14 +149,12 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
             </div>
           )}
 
-          <label className={styles.checkbox}>
-            <input
-              type="checkbox"
-              checked={lockRatio}
-              onChange={() => setLockRatio(!lockRatio)}
-            />
-            {t("modals.keepRatio")}
-          </label>
+          <BaseCheckbox
+            name="lockRatio"
+            checked={lockRatio}
+            onChange={() => setLockRatio(!lockRatio)}
+            label={t("modals.keepRatio")}
+          />
 
           {preview && (
             <img src={preview} alt="Preview" className={styles.preview} />
@@ -155,11 +164,7 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
             <BaseButton type="submit" variant="outline">
               {t("modals.confirm")}
             </BaseButton>
-            <BaseButton
-              type="button"
-              variant="outline"
-              onClick={onClose}
-            >
+            <BaseButton type="button" variant="outline" onClick={onClose}>
               {t("modals.cancel")}
             </BaseButton>
           </div>

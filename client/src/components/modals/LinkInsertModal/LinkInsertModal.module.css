@@ -23,6 +23,7 @@
   box-sizing: border-box;
   backdrop-filter: var(--overlay-blur);
 }
+
 .modal h3 {
   font-size: 1.4rem;
   font-weight: bold;
@@ -31,27 +32,11 @@
   margin-bottom: var(--spacing-md);
 }
 
+/* BaseForm already sets flex layout, only spacing tweak if needed */
 .modal form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-}
-
-.inputWrapper {
-  display: flex;
-  justify-content: center;
-}
-
-.modal input[type="url"] {
-  all: unset;
-  border: 1px solid var(--color-brown);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  width: 100%;
-  background-color: #fff;
-  color: var(--color-dark);
-  box-sizing: border-box;
+  gap: var(--spacing-lg);
 }
 
 .actions {
@@ -73,10 +58,6 @@
 
   .modal h3 {
     font-size: 1.2rem;
-  }
-
-  .modal input[type="url"] {
-    font-size: 0.95rem;
   }
 
   .actions {

@@ -1,9 +1,12 @@
+import styles from "./NewsletterSignup.module.css";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import axios from "../../store/axios";
 import { showNotification } from "../../store/slices/notificationSlice";
-import styles from "./NewsletterSignup.module.css";
+
+import BaseInput from "../../components/BaseInput/BaseInput";
+import BaseButton from "../../components/BaseButton/BaseButton";
 
 const NewsletterSignup = () => {
   const [email, setEmail] = useState("");
@@ -24,8 +27,7 @@ const NewsletterSignup = () => {
     } catch (err) {
       dispatch(
         showNotification({
-          message:
-            err.response?.data?.message || t("newsletter.error"),
+          message: err.response?.data?.message || t("newsletter.error"),
           type: "error",
         })
       );
@@ -37,17 +39,20 @@ const NewsletterSignup = () => {
       <form className="form" onSubmit={handleSubmit}>
         <label htmlFor="newsletter">{t("newsletter.label")}</label>
         <div className={styles.inputGroup}>
-          <input
+          <BaseInput
             id="newsletter"
             type="email"
+            size="sm"
+            aria-label={t("newsletter.label")}
             placeholder={t("newsletter.placeholder")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <button type="submit" className={styles.subscribeBtn}>
+
+          <BaseButton className={styles.subscribeBtn} type="submit" variant="outline">
             {t("newsletter.button")}
-          </button>
+          </BaseButton>
         </div>
       </form>
     </div>

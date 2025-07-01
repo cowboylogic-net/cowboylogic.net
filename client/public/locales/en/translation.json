@@ -201,7 +201,20 @@
     "status": "Status",
     "total": "Total",
     "pcs": "pcs",
-    "confirmDelete": "Are you sure you want to delete this order?"
+    "confirmDelete": "Are you sure you want to delete this order?",
+    "title": "Your Orders",
+    "noOrders": "You have no orders yet.",
+    "confirmDelete": "Are you sure you want to cancel this order?",
+    "cancel": "Cancel Order",
+    "orderNumber": "Order #{{id}}",
+    "status": "Status",
+    "total": "Total",
+    "pcs": "pcs",
+    "filterByStatus": "Filter by status",
+    "all": "All",
+    "pending": "Pending",
+    "fulfilled": "Fulfilled",
+    "cancelled": "Cancelled"
   },
   "profile": {
     "title": "My Profile",
@@ -216,7 +229,14 @@
     "newPlaceholder": "New Password",
     "button": "Update Password",
     "success": "✅ Password updated and confirmation email sent. Logging out...",
-    "error": "❌ Error updating password"
+    "error": "❌ Error updating password",
+    "currentLabel": "Current Password",
+    "currentPlaceholder": "Enter your current password",
+    "newLabel": "New Password",
+    "newPlaceholder": "Enter your new password",
+    "button": "Update Password",
+    "success": "Password updated successfully. You’ll be logged out shortly.",
+    "error": "Failed to update password. Please try again."
   },
   "auth": {
     "success": "✅ Logged in successfully!",
@@ -373,17 +393,30 @@
     "lastNamePlaceholder": "Enter your last name",
     "emailPlaceholder": "Enter your email",
     "commentPlaceholder": "Write your message here",
-    
+
     "firstNameRequired": "First name is required",
     "lastNameRequired": "Last name is required",
     "emailRequired": "Email is required",
     "invalidEmail": "Invalid email address",
     "messageRequired": "Message is required",
     "messageMin": "Message must be at least 10 characters",
-    
+
     "success": "Your message was sent successfully!",
     "error": "Something went wrong. Please try again.",
-    
+
     "title": "Contact us"
+  },
+
+  "modals": {
+    "insertLinkTitle": "Insert a Link",
+    "linkLabel": "Link",
+    "linkPlaceholder": "Enter a valid URL",
+    "insert": "Insert",
+    "cancel": "Cancel",
+    "insertTableTitle": "Insert Table",
+    "rows": "Number of Rows",
+    "columns": "Number of Columns",
+    "insert": "Insert",
+    "cancel": "Cancel"
   }
 }

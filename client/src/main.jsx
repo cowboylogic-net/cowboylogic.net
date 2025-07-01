@@ -1,3 +1,4 @@
+import "./styles/index.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -10,7 +11,6 @@ import { fetchCurrentUser } from "./store/thunks/authThunks"; // ✅ прави�
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 
 import "./i18n";
-import "./styles/index.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -21,19 +21,19 @@ const renderApp = async () => {
     await store.dispatch(fetchCurrentUser(token));
   }
 
-root.render(
-  <React.StrictMode>
-    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
-      <Provider store={store}>
-        <BrowserRouter>
-         <ErrorBoundary>
-            <App />
-         </ErrorBoundary>
-        </BrowserRouter>
-      </Provider>
-    </GoogleOAuthProvider>
-  </React.StrictMode>
-);
+  root.render(
+    <React.StrictMode>
+      <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+        <Provider store={store}>
+          <BrowserRouter>
+            <ErrorBoundary>
+              <App />
+            </ErrorBoundary>
+          </BrowserRouter>
+        </Provider>
+      </GoogleOAuthProvider>
+    </React.StrictMode>
+  );
 };
 
 root.render(<Loader />);

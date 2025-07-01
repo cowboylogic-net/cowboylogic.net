@@ -12,6 +12,7 @@ import BaseInput from "../../components/BaseInput/BaseInput";
 import BaseTextarea from "../../components/BaseTextarea/BaseTextarea";
 import { newsletterFormSchema } from "../../validation/formSchemas";
 import FormGroup from "../../components/FormGroup/FormGroup"; // ✅ додано
+import BaseForm from "../../components/BaseForm/BaseForm";
 
 const Newsletter = () => {
   const dispatch = useDispatch();
@@ -49,7 +50,8 @@ const Newsletter = () => {
   return (
     <div className={styles.newsletterContainer}>
       <h2>{t("admin.sendNewsletter")}</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+      <BaseForm onSubmit={handleSubmit(onSubmit)} className={styles.form}>
+
         <FormGroup
           label={t("newsletter.subject")}
           error={errors.subject?.message}
@@ -75,11 +77,14 @@ const Newsletter = () => {
             touched={touchedFields.content}
           />
         </FormGroup>
+        <div className={styles.buttonWrapper}>
 
         <BaseButton type="submit" disabled={isSubmitting} variant="outline">
           {isSubmitting ? t("newsletter.sending") : t("newsletter.submit")}
         </BaseButton>
-      </form>
+        </div>
+      </BaseForm>
+      
     </div>
   );
 };

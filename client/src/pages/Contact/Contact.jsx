@@ -1,6 +1,8 @@
+import styles from "./Contact.module.css";
+
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
-import styles from "./Contact.module.css";
+
 import axios from "../../store/axios";
 import { showNotification } from "../../store/slices/notificationSlice";
 
@@ -12,6 +14,7 @@ import BaseInput from "../../components/BaseInput/BaseInput";
 import BaseTextarea from "../../components/BaseTextarea/BaseTextarea";
 import BaseButton from "../../components/BaseButton/BaseButton";
 import FormGroup from "../../components/FormGroup/FormGroup";
+import BaseForm from "../../components/BaseForm/BaseForm";
 
 const Contact = () => {
   const dispatch = useDispatch();
@@ -50,7 +53,7 @@ const Contact = () => {
     <div className={styles.container}>
       <div className={styles.contact}>
         <h2>{t("contact.title")}</h2>
-        <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
+        <BaseForm className={styles.form} onSubmit={handleSubmit(onSubmit)}>
           <FormGroup
             label={t("contact.firstName")}
             error={errors.firstName?.message}
@@ -105,7 +108,7 @@ const Contact = () => {
           <BaseButton type="submit" variant="outline" disabled={isSubmitting}>
             {t("contact.submit")}
           </BaseButton>
-        </form>
+        </BaseForm>
       </div>
     </div>
   );
