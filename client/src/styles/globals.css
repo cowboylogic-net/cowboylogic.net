@@ -48,8 +48,9 @@ a {
 
 a:hover,
 a:focus {
-  color: var(--color-inner-buttons);
+  color: var(--color-white);
   text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 /* Form Elements */
@@ -88,11 +89,4 @@ body {
   overflow-wrap: anywhere;
 }
 
-/* Якщо використовуєш layout wrapper */
-/* .layoutContainer,
-.container,
-.contentWrapper {
-  word-wrap: break-word;
-  overflow-wrap: anywhere;
-  overflow-x: hidden;
-} */
+

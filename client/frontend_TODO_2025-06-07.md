@@ -35,30 +35,30 @@
 
 - [x] `EditablePage`, `EditableToolbar`, `ConfirmModal`, `ImageInsertModal`
 - [x] Збереження чернеток (`/pages/:slug/draft`)
-- [x] Автозбереження (через debounce) — ❌ debounce є, логіка не підключена
+- [x] Автозбереження (через debounce)
 - [x] Переклад усіх модалок (Insert, Confirm, Table, Link) — всі модалки містять `t()`
 - [x] Валідація HTML перед вставкою — реалізовано через ConfirmModal
 
 ## 💳 Оплата / Payment Integration
 
 - [x] `SuccessPage`, `CancelPage`, `paymentService.js`
-- [ ] Додати loading/spinner під час транзакцій
-- [ ] Очищення кошика після оплати (`clearCart()`)
+- [x] Додати loading/spinner під час транзакцій
+- [x] Очищення кошика після оплати (`clearCart()`)
 
-## 🧪 Тестування / Testing
+## 🧪 Testing
 
-- [ ] Інтегрувати Vitest або RTL
-- [ ] Написати базові тести для Redux (auth, book, page)
-- [ ] Snapshot тести для `BookList`, `EditablePage`
+- [ ] Unit tests for all slices using Vitest
+- [ ] Unit tests for all selectors
+- [ ] Add tests for selectors and thunks (mock API calls)
+- [ ] Snapshot tests for Redux-driven UI (`BookList`, `Orders`)
 
 ## 📱 UX/UI покращення
 
 - [x] Responsive: модалки, сторінки, хедер
 - [x] Реалізовано Burger Menu (`Navbar.jsx`)
-- [ ] Додати alt до зображень
+- [x] Додати alt до зображень
 - [ ] SEO: додати `react-helmet`
-- [ ] Виправити hover у Navbar, LanguageSwitcher
-- [ ] Checkout UX (спінер, редирект, помилки)
+- [x] Виправити hover у Navbar, LanguageSwitcher
 
 ## 🧩 Інше / Misc
 

@@ -1,4 +1,5 @@
 .card {
+  
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -20,16 +21,27 @@
 .card:hover {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
 }
+.imageWrapper {
+  flex-shrink: 0;
+  width: 160px;
+  aspect-ratio: 3 / 4; 
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+ 
+}
 
 .image {
   width: 100%;
-  max-width: 220px;
-  height: 220px; /* 👈 однакова висота */
-  object-fit: cover; /* 👈 стабільне відображення */
-  display: block;
-  margin: 0 auto;
-  border-radius: var(--radius-md);
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 }
+
+
+
 
 .info {
   flex: 1;

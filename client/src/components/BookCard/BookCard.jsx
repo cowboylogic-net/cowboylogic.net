@@ -15,14 +15,13 @@ const BookCard = ({
 }) => {
   const { t } = useTranslation();
 
-const getImageUrl = (url) => {
-  if (!url) return "/fallback-image.png";
-  if (url.startsWith("http")) return url;
+  const getImageUrl = (url) => {
+    if (!url) return "/fallback-image.png";
+    if (url.startsWith("http")) return url;
 
-  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  return `${baseUrl}${url}`; // не додаємо додатковий слеш!
-};
-
+    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    return `${baseUrl}${url}`;
+  };
 
   return (
     <div className={styles.card}>
@@ -30,11 +29,13 @@ const getImageUrl = (url) => {
         {isLoggedIn && <FavoriteButton bookId={book.id} small />}
       </div>
 
-      <img
-        src={getImageUrl(book.imageUrl)}
-        alt={book.title}
-        className={styles.image}
-      />
+      <div className={styles.imageWrapper}>
+        <img
+          src={getImageUrl(book.imageUrl)}
+          alt={`Cover of ${book.title}`}
+          className={styles.image}
+        />
+      </div>
 
       <div className={styles.info}>
         <Link to={`/bookstore/book/${book.id}`} className={styles.titleLink}>
@@ -70,8 +71,8 @@ const getImageUrl = (url) => {
           )}
         </div>
 
-        {isLoggedIn && (
-          <div className={styles.bottomRight}>
+        <div className={styles.bottomRight}>
+          {isLoggedIn && (
             <BaseButton
               onClick={() => onAddToCart(book.id)}
               size="sm"
@@ -79,8 +80,8 @@ const getImageUrl = (url) => {
             >
               {t("book.addToCart")}
             </BaseButton>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );

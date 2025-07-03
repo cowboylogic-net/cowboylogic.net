@@ -1,5 +1,5 @@
 import styles from "./Cart.module.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { fetchCartItems } from "../../store/thunks/cartThunks";
@@ -15,9 +15,12 @@ import { toast } from "react-toastify";
 import { apiService } from "../../services/axiosService";
 import CartItem from "../../components/CartItem/CartItem";
 import BaseButton from "../../components/BaseButton/BaseButton";
+import Loader from "../../components/Loader/Loader";
 
 const Cart = () => {
   const dispatch = useDispatch();
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+
   const { t } = useTranslation();
 
   const token = useSelector((state) => state.auth.token);
@@ -59,6 +62,7 @@ const Cart = () => {
   };
 
   const handleSquareCheckout = async () => {
+    setIsCheckoutLoading(true); // 🆕 показуємо спінер
     try {
       const res = await apiService.post(
         "/square/create-payment",
@@ -74,6 +78,8 @@ const Cart = () => {
     } catch (err) {
       toast.error(t("cart.checkoutError"));
       console.error(err);
+    } finally {
+      setIsCheckoutLoading(false); // 🆕 ховаємо спінер
     }
   };
 
@@ -106,10 +112,19 @@ const Cart = () => {
               </h3>
               <BaseButton
                 onClick={handleSquareCheckout}
-                disabled={isAdding}
+                disabled={isAdding || isCheckoutLoading}
                 variant="outline"
               >
-                {t("cart.checkout")}
+                {isCheckoutLoading ? (
+                  <>
+                    <Loader size="small" />
+                    <span className="visually-hidden">
+                      {t("cart.processing")}
+                    </span>
+                  </>
+                ) : (
+                  t("cart.checkout")
+                )}
               </BaseButton>
             </div>
           </>

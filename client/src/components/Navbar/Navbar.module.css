@@ -39,6 +39,7 @@
 .navLink:hover,
 .dropdownButton:hover {
   background-color: rgba(255, 255, 255, 0.15);
+  color: var(--color-white);
 }
 
 /* === Dropdown === */
@@ -157,4 +158,9 @@
     position: static;
     margin-top: var(--spacing-sm);
   }
+}
+.active {
+  background-color: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-weight: 600;
 }

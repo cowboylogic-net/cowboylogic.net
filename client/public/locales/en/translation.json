@@ -113,7 +113,8 @@
     "itemRemoveError": "Failed to remove item",
     "checkoutError": "Square checkout failed",
     "remove": "Remove",
-    "removing": "Removing..."
+    "removing": "Removing...",
+    "cart.processing": "Processing payment…"
   },
   "bookForm": {
     "add": "Add New Book",
