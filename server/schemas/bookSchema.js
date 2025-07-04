@@ -8,6 +8,8 @@ export const createBookSchema = Joi.object({
   price: Joi.number().precision(2).positive().required(),
   imageUrl: Joi.string().uri().optional(),
   inStock: Joi.boolean().optional(),
+  stock: Joi.number().integer().min(0).required(),
+
 });
 
 export const updateBookSchema = Joi.object({
@@ -15,6 +17,8 @@ export const updateBookSchema = Joi.object({
   author: Joi.string().min(2).max(255),
   description: Joi.string().allow("").max(2000),
   price: Joi.number().precision(2).positive(),
+  stock: Joi.number().integer().min(0),
+
   imageUrl: Joi.string()
   .custom((value, helpers) => {
     if (!value) return value;
@@ -30,3 +34,4 @@ export const updateBookSchema = Joi.object({
   .optional(),
   inStock: Joi.boolean(),
 }).min(1); // при оновленні хоча б одне поле обов'язкове
+

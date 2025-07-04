@@ -97,6 +97,10 @@
   gap: var(--spacing-xs);
   flex-wrap: wrap;
 }
+.outOfStock {
+  color: var(--color-red);
+  font-weight: 500;
+}
 
 /* === TABLET & MOBILE === */
 @media (max-width: 1024px) {

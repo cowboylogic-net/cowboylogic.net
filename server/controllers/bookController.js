@@ -7,19 +7,19 @@ import path from "path";
 
 // ✅ CREATE
 const createBook = async (req, res) => {
-  const { title, author, description, price, inStock } = req.body;
+  const { title, author, description, price, inStock, stock } = req.body;
 
   const newBook = {
-  title,
-  author,
-  description,
-  price,
-  inStock: inStock === "true" || inStock === true,
-  imageUrl: req.file?.filename
-    ? `/uploads/bookCovers/${path.basename(req.file.filename)}`
-    : req.body.imageUrl || null,
-};
-
+    title,
+    author,
+    description,
+    price,
+    inStock: inStock === "true" || inStock === true,
+    stock: parseInt(stock) || 0,
+    imageUrl: req.file?.filename
+      ? `/uploads/bookCovers/${path.basename(req.file.filename)}`
+      : req.body.imageUrl || null,
+  };
 
   const book = await Book.create(newBook);
   res.status(201).json(book);
@@ -37,29 +37,34 @@ const updateBook = async (req, res) => {
     price: req.body.price,
     inStock: req.body.inStock === "true" || req.body.inStock === true,
   };
+  if (req.body.stock !== undefined) {
+    updateData.stock = parseInt(req.body.stock);
+  }
 
   // 🧹 Видаляємо стару локальну картинку, якщо є
   if (req.file) {
-  if (book.imageUrl && book.imageUrl.includes("/uploads/")) {
-    const relativePath = book.imageUrl.startsWith("/")
-      ? book.imageUrl.slice(1)
-      : book.imageUrl;
+    if (book.imageUrl && book.imageUrl.includes("/uploads/")) {
+      const relativePath = book.imageUrl.startsWith("/")
+        ? book.imageUrl.slice(1)
+        : book.imageUrl;
 
-    const oldPath = path.resolve("public", relativePath);
-    try {
-      await fs.unlink(oldPath);
-      console.log("🧹 Deleted old image:", oldPath);
-    } catch (err) {
-      if (err.code !== "ENOENT") {
-        console.warn("⚠️ Failed to delete old image:", err.message);
+      const oldPath = path.resolve("public", relativePath);
+      try {
+        await fs.unlink(oldPath);
+        console.log("🧹 Deleted old image:", oldPath);
+      } catch (err) {
+        if (err.code !== "ENOENT") {
+          console.warn("⚠️ Failed to delete old image:", err.message);
+        }
       }
     }
+
+    updateData.imageUrl = `/uploads/bookCovers/${path.basename(
+      req.file.filename
+    )}`;
   }
 
-  updateData.imageUrl = `/uploads/bookCovers/${path.basename(req.file.filename)}`;
-}
-
-   await book.update(updateData);
+  await book.update(updateData);
   res.json(book);
 };
 
@@ -101,6 +106,33 @@ const deleteBook = async (req, res) => {
   await book.destroy();
   res.json({ message: "Book deleted" });
 };
+const checkBookStock = async (req, res) => {
+  const items = req.body.items;
+
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ success: false, message: "No items provided" });
+  }
+
+  for (const item of items) {
+    const book = await Book.findByPk(item.bookId);
+    if (!book) {
+      return res.status(404).json({
+        success: false,
+        message: `Book with ID ${item.bookId} not found`,
+      });
+    }
+
+    if (book.stock < item.quantity) {
+      return res.status(400).json({
+        success: false,
+        message: `Not enough stock for "${book.title}". Available: ${book.stock}, requested: ${item.quantity}`,
+      });
+    }
+  }
+
+  return res.json({ success: true });
+};
+
 
 export default {
   createBook: ctrlWrapper(createBook),
@@ -108,4 +140,5 @@ export default {
   getBookById: ctrlWrapper(getBookById),
   updateBook: ctrlWrapper(updateBook),
   deleteBook: ctrlWrapper(deleteBook),
+  checkBookStock: ctrlWrapper(checkBookStock),
 };

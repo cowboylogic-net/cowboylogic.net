@@ -58,6 +58,26 @@
     "rows": "Rows",
     "columns": "Columns",
     "insert": "Insert",
+    "cancel": "Cancel",
+    "insertLinkTitle": "Insert a Link",
+    "linkLabel": "Link",
+    "linkPlaceholder": "Enter a valid URL",
+    "insert": "Insert",
+    "cancel": "Cancel",
+    "insertTableTitle": "Insert Table",
+    "rows": "Number of Rows",
+    "columns": "Number of Columns",
+    "insert": "Insert",
+    "cancel": "Cancel",
+    "chooseImage": "Choose an Image",
+    "or": "— OR —",
+    "enterUrl": "Enter image URL",
+    "widthPlaceholder": "Width (px)",
+    "heightPlaceholder": "Height (px)",
+    "originalSize": "Original size: {{w}} × {{h}} px",
+    "reset": "Reset",
+    "keepRatio": "Keep aspect ratio",
+    "confirm": "Insert",
     "cancel": "Cancel"
   },
   "navbar": {
@@ -99,7 +119,12 @@
     "loading": "Loading book...",
     "outOfStock": "Out of stock",
     "inStock": "In stock",
-    "price": "${{price}}"
+    "price": "${{price}}",
+    "inStock": "In stock: {{count}}",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock: {{count}}",
+    "outOfStock": "Out of stock",
+    "addToCart": "Add to cart"
   },
   "cart": {
     "title": "My Cart",
@@ -114,7 +139,9 @@
     "checkoutError": "Square checkout failed",
     "remove": "Remove",
     "removing": "Removing...",
-    "cart.processing": "Processing payment…"
+    "cart.processing": "Processing payment…",
+    "outOfStockGeneric": "Some items are out of stock. Please review your cart.",
+    "checkoutError": "Checkout failed. Please try again later."
   },
   "bookForm": {
     "add": "Add New Book",
@@ -138,7 +165,12 @@
     "successCreate": "✅ Book created successfully",
     "successUpdate": "✅ Book updated successfully",
     "failSave": "❌ Failed to save book",
-    "notFound": "Book not found"
+    "notFound": "Book not found",
+    "stock": "Stock",
+    "creating": "Creating...",
+    "create": "Create Book",
+    "updating": "Updating...",
+    "update": "Update Book"
   },
   "favorites": {
     "heading": "My Favorite Books",
@@ -313,7 +345,12 @@
     "placeholder": "Your email",
     "button": "Subscribe",
     "success": "✅ Subscribed successfully!",
-    "error": "❌ Subscription failed. Try again."
+    "error": "❌ Subscription failed. Try again.",
+    "label": "Subscribe to updates",
+    "placeholder": "Enter your email",
+    "button": "Subscribe",
+    "success": "Successfully subscribed!",
+    "error": "Subscription failed. Please try again."
   },
   "notification": {
     "newsletterSent": "✅ Newsletter sent successfully",
@@ -338,7 +375,14 @@
     "loginSuccess": "✅ Logged in successfully!",
     "loginError": "❌ Invalid email or password",
     "contactSuccess": "✅ Message sent successfully!",
-    "contactError": "❌ Failed to send message"
+    "contactError": "❌ Failed to send message",
+    "bookAdded": "Book \"{{title}}\" added to your list!",
+    "bookRemoved": "Book \"{{title}}\" was removed.",
+    "orderPlaced": "Your order was successfully placed.",
+    "passwordUpdated": "Password updated successfully.",
+    "uploadSuccess": "Image uploaded successfully.",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "errorOccurred": "Something went wrong"
   },
   "editable": {
     "discardTitle": "Discard unsaved changes?",
@@ -375,15 +419,7 @@
     "confirm": "Yes, proceed",
     "cancel": "Cancel"
   },
-  "notification": {
-    "bookAdded": "Book \"{{title}}\" added to your list!",
-    "bookRemoved": "Book \"{{title}}\" was removed.",
-    "orderPlaced": "Your order was successfully placed.",
-    "passwordUpdated": "Password updated successfully.",
-    "uploadSuccess": "Image uploaded successfully.",
-    "errorGeneric": "Something went wrong. Please try again.",
-    "errorOccurred": "Something went wrong"
-  },
+
   "contact": {
     "firstName": "First name",
     "lastName": "Last name",
@@ -408,25 +444,6 @@
     "title": "Contact us"
   },
 
-  "modals": {
-    "insertLinkTitle": "Insert a Link",
-    "linkLabel": "Link",
-    "linkPlaceholder": "Enter a valid URL",
-    "insert": "Insert",
-    "cancel": "Cancel",
-    "insertTableTitle": "Insert Table",
-    "rows": "Number of Rows",
-    "columns": "Number of Columns",
-    "insert": "Insert",
-    "cancel": "Cancel"
-  },
-  "newsletter": {
-    "label": "Subscribe to updates",
-    "placeholder": "Enter your email",
-    "button": "Subscribe",
-    "success": "Successfully subscribed!",
-    "error": "Subscription failed. Please try again."
-  },
   "form": {
     "errors": {
       "required": "This field is required",
@@ -439,16 +456,9 @@
       "passwordShort": "Password must be at least 6 characters"
     }
   },
-  "modals": {
-    "chooseImage": "Choose an Image",
-    "or": "— OR —",
-    "enterUrl": "Enter image URL",
-    "widthPlaceholder": "Width (px)",
-    "heightPlaceholder": "Height (px)",
-    "originalSize": "Original size: {{w}} × {{h}} px",
-    "reset": "Reset",
-    "keepRatio": "Keep aspect ratio",
-    "confirm": "Insert",
-    "cancel": "Cancel"
+  "validation": {
+    "required": "This field is required",
+    "minStock": "Stock must be 0 or more",
+    "mustBeNumber": "Must be a valid number"
   }
 }

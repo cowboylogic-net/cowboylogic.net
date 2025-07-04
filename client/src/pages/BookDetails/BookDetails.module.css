@@ -72,6 +72,11 @@
   gap: var(--spacing-sm);
   margin-top: auto;
 }
+.stock {
+  font-weight: 500;
+  margin-top: 0.25rem;
+  color: var(--color-brown);
+}
 
 /* 🔁 Mobile */
 @media (max-width: 767px) {

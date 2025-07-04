@@ -62,9 +62,22 @@ const Cart = () => {
   };
 
   const handleSquareCheckout = async () => {
-    setIsCheckoutLoading(true); // 🆕 показуємо спінер
+    setIsCheckoutLoading(true);
+
     try {
-      const res = await apiService.post(
+      // 🔍 Запит до API для отримання актуальних stock
+      const res = await apiService.post("/books/check-stock", { items }, token);
+
+      if (!res.data.success) {
+        toast.error(t("cart.outOfStockGeneric"));
+        if (res.data.message) {
+          toast.error(res.data.message);
+        }
+        return;
+      }
+
+      // 🔁 Продовжуємо оплату, якщо stock валідний
+      const checkoutRes = await apiService.post(
         "/square/create-payment",
         {
           title: "My Book Order",
@@ -74,66 +87,67 @@ const Cart = () => {
         },
         token
       );
-      window.location.href = res.data.checkoutUrl;
+
+      window.location.href = checkoutRes.data.checkoutUrl;
     } catch (err) {
       toast.error(t("cart.checkoutError"));
       console.error(err);
     } finally {
-      setIsCheckoutLoading(false); // 🆕 ховаємо спінер
+      setIsCheckoutLoading(false);
     }
   };
 
   return (
-  <div className="layoutContainer">
-    {isFetching ? (
-      <Loader />
-    ) : (
-      <div className={styles.cartPage}>
-        <h2>{t("cart.title")}</h2>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="layoutContainer">
+      {isFetching ? (
+        <Loader />
+      ) : (
+        <div className={styles.cartPage}>
+          <h2>{t("cart.title")}</h2>
+          {error && <p style={{ color: "red" }}>{error}</p>}
 
-        {items.length === 0 ? (
-          <p>{t("cart.empty")}</p>
-        ) : (
-          <>
-            <ul className={styles.cartList}>
-              {items.map((item) => (
-                <CartItem
-                  key={item.id}
-                  item={item}
-                  onQuantityChange={handleQuantityChange}
-                  onRemove={handleRemove}
-                />
-              ))}
-            </ul>
+          {items.length === 0 ? (
+            <p>{t("cart.empty")}</p>
+          ) : (
+            <>
+              <ul className={styles.cartList}>
+                {items.map((item) => (
+                  <CartItem
+                    key={item.id}
+                    item={item}
+                    onQuantityChange={handleQuantityChange}
+                    onRemove={handleRemove}
+                  />
+                ))}
+              </ul>
 
-            <div className={styles.cartFooter}>
-              <h3 className={styles.total}>
-                {t("cart.total")}: ${totalPrice.toFixed(2)}
-              </h3>
-              <BaseButton
-                onClick={handleSquareCheckout}
-                disabled={isAdding || isCheckoutLoading}
-                variant="outline"
-              >
-                {isCheckoutLoading ? (
-                  <>
-                    <Loader size="small" />
-                    <span className="visually-hidden">
-                      {t("cart.processing")}
-                    </span>
-                  </>
-                ) : (
-                  t("cart.checkout")
-                )}
-              </BaseButton>
-            </div>
-          </>
-        )}
-      </div>
-    )}
-  </div>
-);
+              <div className={styles.cartFooter}>
+                <h3 className={styles.total}>
+                  {t("cart.total")}: ${totalPrice.toFixed(2)}
+                </h3>
+                <BaseButton
+                  onClick={handleSquareCheckout}
+                  disabled={isAdding || isCheckoutLoading}
+                  variant="outline"
+                >
+                  {isCheckoutLoading ? (
+                    <>
+                      <Loader size="small" />
+                      <span className="visually-hidden">
+                        {t("cart.processing")}
+                      </span>
+                    </>
+                  ) : (
+                    t("cart.checkout")
+                  )}
+                </BaseButton>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Cart;

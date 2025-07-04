@@ -12,6 +12,11 @@ export const bookFormSchema = (t) =>
       .positive(t("bookForm.pricePositive"))
       .required(t("bookForm.priceRequired")),
     inStock: yup.boolean(),
+    stock: yup
+      .number()
+      .required(t("validation.required"))
+      .min(0, t("validation.minStock"))
+      .typeError(t("validation.mustBeNumber")),
   });
 
 // ContactForm schema
@@ -53,9 +58,12 @@ export const newsletterSignupSchema = (t) =>
       .required(t("form.errors.required")),
   });
 
-  export const loginFormSchema = (t) =>
+export const loginFormSchema = (t) =>
   yup.object().shape({
-    email: yup.string().email(t("form.errors.email")).required(t("form.errors.required")),
+    email: yup
+      .string()
+      .email(t("form.errors.email"))
+      .required(t("form.errors.required")),
     password: yup
       .string()
       .min(6, t("form.errors.passwordShort"))
@@ -68,9 +76,12 @@ export const codeVerificationSchema = (t) =>
     code: yup.string().required(t("form.errors.required")),
   });
 
-  export const registerFormSchema = (t) =>
+export const registerFormSchema = (t) =>
   yup.object().shape({
-    email: yup.string().email(t("form.errors.email")).required(t("form.errors.required")),
+    email: yup
+      .string()
+      .email(t("form.errors.email"))
+      .required(t("form.errors.required")),
     password: yup
       .string()
       .min(6, t("form.errors.passwordShort"))

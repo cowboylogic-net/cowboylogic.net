@@ -29,5 +29,6 @@ router.put(
   validateBody(updateBookSchema, true), // true => для FormData
   bookController.updateBook
 );
+router.post("/check-stock", protect, bookController.checkBookStock);
 
 export default router;

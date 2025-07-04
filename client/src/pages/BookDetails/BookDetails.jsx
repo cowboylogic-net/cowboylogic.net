@@ -6,7 +6,10 @@ import { useTranslation } from "react-i18next";
 import { fetchBookById } from "../../store/thunks/bookThunks";
 import { addToCartThunk } from "../../store/thunks/cartThunks";
 import { fetchFavorites } from "../../store/thunks/favoritesThunks";
-import { selectSelectedBook, selectLoadingFlags } from "../../store/selectors/bookSelectors";
+import {
+  selectSelectedBook,
+  selectLoadingFlags,
+} from "../../store/selectors/bookSelectors";
 
 import styles from "./BookDetails.module.css";
 import FavoriteButton from "../../components/FavoriteButton/FavoriteButton";
@@ -92,16 +95,32 @@ const BookDetails = () => {
           </div>
 
           <h1 className={styles.title}>{book.title}</h1>
-          <p className={styles.author}>{t("book.byAuthor", { author: book.author })}</p>
+          <p className={styles.author}>
+            {t("book.byAuthor", { author: book.author })}
+          </p>
           <p className={styles.description}>{book.description}</p>
           <p className={styles.price}>${book.price.toFixed(2)}</p>
+          <p className={styles.stock}>
+            {book.stock > 0
+              ? t("book.inStock", { count: book.stock })
+              : t("book.outOfStock")}
+          </p>
 
           {user && (
             <div className={styles.actions}>
-              <BaseButton onClick={handleAddToCart} size="lg" variant="outline">
-                {t("book.addToCart")}
+              <BaseButton
+                onClick={handleAddToCart}
+                size="lg"
+                variant="outline"
+                disabled={book.stock === 0}
+              >
+                {book.stock === 0 ? t("book.outOfStock") : t("book.addToCart")}
               </BaseButton>
-              <BaseButton onClick={handleSquareCheckout} size="lg" variant="outline">
+              <BaseButton
+                onClick={handleSquareCheckout}
+                size="lg"
+                variant="outline"
+              >
                 {t("book.buyNow")}
               </BaseButton>
             </div>

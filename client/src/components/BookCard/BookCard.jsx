@@ -46,8 +46,10 @@ const BookCard = ({
         <p className={styles.cardText}>
           {t("book.price", { price: book.price })}
         </p>
-        <p className={styles.cardText}>
-          {book.inStock ? t("book.inStock") : t("book.outOfStock")}
+        <p className={`${styles.cardText} ${book.stock === 0 ? styles.outOfStock : ""}`}>
+          {book.stock > 0
+            ? t("book.inStock", { count: book.stock })
+            : t("book.outOfStock")}
         </p>
 
         <div className={styles.actionRow}>
@@ -74,12 +76,14 @@ const BookCard = ({
         <div className={styles.bottomRight}>
           {isLoggedIn && (
             <BaseButton
-              onClick={() => onAddToCart(book.id)}
-              size="sm"
-              variant="outline"
-            >
-              {t("book.addToCart")}
-            </BaseButton>
+  onClick={() => onAddToCart(book.id)}
+  size="sm"
+  variant="outline"
+  disabled={book.stock === 0}
+>
+  {book.stock === 0 ? t("book.outOfStock") : t("book.addToCart")}
+</BaseButton>
+
           )}
         </div>
       </div>

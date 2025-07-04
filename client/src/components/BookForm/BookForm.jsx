@@ -56,6 +56,7 @@ const BookForm = ({ onSuccess, onError }) => {
       price: "",
       imageUrl: "",
       inStock: true,
+      stock: 0,
     },
   });
 
@@ -78,6 +79,7 @@ const BookForm = ({ onSuccess, onError }) => {
         price: selectedBook.price,
         imageUrl: selectedBook.imageUrl || "",
         inStock: selectedBook.inStock,
+        stock: selectedBook.stock ?? 0,
       });
       setPreview(selectedBook.imageUrl || null);
     }
@@ -103,6 +105,7 @@ const BookForm = ({ onSuccess, onError }) => {
     formData.append("description", data.description);
     formData.append("price", data.price);
     formData.append("inStock", data.inStock);
+    formData.append("stock", data.stock);
 
     const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -187,6 +190,19 @@ const BookForm = ({ onSuccess, onError }) => {
             placeholder={t("bookForm.price")}
             {...register("price")}
             touched={touchedFields.price}
+          />
+        </FormGroup>
+        <FormGroup
+          label={t("bookForm.stock")}
+          error={errors.stock?.message}
+          required
+        >
+          <BaseInput
+            type="number"
+            min="0"
+            placeholder={t("bookForm.stock")}
+            {...register("stock")}
+            touched={touchedFields.stock}
           />
         </FormGroup>
 

@@ -30,9 +30,13 @@ const Book = sequelize.define("Book", {
     type: DataTypes.BOOLEAN,
     defaultValue: true,
   },
+  stock: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
 }, {
   timestamps: true,
 });
-
 
 export default Book;

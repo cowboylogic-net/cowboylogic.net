@@ -21,6 +21,15 @@ const createOrder = async (req, res) => {
   if (!cartItems.length) {
     throw HttpError(400, "Cart is empty");
   }
+  // 🔍 Перевірка наявності достатньої кількості книжок на складі
+  for (const item of cartItems) {
+    if (item.Book.stock < item.quantity) {
+      throw HttpError(
+        400,
+        `Not enough stock for "${item.Book.title}". Available: ${item.Book.stock}`
+      );
+    }
+  }
 
   const totalPrice = cartItems.reduce((sum, item) => {
     return sum + item.quantity * item.Book.price;
@@ -40,6 +49,11 @@ const createOrder = async (req, res) => {
   }));
 
   await OrderItem.bulkCreate(orderItems);
+  // 📉 Зменшуємо stock після підтвердженого замовлення
+  for (const item of cartItems) {
+    item.Book.stock -= item.quantity;
+    await item.Book.save();
+  }
 
   await CartItem.destroy({ where: { userId } });
 
@@ -187,6 +201,15 @@ const confirmStripeOrder = async (req, res) => {
   if (!cartItems.length) {
     throw HttpError(400, "Cart is empty or already processed");
   }
+  // 🔍 Перевірка наявності достатньої кількості книжок
+  for (const item of cartItems) {
+    if (item.Book.stock < item.quantity) {
+      throw HttpError(
+        400,
+        `Not enough stock for "${item.Book.title}". Available: ${item.Book.stock}`
+      );
+    }
+  }
 
   const totalPrice = cartItems.reduce((sum, item) => {
     return sum + item.quantity * item.Book.price;
@@ -206,6 +229,12 @@ const confirmStripeOrder = async (req, res) => {
   }));
 
   await OrderItem.bulkCreate(orderItems);
+  // 📉 Зменшуємо залишок
+  for (const item of cartItems) {
+    item.Book.stock -= item.quantity;
+    await item.Book.save();
+  }
+
   await CartItem.destroy({ where: { userId } });
 
   // Надсилаємо email

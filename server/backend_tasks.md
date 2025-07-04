@@ -60,3 +60,4 @@ This checklist summarizes all remaining backend work based on current implementa
 - [ ] Add `logger.js` entries to more critical routes (orders, auth)
 - [ ] Implement generic `validateIdParam()` for routes with `:id`
 - [ ] Add global response helpers (res.success / res.error)
+
