@@ -1,11 +1,17 @@
 import "./styles/index.css";
 import React from "react";
 import ReactDOM from "react-dom/client";
+import App from "./App";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import "./styles/globals.css";
+import "./styles/components.css";
+import "./styles/media.css";
 import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { store } from "./store/store";
-import App from "./App";
+
 import Loader from "./components/Loader/Loader";
 import { fetchCurrentUser } from "./store/thunks/authThunks"; // ✅ правильний імпорт
 import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";

@@ -1,9 +1,10 @@
+import styles from "./EditablePage.module.css";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import DOMPurify from "dompurify";
 import debounce from "lodash/debounce";
 import { useTranslation } from "react-i18next";
-import styles from "./EditablePage.module.css";
+
 
 import { ROLES } from "../../constants/roles";
 import EditableToolbar from "../../components/EditableToolbar/EditableToolbar";

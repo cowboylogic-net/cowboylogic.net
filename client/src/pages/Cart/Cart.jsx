@@ -83,10 +83,11 @@ const Cart = () => {
     }
   };
 
-  if (isFetching) return <h2>{t("cart.loading")}</h2>;
-
   return (
-    <div className="layoutContainer">
+  <div className="layoutContainer">
+    {isFetching ? (
+      <Loader />
+    ) : (
       <div className={styles.cartPage}>
         <h2>{t("cart.title")}</h2>
         {error && <p style={{ color: "red" }}>{error}</p>}
@@ -130,8 +131,9 @@ const Cart = () => {
           </>
         )}
       </div>
-    </div>
-  );
+    )}
+  </div>
+);
 };
 
 export default Cart;

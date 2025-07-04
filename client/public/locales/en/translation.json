@@ -438,5 +438,17 @@
       "email": "Enter a valid email",
       "passwordShort": "Password must be at least 6 characters"
     }
+  },
+  "modals": {
+    "chooseImage": "Choose an Image",
+    "or": "— OR —",
+    "enterUrl": "Enter image URL",
+    "widthPlaceholder": "Width (px)",
+    "heightPlaceholder": "Height (px)",
+    "originalSize": "Original size: {{w}} × {{h}} px",
+    "reset": "Reset",
+    "keepRatio": "Keep aspect ratio",
+    "confirm": "Insert",
+    "cancel": "Cancel"
   }
 }

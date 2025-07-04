@@ -1,19 +1,12 @@
-/* .container {
-  width: 100%;
-  margin: var(--spacing-xxl) auto;
-  color: var(--color-text);
-} */
-
 .container {
   width: 100%;
-  max-width: var(--max-width-container); /* обмеження ширини */
+  max-width: var(--max-width-container);
   margin: var(--spacing-xxl) auto;
-  padding: 0 var(--spacing-md); /* додатковий відступ, щоб не липло до країв */
+  padding: 0 var(--spacing-md);
   color: var(--color-text);
   box-sizing: border-box;
   overflow-x: hidden;
 }
-
 
 .title {
   font-size: 2rem;
@@ -39,7 +32,6 @@
   align-items: center;
 }
 
-
 .editable {
   width: 100%;
   font-size: 1rem;
@@ -55,16 +47,17 @@
   padding: var(--spacing-md);
   min-height: 300px;
   box-sizing: border-box;
-  width: 100%;
 
-  /* Ось критичні властивості */
   white-space: pre-wrap;
   word-break: break-word;
   overflow-wrap: anywhere;
   overflow-x: hidden;
 }
 
-
+.editable:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.3);
+}
 
 .staticView {
   background: transparent;
@@ -73,11 +66,6 @@
   border: none;
   min-height: auto;
   box-sizing: border-box;
-}
-
-.editable:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.3);
 }
 
 .bottomSave {
@@ -89,7 +77,6 @@
   padding-top: 1.5rem;
 }
 
-
 .draftBanner {
   background-color: var(--color-dark);
   color: var(--color-accent);
@@ -99,7 +86,8 @@
   font-size: 0.9rem;
 }
 
-@media (max-width: 600px) {
+/* ========== MEDIA QUERIES ========== */
+@media (max-width: 768px) {
   .titleRow {
     flex-direction: column;
     align-items: flex-start;
@@ -108,10 +96,32 @@
   .title {
     font-size: 1.6rem;
   }
-}
-@media (max-width: 768px) {
+
   .editControls {
     flex-direction: column;
     align-items: stretch;
+  }
+
+  :global(.editableContent) {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow-x: hidden;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  :global(.editableContent h1) { font-size: 1.75rem; }
+  :global(.editableContent h2) { font-size: 1.5rem; }
+  :global(.editableContent h3) { font-size: 1.25rem; }
+  :global(.editableContent h4) { font-size: 1.1rem; }
+
+  :global(.editableContent table) {
+    width: 100%;
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    box-sizing: border-box;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
   }
 }
