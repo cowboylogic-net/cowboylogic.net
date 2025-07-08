@@ -1,9 +1,9 @@
 // client/src/services/paymentService.js
-export const createSquarePayment = async ({ title, price, bookId, userId }) => {
+export const createSquarePayment = async ({ title, price, bookId }) => {
   const res = await fetch("/api/square/create-payment", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ title, price, bookId, userId }),
+    body: JSON.stringify({ title, price, bookId }), // ✅ userId більше не потрібен
   });
 
   const data = await res.json();

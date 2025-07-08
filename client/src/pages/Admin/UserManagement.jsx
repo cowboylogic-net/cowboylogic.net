@@ -95,6 +95,7 @@ const UserManagement = () => {
                         options={[
                           { value: ROLES.USER, label: t("users.user") },
                           { value: ROLES.ADMIN, label: t("users.admin") },
+                          { value: ROLES.PARTNER, label: t("users.partner") },
                         ]}
                         compact
                       />

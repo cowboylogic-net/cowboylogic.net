@@ -1,0 +1,7 @@
+.inlineLoader {
+  font-size: 1rem;
+  font-weight: bold;
+  color: var(--color-accent, #fff);
+  padding: 0 0.5rem;
+  display: inline-block;
+}

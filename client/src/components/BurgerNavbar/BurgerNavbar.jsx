@@ -25,6 +25,10 @@ const BurgerNavbar = () => {
     navigate("/");
   };
 
+  const isAdminOrSuper =
+    user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN;
+  const isPartnerOnly = user?.role === ROLES.PARTNER;
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -46,35 +50,97 @@ const BurgerNavbar = () => {
 
       {open && (
         <nav className={styles.menu}>
-          <NavLink to="/" onClick={() => setOpen(false)}>Home</NavLink>
-          <NavLink to="/about" onClick={() => setOpen(false)}>About</NavLink>
-          <NavLink to="/bookstore" onClick={() => setOpen(false)}>Bookstore</NavLink>
-          <NavLink to="/favorites" onClick={() => setOpen(false)}>Favorites</NavLink>
+          <NavLink to="/" onClick={() => setOpen(false)}>
+            Home
+          </NavLink>
+          <NavLink to="/about" onClick={() => setOpen(false)}>
+            About
+          </NavLink>
+          <NavLink to="/favorites" onClick={() => setOpen(false)}>
+            Favorites
+          </NavLink>
 
-          <button onClick={() => toggleSubmenu("clstrategies")}>CL Strategies ▾</button>
+          <button onClick={() => toggleSubmenu("clstrategies")}>
+            CL Strategies ▾
+          </button>
           {openSubmenu === "clstrategies" && (
             <div className={styles.submenu}>
-              <NavLink to="/clstrategies" onClick={() => setOpen(false)}>Overview</NavLink>
-              <NavLink to="/clstrategies/cowboy-college-consulting" onClick={() => setOpen(false)}>Consulting</NavLink>
-              <NavLink to="/clstrategies/cowboy-college-start-up" onClick={() => setOpen(false)}>Start-up</NavLink>
-              <NavLink to="/clstrategies/cowboy-college-leadership" onClick={() => setOpen(false)}>Leadership</NavLink>
+              <NavLink to="/clstrategies" onClick={() => setOpen(false)}>
+                Overview
+              </NavLink>
+              <NavLink
+                to="/clstrategies/cowboy-college-consulting"
+                onClick={() => setOpen(false)}
+              >
+                Consulting
+              </NavLink>
+              <NavLink
+                to="/clstrategies/cowboy-college-start-up"
+                onClick={() => setOpen(false)}
+              >
+                Start-up
+              </NavLink>
+              <NavLink
+                to="/clstrategies/cowboy-college-leadership"
+                onClick={() => setOpen(false)}
+              >
+                Leadership
+              </NavLink>
             </div>
           )}
 
-          <button onClick={() => toggleSubmenu("clpublishing")}>CL Publishing ▾</button>
+          <button onClick={() => toggleSubmenu("clpublishing")}>
+            CL Publishing ▾
+          </button>
           {openSubmenu === "clpublishing" && (
             <div className={styles.submenu}>
-              <NavLink to="/clpublishing" onClick={() => setOpen(false)}>Overview</NavLink>
-              <NavLink to="/clpublishing/cowboy-college-pub/author" onClick={() => setOpen(false)}>Author</NavLink>
-              <NavLink to="/clpublishing/b2b-bookstores" onClick={() => setOpen(false)}>B2B Bookstores</NavLink>
+              <NavLink to="/clpublishing" onClick={() => setOpen(false)}>
+                Overview
+              </NavLink>
+              <NavLink
+                to="/clpublishing/cowboy-college-pub/author"
+                onClick={() => setOpen(false)}
+              >
+                Author
+              </NavLink>
+              <NavLink
+                to="/clpublishing/b2b-bookstores"
+                onClick={() => setOpen(false)}
+              >
+                B2B Bookstores
+              </NavLink>
             </div>
           )}
 
           {user && (
             <>
-              <NavLink to="/profile" onClick={() => setOpen(false)}>Profile</NavLink>
-              <NavLink to="/orders" onClick={() => setOpen(false)}>Orders</NavLink>
-              <NavLink to="/cart" onClick={() => setOpen(false)}>Cart</NavLink>
+              <NavLink to="/profile" onClick={() => setOpen(false)}>
+                Profile
+              </NavLink>
+              <NavLink to="/orders" onClick={() => setOpen(false)}>
+                Orders
+              </NavLink>
+              <NavLink to="/cart" onClick={() => setOpen(false)}>
+                Cart
+              </NavLink>
+
+              {isPartnerOnly ? (
+                <NavLink to="/partner-store" onClick={() => setOpen(false)}>
+                  Partner Store
+                </NavLink>
+              ) : (
+                <>
+                  <NavLink to="/bookstore" onClick={() => setOpen(false)}>
+                    Bookstore
+                  </NavLink>
+                  {isAdminOrSuper && (
+                    <NavLink to="/partner-store" onClick={() => setOpen(false)}>
+                      Partner Store
+                    </NavLink>
+                  )}
+                </>
+              )}
+
               <BaseButton variant="outline" size="small" onClick={handleLogout}>
                 Logout
               </BaseButton>
@@ -83,16 +149,26 @@ const BurgerNavbar = () => {
 
           {(user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN) && (
             <>
-              <NavLink to="/admin" onClick={() => setOpen(false)}>Dashboard</NavLink>
-              <NavLink to="/admin/newsletter" onClick={() => setOpen(false)}>Newsletter</NavLink>
-              <NavLink to="/admin/users" onClick={() => setOpen(false)}>Users</NavLink>
+              <NavLink to="/admin" onClick={() => setOpen(false)}>
+                Dashboard
+              </NavLink>
+              <NavLink to="/admin/newsletter" onClick={() => setOpen(false)}>
+                Newsletter
+              </NavLink>
+              <NavLink to="/admin/users" onClick={() => setOpen(false)}>
+                Users
+              </NavLink>
             </>
           )}
 
           {!user && (
             <>
-              <NavLink to="/login" onClick={() => setOpen(false)}>Login</NavLink>
-              <NavLink to="/register" onClick={() => setOpen(false)}>Register</NavLink>
+              <NavLink to="/login" onClick={() => setOpen(false)}>
+                Login
+              </NavLink>
+              <NavLink to="/register" onClick={() => setOpen(false)}>
+                Register
+              </NavLink>
             </>
           )}
 

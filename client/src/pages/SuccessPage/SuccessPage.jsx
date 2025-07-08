@@ -18,10 +18,12 @@ const SuccessPage = () => {
   const [orderId, setOrderId] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasConfirmed, setHasConfirmed] = useState(false); // ✅ щоб не повторювати запит
 
   useEffect(() => {
     const confirmOrder = async () => {
       try {
+        // ✅ Підтвердження замовлення після Square
         await axios.post("/orders/confirm", {}, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -48,11 +50,14 @@ const SuccessPage = () => {
         dispatch(showNotification({ type: "error", message: msg }));
       } finally {
         setIsLoading(false);
+        setHasConfirmed(true);
       }
     };
 
-    if (token) confirmOrder();
-  }, [token, dispatch, t]);
+    if (token && !hasConfirmed) {
+      confirmOrder();
+    }
+  }, [token, dispatch, t, hasConfirmed]);
 
   useEffect(() => {
     if (orderId && progressRef.current) {

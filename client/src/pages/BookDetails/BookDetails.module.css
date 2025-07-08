@@ -77,6 +77,15 @@
   margin-top: 0.25rem;
   color: var(--color-brown);
 }
+/* BookDetails.module.css */
+.cardNote {
+  display: inline-block;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-accent);
+  font-style: italic;
+}
+
 
 /* 🔁 Mobile */
 @media (max-width: 767px) {

@@ -17,6 +17,11 @@ const OrderItem = sequelize.define("OrderItem", {
     type: DataTypes.FLOAT,
     allowNull: false,
   },
+  pricingType: {
+    type: DataTypes.ENUM("standard", "partner"),
+    allowNull: false,
+    defaultValue: "standard",
+  },
 });
 
 Order.hasMany(OrderItem, { foreignKey: "orderId", onDelete: "CASCADE" });

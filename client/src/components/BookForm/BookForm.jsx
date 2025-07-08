@@ -80,6 +80,7 @@ const BookForm = ({ onSuccess, onError }) => {
         imageUrl: selectedBook.imageUrl || "",
         inStock: selectedBook.inStock,
         stock: selectedBook.stock ?? 0,
+        partnerPrice: selectedBook.partnerPrice || "",
       });
       setPreview(selectedBook.imageUrl || null);
     }
@@ -100,12 +101,25 @@ const BookForm = ({ onSuccess, onError }) => {
 
   const onSubmit = async (data) => {
     const formData = new FormData();
+
+    const parsedPrice = parseFloat(data.price);
+    const parsedStock = parseInt(data.stock);
+
+    if (isNaN(parsedPrice) || isNaN(parsedStock)) {
+      onError?.(t("bookForm.invalidPriceOrStock"));
+      return;
+    }
+    if (data.partnerPrice) {
+      formData.append("partnerPrice", parseFloat(data.partnerPrice));
+    }
+
     formData.append("title", data.title);
     formData.append("author", data.author);
     formData.append("description", data.description);
-    formData.append("price", data.price);
-    formData.append("inStock", data.inStock);
-    formData.append("stock", data.stock);
+    formData.append("price", parsedPrice.toFixed(2));
+    formData.append("stock", parsedStock);
+    formData.append("inStock", !!data.inStock);
+    formData.append("isWholesaleAvailable", true);
 
     const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -117,6 +131,15 @@ const BookForm = ({ onSuccess, onError }) => {
         : data.imageUrl;
       formData.append("imageUrl", fullUrl);
     }
+
+    // 🔍 Debug (можна видалити після перевірки)
+    console.log("📦 Sending form data:", {
+      title: data.title,
+      price: parsedPrice,
+      stock: parsedStock,
+      inStock: data.inStock,
+      image: imageFile || data.imageUrl,
+    });
 
     try {
       if (isEditMode && id) {
@@ -192,6 +215,19 @@ const BookForm = ({ onSuccess, onError }) => {
             touched={touchedFields.price}
           />
         </FormGroup>
+        <FormGroup
+          label={t("bookForm.partnerPrice")}
+          error={errors.partnerPrice?.message}
+        >
+          <BaseInput
+            type="number"
+            step="0.01"
+            placeholder={t("bookForm.partnerPrice")}
+            {...register("partnerPrice")}
+            touched={touchedFields.partnerPrice}
+          />
+        </FormGroup>
+
         <FormGroup
           label={t("bookForm.stock")}
           error={errors.stock?.message}

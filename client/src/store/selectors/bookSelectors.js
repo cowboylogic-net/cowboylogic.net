@@ -27,3 +27,9 @@ export const selectLoadingFlags = createSelector(
     isDeleting: state.isDeleting,
   })
 );
+export const selectPartnerBooks = (state) => state.books.partnerBooks;
+export const selectBooksError = (state) => state.books.error;
+export const selectIsFetchingPartnerBooks = (state) =>
+  state.books.isFetchingPartnerBooks;
+
+

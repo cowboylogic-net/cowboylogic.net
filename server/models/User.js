@@ -21,7 +21,7 @@ const User = sequelize.define(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("user", "admin"),
+      type: DataTypes.ENUM("user", "admin", "partner"),
       defaultValue: "user",
     },
     isSuperAdmin: {
@@ -35,10 +35,11 @@ const User = sequelize.define(
       allowNull: true,
     },
 
-    // tokenVersion: {
-    //   type: DataTypes.INTEGER,
-    //   defaultValue: 0,
-    // },
+    tokenVersion: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+      allowNull: false,
+    },
   },
   {
     timestamps: true,

@@ -21,23 +21,32 @@ const CartItem = ({
 
   if (!item?.Book) return null;
 
+  const rawPrice =
+  item.Book.partnerPrice !== undefined &&
+  item.Book.partnerPrice !== null &&
+  item.Book.partnerPrice !== ""
+    ? item.Book.partnerPrice
+    : item.Book.price;
+
+  const price = Number(rawPrice);
+
   return (
     <li className={styles.item}>
       <div className={styles.info}>
         <strong>{item.Book.title}</strong>
-        <span className={styles.price}> — ${item.Book.price.toFixed(2)}</span>
+        <span className={styles.price}> — {isNaN(price) ? "N/A" : `$${price.toFixed(2)}`}</span>
       </div>
 
       <div className={styles.controls}>
         <BaseInput
-  type="number"
-  min="1"
-  value={item.quantity}
-  onChange={handleQuantityChange}
-  disabled={isUpdating}
-  aria-label={t("cart.quantity")}
-  inline
-/>
+          type="number"
+          min="1"
+          value={item.quantity}
+          onChange={handleQuantityChange}
+          disabled={isUpdating}
+          aria-label={t("cart.quantity")}
+          inline
+        />
 
         <BaseButton
           variant="outline"

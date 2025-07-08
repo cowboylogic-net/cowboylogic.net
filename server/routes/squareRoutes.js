@@ -1,8 +1,10 @@
 import express from 'express';
 import { createPaymentLink } from '../controllers/squareController.js';
+import { protect } from '../middleware/authMiddleware.js'; // ✅ Імпортуємо middleware
 
 const router = express.Router();
 
-router.post('/create-payment', createPaymentLink);
+// ✅ Додаємо захист маршруту
+router.post('/create-payment', protect, createPaymentLink);
 
 export default router;

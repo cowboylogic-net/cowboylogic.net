@@ -1,18 +1,23 @@
 // src/store/thunks/bookThunks.js
 
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../../store/axios';
-import { showSuccess, showError } from './notificationThunks';
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "../../store/axios";
+import { showSuccess, showError } from "./notificationThunks";
 
 // 📚 Отримати всі книги
 export const fetchBooks = createAsyncThunk(
-  'books/fetchBooks',
-  async (_, { rejectWithValue, dispatch }) => {
+  "books/fetchBooks",
+  async (_, { rejectWithValue, dispatch, getState }) => {
+    const { token } = getState().auth;
     try {
-      const response = await axios.get('/books');
+      const response = await axios.get("/books", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch {
-      const msg = 'Failed to load books';
+      const msg = "Failed to load books";
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }
@@ -21,35 +26,41 @@ export const fetchBooks = createAsyncThunk(
 
 // 🔍 Отримати книгу за ID
 export const fetchBookById = createAsyncThunk(
-  'books/fetchBookById',
-  async (id, { rejectWithValue, dispatch }) => {
+  "books/fetchBookById",
+  async (id, { rejectWithValue, dispatch, getState }) => {
+    const { token } = getState().auth;
     try {
-      const response = await axios.get(`/books/${id}`);
+      const response = await axios.get(`/books/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return response.data;
     } catch {
-      const msg = 'Failed to fetch book by ID';
+      const msg = "Failed to fetch book by ID";
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }
 );
 
+
 // ➕ Створити нову книгу
 export const createBook = createAsyncThunk(
-  'books/createBook',
+  "books/createBook",
   async (formData, { rejectWithValue, dispatch, getState }) => {
     const { token } = getState().auth;
     try {
-      const response = await axios.post('/books', formData, {
+      const response = await axios.post("/books", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
-      dispatch(showSuccess('Book added successfully!'));
+      dispatch(showSuccess("Book added successfully!"));
       return response.data;
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to create book';
+      const msg = err.response?.data?.message || "Failed to create book";
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }
@@ -58,20 +69,20 @@ export const createBook = createAsyncThunk(
 
 // ✏️ Оновити існуючу книгу
 export const updateBook = createAsyncThunk(
-  'books/updateBook',
+  "books/updateBook",
   async ({ id, formData }, { rejectWithValue, dispatch, getState }) => {
     const { token } = getState().auth;
     try {
       const response = await axios.put(`/books/${id}`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
+          "Content-Type": "multipart/form-data",
         },
       });
-      dispatch(showSuccess('Book updated successfully!'));
+      dispatch(showSuccess("Book updated successfully!"));
       return response.data;
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to update book';
+      const msg = err.response?.data?.message || "Failed to update book";
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }
@@ -80,7 +91,7 @@ export const updateBook = createAsyncThunk(
 
 // 🗑️ Видалити книгу
 export const deleteBook = createAsyncThunk(
-  'books/deleteBook',
+  "books/deleteBook",
   async (id, { rejectWithValue, dispatch, getState }) => {
     const { token } = getState().auth;
     try {
@@ -89,12 +100,31 @@ export const deleteBook = createAsyncThunk(
           Authorization: `Bearer ${token}`,
         },
       });
-      dispatch(showSuccess('Book deleted successfully!'));
+      dispatch(showSuccess("Book deleted successfully!"));
       return id;
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to delete book';
+      const msg = err.response?.data?.message || "Failed to delete book";
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }
   }
+);
+
+export const fetchPartnerBooks = createAsyncThunk(
+  "books/fetchPartnerBooks",
+
+  async (_, { rejectWithValue, getState }) => {
+    try {
+      const { token } = getState().auth;
+      const response = await axios.get("/books/partner-books", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || err.message);
+    }
+  }
+  
 );

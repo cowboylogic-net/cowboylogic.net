@@ -5,10 +5,12 @@ import {
   createBook,
   updateBook,
   deleteBook,
+  fetchPartnerBooks,
 } from "../thunks/bookThunks";
 
 const initialState = {
   books: [],
+  partnerBooks: [],
   selectedBook: null,
   error: null,
 
@@ -83,7 +85,9 @@ const bookSlice = createSlice({
         state.error = null;
       })
       .addCase(updateBook.fulfilled, (state, action) => {
-        const index = state.books.findIndex((book) => book.id === action.payload.id);
+        const index = state.books.findIndex(
+          (book) => book.id === action.payload.id
+        );
         if (index !== -1) state.books[index] = action.payload;
 
         if (state.selectedBook?.id === action.payload.id) {
@@ -112,6 +116,20 @@ const bookSlice = createSlice({
       .addCase(deleteBook.rejected, (state, action) => {
         state.error = action.payload;
         state.isDeleting = false;
+      })
+
+      // fetchPartnerBooks
+      .addCase(fetchPartnerBooks.pending, (state) => {
+        state.isFetchingPartnerBooks = true;
+        state.error = null;
+      })
+      .addCase(fetchPartnerBooks.fulfilled, (state, action) => {
+        state.partnerBooks = action.payload;
+        state.isFetchingPartnerBooks = false;
+      })
+      .addCase(fetchPartnerBooks.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isFetchingPartnerBooks = false;
       });
   },
 });

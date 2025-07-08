@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
@@ -24,12 +24,17 @@ const BookList = ({
   disableAutoFetch = false,
   showAdminActions = true,
   showDeleteModal = true,
+  variant = "default", // 👈 NEW
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const reduxBooks = useSelector(selectAllBooks);
-  const books = externalBooks ?? reduxBooks;
+  const books = useMemo(
+    () => externalBooks ?? reduxBooks,
+    [externalBooks, reduxBooks]
+  );
+
   const user = useSelector(selectUser);
   const { isFetching } = useSelector(selectLoadingFlags);
 
@@ -70,6 +75,14 @@ const BookList = ({
       console.error("Add to cart error:", err);
     }
   };
+const handlePartnerAdd = async (book, quantity) => {
+  try {
+    await dispatch(addToCartThunk({ bookId: book.id, quantity })).unwrap();
+  } catch (err) {
+    console.error("Partner add to cart error:", err);
+  }
+};
+
 
   // 💡 Показувати лоадер лише якщо дані відсутні + loading=true
   if (!books || (books.length === 0 && !externalBooks && isFetching)) {
@@ -90,6 +103,8 @@ const BookList = ({
               showAdminActions ? (id) => setBookToDelete(id) : undefined
             }
             onAddToCart={onAddToCart ?? handleAddToCart}
+            isPartnerView={variant === "partner"}
+            onPartnerAdd={handlePartnerAdd}
           />
         ))}
       </div>

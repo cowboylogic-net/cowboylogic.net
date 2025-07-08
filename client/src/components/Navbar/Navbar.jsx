@@ -24,6 +24,15 @@ const Navbar = () => {
 
   const user = useSelector(selectUser);
   const isAuth = useSelector(selectIsAuth);
+  // const isPartnerAccess = ["partner", "admin", "superadmin"].includes(
+  //   user?.role
+  // );
+
+  const isAdminOrSuper =
+  user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN;
+
+const isPartnerOnly = user?.role === ROLES.PARTNER;
+
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -59,12 +68,14 @@ const Navbar = () => {
     <div className="layoutContainer" ref={navbarRef}>
       <div className={styles.navbar}>
         <nav className={styles.navLeft}>
-          <NavLink to="/" className={buildLinkClass} onClick={handleCloseDropdown}>
+          <NavLink
+            to="/"
+            className={buildLinkClass}
+            onClick={handleCloseDropdown}
+          >
             {t("navbar.home")}
           </NavLink>
-          {/* <NavLink to="/about" className={buildLinkClass} onClick={handleCloseDropdown}>
-            {t("navbar.about")}
-          </NavLink> */}
+    
 
           <div className={styles.dropdown} ref={clStrategiesRef}>
             <NavLink
@@ -76,16 +87,32 @@ const Navbar = () => {
             </NavLink>
             {openDropdown === "clstrategies" && (
               <div className={styles.dropdownMenu}>
-                <NavLink to="/clstrategies" className={styles.dropdownItem} onClick={handleCloseDropdown}>
+                <NavLink
+                  to="/clstrategies"
+                  className={styles.dropdownItem}
+                  onClick={handleCloseDropdown}
+                >
                   {t("navbar.clStrategiesHome")}
                 </NavLink>
-                <NavLink to="/clstrategies/cowboy-college-consulting" className={styles.dropdownItem} onClick={handleCloseDropdown}>
+                <NavLink
+                  to="/clstrategies/cowboy-college-consulting"
+                  className={styles.dropdownItem}
+                  onClick={handleCloseDropdown}
+                >
                   {t("navbar.ccConsulting")}
                 </NavLink>
-                <NavLink to="/clstrategies/cowboy-college-start-up" className={styles.dropdownItem} onClick={handleCloseDropdown}>
+                <NavLink
+                  to="/clstrategies/cowboy-college-start-up"
+                  className={styles.dropdownItem}
+                  onClick={handleCloseDropdown}
+                >
                   {t("navbar.ccStartup")}
                 </NavLink>
-                <NavLink to="/clstrategies/cowboy-college-leadership" className={styles.dropdownItem} onClick={handleCloseDropdown}>
+                <NavLink
+                  to="/clstrategies/cowboy-college-leadership"
+                  className={styles.dropdownItem}
+                  onClick={handleCloseDropdown}
+                >
                   {t("navbar.ccLeadership")}
                 </NavLink>
               </div>
@@ -102,28 +129,72 @@ const Navbar = () => {
             </NavLink>
             {openDropdown === "clpublishing" && (
               <div className={styles.dropdownMenu}>
-                <NavLink to="/clpublishing" className={styles.dropdownItem} onClick={handleCloseDropdown}>
+                <NavLink
+                  to="/clpublishing"
+                  className={styles.dropdownItem}
+                  onClick={handleCloseDropdown}
+                >
                   {t("navbar.clPublishingHome")}
                 </NavLink>
-                <NavLink to="/clpublishing/cowboy-college-pub/author" className={styles.dropdownItem} onClick={handleCloseDropdown}>
+                <NavLink
+                  to="/clpublishing/cowboy-college-pub/author"
+                  className={styles.dropdownItem}
+                  onClick={handleCloseDropdown}
+                >
                   {t("navbar.ccPubAuthor")}
                 </NavLink>
-                <NavLink to="/clpublishing/b2b-bookstores" className={styles.dropdownItem} onClick={handleCloseDropdown}>
+                <NavLink
+                  to="/clpublishing/b2b-bookstores"
+                  className={styles.dropdownItem}
+                  onClick={handleCloseDropdown}
+                >
                   {t("navbar.b2bBookstores")}
                 </NavLink>
               </div>
             )}
           </div>
 
-          {user?.role && [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role) && (
-            <NavLink to="/admin" className={buildLinkClass} onClick={handleCloseDropdown}>
-              {t("navbar.adminDashboard")}
-            </NavLink>
-          )}
+          {user?.role &&
+            [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role) && (
+              <NavLink
+                to="/admin"
+                className={buildLinkClass}
+                onClick={handleCloseDropdown}
+              >
+                {t("navbar.adminDashboard")}
+              </NavLink>
+            )}
 
-          <NavLink to="/bookstore" className={buildLinkClass} onClick={handleCloseDropdown}>
-            {t("navbar.bookStore")}
-          </NavLink>
+          {isPartnerOnly ? (
+  <NavLink
+    to="/partner-store"
+    className={buildLinkClass}
+    onClick={handleCloseDropdown}
+  >
+    {t("navbar.partnerStore")}
+  </NavLink>
+) : (
+  <>
+    <NavLink
+      to="/bookstore"
+      className={buildLinkClass}
+      onClick={handleCloseDropdown}
+    >
+      {t("navbar.bookStore")}
+    </NavLink>
+    {isAdminOrSuper && (
+      <NavLink
+        to="/partner-store"
+        className={buildLinkClass}
+        onClick={handleCloseDropdown}
+      >
+        {t("navbar.partnerStore")}
+      </NavLink>
+    )}
+  </>
+)}
+
+
         </nav>
 
         <div className={styles.navRight}>

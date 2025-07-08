@@ -15,7 +15,9 @@ import { toast } from "react-toastify";
 import { apiService } from "../../services/axiosService";
 import CartItem from "../../components/CartItem/CartItem";
 import BaseButton from "../../components/BaseButton/BaseButton";
+import InlineLoader from "../../components/InlineLoader/InlineLoader";
 import Loader from "../../components/Loader/Loader";
+import { ROLES } from "../../constants/roles";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -37,7 +39,16 @@ const Cart = () => {
   }, [dispatch, items.length]);
 
   const handleQuantityChange = async (itemId, newQuantity) => {
+    const isPartner = user?.role === ROLES.PARTNER;
+
     if (newQuantity < 1) return;
+
+    // 💥 Обмеження для партнера: мінімум 5 книжок
+    if (isPartner && newQuantity < 5) {
+      toast.warning(t("cart.minPartnerQuantity", { min: 5 }));
+      return;
+    }
+
     try {
       await apiService.patch(
         `/cart/${itemId}`,
@@ -50,6 +61,9 @@ const Cart = () => {
       toast.error(t("cart.quantityUpdateError"));
     }
   };
+
+  const formatPrice = (price) =>
+    typeof price === "number" && !isNaN(price) ? price.toFixed(2) : "0.00";
 
   const handleRemove = async (itemId) => {
     try {
@@ -65,26 +79,37 @@ const Cart = () => {
     setIsCheckoutLoading(true);
 
     try {
-      // 🔍 Запит до API для отримання актуальних stock
       const res = await apiService.post("/books/check-stock", { items }, token);
 
       if (!res.data.success) {
         toast.error(t("cart.outOfStockGeneric"));
-        if (res.data.message) {
-          toast.error(res.data.message);
-        }
+        if (res.data.message) toast.error(res.data.message);
         return;
       }
 
-      // 🔁 Продовжуємо оплату, якщо stock валідний
+      const payload = items.map((item, index) => {
+        const bookId = item.Book?.id;
+
+        if (!bookId || typeof bookId !== "string") {
+          console.error(`❌ Invalid bookId at index ${index}`, item);
+          throw new Error("Invalid cart structure: bookId missing or invalid");
+        }
+
+        return {
+          bookId,
+          title: item.Book?.title || "Unknown Title",
+          price: Number(
+            user?.role === ROLES.PARTNER && item.Book?.partnerPrice
+              ? item.Book.partnerPrice
+              : item.Book?.price ?? 0
+          ),
+          quantity: item.quantity,
+        };
+      });
+
       const checkoutRes = await apiService.post(
         "/square/create-payment",
-        {
-          title: "My Book Order",
-          price: totalPrice,
-          bookId: items[0]?.bookId,
-          userId: user.id,
-        },
+        payload,
         token
       );
 
@@ -123,7 +148,7 @@ const Cart = () => {
 
               <div className={styles.cartFooter}>
                 <h3 className={styles.total}>
-                  {t("cart.total")}: ${totalPrice.toFixed(2)}
+                  {t("cart.total")}: ${formatPrice(totalPrice)}
                 </h3>
                 <BaseButton
                   onClick={handleSquareCheckout}
@@ -131,15 +156,15 @@ const Cart = () => {
                   variant="outline"
                 >
                   {isCheckoutLoading ? (
-                    <>
-                      <Loader size="small" />
-                      <span className="visually-hidden">
-                        {t("cart.processing")}
-                      </span>
-                    </>
-                  ) : (
-                    t("cart.checkout")
-                  )}
+  <>
+    <InlineLoader />
+    <span className="visually-hidden">
+      {t("cart.processing")}
+    </span>
+  </>
+) : (
+  t("cart.checkout")
+)}
                 </BaseButton>
               </div>
             </>

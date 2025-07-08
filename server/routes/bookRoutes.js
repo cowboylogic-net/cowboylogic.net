@@ -5,11 +5,13 @@ import { upload } from "../middleware/uploadMiddleware.js";
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 import { createBookSchema, updateBookSchema } from "../schemas/bookSchema.js";
 import { validateBody } from "../middleware/validateBody.js";
+import { requireRole } from "../middleware/requireRole.js";
+
+
 
 const router = express.Router();
+const { getPartnerBooks } = bookController;
 
-router.get("/", bookController.getBooks);
-router.get("/:id", bookController.getBookById);
 router.delete("/:id", protect, isAdmin, bookController.deleteBook);
 
 router.post(
@@ -29,6 +31,12 @@ router.put(
   validateBody(updateBookSchema, true), // true => для FormData
   bookController.updateBook
 );
-router.post("/check-stock", protect, bookController.checkBookStock);
+router.get("/partner-books", protect, requireRole(["partner", "admin", "superAdmin"]), getPartnerBooks);
+router.get("/", protect, bookController.getBooks);
+router.get("/:id", protect, bookController.getBookById);
+router.post("/check-stock", protect, bookController.checkStock);
+
+
+
 
 export default router;

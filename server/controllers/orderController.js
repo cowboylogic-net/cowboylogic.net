@@ -5,13 +5,11 @@ import Book from "../models/Book.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import { sendOrderConfirmationEmail } from "../services/emailService.js";
-
-// Stripe
-// import Stripe from "stripe";
-// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+import { updateOrderStatusSchema } from "../schemas/orderSchemas.js";
 
 const createOrder = async (req, res) => {
   const userId = req.user.id;
+  const isPartner = req.user.role === "partner";
 
   const cartItems = await CartItem.findAll({
     where: { userId },
@@ -21,18 +19,41 @@ const createOrder = async (req, res) => {
   if (!cartItems.length) {
     throw HttpError(400, "Cart is empty");
   }
-  // 🔍 Перевірка наявності достатньої кількості книжок на складі
+
   for (const item of cartItems) {
-    if (item.Book.stock < item.quantity) {
+    const { Book: book, quantity } = item;
+
+    if (book.stock < quantity) {
       throw HttpError(
         400,
-        `Not enough stock for "${item.Book.title}". Available: ${item.Book.stock}`
+        `Not enough stock for "${book.title}". Available: ${book.stock}`
       );
+    }
+
+    if (isPartner) {
+      if (quantity < 5) {
+        throw HttpError(
+          400,
+          `Minimum quantity for "${book.title}" is 5 for partner accounts`
+        );
+      }
+
+      if (!book.partnerPrice) {
+        throw HttpError(
+          400,
+          `Book "${book.title}" is not available for partner pricing`
+        );
+      }
     }
   }
 
   const totalPrice = cartItems.reduce((sum, item) => {
-    return sum + item.quantity * item.Book.price;
+    const bookPrice =
+      isPartner && item.Book.partnerPrice != null
+        ? item.Book.partnerPrice
+        : item.Book.price;
+
+    return sum + item.quantity * bookPrice;
   }, 0);
 
   const order = await Order.create({
@@ -41,15 +62,23 @@ const createOrder = async (req, res) => {
     status: "pending",
   });
 
-  const orderItems = cartItems.map((item) => ({
-    orderId: order.id,
-    bookId: item.bookId,
-    quantity: item.quantity,
-    price: item.Book.price,
-  }));
+  const orderItems = cartItems.map((item) => {
+    const isUsingPartnerPrice =
+      isPartner && item.Book.partnerPrice != null;
+
+    return {
+      orderId: order.id,
+      bookId: item.bookId,
+      quantity: item.quantity,
+      price: isUsingPartnerPrice
+        ? item.Book.partnerPrice
+        : item.Book.price,
+      pricingType: isUsingPartnerPrice ? "partner" : "standard",
+    };
+  });
 
   await OrderItem.bulkCreate(orderItems);
-  // 📉 Зменшуємо stock після підтвердженого замовлення
+
   for (const item of cartItems) {
     item.Book.stock -= item.quantity;
     await item.Book.save();
@@ -93,14 +122,13 @@ const getAllOrders = async (req, res) => {
 
 const updateOrderStatus = async (req, res) => {
   const { id } = req.params;
-  const { status } = req.body;
+  const { error, value } = updateOrderStatusSchema.validate(req.body);
+  if (error) throw HttpError(400, error.details[0].message);
+
+  const { status } = value;
 
   if (req.user.role !== "admin") {
     throw HttpError(403, "Only admins can update order status");
-  }
-
-  if (!["pending", "completed"].includes(status)) {
-    throw HttpError(400, "Invalid status value");
   }
 
   const order = await Order.findByPk(id);
@@ -113,38 +141,6 @@ const updateOrderStatus = async (req, res) => {
   await order.save();
 
   res.json({ message: "Order status updated", order });
-};
-
-// ✅ Stripe Checkout session (нова функція)
-const createCheckoutSession = async (req, res) => {
-  const { items } = req.body;
-
-  if (!items || !Array.isArray(items) || items.length === 0) {
-    throw HttpError(400, "No items provided");
-  }
-
-  const line_items = items.map((item) => ({
-    price_data: {
-      currency: "usd",
-      product_data: {
-        name: item.title,
-      },
-      unit_amount: Math.round(item.price * 100),
-    },
-    quantity: item.quantity,
-  }));
-
-  const session = await stripe.checkout.sessions.create({
-    payment_method_types: ["card"],
-    line_items,
-    mode: "payment",
-    success_url: "https://clpit.duckdns.org/success",
-    cancel_url: "https://clpit.duckdns.org/cancel",
-    // success_url: "http://localhost:5173/success",
-    // cancel_url: "http://localhost:5173/cancel",
-  });
-
-  res.status(200).json({ url: session.url });
 };
 
 const getLatestOrder = async (req, res) => {
@@ -181,17 +177,15 @@ const deleteOrder = async (req, res) => {
     throw HttpError(404, "Order not found");
   }
 
-  // Видаляємо пов'язані позиції
   await OrderItem.destroy({ where: { orderId: id } });
-
-  // Видаляємо саме замовлення
   await Order.destroy({ where: { id } });
 
   res.json({ message: "Order deleted" });
 };
 
-const confirmStripeOrder = async (req, res) => {
+const confirmSquareOrder = async (req, res) => {
   const userId = req.user.id;
+  const isPartner = req.user.role === "partner";
 
   const cartItems = await CartItem.findAll({
     where: { userId },
@@ -201,18 +195,41 @@ const confirmStripeOrder = async (req, res) => {
   if (!cartItems.length) {
     throw HttpError(400, "Cart is empty or already processed");
   }
-  // 🔍 Перевірка наявності достатньої кількості книжок
+
   for (const item of cartItems) {
-    if (item.Book.stock < item.quantity) {
+    const book = item.Book;
+
+    if (book.stock < item.quantity) {
       throw HttpError(
         400,
-        `Not enough stock for "${item.Book.title}". Available: ${item.Book.stock}`
+        `Not enough stock for "${book.title}". Available: ${book.stock}`
       );
+    }
+
+    if (isPartner) {
+      if (item.quantity < 5) {
+        throw HttpError(
+          400,
+          `Minimum quantity for "${book.title}" is 5 for partner accounts`
+        );
+      }
+
+      if (!book.partnerPrice) {
+        throw HttpError(
+          400,
+          `Book "${book.title}" is not available for partner pricing`
+        );
+      }
     }
   }
 
   const totalPrice = cartItems.reduce((sum, item) => {
-    return sum + item.quantity * item.Book.price;
+    const bookPrice =
+      isPartner && item.Book.partnerPrice != null
+        ? item.Book.partnerPrice
+        : item.Book.price;
+
+    return sum + item.quantity * bookPrice;
   }, 0);
 
   const order = await Order.create({
@@ -221,15 +238,23 @@ const confirmStripeOrder = async (req, res) => {
     status: "completed",
   });
 
-  const orderItems = cartItems.map((item) => ({
-    orderId: order.id,
-    bookId: item.bookId,
-    quantity: item.quantity,
-    price: item.Book.price,
-  }));
+  const orderItems = cartItems.map((item) => {
+    const isUsingPartnerPrice =
+      isPartner && item.Book.partnerPrice != null;
+
+    return {
+      orderId: order.id,
+      bookId: item.bookId,
+      quantity: item.quantity,
+      price: isUsingPartnerPrice
+        ? item.Book.partnerPrice
+        : item.Book.price,
+      pricingType: isUsingPartnerPrice ? "partner" : "standard",
+    };
+  });
 
   await OrderItem.bulkCreate(orderItems);
-  // 📉 Зменшуємо залишок
+
   for (const item of cartItems) {
     item.Book.stock -= item.quantity;
     await item.Book.save();
@@ -237,7 +262,6 @@ const confirmStripeOrder = async (req, res) => {
 
   await CartItem.destroy({ where: { userId } });
 
-  // Надсилаємо email
   try {
     await sendOrderConfirmationEmail({
       to: req.user.email,
@@ -246,18 +270,17 @@ const confirmStripeOrder = async (req, res) => {
     });
   } catch (emailErr) {
     console.error("Email sending failed:", emailErr.message);
-    // Можеш не кидати помилку — замовлення все одно створене
   }
 
   res.status(201).json({ message: "Order confirmed", orderId: order.id });
 };
+
 export default {
   createOrder: ctrlWrapper(createOrder),
   getUserOrders: ctrlWrapper(getUserOrders),
   getAllOrders: ctrlWrapper(getAllOrders),
   updateOrderStatus: ctrlWrapper(updateOrderStatus),
-  createCheckoutSession: ctrlWrapper(createCheckoutSession),
-  confirmStripeOrder: ctrlWrapper(confirmStripeOrder),
   deleteOrder: ctrlWrapper(deleteOrder),
   getLatestOrder: ctrlWrapper(getLatestOrder),
+  confirmSquareOrder: ctrlWrapper(confirmSquareOrder),
 };

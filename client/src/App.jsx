@@ -1,9 +1,7 @@
-
 import styles from "./App.module.css";
 import { Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import clsx from "clsx";
-
 
 import Loader from "./components/Loader/Loader";
 import Layout from "./components/Layout/Layout";
@@ -16,6 +14,9 @@ const Home = lazy(() => import("./pages/Home/Home"));
 const About = lazy(() => import("./pages/About/About"));
 const Contact = lazy(() => import("./pages/Contact/Contact"));
 const BookStore = lazy(() => import("./pages/BookStore/BookStore"));
+const PartnerStorePage = lazy(() =>
+  import("./pages/PartnerStorePage/PartnerStorePage")
+);
 const BookDetails = lazy(() => import("./pages/BookDetails/BookDetails"));
 const CLStrategies = lazy(() => import("./pages/CLStrategies/CLStrategies"));
 const CLPublishing = lazy(() => import("./pages/CLPublishing/CLPublishing"));
@@ -72,6 +73,15 @@ const App = () => {
             <Route path="about" element={<About />} />
             <Route path="contact" element={<Contact />} />
             <Route path="bookstore" element={<BookStore />} />
+            <Route
+              path="/partner-store"
+              element={
+                <PrivateRoute roles={["partner", "admin", "superadmin"]}>
+                  <PartnerStorePage />
+                </PrivateRoute>
+              }
+            />
+
             <Route path="bookstore/book/:id" element={<BookDetails />} />
             <Route path="clstrategies" element={<CLStrategies />} />
             <Route path="clstrategies/home" element={<CLStrategiesHome />} />
