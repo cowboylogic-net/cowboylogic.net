@@ -3,16 +3,19 @@ export const formatUser = (user) => {
 
   const plain = user.toJSON?.() || user;
 
+  // 🧹 Видаляємо чутливі або непотрібні поля
   delete plain.password;
   delete plain.tokenVersion;
   delete plain.isSuperAdmin;
   delete plain.createdAt;
   delete plain.updatedAt;
 
+  // 🖼️ Фікс URL до аватарки
   if (plain.avatarURL && !plain.avatarURL.startsWith("http")) {
     plain.avatarURL = `${process.env.BASE_URL}${plain.avatarURL}`;
   }
 
+  // 🧾 Форматуємо partnerProfile — віддаємо лише дозволені поля
   const profile = plain.partnerProfile || null;
 
   plain.partnerProfile = profile?.organizationName

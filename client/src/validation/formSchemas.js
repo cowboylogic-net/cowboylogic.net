@@ -139,7 +139,7 @@ export const registerCodeSchema = (t) =>
     code: yup
       .string()
       .trim()
-      .matches(/^[A-Z0-9]{6}$/i, t("form.errors.codeLength")) // будь-який регістр
+      .matches(/^[A-Z0-9_]{6}$/i, t("form.errors.codeLength")) // будь-який регістр
       .required(t("form.errors.required")),
   });
 
