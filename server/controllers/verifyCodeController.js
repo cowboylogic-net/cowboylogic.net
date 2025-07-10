@@ -3,11 +3,24 @@ import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import jwt from "jsonwebtoken";
+import { formatUser } from "../utils/formatUser.js";
 
-const verifyLoginCode = async (req, res) => {
+const generateToken = (user) => {
+  return jwt.sign(
+    {
+      id: user.id,
+      role: user.role,
+      tokenVersion: user.tokenVersion,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
+  );
+};
+
+const verifyCode = async (req, res) => {
   const { email, code } = req.body;
 
-  const loginCode = await LoginCode.findOne({ where: { email, code } });
+  const loginCode = await LoginCode.findOne({ where: { email, code: code.toUpperCase(), } });
 
   if (!loginCode || new Date() > loginCode.expiresAt) {
     throw HttpError(400, "Invalid or expired verification code");
@@ -19,27 +32,23 @@ const verifyLoginCode = async (req, res) => {
   // Видаляємо використаний код
   await loginCode.destroy();
 
-  // Генеруємо токен з tokenVersion
-  const token = jwt.sign(
-    {
-      id: user.id,
-      role: user.role,
-      tokenVersion: user.tokenVersion,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
-  );
+  // 🧠 Основна перевірка — чи юзер вже верифікований
+  if (!user.isEmailVerified) {
+    // ➕ це означає, що код для підтвердження email
+    user.isEmailVerified = true;
+    await user.save();
+  }
 
-  res.json({
+  // 🔐 Генеруємо токен
+  const token = generateToken(user);
+
+  res.status(200).json({
+    message: "Verification successful",
     token,
-    user: {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-    },
+    user: formatUser(user),
   });
 };
 
 export default {
-  verifyLoginCode: ctrlWrapper(verifyLoginCode),
+  verifyCode: ctrlWrapper(verifyCode),
 };

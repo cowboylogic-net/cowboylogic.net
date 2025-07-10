@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
+import PartnerProfile from "./PartnerProfile.js"; // імпорт для асоціації
 
 const User = sequelize.define(
   "User",
@@ -9,27 +10,52 @@ const User = sequelize.define(
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
+
     email: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       validate: {
         isEmail: true,
       },
     },
+
     password: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    fullName: {
       type: DataTypes.STRING,
       allowNull: false,
     },
+
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
     role: {
-      type: DataTypes.ENUM("user", "admin", "partner"),
+      type: DataTypes.ENUM("user", "partner", "admin", "superAdmin"),
+      allowNull: false,
       defaultValue: "user",
     },
-    isSuperAdmin: {
+
+    newsletter: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
 
-    // 🆕 Додай це:
+    heardAboutUs: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+
+    isEmailVerified: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+
     avatarURL: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -40,6 +66,16 @@ const User = sequelize.define(
       defaultValue: 0,
       allowNull: false,
     },
+
+    isSuperAdmin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    gdprConsentAt: {
+  type: DataTypes.DATE,
+  allowNull: true,
+},
+
   },
   {
     timestamps: true,
@@ -51,5 +87,14 @@ const User = sequelize.define(
     ],
   }
 );
+
+// Association (must be called in setupAssociations)
+User.associate = (models) => {
+  User.hasOne(models.PartnerProfile, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+    as: "partnerProfile",
+  });
+};
 
 export default User;

@@ -33,6 +33,8 @@ export const seedSuperAdmin = async () => {
       password,
       role: "admin",
       isSuperAdmin: true,
+      isEmailVerified: true,
+      fullName: "Super Admin", // ✅ додати
     });
 
     console.log(`🎉 Super admin created: ${email} / (password from .env)`);

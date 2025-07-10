@@ -2,6 +2,7 @@ import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
+import { formatUser } from "../utils/formatUser.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -28,27 +29,39 @@ export const googleAuth = async (req, res) => {
   let user = await User.findOne({ where: { email } });
 
   if (!user) {
+    // 🆕 Створення нового користувача з Google
     user = await User.create({
-      name,
+      fullName: name || "Google User",
       email,
-      password: "google-auth", // або null, якщо nullable
+      password: null,
       role: "user",
+      isEmailVerified: true,
     });
+  } else {
+    // 🔒 Перевірка: якщо user має пароль — не дозволяти Google Login
+    if (user.password) {
+      throw HttpError(400, "This email is registered with a password. Please login with email and password.");
+    }
+
+    // 🟢 Якщо Google user — ensure isEmailVerified true
+    if (!user.isEmailVerified) {
+      user.isEmailVerified = true;
+      await user.save(); // оновлюємо флаг
+    }
   }
 
   const token = jwt.sign(
-    { id: user.id, role: user.role, email: user.email },
+    {
+      id: user.id,
+      role: user.role,
+      tokenVersion: user.tokenVersion,
+    },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
   );
 
   res.json({
     token,
-    user: {
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    },
+    user: formatUser(user),
   });
 };

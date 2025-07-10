@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { logout } from "../../store/slices/authSlice";
+import { logoutUser } from "../../store/thunks/authThunks";
 import { selectUser } from "../../store/selectors/authSelectors";
 import { useTranslation } from "react-i18next";
 
@@ -13,7 +13,7 @@ const UserMenu = () => {
   const { t } = useTranslation();
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
   };
 
   return (

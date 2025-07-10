@@ -13,8 +13,6 @@ import codeController from "../controllers/requestCodeController.js";
 import resetPasswordController from "../controllers/resetPasswordController.js";
 
 
-
-
 const router = express.Router();
 
 router.post(
@@ -34,10 +32,10 @@ router.post("/logout", authController.logoutUser);
 router.get("/me", protect, authController.getCurrentUser);
 router.post("/google", googleAuth);
 router.post("/request-code", codeController.requestLoginCode);
-router.post("/verify-code", verifyCodeController.verifyLoginCode);
+router.post("/verify-code", verifyCodeController.verifyCode);
+
 
 router.patch("/reset-password", protect, resetPasswordController.resetPassword);
-
 
 
 export default router;

@@ -156,15 +156,15 @@ const Cart = () => {
                   variant="outline"
                 >
                   {isCheckoutLoading ? (
-  <>
-    <InlineLoader />
-    <span className="visually-hidden">
-      {t("cart.processing")}
-    </span>
-  </>
-) : (
-  t("cart.checkout")
-)}
+                    <>
+                      <InlineLoader />
+                      <span className="visually-hidden">
+                        {t("cart.processing")}
+                      </span>
+                    </>
+                  ) : (
+                    t("cart.checkout")
+                  )}
                 </BaseButton>
               </div>
             </>

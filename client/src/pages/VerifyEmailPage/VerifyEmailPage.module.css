@@ -1,0 +1,20 @@
+.resendWrapper {
+  margin-top: 1rem;
+  text-align: center;
+}
+
+.resendButton {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: bold;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+}
+
+
+.resendButton:disabled {
+  color: gray;
+  cursor: not-allowed;
+}

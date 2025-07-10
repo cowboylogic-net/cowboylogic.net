@@ -1,75 +1,73 @@
 // src/store/thunks/authThunks.js
 
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../../store/axios';
-import { logout } from '../slices/authSlice';
-import { showNotification } from '../slices/notificationSlice';
-import { updateUserAvatar } from '../slices/authSlice';
+import axios from "../../store/axios";
+import { showNotification } from "../slices/notificationSlice";
+import {
+  logout,
+  loginStart,
+  loginSuccess,
+  loginFailure,
+  fetchStart,
+  fetchSuccess,
+  fetchFailure,
+  updateUserAvatar,
+} from "../slices/authSlice"; // ✅ без циклів
 
-// 🔐 Login: email + code → JWT
-export const loginUser = createAsyncThunk(
-  'auth/loginUser',
-  async ({ email, code }, { rejectWithValue, dispatch }) => {
-    try {
-      const res = await axios.post('/auth/verify-code', { email, code });
-      dispatch(showNotification({ type: 'success', message: 'Welcome back!' }));
-      return res.data;
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed';
-      dispatch(showNotification({ type: 'error', message: msg }));
-      return rejectWithValue(msg);
-    }
+// 🔐 Login thunk
+export const loginUser = (credentials) => async (dispatch) => {
+  dispatch(loginStart());
+  try {
+    const res = await axios.post("/auth/verify-code", credentials);
+    dispatch(loginSuccess(res.data));
+    dispatch(showNotification({ type: "success", message: "Welcome back!" }));
+  } catch (err) {
+    const msg = err.response?.data?.message || "Login failed";
+    dispatch(loginFailure(msg));
+    dispatch(showNotification({ type: "error", message: msg }));
   }
-);
+};
 
-// ✅ Перевірка JWT → отримати поточного користувача
-export const fetchCurrentUser = createAsyncThunk(
-  'auth/fetchCurrentUser',
-  async (token, { rejectWithValue, dispatch }) => {
-    try {
-      const res = await axios.get('/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data;
-    } catch {
-      dispatch(showNotification({ type: 'error', message: 'Session expired' }));
-      return rejectWithValue('Token invalid or expired');
-    }
+// 👤 Fetch current user thunk
+export const fetchCurrentUser = () => async (dispatch, getState) => {
+  const token = getState().auth.token;
+  if (!token) {
+    dispatch(fetchFailure());
+    return;
   }
-);
 
-// 🚪 Logout thunk → очищення Redux і localStorage
-export const logoutUser = createAsyncThunk(
-  'auth/logoutUser',
-  async (_, { dispatch, rejectWithValue }) => {
-    try {
-      dispatch(logout());
-      dispatch(showNotification({ type: 'success', message: 'Logged out' }));
-    } catch (err) {
-      const msg = err.message || 'Logout failed';
-      dispatch(showNotification({ type: 'error', message: msg }));
-      return rejectWithValue(msg);
-    }
+  dispatch(fetchStart());
+
+  try {
+    const res = await axios.get("/auth/me", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    dispatch(fetchSuccess(res.data));
+  } catch {
+    dispatch(fetchFailure());
+    dispatch(showNotification({ type: "error", message: "Session expired" }));
   }
-);
-export const uploadAvatar = createAsyncThunk(
-  'auth/uploadAvatar',
-  async (file, { dispatch, rejectWithValue }) => {
-    try {
-      const formData = new FormData();
-      formData.append('avatar', file);
+};
 
-      const res = await axios.patch('/users/avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+// 🚪 Logout thunk
+export const logoutUser = () => (dispatch) => {
+  dispatch(logout());
+  dispatch(showNotification({ type: "success", message: "Logged out" }));
+};
 
-      dispatch(updateUserAvatar(res.data.avatarURL));
-      dispatch(showNotification({ type: 'success', message: 'Avatar updated' }));
-      return res.data.avatarURL;
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Upload failed';
-      dispatch(showNotification({ type: 'error', message: msg }));
-      return rejectWithValue(msg);
-    }
+// 📸 Upload avatar thunk
+export const uploadAvatar = (file) => async (dispatch) => {
+  try {
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const res = await axios.patch("/users/avatar", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    dispatch(updateUserAvatar(res.data.avatarURL));
+    dispatch(showNotification({ type: "success", message: "Avatar updated" }));
+  } catch (err) {
+    const msg = err.response?.data?.message || "Upload failed";
+    dispatch(showNotification({ type: "error", message: msg }));
   }
-);
+};

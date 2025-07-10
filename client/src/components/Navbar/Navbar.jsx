@@ -24,10 +24,7 @@ const Navbar = () => {
 
   const user = useSelector(selectUser);
   const isAuth = useSelector(selectIsAuth);
-  // const isPartnerAccess = ["partner", "admin", "superadmin"].includes(
-  //   user?.role
-  // );
-
+ 
   const isAdminOrSuper =
   user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN;
 

@@ -31,7 +31,7 @@ router.put(
   validateBody(updateBookSchema, true), // true => для FormData
   bookController.updateBook
 );
-router.get("/partner-books", protect, requireRole(["partner", "admin", "superAdmin"]), getPartnerBooks);
+router.get("/partner-books", protect, requireRole("partner", "admin", "superAdmin"), getPartnerBooks);
 router.get("/", protect, bookController.getBooks);
 router.get("/:id", protect, bookController.getBookById);
 router.post("/check-stock", protect, bookController.checkStock);

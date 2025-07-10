@@ -1,6 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { fetchOrders, deleteOrder } from "../thunks/ordersThunks";
-import { logout } from "./authSlice";
 
 const initialState = {
   orders: [],
@@ -31,12 +30,16 @@ const ordersSlice = createSlice({
       .addCase(deleteOrder.fulfilled, (state, action) => {
         state.orders = state.orders.filter((o) => o.id !== action.payload);
       })
-      .addCase(logout, (state) => {
-        state.orders = [];
-        state.loading = false;
-        state.error = null;
-        state.lastFetched = null;
-      });
+      // ⛔️ Instead of logoutUser.fulfilled — use matcher for action type:
+      .addMatcher(
+        (action) => action.type === "auth/logoutUser/fulfilled",
+        (state) => {
+          state.orders = [];
+          state.loading = false;
+          state.error = null;
+          state.lastFetched = null;
+        }
+      );
   },
 });
 

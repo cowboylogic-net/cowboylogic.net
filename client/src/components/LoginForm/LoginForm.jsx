@@ -3,18 +3,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
 import BaseButton from "../BaseButton/BaseButton";
 import BaseInput from "../BaseInput/BaseInput";
 import BaseForm from "../BaseForm/BaseForm";
 import axios from "../../store/axios";
+import { loginSuccess } from "../../store/slices/authSlice";
+
 import { loginUser, fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
 import FormGroup from "../FormGroup/FormGroup";
-import { loginFormSchema, codeVerificationSchema } from "../../validation/formSchemas";
-
+import {
+  loginFormSchema,
+  codeVerificationSchema,
+} from "../../validation/formSchemas";
 
 const LoginForm = () => {
   const { t } = useTranslation("login");
@@ -23,6 +27,7 @@ const LoginForm = () => {
   const isLoading = useSelector((state) => state.auth.isLoading);
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const {
     register,
@@ -30,29 +35,63 @@ const LoginForm = () => {
     formState: { errors, touchedFields },
     setValue,
   } = useForm({
-    resolver: yupResolver(step === 1 ? loginFormSchema(t) : codeVerificationSchema(t)),
+    resolver: yupResolver(
+      step === 1 ? loginFormSchema(t) : codeVerificationSchema(t)
+    ),
   });
 
-  const onLogin = async (data) => {
-    try {
-      await axios.post("/auth/login", data);
-      await axios.post("/auth/request-code", { email: data.email });
+  // 🔁 Countdown для resend
+  useEffect(() => {
+    if (resendCooldown > 0) {
+      const timer = setTimeout(
+        () => setResendCooldown(resendCooldown - 1),
+        1000
+      );
+      return () => clearTimeout(timer);
+    }
+  }, [resendCooldown]);
 
+  const onLogin = async (data) => {
+  try {
+    const res = await axios.post("/auth/login", data);
+    const { token, user } = res.data;
+
+    if (token && user) {
+      dispatch(loginSuccess({ token, user }));       // оновлює Redux state
+      localStorage.setItem("token", token);           // зберігає токен
+      dispatch(fetchCurrentUser());                   // підтверджує авторизацію
+      dispatch(
+        showNotification({ message: t("welcomeBack"), type: "success" })
+      );
+      navigate("/");                                  // перенаправлення після логіну
+    } else {
+      throw new Error("Invalid login response");
+    }
+  } catch (err) {
+    const status = err.response?.status;
+
+    if (status === 403) {
+      // Перехід до step 2 — потрібна верифікація
       setEmail(data.email);
+      await axios.post("/auth/request-code", { email: data.email });
       setValue("email", "");
       setValue("password", "");
       setStep(2);
-
+      setResendCooldown(30);
       dispatch(showNotification({ message: t("codeSent"), type: "info" }));
-    } catch (err) {
-      dispatch(
-        showNotification({
-          message: err.response?.data?.message || t("loginFailed"),
-          type: "error",
-        })
-      );
+      return;
     }
-  };
+
+    dispatch(
+      showNotification({
+        message: err.response?.data?.message || t("loginFailed"),
+        type: "error",
+      })
+    );
+  }
+};
+
+
 
   const onVerify = async (data) => {
     try {
@@ -76,14 +115,36 @@ const LoginForm = () => {
     }
   };
 
+  const handleResendCode = async () => {
+    try {
+      await axios.post("/auth/request-code", { email });
+      setResendCooldown(30);
+      dispatch(showNotification({ message: t("codeResent"), type: "info" }));
+    } catch {
+      dispatch(showNotification({ message: t("resendFailed"), type: "error" }));
+    }
+  };
+
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       const res = await axios.post("/auth/google", {
         id_token: credentialResponse.credential,
       });
 
-      localStorage.setItem("token", res.data.token);
-      dispatch(fetchCurrentUser(res.data.token));
+      const { token, user } = res.data;
+
+      if (!user.isEmailVerified) {
+        dispatch(
+          showNotification({
+            message: t("emailNotVerified"),
+            type: "warning",
+          })
+        );
+        return; // 🛑 не логінимо
+      }
+
+      localStorage.setItem("token", token);
+      dispatch(fetchCurrentUser(token));
       dispatch(
         showNotification({ message: t("googleSuccess"), type: "success" })
       );
@@ -94,71 +155,85 @@ const LoginForm = () => {
   };
 
   return (
-  <div className={styles.container}>
-    <h2>{t("title")}</h2>
+    <div className={styles.container}>
+      <h2>{t("title")}</h2>
 
-    {step === 1 ? (
-      <BaseForm onSubmit={handleSubmit(onLogin)}>
-        <FormGroup
-          label={t("emailPlaceholder")}
-          error={errors.email?.message}
-          required
-        >
-          <BaseInput
-            type="email"
-            {...register("email")}
-            touched={!!touchedFields.email}
-          />
-        </FormGroup>
+      {step === 1 ? (
+        <BaseForm onSubmit={handleSubmit(onLogin)}>
+          <FormGroup
+            label={t("emailPlaceholder")}
+            error={errors.email?.message}
+            required
+          >
+            <BaseInput
+              type="email"
+              {...register("email")}
+              touched={!!touchedFields.email}
+            />
+          </FormGroup>
 
-        <FormGroup
-          label={t("passwordPlaceholder")}
-          error={errors.password?.message}
-          required
-        >
-          <BaseInput
-            type="password"
-            {...register("password")}
-            touched={!!touchedFields.password}
-          />
-        </FormGroup>
+          <FormGroup
+            label={t("passwordPlaceholder")}
+            error={errors.password?.message}
+            required
+          >
+            <BaseInput
+              type="password"
+              {...register("password")}
+              touched={!!touchedFields.password}
+            />
+          </FormGroup>
 
-        <BaseButton type="submit" variant="auth">
-          {t("continue")}
-        </BaseButton>
-      </BaseForm>
-    ) : (
-      <BaseForm onSubmit={handleSubmit(onVerify)}>
-        <FormGroup
-          label={t("codePlaceholder")}
-          error={errors.code?.message}
-          required
-        >
-          <BaseInput
-            type="text"
-            {...register("code")}
-            touched={!!touchedFields.code}
-          />
-        </FormGroup>
+          <BaseButton type="submit" variant="auth" disabled={isLoading}>
+            {isLoading ? t("LoggingIn") : t("continue")}
+          </BaseButton>
+        </BaseForm>
+      ) : (
+        <>
+          <BaseForm onSubmit={handleSubmit(onVerify)}>
+            <FormGroup
+              label={t("codePlaceholder")}
+              error={errors.code?.message}
+              required
+            >
+              <BaseInput
+                type="text"
+                {...register("code")}
+                touched={!!touchedFields.code}
+              />
+            </FormGroup>
 
-        <BaseButton type="submit" variant="auth" disabled={isLoading}>
-          {isLoading ? t("LoggingIn") : t("Verify")}
-        </BaseButton>
-      </BaseForm>
-    )}
+            <BaseButton type="submit" variant="auth" disabled={isLoading}>
+              {isLoading ? t("LoggingIn") : t("Verify")}
+            </BaseButton>
+          </BaseForm>
 
-    <div className={styles["google-login"]}>
-      <GoogleLogin
-        onSuccess={handleGoogleLogin}
-        onError={() =>
-          dispatch(
-            showNotification({ message: t("googleFailed"), type: "error" })
-          )
-        }
-      />
+          <div className={styles.resend}>
+            <button
+              onClick={handleResendCode}
+              disabled={resendCooldown > 0}
+              className={styles.resendButton}
+            >
+              {resendCooldown > 0
+                ? t("resendIn", { seconds: resendCooldown })
+                : t("resendCode")}
+            </button>
+          </div>
+        </>
+      )}
+
+      <div className={styles["google-login"]}>
+        <GoogleLogin
+          onSuccess={handleGoogleLogin}
+          onError={() =>
+            dispatch(
+              showNotification({ message: t("googleFailed"), type: "error" })
+            )
+          }
+        />
+      </div>
     </div>
-  </div>
-);
+  );
 };
 
 export default LoginForm;

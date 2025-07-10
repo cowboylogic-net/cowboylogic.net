@@ -1,0 +1,51 @@
+// src/context/AuthProvider.jsx
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+import {
+  fetchCurrentUser,
+  loginUser as loginThunk,
+  logoutUser as logoutThunk,
+} from "../store/thunks/authThunks";
+import { AuthContext } from "./AuthContext";
+import {jwtDecode} from "jwt-decode";
+
+export const AuthProvider = ({ children }) => {
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.auth.user);
+  const token = useSelector((state) => state.auth.token);
+  const isLoading = useSelector((state) => state.auth.isLoading);
+
+  const isLoggedIn = Boolean(user);
+  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+  const isPartner = user?.role === "partner";
+
+  useEffect(() => {
+    if (token && !user) {
+      dispatch(fetchCurrentUser());
+    }
+  }, [token, user, dispatch]);
+
+  const login = ({ email, code }) => {
+    dispatch(loginThunk({ email, code }));
+  };
+
+  const logout = () => {
+    dispatch(logoutThunk());
+  };
+
+  const decodedToken = token ? jwtDecode(token) : null;
+
+  const value = {
+    user,
+    token,
+    login,
+    logout,
+    isLoggedIn,
+    isAdmin,
+    isPartner,
+    loading: isLoading,
+    decodedToken,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

@@ -6,7 +6,6 @@ import clsx from "clsx";
 import Loader from "./components/Loader/Loader";
 import Layout from "./components/Layout/Layout";
 import AdminLayout from "./components/Layout/AdminLayout";
-import AdminRoute from "./routes/AdminRoute";
 import PrivateRoute from "./routes/PrivateRoute";
 
 // 🌐 Public
@@ -23,6 +22,7 @@ const CLPublishing = lazy(() => import("./pages/CLPublishing/CLPublishing"));
 const FavoritesPage = lazy(() => import("./pages/FavoritesPage/FavoritesPage"));
 const SearchResults = lazy(() => import("./pages/SearchResult/SearchResult"));
 const NotFound = lazy(() => import("./pages/NotFound/NotFound"));
+const Forbidden = lazy(() => import("./pages/Forbidden/Forbidden"));
 
 // ✅ CLStrategies
 const CLStrategiesHome = lazy(() =>
@@ -49,6 +49,7 @@ const Register = lazy(() => import("./pages/Register/Register"));
 const Login = lazy(() => import("./pages/Login/Login"));
 const SuccessPage = lazy(() => import("./pages/SuccessPage/SuccessPage"));
 const CancelPage = lazy(() => import("./pages/CancelPage/CancelPage"));
+const VerifyEmailPage = lazy(() => import("./pages/VerifyEmailPage/VerifyEmailPage"));
 
 // 🔐 Private
 const Orders = lazy(() => import("./pages/Orders/Orders"));
@@ -109,6 +110,7 @@ const App = () => {
             <Route path="search" element={<SearchResults />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="success" element={<SuccessPage />} />
             <Route path="cancel" element={<CancelPage />} />
             <Route
@@ -149,9 +151,9 @@ const App = () => {
           <Route
             path="/admin"
             element={
-              <AdminRoute>
+              <PrivateRoute roles={["admin", "superAdmin"]}>
                 <AdminLayout />
-              </AdminRoute>
+              </PrivateRoute>
             }
           >
             <Route index element={<AdminDashboard />} />
@@ -163,6 +165,8 @@ const App = () => {
 
           {/* 🧨 Not Found */}
           <Route path="*" element={<NotFound />} />
+          <Route path="/403" element={<Forbidden />} />
+
         </Routes>
       </Suspense>
     </div>

@@ -78,18 +78,68 @@ export const codeVerificationSchema = (t) =>
 
 export const registerFormSchema = (t) =>
   yup.object().shape({
+    fullName: yup.string().required(t("form.errors.required")),
+
     email: yup
       .string()
       .email(t("form.errors.email"))
       .required(t("form.errors.required")),
+
     password: yup
       .string()
       .min(6, t("form.errors.passwordShort"))
       .required(t("form.errors.required")),
+
+    repeatPassword: yup
+      .string()
+      .oneOf([yup.ref("password")], t("form.errors.passwordsMustMatch"))
+      .required(t("form.errors.required")),
+
+    phoneNumber: yup.string().nullable().notRequired(),
+
+    heardAboutUs: yup.string().nullable().notRequired(),
+
+    newsletter: yup.boolean(),
+
+    isPartner: yup.boolean(),
+
+    termsAgreed: yup.boolean().oneOf([true], t("form.errors.termsRequired")),
+
+    gdprConsentAt: yup.date().nullable().notRequired(),
+
+    role: yup.string().oneOf(["user", "partner"]).notRequired(),
+
+    partnerProfile: yup.object().when("isPartner", {
+      is: true,
+      then: (schema) =>
+        schema.shape({
+          organizationName: yup.string().required(t("form.errors.required")),
+          businessType: yup.string().nullable(),
+          address: yup.string().nullable(),
+          address2: yup.string().nullable(),
+          billingAddress: yup.string().nullable(),
+          city: yup.string().nullable(),
+          postalCode: yup.string().nullable(),
+          state: yup.string().nullable(),
+          country: yup.string().nullable(),
+          contactPhone: yup.string().nullable().notRequired(),
+          businessWebsite: yup
+            .string()
+            .url(t("form.errors.invalidUrl"))
+            .nullable()
+            .notRequired(),
+        }),
+      otherwise: (schema) => schema.strip(), // якщо не партнер — видаляємо об'єкт
+    }),
   });
 
 // Code verification schema (Step 2)
 export const registerCodeSchema = (t) =>
   yup.object().shape({
-    code: yup.string().required(t("form.errors.required")),
+    code: yup
+      .string()
+      .trim()
+      .matches(/^[A-Z0-9]{6}$/i, t("form.errors.codeLength")) // будь-який регістр
+      .required(t("form.errors.required")),
   });
+

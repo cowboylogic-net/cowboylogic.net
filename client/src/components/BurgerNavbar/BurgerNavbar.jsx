@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { ROLES } from "../../constants/roles";
 import styles from "./BurgerNavbar.module.css";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
-import { logout } from "../../store/slices/authSlice";
+import { logoutUser } from "../../store/thunks/authThunks";
+
 import BaseButton from "../BaseButton/BaseButton";
 
 const BurgerNavbar = () => {
@@ -20,7 +21,7 @@ const BurgerNavbar = () => {
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    dispatch(logoutUser());
     setOpen(false);
     navigate("/");
   };

@@ -359,8 +359,11 @@
   "form": {
     "errors": {
       "required": "This field is required",
-      "email": "Enter a valid email",
-      "passwordShort": "Password must be at least 6 characters"
+      "email": "Invalid email address",
+      "passwordShort": "Password must be at least 6 characters",
+      "passwordsMustMatch": "Passwords must match",
+      "termsRequired": "You must agree to the terms",
+      "codeLength": "Code must be 6 characters"
     }
   },
   "validation": {
@@ -373,5 +376,21 @@
     "loadError": " — Failed to load partner books.",
     "partnerPrice": "Partner Price: ${{price}}",
     "invalidPartnerPrice": "Please enter a valid partner price"
+  },
+  "registerForm": {
+    "newsletter": "Subscribe to our newsletter",
+    "isPartner": "I am a business partner",
+    "organizationName": "Organization Name",
+    "businessType": "Business Type",
+    "address": "Address",
+    "address2": "Address Line 2",
+    "billingAddress": "Billing Address",
+    "city": "City",
+    "postalCode": "Postal Code",
+    "state": "State",
+    "country": "Country",
+    "terms": "I agree to the Terms and Privacy Policy",
+    "contactPhone": "Business Contact Phone",
+    "businessWebsite": "Business Website"
   }
 }

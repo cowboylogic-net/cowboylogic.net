@@ -11,14 +11,10 @@ const PrivateRoute = ({ children, role, roles }) => {
   if (!user && token) return <Loader />;
   if (!user) return <Navigate to="/login" replace />;
 
-  // ✅ Підтримка одного role або масиву roles
   if (role && user.role !== role) return <Navigate to="/" replace />;
   if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
 
   return children;
 };
-
-
-
 
 export default PrivateRoute;

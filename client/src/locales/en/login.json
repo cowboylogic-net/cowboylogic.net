@@ -10,7 +10,6 @@
   "loggingIn": "Logging in...",
   "loginFailed": "Login failed",
   "codeInvalid": "Invalid code",
-  "codeSent": "Verification code sent",
   "welcomeBack": "Welcome back!",
   "googleSuccess": "Successfully logged in with Google",
   "googleFailed": "Google login failed",
@@ -18,5 +17,20 @@
   "Register": "Register",
   "registering": "Registering...",
   "registered": "Successfully registered",
-  "registerFailed": "Registration failed"
+  "registerFailed": "Registration failed",
+  "LoggingIn": "Logging in...",
+  "codeSent": "Verification code sent to your email",
+  "codeResent": "New code sent",
+  "resendCode": "Resend code",
+  "resendIn": "Resend in {{seconds}}s",
+  "emailNotVerified": "Your email is not verified. Check your inbox or resend the code.",
+  "verifyEmailTitle": "Verify Your Email",
+  "codeSentTo": "We sent a code to",
+  "missingEmail": "Email not provided. Please register again.",
+  "resendFailed": "Failed to resend code",
+    "phoneNumber": "Phone number",
+  "heardAboutUs": "How did you hear about us?",
+  "fullName": "Full name"
+  
+
 }
