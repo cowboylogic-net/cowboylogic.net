@@ -9,10 +9,9 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export const googleAuth = async (req, res) => {
   const { id_token } = req.body;
 
-  if (!id_token) {
-    throw HttpError(400, "No id_token provided");
-  }
-
+  // if (!id_token) {
+  //   throw HttpError(400, "No id_token provided");
+  // }
   let ticket;
   try {
     ticket = await client.verifyIdToken({

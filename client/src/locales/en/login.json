@@ -28,9 +28,8 @@
   "codeSentTo": "We sent a code to",
   "missingEmail": "Email not provided. Please register again.",
   "resendFailed": "Failed to resend code",
-    "phoneNumber": "Phone number",
+  "phoneNumber": "Phone number",
   "heardAboutUs": "How did you hear about us?",
-  "fullName": "Full name"
-  
-
+  "fullName": "Full name",
+  "repeatPassword": "Repeat Password"
 }

@@ -18,7 +18,7 @@ const transporter = nodemailer.createTransport({
 
 const subscribe = async (req, res) => {
   const { email } = req.body;
-  if (!email) throw HttpError(400, "Email is required");
+  // if (!email) throw HttpError(400, "Email is required");
   const exists = await Subscriber.findOne({ where: { email } });
   if (exists) throw HttpError(409, "Email already subscribed");
   await Subscriber.create({ email });
@@ -27,7 +27,7 @@ const subscribe = async (req, res) => {
 
 const sendNewsletter = async (req, res) => {
   const { subject, content } = req.body;
-  if (!subject || !content) throw HttpError(400, "Subject and content required");
+  // if (!subject || !content) throw HttpError(400, "Subject and content required");
   const subscribers = await Subscriber.findAll();
   const emails = subscribers.map((s) => s.email);
 

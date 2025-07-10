@@ -9,8 +9,14 @@ import { protect } from "../middleware/authMiddleware.js";
 import { googleAuth } from "../controllers/googleAuthController.js";
 import { authLimiter } from "../middleware/authLimiter.js";
 import verifyCodeController from "../controllers/verifyCodeController.js";
-import codeController from "../controllers/requestCodeController.js"; 
+import codeController from "../controllers/requestCodeController.js";
 import resetPasswordController from "../controllers/resetPasswordController.js";
+import { googleAuthSchema } from "../schemas/googleAuthSchema.js";
+import {
+  requestLoginCodeSchema,
+  verifyLoginCodeSchema,
+} from "../schemas/loginCodeSchemas.js";
+import { passwordResetSchema } from "../schemas/passwordResetSchema.js";
 
 
 const router = express.Router();
@@ -30,12 +36,28 @@ router.post(
 
 router.post("/logout", authController.logoutUser);
 router.get("/me", protect, authController.getCurrentUser);
-router.post("/google", googleAuth);
-router.post("/request-code", codeController.requestLoginCode);
-router.post("/verify-code", verifyCodeController.verifyCode);
+// router.post("/google", googleAuth);
+// router.post("/request-code", codeController.requestLoginCode);
+// router.post("/verify-code", verifyCodeController.verifyCode);
+router.post("/google", validateBody(googleAuthSchema), googleAuth);
+router.post(
+  "/request-code",
+  validateBody(requestLoginCodeSchema),
+  codeController.requestLoginCode
+);
+router.post(
+  "/verify-code",
+  validateBody(verifyLoginCodeSchema),
+  verifyCodeController.verifyCode
+);
 
-
-router.patch("/reset-password", protect, resetPasswordController.resetPassword);
+// router.patch("/reset-password", protect, resetPasswordController.resetPassword);
+router.patch(
+  "/reset-password",
+  protect,
+  validateBody(passwordResetSchema),
+  resetPasswordController.resetPassword
+);
 
 
 export default router;

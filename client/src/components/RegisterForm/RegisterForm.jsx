@@ -7,7 +7,6 @@ import { registerFormSchema } from "../../validation/formSchemas";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
 import { createApiClient } from "../../api/api";
-
 import { showNotification } from "../../store/slices/notificationSlice";
 import { setEmailForVerification } from "../../store/slices/authSlice";
 

@@ -17,10 +17,6 @@ const transporter = nodemailer.createTransport({
 const sendContactEmail = async (req, res) => {
   const { firstName, lastName, email, comment } = req.body;
 
-  if (!firstName || !lastName || !email || !comment) {
-    throw HttpError(400, "All fields are required");
-  }
-
   const mailOptions = {
     from: `"${firstName} ${lastName}" <${process.env.MAIL_USER}>`,
     to: process.env.MAIL_ADMIN,

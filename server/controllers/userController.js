@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import { logSuperAdminAction } from "../utils/logger.js";
+import { formatUser } from "../utils/formatUser.js";
 
 const updateUserRole = async (req, res) => {
   const { id } = req.params;
@@ -24,16 +25,12 @@ const updateUserRole = async (req, res) => {
   user.role = role;
   await user.save();
 
-  res.json({ message: "User role updated", user });
+  res.json({ message: "User role updated", user: formatUser(user) });
 };
 
 const getAllUsers = async (req, res) => {
-  const users = await User.findAll({
-    attributes: ["id", "email", "role", "isSuperAdmin", "createdAt"],
-    order: [["createdAt", "DESC"]],
-  });
-
-  res.json(users);
+  const users = await User.findAll({ order: [["createdAt", "DESC"]] });
+  res.json(users.map(formatUser));
 };
 
 const deleteUser = async (req, res) => {

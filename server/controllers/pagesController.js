@@ -12,7 +12,14 @@ export const getPage = async (req, res) => {
     page = await Page.create({ slug, content: "" });
   }
 
-  res.json(page);
+  const plain = page.toJSON();
+
+  // ❗ Ховаємо draftContent, якщо не авторизований адмін
+  if (!req.user?.isAdmin) {
+    delete plain.draftContent;
+  }
+
+  res.json(plain);
 };
 
 export const createPage = async (req, res) => {
@@ -30,8 +37,8 @@ export const updatePage = async (req, res) => {
   const { content } = req.body;
 
   const cleanContent = sanitizeHtml(content, {
-    allowedTags: ['b', 'i', 'em', 'strong', 'p', 'ul', 'ol', 'li', 'a'],
-    allowedAttributes: { 'a': ['href'] }
+    allowedTags: ["b", "i", "em", "strong", "p", "ul", "ol", "li", "a"],
+    allowedAttributes: { a: ["href"] },
   });
 
   let page = await Page.findOne({ where: { slug } });
