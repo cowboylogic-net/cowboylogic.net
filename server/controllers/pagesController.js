@@ -1,6 +1,7 @@
 import Page from "../models/Page.js";
 import HttpError from "../helpers/HttpError.js";
 import sanitizeHtml from "sanitize-html";
+import sendResponse from "../utils/sendResponse.js";
 
 export const getPage = async (req, res) => {
   const { slug } = req.params;
@@ -19,7 +20,10 @@ export const getPage = async (req, res) => {
     delete plain.draftContent;
   }
 
-  res.json(plain);
+  sendResponse(res, {
+    code: 200,
+    data: plain,
+  });
 };
 
 export const createPage = async (req, res) => {
@@ -29,7 +33,10 @@ export const createPage = async (req, res) => {
   if (existing) throw HttpError(400, "Page already exists");
 
   const page = await Page.create({ slug, content });
-  res.status(201).json(page);
+  sendResponse(res, {
+    code: 201,
+    data: page,
+  });
 };
 
 export const updatePage = async (req, res) => {
@@ -46,9 +53,15 @@ export const updatePage = async (req, res) => {
   if (page) {
     page.content = cleanContent;
     await page.save();
-    return res.json({ message: "Page updated" });
+    return sendResponse(res, {
+      code: 200,
+      message: "Page updated",
+    });
   }
 
   await Page.create({ slug, content: cleanContent });
-  res.status(201).json({ message: "Page created" });
+  sendResponse(res, {
+    code: 201,
+    message: "Page created",
+  });
 };

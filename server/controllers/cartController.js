@@ -2,14 +2,21 @@ import CartItem from "../models/CartItem.js";
 import Book from "../models/Book.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
-import { addToCartSchema, updateQuantitySchema } from "../schemas/cartSchemas.js";
+import {
+  addToCartSchema,
+  updateQuantitySchema,
+} from "../schemas/cartSchemas.js";
+import sendResponse from "../utils/sendResponse.js";
 
 const getCart = async (req, res) => {
   const items = await CartItem.findAll({
     where: { userId: req.user.id },
     include: Book,
   });
-  res.json(items);
+  sendResponse(res, {
+    code: 200,
+    data: items,
+  });
 };
 
 const addToCart = async (req, res) => {
@@ -43,7 +50,10 @@ const addToCart = async (req, res) => {
 
     existing.quantity = newQuantity;
     await existing.save();
-    return res.status(200).json(existing);
+    return sendResponse(res, {
+      code: 200,
+      data: existing,
+    });
   }
 
   if (book.stock < quantity) {
@@ -56,7 +66,10 @@ const addToCart = async (req, res) => {
     quantity,
   });
 
-  res.status(201).json(item);
+  sendResponse(res, {
+    code: 201,
+    data: item,
+  });
 };
 
 const updateQuantity = async (req, res) => {
@@ -83,7 +96,10 @@ const updateQuantity = async (req, res) => {
 
   item.quantity = quantity;
   await item.save();
-  res.json(item);
+  sendResponse(res, {
+    code: 200,
+    data: item,
+  });
 };
 
 const deleteItem = async (req, res) => {
@@ -96,12 +112,19 @@ const deleteItem = async (req, res) => {
   }
 
   await item.destroy();
-  res.json({ message: "Item deleted" });
+  sendResponse(res, {
+  code: 200,
+  message: "Item deleted",
+});
+
 };
 
 const clearCart = async (req, res) => {
   await CartItem.destroy({ where: { userId: req.user.id } });
-  res.json({ message: "Cart cleared" });
+  sendResponse(res, {
+    code: 200,
+    message: "Cart cleared",
+  });
 };
 
 export default {

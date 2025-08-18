@@ -3,10 +3,12 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import { formatUser } from "../utils/formatUser.js";
+import ctrlWrapper from "../helpers/ctrlWrapper.js";
+import sendResponse from "../utils/sendResponse.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-export const googleAuth = async (req, res) => {
+export const googleAuth = ctrlWrapper(async (req, res) => {
   const { id_token } = req.body;
 
   // if (!id_token) {
@@ -39,7 +41,10 @@ export const googleAuth = async (req, res) => {
   } else {
     // 🔒 Перевірка: якщо user має пароль — не дозволяти Google Login
     if (user.password) {
-      throw HttpError(400, "This email is registered with a password. Please login with email and password.");
+      throw HttpError(
+        400,
+        "This email is registered with a password. Please login with email and password."
+      );
     }
 
     // 🟢 Якщо Google user — ensure isEmailVerified true
@@ -59,8 +64,11 @@ export const googleAuth = async (req, res) => {
     { expiresIn: "7d" }
   );
 
-  res.json({
-    token,
-    user: formatUser(user),
+  sendResponse(res, {
+    code: 200,
+    data: {
+      token,
+      user: formatUser(user),
+    },
   });
-};
+});

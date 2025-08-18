@@ -3,6 +3,7 @@ import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import { logSuperAdminAction } from "../utils/logger.js";
 import { formatUser } from "../utils/formatUser.js";
+import sendResponse from "../utils/sendResponse.js";
 
 const updateUserRole = async (req, res) => {
   const { id } = req.params;
@@ -25,12 +26,19 @@ const updateUserRole = async (req, res) => {
   user.role = role;
   await user.save();
 
-  res.json({ message: "User role updated", user: formatUser(user) });
+  sendResponse(res, {
+    code: 200,
+    message: "User role updated",
+    data: formatUser(user),
+  });
 };
 
 const getAllUsers = async (req, res) => {
   const users = await User.findAll({ order: [["createdAt", "DESC"]] });
-  res.json(users.map(formatUser));
+  sendResponse(res, {
+    code: 200,
+    data: users.map(formatUser),
+  });
 };
 
 const deleteUser = async (req, res) => {
@@ -46,7 +54,11 @@ const deleteUser = async (req, res) => {
   }
 
   await user.destroy();
-  res.json({ message: "User deleted", id });
+  sendResponse(res, {
+    code: 200,
+    message: "User deleted",
+    data: { id },
+  });
 };
 
 export default {

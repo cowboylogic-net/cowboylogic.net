@@ -1,5 +1,7 @@
 import nodemailer from "nodemailer";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
+import sendResponse from "../utils/sendResponse.js";
+
 import HttpError from "../helpers/HttpError.js";
 import dotenv from "dotenv";
 dotenv.config();
@@ -31,7 +33,11 @@ const sendContactEmail = async (req, res) => {
   };
 
   await transporter.sendMail(mailOptions);
-  res.json({ message: "Message sent successfully" });
+  sendResponse(res, {
+  code: 200,
+  message: "Message sent successfully",
+});
+
 };
 
 export default {

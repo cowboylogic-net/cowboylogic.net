@@ -5,9 +5,8 @@ import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import fs from "fs/promises";
 import path from "path";
 import { Op } from "sequelize";
+import sendResponse from "../utils/sendResponse.js";
 
-// ✅ CREATE
-// ✅ CREATE
 const createBook = async (req, res) => {
   const {
     title,
@@ -22,18 +21,18 @@ const createBook = async (req, res) => {
 
   const wholesale = String(isWholesaleAvailable).toLowerCase() === "true";
 
-const parsedPrice = parseFloat(price);
+  const parsedPrice = parseFloat(price);
 
-let calculatedPartnerPrice = null;
+  let calculatedPartnerPrice = null;
 
-if (wholesale) {
-  // якщо передано вручну — використовуємо його
-  if (partnerPrice && !isNaN(parseFloat(partnerPrice))) {
-    calculatedPartnerPrice = parseFloat(partnerPrice);
-  } else {
-    calculatedPartnerPrice = +(parsedPrice * 0.75).toFixed(2); // 25% знижка
+  if (wholesale) {
+    // якщо передано вручну — використовуємо його
+    if (partnerPrice && !isNaN(parseFloat(partnerPrice))) {
+      calculatedPartnerPrice = parseFloat(partnerPrice);
+    } else {
+      calculatedPartnerPrice = +(parsedPrice * 0.75).toFixed(2); // 25% знижка
+    }
   }
-}
 
   const newBook = {
     title,
@@ -50,16 +49,19 @@ if (wholesale) {
   };
 
   const book = await Book.create(newBook);
-  res.status(201).json(book);
+  sendResponse(res, {
+    code: 201,
+    data: book,
+  });
 };
-
 
 // ✅ UPDATE
 const updateBook = async (req, res) => {
   const book = await Book.findByPk(req.params.id);
   if (!book) throw HttpError(404, "Book not found");
 
-  const wholesale = String(req.body.isWholesaleAvailable).toLowerCase() === "true";
+  const wholesale =
+    String(req.body.isWholesaleAvailable).toLowerCase() === "true";
   const parsedPrice = parseFloat(req.body.price);
 
   let parsedPartnerPrice = null;
@@ -88,24 +90,31 @@ const updateBook = async (req, res) => {
 
   if (req.file) {
     if (book.imageUrl && book.imageUrl.includes("/uploads/")) {
-      const relativePath = book.imageUrl.startsWith("/") ? book.imageUrl.slice(1) : book.imageUrl;
+      const relativePath = book.imageUrl.startsWith("/")
+        ? book.imageUrl.slice(1)
+        : book.imageUrl;
       const oldPath = path.resolve("public", relativePath);
       try {
         await fs.unlink(oldPath);
       } catch (err) {
-        if (err.code !== "ENOENT") console.warn("⚠️ Failed to delete old image:", err.message);
+        if (err.code !== "ENOENT")
+          console.warn("⚠️ Failed to delete old image:", err.message);
       }
     }
 
-    updateData.imageUrl = `/uploads/bookCovers/${path.basename(req.file.filename)}`;
+    updateData.imageUrl = `/uploads/bookCovers/${path.basename(
+      req.file.filename
+    )}`;
   }
 
   console.log("✏️ Updating book with data:", updateData);
 
   await book.update(updateData);
-  res.json(book);
+  sendResponse(res, {
+    code: 200,
+    data: book,
+  });
 };
-
 
 // ✅ GET ALL
 const getBooks = async (req, res) => {
@@ -117,7 +126,10 @@ const getBooks = async (req, res) => {
     },
   });
 
-  res.json(books);
+  sendResponse(res, {
+    code: 200,
+    data: books,
+  });
 };
 
 // ✅ GET ONE
@@ -134,7 +146,10 @@ const getBookById = async (req, res) => {
     delete bookData.partnerPrice;
   }
 
-  res.json(bookData);
+  sendResponse(res, {
+    code: 200,
+    data: bookData,
+  });
 };
 
 // ✅ DELETE
@@ -160,35 +175,45 @@ const deleteBook = async (req, res) => {
   }
 
   await book.destroy();
-  res.json({ message: "Book deleted" });
+  sendResponse(res, {
+    code: 200,
+    message: "Book deleted",
+  });
 };
 const checkBookStock = async (req, res) => {
   const items = req.body.items;
 
   if (!Array.isArray(items) || items.length === 0) {
-    return res
-      .status(400)
-      .json({ success: false, message: "No items provided" });
+    return sendResponse(res, {
+      code: 400,
+      message: "No items provided",
+      data: { success: false },
+    });
   }
 
   for (const item of items) {
     const book = await Book.findByPk(item.bookId);
     if (!book) {
-      return res.status(404).json({
-        success: false,
+      return sendResponse(res, {
+        code: 404,
         message: `Book with ID ${item.bookId} not found`,
+        data: { success: false },
       });
     }
 
     if (book.stock < item.quantity) {
-      return res.status(400).json({
-        success: false,
+      return sendResponse(res, {
+        code: 400,
         message: `Not enough stock for "${book.title}". Available: ${book.stock}, requested: ${item.quantity}`,
+        data: { success: false },
       });
     }
   }
 
-  return res.json({ success: true });
+  return sendResponse(res, {
+    code: 200,
+    data: { success: true },
+  });
 };
 
 const getPartnerBooks = async (_req, res) => {
@@ -210,7 +235,10 @@ const getPartnerBooks = async (_req, res) => {
     ],
   });
 
-  res.json(books);
+  sendResponse(res, {
+    code: 200,
+    data: books,
+  });
 };
 const checkStock = async (req, res) => {
   const { items } = req.body;
@@ -221,16 +249,26 @@ const checkStock = async (req, res) => {
   for (const item of items) {
     const book = await Book.findByPk(item.bookId);
     if (!book) {
-      return res.json({ success: false, message: `Book not found: ${item.bookId}` });
+      return sendResponse(res, {
+        code: 200,
+        message: `Book not found: ${item.bookId}`,
+        data: { success: false },
+      });
     }
     if (book.stock < item.quantity) {
-      return res.json({ success: false, message: `"${book.title}" only has ${book.stock} in stock.` });
+      return sendResponse(res, {
+        code: 200,
+        message: `"${book.title}" only has ${book.stock} in stock.`,
+        data: { success: false },
+      });
     }
   }
 
-  res.json({ success: true });
+  sendResponse(res, {
+    code: 200,
+    data: { success: true },
+  });
 };
-
 
 export default {
   createBook: ctrlWrapper(createBook),

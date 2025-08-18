@@ -3,8 +3,8 @@ import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import { sendEmail } from "../services/emailService.js";
+import sendResponse from "../utils/sendResponse.js";
 import { nanoid } from "nanoid";
-
 
 const requestLoginCode = async (req, res) => {
   const { email } = req.body;
@@ -34,9 +34,11 @@ const requestLoginCode = async (req, res) => {
   // ✉️ Надсилаємо
   await sendEmail(email, subject, body);
 
-  res.json({ message: "Verification code sent to your email" });
+  sendResponse(res, {
+    code: 200,
+    message: "Verification code sent to your email",
+  });
 };
-
 
 export default {
   requestLoginCode: ctrlWrapper(requestLoginCode),

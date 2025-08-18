@@ -8,11 +8,14 @@
 }
 
 .topSection {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  /* display: grid; */
+  /* grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); */
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-xl);
   margin-bottom: var(--spacing-xl);
   align-items: flex-start;
+  justify-content: space-between;
 }
 
 .column {

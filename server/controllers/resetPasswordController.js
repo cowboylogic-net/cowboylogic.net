@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import { sendEmail } from "../services/emailService.js";
-
+import sendResponse from "../utils/sendResponse.js";
 
 const resetPassword = async (req, res) => {
   const userId = req.user.id;
@@ -28,7 +28,10 @@ const resetPassword = async (req, res) => {
      <p>If you did not request this, please contact us immediately.</p>`
   );
 
-  res.json({ message: "Password updated successfully" });
+  sendResponse(res, {
+    code: 200,
+    message: "Password updated successfully",
+  });
 };
 
 export default {

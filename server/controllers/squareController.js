@@ -1,8 +1,9 @@
-import { checkoutApi, locationId } from '../services/squareService.js';
-import HttpError from '../helpers/HttpError.js';
-import ctrlWrapper from '../helpers/ctrlWrapper.js';
-import crypto from 'crypto';
-import Joi from 'joi';
+import { checkoutApi, locationId } from "../services/squareService.js";
+import HttpError from "../helpers/HttpError.js";
+import ctrlWrapper from "../helpers/ctrlWrapper.js";
+import sendResponse from "../utils/sendResponse.js";
+import crypto from "crypto";
+import Joi from "joi";
 
 // ✅ Joi schema for array of books
 const paymentSchema = Joi.array().items(
@@ -21,7 +22,7 @@ const buildLineItems = (items) =>
     quantity: String(quantity),
     basePriceMoney: {
       amount: Math.round(price * 100), // 💰 cents
-      currency: 'USD',
+      currency: "USD",
     },
   }));
 
@@ -37,7 +38,7 @@ const createPaymentHandler = async (req, res) => {
   const { id: userId, role } = req.user;
 
   // 🔒 Partner role restriction
-  if (role === 'partner') {
+  if (role === "partner") {
     const invalidItem = items.find((item) => item.quantity < 5);
     if (invalidItem) {
       throw HttpError(
@@ -60,21 +61,24 @@ const createPaymentHandler = async (req, res) => {
         userId: String(userId),
       },
       redirectUrl:
-        process.env.NODE_ENV === 'production'
+        process.env.NODE_ENV === "production"
           ? process.env.SQUARE_SUCCESS_URL
-          : 'http://localhost:5173/success',
+          : "http://localhost:5173/success",
     });
 
     const checkoutUrl = checkoutResponse.result.checkout?.checkoutPageUrl;
 
     if (!checkoutUrl) {
-      throw HttpError(500, 'Missing checkout URL from Square');
+      throw HttpError(500, "Missing checkout URL from Square");
     }
 
-    res.json({ checkoutUrl });
+    sendResponse(res, {
+      code: 200,
+      data: { checkoutUrl },
+    });
   } catch (err) {
-    console.error('💥 Square error:', err.response?.data || err.message);
-    throw HttpError(500, 'Failed to create payment');
+    console.error("💥 Square error:", err.response?.data || err.message);
+    throw HttpError(500, "Failed to create payment");
   }
 };
 

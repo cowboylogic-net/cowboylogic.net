@@ -1,8 +1,9 @@
 import express from "express";
 import { searchBooks } from "../controllers/searchController.js";
+import ctrlWrapper from "../helpers/ctrlWrapper.js";
 
 const router = express.Router();
 
-router.get("/", searchBooks);
+router.get("/search", ctrlWrapper(searchBooks));
 
 export default router;

@@ -4,6 +4,8 @@ import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import HttpError from "../helpers/HttpError.js";
 import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import sendResponse from "../utils/sendResponse.js";
+
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
@@ -22,7 +24,10 @@ const subscribe = async (req, res) => {
   const exists = await Subscriber.findOne({ where: { email } });
   if (exists) throw HttpError(409, "Email already subscribed");
   await Subscriber.create({ email });
-  res.status(201).json({ message: "Subscribed successfully" });
+  sendResponse(res, {
+    code: 201,
+    message: "Subscribed successfully",
+  });
 };
 
 const sendNewsletter = async (req, res) => {
@@ -38,7 +43,10 @@ const sendNewsletter = async (req, res) => {
     html: content,
   });
 
-  res.json({ message: "Newsletter sent" });
+  sendResponse(res, {
+    code: 200,
+    message: "Newsletter sent",
+  });
 };
 
 export default {

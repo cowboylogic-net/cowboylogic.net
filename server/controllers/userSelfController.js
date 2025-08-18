@@ -1,9 +1,13 @@
 // controllers/userSelfController.js
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
+import sendResponse from "../utils/sendResponse.js";
 
 const updateAvatar = async (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ message: "No avatar uploaded" });
+    return sendResponse(res, {
+      code: 400,
+      message: "No avatar uploaded",
+    });
   }
 
   // ✅ Зберігаємо вже сформований шлях — /uploads/avatars/optimized-файл.webp
@@ -12,7 +16,10 @@ const updateAvatar = async (req, res) => {
   req.user.avatarURL = avatarURL;
   await req.user.save();
 
-  res.status(200).json({ avatarURL });
+  sendResponse(res, {
+    code: 200,
+    data: { avatarURL },
+  });
 };
 
 export default {

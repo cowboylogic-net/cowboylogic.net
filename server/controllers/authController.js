@@ -9,8 +9,8 @@ import { sendEmail } from "../services/emailService.js";
 import { formatUser } from "../utils/formatUser.js";
 import PartnerProfile from "../models/PartnerProfile.js";
 import { sequelize } from "../config/db.js";
-import "../models/index.js"; // 👈 це гарантовано триггерить асоціації
-
+import sendResponse from "../utils/sendResponse.js";
+import "../models/index.js";
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -107,16 +107,13 @@ const registerUser = async (req, res) => {
       include: [{ association: "partnerProfile", required: false }],
     });
 
-    console.log("✅ userWithProfile = ", userWithProfile); // ⬅⬅⬅ ось тут
-    // 11. Відповідь
-    // res.status(201).json({
-    //   token: generateToken(newUser),
-    //   user: formatUser(userWithProfile),
-    // });
     try {
-      res.status(201).json({
-        token: generateToken(newUser),
-        user: formatUser(userWithProfile),
+      sendResponse(res, {
+        code: 201,
+        data: {
+          token: generateToken(newUser),
+          user: formatUser(userWithProfile),
+        },
       });
     } catch (err) {
       console.error("❌ res.status JSON error:", err.message, err.stack);
@@ -148,21 +145,30 @@ const loginUser = async (req, res) => {
 
   const token = generateToken(user);
 
-  res.json({
-    token,
-    user: formatUser(user),
+  sendResponse(res, {
+    code: 200,
+    data: {
+      token,
+      user: formatUser(user),
+    },
   });
 };
 
 const logoutUser = async (_req, res) => {
   res.clearCookie("token");
-  res.json({ message: "Logged out successfully" });
+  sendResponse(res, {
+    code: 200,
+    message: "Logged out successfully",
+  });
 };
 
 const getCurrentUser = async (req, res) => {
   // ⛔ req.user може бути "спрощеним", без avatarURL
   const freshUser = await User.findByPk(req.user.id);
-  res.json(formatUser(freshUser));
+  sendResponse(res, {
+    code: 200,
+    data: formatUser(freshUser),
+  });
 };
 
 export default {

@@ -4,8 +4,10 @@ import CartItem from "../models/CartItem.js";
 import Book from "../models/Book.js";
 import User from "../models/User.js";
 import { sendOrderConfirmationEmail } from "../services/emailService.js";
+import ctrlWrapper from "../helpers/ctrlWrapper.js";
+import sendResponse from "../utils/sendResponse.js";
 
-export const squareWebhookHandler = async (req, res) => {
+export const squareWebhookHandler = ctrlWrapper(async (req, res) => {
   const event = req.body;
 
   console.log("📥 Square Webhook received:", event?.type);
@@ -17,14 +19,22 @@ export const squareWebhookHandler = async (req, res) => {
       const userId = payment.metadata?.userId;
       const user = await User.findByPk(userId);
 
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user)
+        return sendResponse(res, {
+          code: 404,
+          message: "User not found",
+        });
 
       const cartItems = await CartItem.findAll({
         where: { userId },
         include: Book,
       });
 
-      if (!cartItems.length) return res.status(200).json({ message: "Empty cart" });
+      if (!cartItems.length)
+        return sendResponse(res, {
+          code: 200,
+          message: "Empty cart",
+        });
 
       const totalPrice = cartItems.reduce(
         (sum, item) => sum + item.quantity * item.Book.price,
@@ -57,9 +67,15 @@ export const squareWebhookHandler = async (req, res) => {
         console.error("Email send error:", emailErr.message);
       }
 
-      return res.status(200).json({ received: true });
+      return sendResponse(res, {
+        code: 200,
+        data: { received: true },
+      });
     }
   }
 
-  res.status(200).json({ message: "Unhandled event type" });
-};
+  return sendResponse(res, {
+    code: 200,
+    data: { received: true },
+  });
+});

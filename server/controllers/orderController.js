@@ -6,6 +6,7 @@ import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import { sendOrderConfirmationEmail } from "../services/emailService.js";
 import { updateOrderStatusSchema } from "../schemas/orderSchemas.js";
+import sendResponse from "../utils/sendResponse.js";
 
 const createOrder = async (req, res) => {
   const userId = req.user.id;
@@ -63,16 +64,13 @@ const createOrder = async (req, res) => {
   });
 
   const orderItems = cartItems.map((item) => {
-    const isUsingPartnerPrice =
-      isPartner && item.Book.partnerPrice != null;
+    const isUsingPartnerPrice = isPartner && item.Book.partnerPrice != null;
 
     return {
       orderId: order.id,
       bookId: item.bookId,
       quantity: item.quantity,
-      price: isUsingPartnerPrice
-        ? item.Book.partnerPrice
-        : item.Book.price,
+      price: isUsingPartnerPrice ? item.Book.partnerPrice : item.Book.price,
       pricingType: isUsingPartnerPrice ? "partner" : "standard",
     };
   });
@@ -86,7 +84,11 @@ const createOrder = async (req, res) => {
 
   await CartItem.destroy({ where: { userId } });
 
-  res.status(201).json({ message: "Order placed", orderId: order.id });
+  sendResponse(res, {
+    code: 201,
+    message: "Order placed",
+    data: { orderId: order.id },
+  });
 };
 
 const getUserOrders = async (req, res) => {
@@ -99,7 +101,10 @@ const getUserOrders = async (req, res) => {
     order: [["createdAt", "DESC"]],
   });
 
-  res.json(orders);
+  sendResponse(res, {
+    code: 200,
+    data: orders,
+  });
 };
 
 const getAllOrders = async (req, res) => {
@@ -117,7 +122,10 @@ const getAllOrders = async (req, res) => {
     order: [["createdAt", "DESC"]],
   });
 
-  res.json(orders);
+  sendResponse(res, {
+    code: 200,
+    data: orders,
+  });
 };
 
 const updateOrderStatus = async (req, res) => {
@@ -140,7 +148,11 @@ const updateOrderStatus = async (req, res) => {
   order.status = status;
   await order.save();
 
-  res.json({ message: "Order status updated", order });
+  sendResponse(res, {
+    code: 200,
+    message: "Order status updated",
+    data: order,
+  });
 };
 
 const getLatestOrder = async (req, res) => {
@@ -159,7 +171,10 @@ const getLatestOrder = async (req, res) => {
     throw HttpError(404, "No orders found");
   }
 
-  res.json(latestOrder);
+  sendResponse(res, {
+    code: 200,
+    data: latestOrder,
+  });
 };
 
 const deleteOrder = async (req, res) => {
@@ -180,7 +195,10 @@ const deleteOrder = async (req, res) => {
   await OrderItem.destroy({ where: { orderId: id } });
   await Order.destroy({ where: { id } });
 
-  res.json({ message: "Order deleted" });
+  sendResponse(res, {
+    code: 200,
+    message: "Order deleted",
+  });
 };
 
 const confirmSquareOrder = async (req, res) => {
@@ -239,16 +257,13 @@ const confirmSquareOrder = async (req, res) => {
   });
 
   const orderItems = cartItems.map((item) => {
-    const isUsingPartnerPrice =
-      isPartner && item.Book.partnerPrice != null;
+    const isUsingPartnerPrice = isPartner && item.Book.partnerPrice != null;
 
     return {
       orderId: order.id,
       bookId: item.bookId,
       quantity: item.quantity,
-      price: isUsingPartnerPrice
-        ? item.Book.partnerPrice
-        : item.Book.price,
+      price: isUsingPartnerPrice ? item.Book.partnerPrice : item.Book.price,
       pricingType: isUsingPartnerPrice ? "partner" : "standard",
     };
   });
@@ -272,7 +287,11 @@ const confirmSquareOrder = async (req, res) => {
     console.error("Email sending failed:", emailErr.message);
   }
 
-  res.status(201).json({ message: "Order confirmed", orderId: order.id });
+  sendResponse(res, {
+    code: 201,
+    message: "Order confirmed",
+    data: { orderId: order.id },
+  });
 };
 
 export default {

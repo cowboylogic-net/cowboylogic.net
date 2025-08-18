@@ -4,6 +4,7 @@ import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import jwt from "jsonwebtoken";
 import { formatUser } from "../utils/formatUser.js";
+import sendResponse from "../utils/sendResponse.js";
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -20,7 +21,9 @@ const generateToken = (user) => {
 const verifyCode = async (req, res) => {
   const { email, code } = req.body;
 
-  const loginCode = await LoginCode.findOne({ where: { email, code: code.toUpperCase(), } });
+  const loginCode = await LoginCode.findOne({
+    where: { email, code: code.toUpperCase() },
+  });
 
   if (!loginCode || new Date() > loginCode.expiresAt) {
     throw HttpError(400, "Invalid or expired verification code");
@@ -32,9 +35,7 @@ const verifyCode = async (req, res) => {
   // Видаляємо використаний код
   await loginCode.destroy();
 
-  // 🧠 Основна перевірка — чи юзер вже верифікований
   if (!user.isEmailVerified) {
-    // ➕ це означає, що код для підтвердження email
     user.isEmailVerified = true;
     await user.save();
   }
@@ -42,10 +43,13 @@ const verifyCode = async (req, res) => {
   // 🔐 Генеруємо токен
   const token = generateToken(user);
 
-  res.status(200).json({
+  sendResponse(res, {
+    code: 200,
     message: "Verification successful",
-    token,
-    user: formatUser(user),
+    data: {
+      token,
+      user: formatUser(user),
+    },
   });
 };
 
