@@ -25,14 +25,6 @@ export const addToCartThunk = createAsyncThunk(
   async ({ bookId, quantity }, { getState, rejectWithValue, dispatch }) => {
     try {
       const token = getState().auth.token;
-
-      // await axios.post(
-      //   '/cart',
-      //   { bookId, quantity },
-      //   { headers: { Authorization: `Bearer ${token}` } }
-      // );
-
-      // dispatch(showSuccess('Book added to cart!'));
       const res = await axios.post(
         "/cart",
         { bookId, quantity },

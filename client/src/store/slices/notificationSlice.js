@@ -2,8 +2,8 @@ import { createSlice } from '@reduxjs/toolkit';
 
 /**
  * @typedef {Object} I18nMessage
- * @property {string} key - ключ для t()
- * @property {Object} [options] - змінні для шаблону, напр. { title: "Book" }
+ * @property {string} key 
+ * @property {Object} [options] 
  */
 
 /**

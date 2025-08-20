@@ -19,7 +19,7 @@ router.post(
   protect,
   isAdmin,
   upload.single("image"),
-  validateBody(createBookSchema, true), // true => для FormData
+  validateBody(createBookSchema, true), 
   bookController.createBook
 );
 
@@ -28,7 +28,7 @@ router.put(
   protect,
   isAdmin,
   upload.single("image"),
-  validateBody(updateBookSchema, true), // true => для FormData
+  validateBody(updateBookSchema, true), 
   bookController.updateBook
 );
 router.get("/partner-books", protect, requireRole("partner", "admin", "superAdmin"), getPartnerBooks);

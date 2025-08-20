@@ -36,9 +36,6 @@ router.post(
 
 router.post("/logout", authController.logoutUser);
 router.get("/me", protect, authController.getCurrentUser);
-// router.post("/google", googleAuth);
-// router.post("/request-code", codeController.requestLoginCode);
-// router.post("/verify-code", verifyCodeController.verifyCode);
 router.post("/google", validateBody(googleAuthSchema), googleAuth);
 router.post(
   "/request-code",
@@ -51,7 +48,6 @@ router.post(
   verifyCodeController.verifyCode
 );
 
-// router.patch("/reset-password", protect, resetPasswordController.resetPassword);
 router.patch(
   "/reset-password",
   protect,

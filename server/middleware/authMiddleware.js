@@ -22,12 +22,6 @@ export const protect = async (req, res, next) => {
       return res.status(401).json({ message: "Token has been invalidated" });
     }
 
-    // req.user = {
-    //   id: user.id,
-    //   email: user.email,
-    //   role: user.role,
-    //   isSuperAdmin: user.isSuperAdmin,
-    // };
     req.user = user;
 
     console.log(
@@ -41,7 +35,7 @@ export const protect = async (req, res, next) => {
 };
 
 export const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
+  if (req.user && (req.user.role === "admin" || req.user.role === "superAdmin" || req.user?.isSuperAdmin === true)) {
     next();
   } else {
     res.status(403).json({ message: "Access denied. Admins only." });

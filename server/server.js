@@ -18,6 +18,8 @@ import "./models/OrderItem.js";
 import "./models/LoginCode.js";
 import "./models/Favorite.js";
 
+
+
 // Routes
 import authRoutes from "./routes/authRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -31,7 +33,7 @@ import webhookRoutes from "./routes/webhookRoutes.js";
 import squareRoutes from "./routes/squareRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
-import searchRoutes from "./routes/searchRoutes.js"; // ✅ новий роут
+import searchRoutes from "./routes/searchRoutes.js";
 import userSelfRoutes from "./routes/userSelfRoutes.js";
 import staticCors from "./middleware/staticCors.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
@@ -40,6 +42,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// ❌ вимикаємо ETag, щоб не було 304 без тіла
+app.set("etag", false);
+
+// ❗ гарантуємо, що тіло завжди свіже
+app.use((req, res, next) => {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+});
+
+
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
@@ -47,6 +61,12 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(helmet());
 
+app.use("/api", (req, res, next) => {
+  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set("Pragma", "no-cache");
+  res.set("Expires", "0");
+  next();
+});
 
 // Routes
 app.use("/api/auth", authRoutes);

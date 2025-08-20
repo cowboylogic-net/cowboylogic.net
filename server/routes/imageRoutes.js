@@ -10,8 +10,8 @@ router.post("/upload", upload.single("image"), optimizeImage, (req, res) => {
     return res.status(400).json({ message: "No file uploaded" });
   }
 
-  // Визначаємо піддиректорію
-  const dir = path.basename(path.dirname(req.file.path)); // e.g., "images", "avatars"
+
+  const dir = path.basename(path.dirname(req.file.path));
   const imageUrl = `/uploads/${dir}/${req.file.filename}`;
 
   res.status(200).json({ imageUrl });

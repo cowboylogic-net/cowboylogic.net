@@ -10,8 +10,6 @@ import {
 
 const router = express.Router();
 
-// router.post("/subscribe", newsletterController.subscribe);
-// router.post("/send", protect, isAdmin, newsletterController.sendNewsletter);
 router.post(
   "/subscribe",
   validateBody(subscribeNewsletterSchema),
