@@ -23,7 +23,7 @@ const ProfilePage = () => {
 
     try {
       const response = await apiService.patch("/me/avatar", formData, true);
-      dispatch(updateUserAvatar(response.avatarURL)); 
+      dispatch(updateUserAvatar(response.data.data.avatarURL));
       dispatch(
         showNotification({
           type: "success",

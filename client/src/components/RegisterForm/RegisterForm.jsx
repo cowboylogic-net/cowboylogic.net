@@ -64,7 +64,8 @@ const RegisterForm = () => {
 
     dispatch(showNotification({ message: t("registered"), type: "success" }));
 
-    const { user } = response.data;
+    // const { user } = response.data;
+    const { user } = response.data.data;
 
     if (!user.isEmailVerified) {
       // ✅ якщо не підтверджено — надсилаємо на verify
@@ -96,7 +97,8 @@ const RegisterForm = () => {
         id_token: credentialResponse.credential,
       });
 
-      localStorage.setItem("token", res.data.token);
+      // localStorage.setItem("token", res.data.token);
+      localStorage.setItem("token", res.data.data.token);
       dispatch(
         showNotification({ message: t("googleSuccess"), type: "success" })
       );

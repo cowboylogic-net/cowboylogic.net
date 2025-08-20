@@ -1,5 +1,74 @@
 // src/store/thunks/pageThunks.js
 
+// import { createAsyncThunk } from '@reduxjs/toolkit';
+// import axios from '../../store/axios';
+// import {
+//   showSuccess,
+//   showError,
+//   showTemporaryNotification,
+// } from './notificationThunks';
+
+
+// export const fetchPageVersions = createAsyncThunk(
+//   'pages/fetchPageVersions',
+//   async (slug, { rejectWithValue, dispatch }) => {
+//     try {
+//       const res = await axios.get(`/pages/${slug}`);
+//       return {
+//         slug,
+//         published: res.data.data.content || '',
+//         draft: res.data.data.draftContent || res.data.data.content || '',
+//       };
+//     } catch {
+//       const msg = `Failed to load page: ${slug}`;
+//       dispatch(showError(msg));
+//       return rejectWithValue(msg);
+//     }
+//   }
+// );
+
+
+// export const saveDraftContent = createAsyncThunk(
+//   'pages/saveDraftContent',
+//   async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
+//     try {
+//       await axios.put(
+//         `/pages/${slug}/draft`,
+//         { draftContent: content },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+//       dispatch(showTemporaryNotification({ type: 'info', message: `Draft saved for ${slug}` }));
+//       return { slug, content };
+//     } catch {
+//       const msg = `Failed to save draft for ${slug}`;
+//       dispatch(showError(msg));
+//       return rejectWithValue(msg);
+//     }
+//   }
+// );
+
+// export const updatePageContent = createAsyncThunk(
+//   'pages/updatePageContent',
+//   async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
+//     try {
+//       await axios.put(
+//         `/pages/${slug}`,
+//         { content },
+//         { headers: { Authorization: `Bearer ${token}` } }
+//       );
+//       dispatch(showSuccess(`Changes published for ${slug}`));
+//       return { slug, content };
+//     } catch {
+//       const msg = `Failed to publish page: ${slug}`;
+//       dispatch(showError(msg));
+//       return rejectWithValue(msg);
+//     }
+//   }
+// );
+
+
+// src/store/thunks/pageThunks.js
+
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import axios from '../../store/axios';
 import {
@@ -16,11 +85,11 @@ export const fetchPageVersions = createAsyncThunk(
       const res = await axios.get(`/pages/${slug}`);
       return {
         slug,
-        published: res.data.content || '',
-        draft: res.data.draftContent || res.data.content || '',
+        published: res.data.data.content || '',
+        draft: res.data.data.draftContent || res.data.data.content || '',
       };
-    } catch {
-      const msg = `Failed to load page: ${slug}`;
+    } catch (err) {
+      const msg = err.response?.data?.message || `Failed to load page: ${slug}`;
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }
@@ -39,8 +108,8 @@ export const saveDraftContent = createAsyncThunk(
       );
       dispatch(showTemporaryNotification({ type: 'info', message: `Draft saved for ${slug}` }));
       return { slug, content };
-    } catch {
-      const msg = `Failed to save draft for ${slug}`;
+    } catch (err) {
+      const msg = err.response?.data?.message || `Failed to save draft for ${slug}`;
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }
@@ -59,8 +128,8 @@ export const updatePageContent = createAsyncThunk(
       );
       dispatch(showSuccess(`Changes published for ${slug}`));
       return { slug, content };
-    } catch {
-      const msg = `Failed to publish page: ${slug}`;
+    } catch (err) {
+      const msg = err.response?.data?.message || `Failed to publish page: ${slug}`;
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }

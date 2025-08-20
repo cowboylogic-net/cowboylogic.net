@@ -14,7 +14,7 @@ export const fetchOrders = createAsyncThunk(
           Pragma: "no-cache",
         },
       });
-      return res.data;
+      return res.data.data;
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to load orders";
       dispatch(showError(msg));

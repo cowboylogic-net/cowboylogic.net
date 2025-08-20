@@ -50,7 +50,8 @@ const VerifyEmailPage = () => {
         code: data.code,
       });
 
-      const token = res?.data?.token;
+      const token = res?.data?.data?.token;
+
       if (token) {
         localStorage.setItem("token", token);
         dispatch(fetchCurrentUser(token));

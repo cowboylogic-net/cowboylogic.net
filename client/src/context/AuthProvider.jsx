@@ -7,7 +7,7 @@ import {
   logoutUser as logoutThunk,
 } from "../store/thunks/authThunks";
 import { AuthContext } from "./AuthContext";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 export const AuthProvider = ({ children }) => {
   const dispatch = useDispatch();
@@ -33,7 +33,17 @@ export const AuthProvider = ({ children }) => {
     dispatch(logoutThunk());
   };
 
-  const decodedToken = token ? jwtDecode(token) : null;
+  let decodedToken = null;
+
+  if (typeof token === "string" && token.split(".").length === 3) {
+    try {
+      decodedToken = jwtDecode(token);
+    } catch (err) {
+      console.error("❌ Failed to decode token", err);
+      localStorage.removeItem("token");
+      decodedToken = null;
+    }
+  }
 
   const value = {
     user,

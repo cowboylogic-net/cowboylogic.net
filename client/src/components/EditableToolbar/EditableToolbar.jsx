@@ -6,7 +6,7 @@ import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal.jsx";
 import TableInsertModal from "../modals/TableInsertModal/TableInsertModal.jsx";
 import ClearConfirmModal from "../modals/ClearConfirmModal/ClearConfirmModal.jsx";
 import LinkInsertModal from "../modals/LinkInsertModal/LinkInsertModal.jsx";
-import BaseButton from "../BaseButton/BaseButton"; 
+import BaseButton from "../BaseButton/BaseButton";
 import {
   Bold,
   Italic,
@@ -82,8 +82,10 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
           }
         );
         if (!res.ok) throw new Error(`Upload failed with status ${res.status}`);
-        const data = await res.json();
-        imageUrl = data.imageUrl;
+        // const data = await res.json();
+        // imageUrl = data.imageUrl;
+        const json = await res.json();
+        imageUrl = json.data.imageUrl;
       }
       if (imageUrl && editorRef?.current) {
         editorRef.current.focus();

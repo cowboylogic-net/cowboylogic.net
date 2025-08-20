@@ -6,6 +6,7 @@ import authReducer from "./slices/authSlice";
 import notificationReducer from "./slices/notificationSlice";
 import favoritesReducer from "./slices/favoritesSlice";
 import ordersReducer from "./slices/ordersSlice";
+import { injectStore } from "./axios";
 
 export const store = configureStore({
   reducer: {
@@ -18,3 +19,5 @@ export const store = configureStore({
     orders: ordersReducer,
   },
 });
+
+injectStore(store);

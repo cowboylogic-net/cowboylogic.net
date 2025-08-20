@@ -1,15 +1,23 @@
-// src/store/slices/authSlice.js
 import { createSlice } from "@reduxjs/toolkit";
+import {
+  loginUser,
+  registerUser,
+  fetchCurrentUser,
+  logoutUser,
+  uploadAvatar,
+} from "../thunks/authThunks";
+
+const initialState = {
+  user: null,
+  token: localStorage.getItem("token") || null,
+  emailForVerification: null,
+  isLoading: false,
+  error: null,
+};
 
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    user: null,
-    token: localStorage.getItem("token") || null,
-    emailForVerification: null,
-    isLoading: false,
-    error: null,
-  },
+  initialState,
   reducers: {
     updateUserAvatar: (state, action) => {
       if (state.user) {
@@ -19,54 +27,68 @@ const authSlice = createSlice({
     setEmailForVerification: (state, action) => {
       state.emailForVerification = action.payload;
     },
-    logout: (state) => {
-      state.user = null;
-      state.token = null;
-      state.emailForVerification = null;
-      state.isLoading = false;
-      state.error = null;
-      localStorage.removeItem("token");
-    },
-    loginStart: (state) => {
-      state.isLoading = true;
-      state.error = null;
-    },
-    loginSuccess: (state, action) => {
-      state.token = action.payload.token;
-      state.user = action.payload.user;
-      state.isLoading = false;
-      localStorage.setItem("token", action.payload.token);
-    },
-    loginFailure: (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
-    fetchStart: (state) => {
-      state.isLoading = true;
-    },
-    fetchSuccess: (state, action) => {
-      state.user = action.payload;
-      state.isLoading = false;
-    },
-    fetchFailure: (state) => {
-      state.user = null;
-      state.token = null;
-      state.isLoading = false;
-      localStorage.removeItem("token");
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.isLoading = false;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(registerUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.token = action.payload.token;
+        state.user = action.payload.user;
+        state.isLoading = false;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchCurrentUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentUser.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(fetchCurrentUser.rejected, (state, action) => {
+        state.user = null;
+        state.token = null;
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+        state.emailForVerification = null;
+        state.isLoading = false;
+        state.error = null;
+      })
+      .addCase(logoutUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(uploadAvatar.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.avatarURL = action.payload;
+        }
+      });
   },
 });
 
-export const {
-  updateUserAvatar,
-  setEmailForVerification,
-  logout,
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  fetchStart,
-  fetchSuccess,
-  fetchFailure,
-} = authSlice.actions;
+export const { updateUserAvatar, setEmailForVerification } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -95,8 +95,8 @@ const BookDetails = () => {
         token
       );
 
-      if (res?.data?.checkoutUrl) {
-        window.location.href = res.data.checkoutUrl;
+      if (res?.data?.data?.checkoutUrl) {
+        window.location.href = res.data.data.checkoutUrl;
       } else {
         toast.error(t("cart.checkoutError"));
       }

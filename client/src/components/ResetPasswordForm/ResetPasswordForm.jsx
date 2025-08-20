@@ -3,8 +3,8 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../../store/slices/authSlice";
 import { showNotification } from "../../store/slices/notificationSlice";
+import { logoutUser } from "../../store/thunks/authThunks";
 import axios from "../../store/axios";
 import { useTranslation } from "react-i18next";
 import BaseButton from "../BaseButton/BaseButton";
@@ -12,14 +12,16 @@ import BaseInput from "../BaseInput/BaseInput";
 import BaseForm from "../BaseForm/BaseForm";
 import FormGroup from "../FormGroup/FormGroup";
 
-
-const schema = yup.object().shape({
-  oldPassword: yup.string().required("Current password is required"),
-  newPassword: yup
-    .string()
-    .min(6, "New password must be at least 6 characters")
-    .required("New password is required"),
-});
+const schema = (t) =>
+  yup.object().shape({
+    oldPassword: yup
+      .string()
+      .required(t("resetPassword.errors.currentRequired")),
+    newPassword: yup
+      .string()
+      .min(6, t("resetPassword.errors.newMin"))
+      .required(t("resetPassword.errors.newRequired")),
+  });
 
 const ResetPasswordForm = ({ onSuccess }) => {
   const { t } = useTranslation();
@@ -32,7 +34,7 @@ const ResetPasswordForm = ({ onSuccess }) => {
     formState: { errors },
     reset,
   } = useForm({
-    resolver: yupResolver(schema),
+    resolver: yupResolver(schema(t)), 
   });
 
   const handleResetPassword = async (data) => {
@@ -48,9 +50,9 @@ const ResetPasswordForm = ({ onSuccess }) => {
         })
       );
 
-      setTimeout(() => dispatch(logout()), 2000);
+      setTimeout(() => dispatch(logoutUser()), 2000);
       reset();
-      if (onSuccess) onSuccess(); // ✅ Закриває модалку
+      if (onSuccess) onSuccess();
     } catch (err) {
       dispatch(
         showNotification({

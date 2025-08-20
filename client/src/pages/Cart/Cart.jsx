@@ -81,9 +81,9 @@ const Cart = () => {
     try {
       const res = await apiService.post("/books/check-stock", { items }, token);
 
-      if (!res.data.success) {
+      if (!res.data.data.success) {
         toast.error(t("cart.outOfStockGeneric"));
-        if (res.data.message) toast.error(res.data.message);
+        if (res.data.data.message) toast.error(res.data.data.message);
         return;
       }
 
@@ -113,7 +113,7 @@ const Cart = () => {
         token
       );
 
-      window.location.href = checkoutRes.data.checkoutUrl;
+      window.location.href = checkoutRes.data.data.checkoutUrl;
     } catch (err) {
       toast.error(t("cart.checkoutError"));
       console.error(err);

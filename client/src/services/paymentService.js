@@ -8,5 +8,5 @@ export const createSquarePayment = async ({ title, price, bookId }) => {
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.message || "Failed to create payment");
-  return data.checkoutUrl;
+  return data.data.checkoutUrl;
 };

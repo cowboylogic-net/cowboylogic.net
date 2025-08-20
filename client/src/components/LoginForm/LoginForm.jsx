@@ -10,7 +10,7 @@ import BaseButton from "../BaseButton/BaseButton";
 import BaseInput from "../BaseInput/BaseInput";
 import BaseForm from "../BaseForm/BaseForm";
 import axios from "../../store/axios";
-import { loginSuccess } from "../../store/slices/authSlice";
+// import { loginSuccess } from "../../store/slices/authSlice";
 
 import { loginUser, fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
@@ -51,27 +51,61 @@ const LoginForm = () => {
     }
   }, [resendCooldown]);
 
-  const onLogin = async (data) => {
+//   const onLogin = async (data) => {
+//   try {
+//     const res = await axios.post("/auth/login", data);
+//     const { token, user } = res.data;
+
+//     if (token && user) {
+//       dispatch(loginSuccess({ token, user }));       
+//       localStorage.setItem("token", token);           
+//       dispatch(fetchCurrentUser());                   
+//       dispatch(
+//         showNotification({ message: t("welcomeBack"), type: "success" })
+//       );
+//       navigate("/");                                  
+//     } else {
+//       throw new Error("Invalid login response");
+//     }
+//   } catch (err) {
+//     const status = err.response?.status;
+
+//     if (status === 403) {
+      
+//       setEmail(data.email);
+//       await axios.post("/auth/request-code", { email: data.email });
+//       setValue("email", "");
+//       setValue("password", "");
+//       setStep(2);
+//       setResendCooldown(30);
+//       dispatch(showNotification({ message: t("codeSent"), type: "info" }));
+//       return;
+//     }
+
+//     dispatch(
+//       showNotification({
+//         message: err.response?.data?.message || t("loginFailed"),
+//         type: "error",
+//       })
+//     );
+//   }
+// };
+
+const onLogin = async (data) => {
   try {
     const res = await axios.post("/auth/login", data);
-    const { token, user } = res.data;
+    const { token } = res.data.data;
 
-    if (token && user) {
-      dispatch(loginSuccess({ token, user }));       // оновлює Redux state
-      localStorage.setItem("token", token);           // зберігає токен
-      dispatch(fetchCurrentUser());                   // підтверджує авторизацію
-      dispatch(
-        showNotification({ message: t("welcomeBack"), type: "success" })
-      );
-      navigate("/");                                  // перенаправлення після логіну
-    } else {
-      throw new Error("Invalid login response");
-    }
+    // Якщо користувач верифікований — логін успішний
+    localStorage.setItem("token", token);
+    dispatch(fetchCurrentUser());
+    dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
+    navigate("/");
   } catch (err) {
     const status = err.response?.status;
 
+    // Якщо email ще не верифікований → вмикаємо step 2
     if (status === 403) {
-      // Перехід до step 2 — потрібна верифікація
       setEmail(data.email);
       await axios.post("/auth/request-code", { email: data.email });
       setValue("email", "");
@@ -79,41 +113,61 @@ const LoginForm = () => {
       setStep(2);
       setResendCooldown(30);
       dispatch(showNotification({ message: t("codeSent"), type: "info" }));
-      return;
+    } else {
+      dispatch(
+        showNotification({
+          message: err.response?.data?.message || t("loginFailed"),
+          type: "error",
+        })
+      );
     }
-
-    dispatch(
-      showNotification({
-        message: err.response?.data?.message || t("loginFailed"),
-        type: "error",
-      })
-    );
   }
 };
 
 
+  // const onVerify = async (data) => {
+  //   try {
+  //     const result = await dispatch(loginUser({ email, code: data.code }));
+  //     if (loginUser.fulfilled.match(result)) {
+  //       dispatch(
+  //         showNotification({ message: t("welcomeBack"), type: "success" })
+  //       );
+  //       dispatch(fetchCurrentUser(result.payload.token));
+  //       navigate("/");
+  //     } else {
+  //       dispatch(
+  //         showNotification({
+  //           message: result.payload || t("codeInvalid"),
+  //           type: "error",
+  //         })
+  //       );
+  //     }
+  //   } catch {
+  //     dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
+  //   }
+  // };
 
   const onVerify = async (data) => {
-    try {
-      const result = await dispatch(loginUser({ email, code: data.code }));
-      if (loginUser.fulfilled.match(result)) {
-        dispatch(
-          showNotification({ message: t("welcomeBack"), type: "success" })
-        );
-        dispatch(fetchCurrentUser(result.payload.token));
-        navigate("/");
-      } else {
-        dispatch(
-          showNotification({
-            message: result.payload || t("codeInvalid"),
-            type: "error",
-          })
-        );
-      }
-    } catch {
-      dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
+  try {
+    const result = await dispatch(loginUser({ email, code: data.code }));
+
+    if (loginUser.fulfilled.match(result)) {
+      dispatch(fetchCurrentUser());
+      dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
+      navigate("/");
+    } else {
+      dispatch(
+        showNotification({
+          message: result.payload || t("codeInvalid"),
+          type: "error",
+        })
+      );
     }
-  };
+  } catch {
+    dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
+  }
+};
+
 
   const handleResendCode = async () => {
     try {
@@ -131,7 +185,8 @@ const LoginForm = () => {
         id_token: credentialResponse.credential,
       });
 
-      const { token, user } = res.data;
+      // const { token, user } = res.data;
+      const { token, user } = res.data.data;
 
       if (!user.isEmailVerified) {
         dispatch(

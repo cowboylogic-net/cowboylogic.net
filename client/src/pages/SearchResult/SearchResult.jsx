@@ -15,7 +15,7 @@ const SearchResults = () => {
 
     fetch(`http://localhost:5000/api/search?q=${query}`)
       .then((res) => res.json())
-      .then((data) => setResults(data))
+      .then((data) => setResults(data.data))
       .catch((error) => console.error("Error fetching search results:", error));
   }, [query]);
 

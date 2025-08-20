@@ -19,7 +19,7 @@ const useFetch = (url, secured = false) => {
       try {
         const res = await apiService.get(url, secured);
         if (isMounted) {
-          setData(res.data);
+          setData(res.data.data);
           setError(null);
         }
       } catch (err) {

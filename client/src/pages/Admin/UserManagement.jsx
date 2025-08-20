@@ -16,7 +16,7 @@ const UserManagement = () => {
   const fetchUsers = useCallback(async () => {
     try {
       const res = await apiService.get("/users", true);
-      setUsers(res.data);
+      setUsers(res.data.data);
     } catch (err) {
       console.error("Failed to fetch users", err);
       dispatch(

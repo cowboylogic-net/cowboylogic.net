@@ -34,12 +34,12 @@ const SuccessPage = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setOrderId(res.data.id);
+        setOrderId(res.data.data.id);
 
         dispatch(
           showNotification({
             type: "success",
-            message: t("success.confirmed", { orderId: res.data.id }),
+            message: t("success.confirmed", { orderId: res.data.data.id }),
           })
         );
       } catch (err) {

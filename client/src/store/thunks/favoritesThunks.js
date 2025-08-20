@@ -17,7 +17,7 @@ export const fetchFavorites = createAsyncThunk(
       const res = await axios.get('/favorites', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return res.data;
+      return res.data.data;
     } catch (err) {
       const msg = err.response?.data?.message || 'Failed to load favorites';
       dispatch(showError(msg));

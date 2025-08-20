@@ -9,8 +9,8 @@ import {
 const pageSlice = createSlice({
   name: "pages",
   initialState: {
-    published: {},     // 💾 збережений (live) контент
-    drafts: {},        // ✍️ чернетка (draft)
+    published: {},     
+    drafts: {},        
     isFetching: false,
     isUpdating: false,
     isDraftSaving: false,

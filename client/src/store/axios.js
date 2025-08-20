@@ -1,5 +1,10 @@
 import axios from "axios";
-import { store } from "./store";
+
+let store;
+
+export const injectStore = (_store) => {
+  store = _store;
+};
 
 const instance = axios.create({
   baseURL: `${import.meta.env.VITE_API_URL}/api`,
@@ -9,7 +14,7 @@ const instance = axios.create({
 // Додаємо токен з Redux у заголовки
 instance.interceptors.request.use(
   (config) => {
-    const token = store.getState().auth.token;
+    const token = store?.getState().auth.token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -23,7 +28,8 @@ instance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      store.dispatch({ type: "auth/logoutUser/fulfilled" });
+      localStorage.removeItem("token");
+      store?.dispatch({ type: "auth/logoutUser/fulfilled" });
     }
     return Promise.reject(error);
   }

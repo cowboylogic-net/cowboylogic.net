@@ -1,73 +1,102 @@
-// src/store/thunks/authThunks.js
 
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../../store/axios";
 import { showNotification } from "../slices/notificationSlice";
-import {
-  logout,
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  fetchStart,
-  fetchSuccess,
-  fetchFailure,
-  updateUserAvatar,
-} from "../slices/authSlice"; // ✅ без циклів
 
-// 🔐 Login thunk
-export const loginUser = (credentials) => async (dispatch) => {
-  dispatch(loginStart());
-  try {
-    const res = await axios.post("/auth/verify-code", credentials);
-    dispatch(loginSuccess(res.data));
-    dispatch(showNotification({ type: "success", message: "Welcome back!" }));
-  } catch (err) {
-    const msg = err.response?.data?.message || "Login failed";
-    dispatch(loginFailure(msg));
-    dispatch(showNotification({ type: "error", message: msg }));
+export const loginUser = createAsyncThunk(
+  "auth/loginUser",
+  async (credentials, { dispatch, rejectWithValue }) => {
+    try {
+      const res = await axios.post("/auth/verify-code", credentials);
+      localStorage.setItem("token", res.data.data.token);
+      dispatch(
+        showNotification({ type: "success", message: "Welcome back!" })
+      );
+      return res.data.data;
+    } catch (err) {
+      const msg = err.response?.data?.message || "Login failed";
+      dispatch(showNotification({ type: "error", message: msg }));
+      return rejectWithValue(msg);
+    }
   }
-};
+);
 
-// 👤 Fetch current user thunk
-export const fetchCurrentUser = () => async (dispatch, getState) => {
-  const token = getState().auth.token;
-  if (!token) {
-    dispatch(fetchFailure());
-    return;
+export const registerUser = createAsyncThunk(
+  "auth/registerUser",
+  async (payload, { dispatch, rejectWithValue }) => {
+    try {
+      const res = await axios.post("/auth/register", payload);
+      localStorage.setItem("token", res.data.data.token);
+      dispatch(
+        showNotification({
+          type: "success",
+          message: "Registration successful",
+        })
+      );
+      return res.data.data;
+    } catch (err) {
+      const msg = err.response?.data?.message || "Registration failed";
+      dispatch(showNotification({ type: "error", message: msg }));
+      return rejectWithValue(msg);
+    }
   }
+);
 
-  dispatch(fetchStart());
-
-  try {
-    const res = await axios.get("/auth/me", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    dispatch(fetchSuccess(res.data));
-  } catch {
-    dispatch(fetchFailure());
-    dispatch(showNotification({ type: "error", message: "Session expired" }));
+export const fetchCurrentUser = createAsyncThunk(
+  "auth/fetchCurrentUser",
+  async (_, { getState, dispatch, rejectWithValue }) => {
+    const token = getState().auth.token;
+    if (!token) {
+      return rejectWithValue("No token");
+    }
+    try {
+      const res = await axios.get("/auth/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data.data;
+    } catch (err) {
+      localStorage.removeItem("token");
+      const msg = err.response?.data?.message || "Session expired";
+      dispatch(showNotification({ type: "error", message: msg }));
+      return rejectWithValue(msg);
+    }
   }
-};
+);
 
-// 🚪 Logout thunk
-export const logoutUser = () => (dispatch) => {
-  dispatch(logout());
-  dispatch(showNotification({ type: "success", message: "Logged out" }));
-};
 
-// 📸 Upload avatar thunk
-export const uploadAvatar = (file) => async (dispatch) => {
-  try {
-    const formData = new FormData();
-    formData.append("avatar", file);
-
-    const res = await axios.patch("/users/avatar", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    dispatch(updateUserAvatar(res.data.avatarURL));
-    dispatch(showNotification({ type: "success", message: "Avatar updated" }));
-  } catch (err) {
-    const msg = err.response?.data?.message || "Upload failed";
-    dispatch(showNotification({ type: "error", message: msg }));
+export const logoutUser = createAsyncThunk(
+  "auth/logoutUser",
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      await axios.post("/auth/logout");
+      localStorage.removeItem("token");
+      dispatch(showNotification({ type: "success", message: "Logged out" }));
+      return null;
+    } catch (err) {
+      const msg = err.response?.data?.message || "Logout failed";
+      dispatch(showNotification({ type: "error", message: msg }));
+      return rejectWithValue(msg);
+    }
   }
-};
+);
+
+export const uploadAvatar = createAsyncThunk(
+  "auth/uploadAvatar",
+  async (file, { dispatch, rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      formData.append("avatar", file);
+
+      const res = await axios.patch("/users/avatar", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      dispatch(showNotification({ type: "success", message: "Avatar updated" }));
+      return res.data.data.avatarURL;
+    } catch (err) {
+      const msg = err.response?.data?.message || "Upload failed";
+      dispatch(showNotification({ type: "error", message: msg }));
+      return rejectWithValue(msg);
+    }
+  }
+);
