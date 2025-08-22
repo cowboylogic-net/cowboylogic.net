@@ -10,7 +10,7 @@ import BaseButton from "../BaseButton/BaseButton";
 import BaseInput from "../BaseInput/BaseInput";
 import BaseForm from "../BaseForm/BaseForm";
 import axios from "../../store/axios";
-// import { loginSuccess } from "../../store/slices/authSlice";
+import { loginSuccess } from "../../store/slices/authSlice";
 
 import { loginUser, fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
@@ -51,123 +51,63 @@ const LoginForm = () => {
     }
   }, [resendCooldown]);
 
-//   const onLogin = async (data) => {
-//   try {
-//     const res = await axios.post("/auth/login", data);
-//     const { token, user } = res.data;
+  const onLogin = async (data) => {
+    try {
+      const res = await axios.post("/auth/login", data);
+      const { token, user } = res.data.data;
 
-//     if (token && user) {
-//       dispatch(loginSuccess({ token, user }));       
-//       localStorage.setItem("token", token);           
-//       dispatch(fetchCurrentUser());                   
-//       dispatch(
-//         showNotification({ message: t("welcomeBack"), type: "success" })
-//       );
-//       navigate("/");                                  
-//     } else {
-//       throw new Error("Invalid login response");
-//     }
-//   } catch (err) {
-//     const status = err.response?.status;
+      localStorage.setItem("token", token);
 
-//     if (status === 403) {
-      
-//       setEmail(data.email);
-//       await axios.post("/auth/request-code", { email: data.email });
-//       setValue("email", "");
-//       setValue("password", "");
-//       setStep(2);
-//       setResendCooldown(30);
-//       dispatch(showNotification({ message: t("codeSent"), type: "info" }));
-//       return;
-//     }
+      // ⬇️ миттєво оновлюємо Redux-стейт, щоб інтерцептор бачив токен і UI перемалювався
+      dispatch(loginSuccess({ token, user }));
 
-//     dispatch(
-//       showNotification({
-//         message: err.response?.data?.message || t("loginFailed"),
-//         type: "error",
-//       })
-//     );
-//   }
-// };
+      // опціонально: підтягнути «свіжого» юзера з бекенда
+      dispatch(fetchCurrentUser());
 
-const onLogin = async (data) => {
-  try {
-    const res = await axios.post("/auth/login", data);
-    const { token } = res.data.data;
-
-    // Якщо користувач верифікований — логін успішний
-    localStorage.setItem("token", token);
-    dispatch(fetchCurrentUser());
-    dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
-    navigate("/");
-  } catch (err) {
-    const status = err.response?.status;
-
-    // Якщо email ще не верифікований → вмикаємо step 2
-    if (status === 403) {
-      setEmail(data.email);
-      await axios.post("/auth/request-code", { email: data.email });
-      setValue("email", "");
-      setValue("password", "");
-      setStep(2);
-      setResendCooldown(30);
-      dispatch(showNotification({ message: t("codeSent"), type: "info" }));
-    } else {
       dispatch(
-        showNotification({
-          message: err.response?.data?.message || t("loginFailed"),
-          type: "error",
-        })
+        showNotification({ message: t("welcomeBack"), type: "success" })
       );
+      navigate("/");
+    } catch (err) {
+      const status = err.response?.status;
+      if (status === 403) {
+        setEmail(data.email);
+        await axios.post("/auth/request-code", { email: data.email });
+        setValue("email", "");
+        setValue("password", "");
+        setStep(2);
+        setResendCooldown(30);
+        dispatch(showNotification({ message: t("codeSent"), type: "info" }));
+      } else {
+        dispatch(
+          showNotification({
+            message: err.response?.data?.message || t("loginFailed"),
+            type: "error",
+          })
+        );
+      }
     }
-  }
-};
-
-
-  // const onVerify = async (data) => {
-  //   try {
-  //     const result = await dispatch(loginUser({ email, code: data.code }));
-  //     if (loginUser.fulfilled.match(result)) {
-  //       dispatch(
-  //         showNotification({ message: t("welcomeBack"), type: "success" })
-  //       );
-  //       dispatch(fetchCurrentUser(result.payload.token));
-  //       navigate("/");
-  //     } else {
-  //       dispatch(
-  //         showNotification({
-  //           message: result.payload || t("codeInvalid"),
-  //           type: "error",
-  //         })
-  //       );
-  //     }
-  //   } catch {
-  //     dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
-  //   }
-  // };
+  };
 
   const onVerify = async (data) => {
-  try {
-    const result = await dispatch(loginUser({ email, code: data.code }));
+    try {
+      const result = await dispatch(loginUser({ email, code: data.code }));
 
-    if (loginUser.fulfilled.match(result)) {
-      dispatch(fetchCurrentUser());
-      dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
-      navigate("/");
-    } else {
-      dispatch(
-        showNotification({
-          message: result.payload || t("codeInvalid"),
-          type: "error",
-        })
-      );
+      if (loginUser.fulfilled.match(result)) {
+        dispatch(fetchCurrentUser());
+        navigate("/");
+      } else {
+        dispatch(
+          showNotification({
+            message: result.payload || t("codeInvalid"),
+            type: "error",
+          })
+        );
+      }
+    } catch {
+      dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
     }
-  } catch {
-    dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
-  }
-};
-
+  };
 
   const handleResendCode = async () => {
     try {
@@ -199,11 +139,14 @@ const onLogin = async (data) => {
       }
 
       localStorage.setItem("token", token);
-      dispatch(fetchCurrentUser(token));
+      dispatch(loginSuccess({ token, user }));
+      dispatch(fetchCurrentUser());
       dispatch(
         showNotification({ message: t("googleSuccess"), type: "success" })
       );
       navigate("/");
+      setStep(1);
+      setEmail("");
     } catch {
       dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
     }

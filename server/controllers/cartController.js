@@ -9,10 +9,25 @@ import {
 import sendResponse from "../utils/sendResponse.js";
 
 const getCart = async (req, res) => {
+  // ⬇️ INSERT: єдина логіка — дати partnerPrice тільки привілейованим
+  const isPrivileged =
+    req.user?.role === "partner" ||
+    req.user?.role === "admin" ||
+    req.user?.isSuperAdmin;
+
   const items = await CartItem.findAll({
     where: { userId: req.user.id },
-    include: Book,
+    order: [['createdAt', 'ASC']],
+    include: [
+      {
+        model: Book,
+        attributes: {
+          exclude: isPrivileged ? [] : ["partnerPrice"], // ⬅️ INSERT
+        },
+      },
+    ],
   });
+
   sendResponse(res, {
     code: 200,
     data: items,
@@ -25,6 +40,12 @@ const addToCart = async (req, res) => {
 
   const { bookId, quantity } = value;
   const isPartner = req.user.role === "partner";
+
+  // ⬇️ INSERT: хтo привілейований (бачить partnerPrice)
+  const isPrivileged =
+    req.user?.role === "partner" ||
+    req.user?.role === "admin" ||
+    req.user?.isSuperAdmin; // ← INSERT
 
   const book = await Book.findByPk(bookId);
   if (!book) throw HttpError(404, "Book not found");
@@ -50,6 +71,19 @@ const addToCart = async (req, res) => {
 
     existing.quantity = newQuantity;
     await existing.save();
+
+    // ⬇️ REPLACE: було (existing || item).reload(...). Тепер просто existing.reload(...)
+    await existing.reload({
+      include: [
+        {
+          model: Book,
+          attributes: {
+            exclude: isPrivileged ? [] : ["partnerPrice"], // ← INSERT
+          },
+        },
+      ],
+    }); // ← REPLACE
+
     return sendResponse(res, {
       code: 200,
       data: existing,
@@ -66,12 +100,25 @@ const addToCart = async (req, res) => {
     quantity,
   });
 
+
+  await item.reload({
+    include: [
+      {
+        model: Book,
+        attributes: {
+          exclude: isPrivileged ? [] : ["partnerPrice"], 
+        },
+      },
+    ],
+  }); 
+
   sendResponse(res, {
     code: 201,
     data: item,
   });
 };
 
+// controllers/cartController.js
 const updateQuantity = async (req, res) => {
   const { error, value } = updateQuantitySchema.validate(req.body);
   if (error) throw HttpError(400, error.details[0].message);
@@ -80,7 +127,23 @@ const updateQuantity = async (req, res) => {
   const { itemId } = req.params;
   const isPartner = req.user.role === "partner";
 
-  const item = await CartItem.findByPk(itemId, { include: Book });
+  // ⬇️ INSERT: хто вважається привілейованим (бачать partnerPrice)
+  const isPrivileged =
+    req.user?.role === "partner" ||
+    req.user?.role === "admin" ||
+    req.user?.isSuperAdmin; // ⬅️ INSERT
+
+  // ⬇️ INSERT: підтягуємо Book з потрібними атрибутами
+  const item = await CartItem.findByPk(itemId, {
+    include: [
+      {
+        model: Book,
+        attributes: {
+          exclude: isPrivileged ? [] : ["partnerPrice"], // ⬅️ INSERT
+        },
+      },
+    ],
+  });
 
   if (!item || item.userId !== req.user.id) {
     throw HttpError(404, "Cart item not found");
@@ -96,6 +159,19 @@ const updateQuantity = async (req, res) => {
 
   item.quantity = quantity;
   await item.save();
+
+  // ⬇️ INSERT: перезавантажуємо з тим же include, щоб відповідь була «очищена»
+  await item.reload({
+    include: [
+      {
+        model: Book,
+        attributes: {
+          exclude: isPrivileged ? [] : ["partnerPrice"], // ⬅️ INSERT
+        },
+      },
+    ],
+  });
+
   sendResponse(res, {
     code: 200,
     data: item,
@@ -113,10 +189,9 @@ const deleteItem = async (req, res) => {
 
   await item.destroy();
   sendResponse(res, {
-  code: 200,
-  message: "Item deleted",
-});
-
+    code: 200,
+    message: "Item deleted",
+  });
 };
 
 const clearCart = async (req, res) => {

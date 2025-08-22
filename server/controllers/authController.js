@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
+import { Op } from "sequelize";
 import User from "../models/User.js";
 import LoginCode from "../models/LoginCode.js";
 import HttpError from "../helpers/HttpError.js";
@@ -10,7 +11,7 @@ import { formatUser } from "../utils/formatUser.js";
 import PartnerProfile from "../models/PartnerProfile.js";
 import { sequelize } from "../config/db.js";
 import sendResponse from "../utils/sendResponse.js";
-import "../models/index.js";
+
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -26,7 +27,7 @@ const generateToken = (user) => {
 
 const registerUser = async (req, res) => {
   const {
-    email,
+    email: rawEmail,
     password,
     role,
     fullName,
@@ -36,7 +37,11 @@ const registerUser = async (req, res) => {
     partnerProfile,
   } = req.body;
 
-  // 1. Перевірка на існуючого юзера
+  // 0) Нормалізуємо email
+  const email = (rawEmail || "").trim().toLowerCase();
+  if (!email) throw HttpError(400, "Email is required");
+
+  // 1) Перевірка на існуючого юзера
   const existingUser = await User.findOne({ where: { email } });
   if (existingUser) throw HttpError(409, "User already exists");
 
@@ -82,12 +87,22 @@ const registerUser = async (req, res) => {
     }
 
     // 7. Створення коду підтвердження email
+    try {
+      await LoginCode.destroy({
+        where: { email, expiresAt: { [Op.lt]: new Date() } },
+        transaction,
+      });
+    } catch (_) {}
+
     const code = nanoid(6).toUpperCase();
-    await LoginCode.create({
-      email: newUser.email,
-      code,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 10), // 10 хв
-    });
+    await LoginCode.create(
+      {
+        email: newUser.email,
+        code,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 10), // 10 хв
+      },
+      { transaction }
+    );
 
     await transaction.commit(); // завершення всіх записів
 
@@ -99,7 +114,7 @@ const registerUser = async (req, res) => {
       );
     } catch (emailErr) {
       console.error("❌ Email failed post-commit:", emailErr.message);
-      // 🔁 Можна зберегти цей код в чергу для повторного надсилання
+      //  Можна зберегти цей код в чергу для повторного надсилання
     }
 
     // 10. Повернення юзера з профілем
@@ -107,30 +122,26 @@ const registerUser = async (req, res) => {
       include: [{ association: "partnerProfile", required: false }],
     });
 
-    try {
-      sendResponse(res, {
-        code: 201,
-        data: {
-          token: generateToken(newUser),
-          user: formatUser(userWithProfile),
-        },
-      });
-    } catch (err) {
-      console.error("❌ res.status JSON error:", err.message, err.stack);
-      res.status(500).json({ message: "Error serializing user" });
-    }
+    return sendResponse(res, {
+      code: 201,
+      data: {
+        token: generateToken(newUser),
+        user: formatUser(userWithProfile),
+      },
+    });
   } catch (error) {
-    console.error("❌ registerUser error:", error.message, error.stack); // ← додай
+    console.error("❌ registerUser error:", error.message, error.stack); 
     await transaction.rollback();
     throw error;
   }
 };
 
 const loginUser = async (req, res) => {
-  const { email, password } = req.body;
+  const { email: rawEmail, password } = req.body;
+  const email = (rawEmail || "").trim().toLowerCase();
 
-  const user = await User.findOne({ where: { email } });
-  if (!user) throw HttpError(401, "Invalid credentials");
+const user = await User.unscoped().findOne({ where: { email } });
+if (!user) throw HttpError(401, "Invalid credentials");
 
   if (!user.isEmailVerified) {
     throw HttpError(403, "Please verify your email before logging in");
@@ -142,6 +153,10 @@ const loginUser = async (req, res) => {
 
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw HttpError(401, "Invalid credentials");
+
+  try {
+    await user.update({ lastLoginAt: new Date() });
+  } catch (_) {}
 
   const token = generateToken(user);
 
@@ -165,6 +180,7 @@ const logoutUser = async (_req, res) => {
 const getCurrentUser = async (req, res) => {
   // ⛔ req.user може бути "спрощеним", без avatarURL
   const freshUser = await User.findByPk(req.user.id);
+  if (!freshUser) throw HttpError(401, "User not found");
   sendResponse(res, {
     code: 200,
     data: formatUser(freshUser),

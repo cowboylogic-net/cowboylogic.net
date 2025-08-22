@@ -65,13 +65,12 @@ const PartnerProfile = sequelize.define(
       allowNull: true,
     },
     businessWebsite: {
-  type: DataTypes.STRING,
-  allowNull: true,
-  validate: {
-    isUrl: true,
-  },
-},
-
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        isUrl: true,
+      },
+    },
   },
   {
     timestamps: true,
@@ -84,6 +83,7 @@ PartnerProfile.associate = (models) => {
     foreignKey: "userId",
     as: "user",
     onDelete: "CASCADE",
+    onUpdate: "CASCADE",
   });
 };
 

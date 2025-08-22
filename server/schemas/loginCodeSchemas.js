@@ -1,10 +1,18 @@
 import Joi from "joi";
 
 export const requestLoginCodeSchema = Joi.object({
-  email: Joi.string().email().required(),
+  email: Joi.string()
+    .trim()
+    .lowercase()
+    .email({ tlds: { allow: false } })
+    .required(),
 });
 
 export const verifyLoginCodeSchema = Joi.object({
-  email: Joi.string().email().required(),
-  code: Joi.string().trim().length(6).required(),
+  email: Joi.string()
+    .trim()
+    .lowercase()
+    .email({ tlds: { allow: false } })
+    .required(),
+  code: Joi.string().trim().length(6).alphanum().required(),
 });

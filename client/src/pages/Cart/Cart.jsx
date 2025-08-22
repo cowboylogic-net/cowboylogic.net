@@ -1,12 +1,9 @@
+// src/pages/Cart/Cart.jsx
 import styles from "./Cart.module.css";
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { fetchCartItems } from "../../store/thunks/cartThunks";
-import {
-  updateItemQuantity,
-  removeItemById,
-} from "../../store/slices/cartSlice";
 import {
   selectCartItems,
   selectCartTotal,
@@ -19,6 +16,15 @@ import InlineLoader from "../../components/InlineLoader/InlineLoader";
 import Loader from "../../components/Loader/Loader";
 import { ROLES } from "../../constants/roles";
 
+// ⬅️ INSERT (санки для кількості/видалення)
+import {
+  updateCartItemQuantity,
+  deleteCartItemThunk,
+} from "../../store/thunks/cartThunks";
+
+// ⬅️ INSERT (санка перевірки складу з блоку books)
+import { checkStock } from "../../store/thunks/bookThunks";
+
 const Cart = () => {
   const dispatch = useDispatch();
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
@@ -30,7 +36,9 @@ const Cart = () => {
 
   const items = useSelector(selectCartItems);
   const totalPrice = useSelector(selectCartTotal);
-  const { isFetching, isAdding, error } = useSelector((state) => state.cart);
+  const { isFetching, isAdding, isUpdating, isDeleting, error } = useSelector(
+    (state) => state.cart
+  );
 
   useEffect(() => {
     if (!items.length) {
@@ -43,22 +51,21 @@ const Cart = () => {
 
     if (newQuantity < 1) return;
 
-    // 💥 Обмеження для партнера: мінімум 5 книжок
+    // 💥 локальна перевірка для UX; бек все одно валідує
     if (isPartner && newQuantity < 5) {
       toast.warning(t("cart.minPartnerQuantity", { min: 5 }));
       return;
     }
 
-    try {
-      await apiService.patch(
-        `/cart/${itemId}`,
-        { quantity: newQuantity },
-        token
-      );
-      dispatch(updateItemQuantity({ itemId, quantity: newQuantity }));
+    // ⬅️ REPLACE: замість прямих запитів + локального редʼюсера — санка
+    const resultAction = await dispatch(
+      updateCartItemQuantity({ itemId, quantity: newQuantity }) // ⬅️ INSERT
+    );
+
+    if (updateCartItemQuantity.fulfilled.match(resultAction)) {
       toast.success(t("cart.quantityUpdated"));
-    } catch {
-      toast.error(t("cart.quantityUpdateError"));
+    } else {
+      toast.error(resultAction.payload || t("cart.quantityUpdateError"));
     }
   };
 
@@ -66,12 +73,12 @@ const Cart = () => {
     typeof price === "number" && !isNaN(price) ? price.toFixed(2) : "0.00";
 
   const handleRemove = async (itemId) => {
-    try {
-      await apiService.delete(`/cart/${itemId}`, token);
-      dispatch(removeItemById(itemId));
+    // ⬅️ REPLACE: замість apiService + removeItemById — санка
+    const resultAction = await dispatch(deleteCartItemThunk(itemId)); // ⬅️ INSERT
+    if (deleteCartItemThunk.fulfilled.match(resultAction)) {
       toast.success(t("cart.itemRemoved"));
-    } catch {
-      toast.error(t("cart.itemRemoveError"));
+    } else {
+      toast.error(resultAction.payload || t("cart.itemRemoveError"));
     }
   };
 
@@ -79,14 +86,26 @@ const Cart = () => {
     setIsCheckoutLoading(true);
 
     try {
-      const res = await apiService.post("/books/check-stock", { items }, token);
-
-      if (!res.data.data.success) {
-        toast.error(t("cart.outOfStockGeneric"));
-        if (res.data.data.message) toast.error(res.data.data.message);
+      // ⬅️ REPLACE: перевірку складу робимо через санку checkStock
+      const stockPayload = items.map(({ Book, quantity }) => ({
+        bookId: Book?.id,
+        quantity,
+      }));
+      const checkAction = await dispatch(checkStock(stockPayload));
+      if (checkStock.fulfilled.match(checkAction)) {
+        const ok = Boolean(checkAction.payload?.success);
+        if (!ok) {
+          toast.error(t("cart.outOfStockGeneric"));
+          if (checkAction.payload?.message)
+            toast.error(checkAction.payload.message);
+          return;
+        }
+      } else {
+        toast.error(checkAction.payload || t("cart.outOfStockGeneric"));
         return;
       }
 
+      // формуємо payload для Square
       const payload = items.map((item, index) => {
         const bookId = item.Book?.id;
 
@@ -107,6 +126,7 @@ const Cart = () => {
         };
       });
 
+      // оплата як і раніше — напряму
       const checkoutRes = await apiService.post(
         "/square/create-payment",
         payload,
@@ -142,6 +162,8 @@ const Cart = () => {
                     item={item}
                     onQuantityChange={handleQuantityChange}
                     onRemove={handleRemove}
+                    isUpdating={isUpdating}
+                    isRemoving={isDeleting}
                   />
                 ))}
               </ul>
@@ -152,7 +174,9 @@ const Cart = () => {
                 </h3>
                 <BaseButton
                   onClick={handleSquareCheckout}
-                  disabled={isAdding || isCheckoutLoading}
+                  disabled={
+                    isAdding || isCheckoutLoading || isUpdating || isDeleting
+                  }
                   variant="outline"
                 >
                   {isCheckoutLoading ? (

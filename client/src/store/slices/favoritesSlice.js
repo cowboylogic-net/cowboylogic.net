@@ -1,3 +1,4 @@
+// src/store/slices/favoritesSlice.js
 import { createSlice } from "@reduxjs/toolkit";
 import {
   fetchFavorites,
@@ -8,7 +9,7 @@ import {
 const favoritesSlice = createSlice({
   name: "favorites",
   initialState: {
-    books: [],
+    books: [], // завжди масив повних Book
     error: null,
     isFetching: false,
     isAdding: false,
@@ -31,17 +32,12 @@ const favoritesSlice = createSlice({
         state.isFetching = false;
       })
 
-      // addFavorite
+      // addFavorite -> повертаємо повний масив після рефетчу
       .addCase(addFavorite.pending, (state) => {
         state.isAdding = true;
       })
       .addCase(addFavorite.fulfilled, (state, action) => {
-        const exists = state.books.find(
-          (b) => String(b.id) === String(action.payload)
-        );
-        if (!exists) {
-          state.books.push({ id: action.payload }); // ✅ лише ID, бо немає інших полів
-        }
+        state.books = action.payload; // ⬅️ тепер тут повні Book[]
         state.isAdding = false;
       })
       .addCase(addFavorite.rejected, (state, action) => {
@@ -49,15 +45,14 @@ const favoritesSlice = createSlice({
         state.isAdding = false;
       })
 
-      // removeFavorite
+      // removeFavorite -> повертаємо повний масив після рефетчу
       .addCase(removeFavorite.pending, (state) => {
         state.isRemoving = true;
       })
       .addCase(removeFavorite.fulfilled, (state, action) => {
-        state.books = state.books.filter((b) => b.id !== action.payload);
+        state.books = action.payload; // ⬅️ повні Book[] після рефетчу
         state.isRemoving = false;
       })
-
       .addCase(removeFavorite.rejected, (state, action) => {
         state.error = action.payload;
         state.isRemoving = false;

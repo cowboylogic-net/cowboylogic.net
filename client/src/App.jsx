@@ -75,9 +75,9 @@ const App = () => {
             <Route path="contact" element={<Contact />} />
             <Route path="bookstore" element={<BookStore />} />
             <Route
-              path="/partner-store"
+              path="partner-store"
               element={
-                <PrivateRoute roles={["partner", "admin", "superadmin"]}>
+                <PrivateRoute roles={["partner", "admin", "superAdmin"]}>
                   <PartnerStorePage />
                 </PrivateRoute>
               }
@@ -110,7 +110,7 @@ const App = () => {
             <Route path="search" element={<SearchResults />} />
             <Route path="login" element={<Login />} />
             <Route path="register" element={<Register />} />
-            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="verify-email" element={<VerifyEmailPage />} />
             <Route path="success" element={<SuccessPage />} />
             <Route path="cancel" element={<CancelPage />} />
             <Route

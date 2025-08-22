@@ -17,8 +17,7 @@ import "./models/Order.js";
 import "./models/OrderItem.js";
 import "./models/LoginCode.js";
 import "./models/Favorite.js";
-
-
+import "./models/index.js";
 
 // Routes
 import authRoutes from "./routes/authRoutes.js";
@@ -47,12 +46,14 @@ app.set("etag", false);
 
 // ❗ гарантуємо, що тіло завжди свіже
 app.use((req, res, next) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
   res.set("Pragma", "no-cache");
   res.set("Expires", "0");
   next();
 });
-
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
@@ -62,7 +63,10 @@ app.use(morgan("dev"));
 app.use(helmet());
 
 app.use("/api", (req, res, next) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
   res.set("Pragma", "no-cache");
   res.set("Expires", "0");
   next();
@@ -81,13 +85,10 @@ app.use("/api/webhook", webhookRoutes);
 app.use("/api/square", squareRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/images", imageRoutes);
-app.use("/api/search", searchRoutes); 
+app.use("/api/search", searchRoutes);
 app.use("/api/me", userSelfRoutes);
 app.use("/uploads", staticCors, express.static("public/uploads"));
-app.use("/avatars", staticCors, express.static("public/avatars"));
 app.use("/documents", staticCors, express.static("public/documents"));
-
-
 
 // Global error handler
 app.use(errorHandler);

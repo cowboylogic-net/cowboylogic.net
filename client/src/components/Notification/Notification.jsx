@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { hideNotification } from "../../store/slices/notificationSlice";
@@ -7,7 +6,7 @@ import {
   selectNotificationType,
   selectNotificationVisible,
 } from "../../store/selectors/notificationSelectors";
-import { CheckCircle, XCircle, Info, AlertTriangle } from "lucide-react";
+import { CheckCircle, XCircle, Info, AlertTriangle, X as Close } from "lucide-react";
 import styles from "./Notification.module.css";
 
 const getIcon = (type) => {
@@ -28,35 +27,35 @@ const getIcon = (type) => {
 const Notification = () => {
   const dispatch = useDispatch();
   const { t } = useTranslation();
+
   const message = useSelector(selectNotificationMessage);
   const type = useSelector(selectNotificationType);
   const isVisible = useSelector(selectNotificationVisible);
 
-  useEffect(() => {
-    if (isVisible) {
-      const timer = setTimeout(() => {
-        dispatch(hideNotification());
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [isVisible, dispatch]);
-
   if (!isVisible || !message) return null;
 
   const translatedMessage =
-    typeof message === "string"
-      ? message
-      : t(message.key, message.options);
+    typeof message === "string" ? message : t(message.key, message.options);
 
   return (
     <div
       className={`${styles.toast} ${styles[type]}`}
       role="alert"
       aria-live="assertive"
-      aria-atomic="true" 
+      aria-atomic="true"
     >
       {getIcon(type)}
-      <span>{translatedMessage}</span>
+      <span className={styles.text}>{translatedMessage}</span>
+
+      {/* Ручне закриття head-елемента черги */}
+      <button
+        type="button"
+        className={styles.close}
+        aria-label={t("common.close", "Close")}
+        onClick={() => dispatch(hideNotification())}
+      >
+        <Close size={16} />
+      </button>
     </div>
   );
 };

@@ -5,9 +5,11 @@ import {
   createBook,
   updateBook,
   deleteBook,
+  checkStock,
   fetchPartnerBooks,
 } from "../thunks/bookThunks";
 
+// slices/bookSlice.js
 const initialState = {
   books: [],
   partnerBooks: [],
@@ -19,6 +21,9 @@ const initialState = {
   isCreating: false,
   isUpdating: false,
   isDeleting: false,
+  isFetchingPartnerBooks: false, // якщо ще не додавала — додай
+  isCheckingStock: false, // ← для чек-стоку
+  stockCheckResult: null, // ← true/false/null
 };
 
 const bookSlice = createSlice({
@@ -43,6 +48,23 @@ const bookSlice = createSlice({
       .addCase(fetchBooks.rejected, (state, action) => {
         state.error = action.payload;
         state.isFetching = false;
+      })
+
+      // slices/bookSlice.js (всередині builder)
+      .addCase(checkStock.pending, (state) => {
+        state.isCheckingStock = true;
+        state.stockCheckResult = null;
+        state.error = null;
+      })
+      .addCase(checkStock.fulfilled, (state, action) => {
+        // санка повертає res.data.data -> { success: true/false }
+        state.isCheckingStock = false;
+        state.stockCheckResult = Boolean(action.payload?.success);
+      })
+      .addCase(checkStock.rejected, (state, action) => {
+        state.isCheckingStock = false;
+        state.stockCheckResult = false;
+        state.error = action.payload;
       })
 
       // fetchBookById

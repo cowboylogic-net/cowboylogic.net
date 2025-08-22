@@ -34,28 +34,33 @@ export const contactFormSchema = (t) =>
       .required(t("contact.messageRequired")),
   });
 
-// Newsletter Admin schema (subject + content)
+
 export const newsletterFormSchema = (t) =>
-  yup.object().shape({
+  yup.object({
     subject: yup
       .string()
       .trim()
-      .min(3, t("newsletter.subjectTooShort"))
+      .min(1, t("newsletter.subjectTooShort"))
+      .max(200, t("newsletter.subjectTooLong"))
       .required(t("newsletter.subjectRequired")),
     content: yup
       .string()
-      .trim()
-      .min(10, t("newsletter.contentTooShort"))
+      .test("not-empty-html", t("newsletter.contentRequired"), (value) => {
+        const plain = String(value || "")
+          .replace(/<[^>]*>/g, "")
+          .trim();
+        return plain.length > 0;
+      })
       .required(t("newsletter.contentRequired")),
   });
 
 // Newsletter Signup schema (email only)
 export const newsletterSignupSchema = (t) =>
-  yup.object().shape({
+  yup.object({
     email: yup
       .string()
-      .email(t("form.errors.email"))
-      .required(t("form.errors.required")),
+      .email(t("contact.invalidEmail"))
+      .required(t("contact.emailRequired")),
   });
 
 export const loginFormSchema = (t) =>
@@ -142,4 +147,3 @@ export const registerCodeSchema = (t) =>
       .matches(/^[A-Z0-9_]{6}$/i, t("form.errors.codeLength")) // будь-який регістр
       .required(t("form.errors.required")),
   });
-

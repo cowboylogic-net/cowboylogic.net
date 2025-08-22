@@ -1,25 +1,31 @@
-// routes/bookRoutes.js
 import express from "express";
 import bookController from "../controllers/bookController.js";
-import { upload } from "../middleware/uploadMiddleware.js";
+import { upload, optimizeImage } from "../middleware/uploadMiddleware.js";
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 import { createBookSchema, updateBookSchema } from "../schemas/bookSchema.js";
 import { validateBody } from "../middleware/validateBody.js";
 import { requireRole } from "../middleware/requireRole.js";
-
-
+import { validateParams } from "../middleware/validateParams.js";
+import { idParamSchema } from "../schemas/paramsSchemas.js";
 
 const router = express.Router();
 const { getPartnerBooks } = bookController;
 
-router.delete("/:id", protect, isAdmin, bookController.deleteBook);
+router.delete(
+  "/:id",
+  protect,
+  isAdmin,
+  validateParams(idParamSchema),
+  bookController.deleteBook
+);
 
 router.post(
   "/",
   protect,
   isAdmin,
   upload.single("image"),
-  validateBody(createBookSchema, true), 
+  optimizeImage, // ✅ робимо webp + ставимо webPath
+  validateBody(createBookSchema, true),
   bookController.createBook
 );
 
@@ -28,15 +34,27 @@ router.put(
   protect,
   isAdmin,
   upload.single("image"),
-  validateBody(updateBookSchema, true), 
+  optimizeImage, // ✅ те саме для оновлення
+  validateParams(idParamSchema),
+  validateBody(updateBookSchema, true),
   bookController.updateBook
 );
-router.get("/partner-books", protect, requireRole("partner", "admin", "superAdmin"), getPartnerBooks);
+
+router.get(
+  "/partner-books",
+  protect,
+  requireRole("partner", "admin", "superAdmin"),
+  getPartnerBooks
+);
+
 router.get("/", protect, bookController.getBooks);
-router.get("/:id", protect, bookController.getBookById);
+router.get(
+  "/:id",
+  protect,
+  validateParams(idParamSchema),
+  bookController.getBookById
+);
+
 router.post("/check-stock", protect, bookController.checkStock);
-
-
-
 
 export default router;

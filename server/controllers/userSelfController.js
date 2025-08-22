@@ -10,8 +10,13 @@ const updateAvatar = async (req, res) => {
     });
   }
 
-  // ✅ Зберігаємо вже сформований шлях — /uploads/avatars/optimized-файл.webp
-  const avatarURL = `/${req.file.filename}`;
+
+  const avatarURL =
+    req.file.webPath /* якщо мідлвара вже поклала готовий веб-шлях */ ||
+    "/" +
+      String(req.file.path || "")
+        .replace(/^.*?public[\\/]/, "") // відкинути все до public/
+        .replace(/\\/g, "/"); // Windows -> POSIX
 
   req.user.avatarURL = avatarURL;
   await req.user.save();

@@ -30,24 +30,16 @@ const Contact = () => {
   } = useForm({ resolver: yupResolver(schema) });
 
   const onSubmit = async (data) => {
-    try {
-      await axios.post("/contact", data);
-      dispatch(
-        showNotification({
-          message: t("contact.success"),
-          type: "success",
-        })
-      );
-      reset();
-    } catch {
-      dispatch(
-        showNotification({
-          message: t("contact.error"),
-          type: "error",
-        })
-      );
-    }
-  };
+  try {
+    await axios.post("/contact", data);
+    dispatch(showNotification({ message: t("contact.success"), type: "success" }));
+    reset();
+  } catch (err) {
+    console.error("Contact form error:", err?.response?.data || err?.message);
+    dispatch(showNotification({ message: t("contact.error"), type: "error" }));
+  }
+};
+
 
   return (
     <div className={styles.container}>

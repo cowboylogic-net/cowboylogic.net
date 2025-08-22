@@ -1,6 +1,5 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../config/db.js";
-import PartnerProfile from "./PartnerProfile.js"; // імпорт для асоціації
 
 const User = sequelize.define(
   "User",
@@ -72,10 +71,13 @@ const User = sequelize.define(
       defaultValue: false,
     },
     gdprConsentAt: {
-  type: DataTypes.DATE,
-  allowNull: true,
-},
-
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
+    lastLoginAt: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,
@@ -85,6 +87,9 @@ const User = sequelize.define(
         fields: ["email"],
       },
     ],
+    defaultScope: {
+      attributes: { exclude: ["password"] },
+    },
   }
 );
 

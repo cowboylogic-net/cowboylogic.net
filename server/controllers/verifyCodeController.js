@@ -5,6 +5,7 @@ import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import jwt from "jsonwebtoken";
 import { formatUser } from "../utils/formatUser.js";
 import sendResponse from "../utils/sendResponse.js";
+import { Op } from "sequelize";
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -19,26 +20,36 @@ const generateToken = (user) => {
 };
 
 const verifyCode = async (req, res) => {
-  const { email, code } = req.body;
+  const rawEmail = req.body?.email || "";
+  const rawCode = String(req.body?.code ?? "");
+  const email = rawEmail.trim().toLowerCase();
+  const code = rawCode.trim().toUpperCase();
+  if (!email || !code) throw HttpError(400, "Email and code are required");
 
-  const loginCode = await LoginCode.findOne({
-    where: { email, code: code.toUpperCase() },
+  // 🔐 Атомарна перевірка: видалимо рівно 1 валідний (не прострочений) код.
+  const destroyed = await LoginCode.destroy({
+    where: {
+      email,
+      code,
+      expiresAt: { [Op.gt]: new Date() },
+    },
   });
-
-  if (!loginCode || new Date() > loginCode.expiresAt) {
+  if (!destroyed) {
     throw HttpError(400, "Invalid or expired verification code");
   }
 
   const user = await User.findOne({ where: { email } });
   if (!user) throw HttpError(404, "User not found");
 
-  // Видаляємо використаний код
-  await loginCode.destroy();
-
   if (!user.isEmailVerified) {
     user.isEmailVerified = true;
     await user.save();
   }
+
+  // 🕒 оновлюємо мітку останнього входу (не ламає, навіть якщо колонки ще нема)
+  try {
+    await user.update({ lastLoginAt: new Date() });
+  } catch (_) {}
 
   // 🔐 Генеруємо токен
   const token = generateToken(user);

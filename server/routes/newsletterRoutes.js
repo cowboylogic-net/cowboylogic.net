@@ -1,26 +1,24 @@
-// routes/newsletterRoutes.js
 import express from "express";
-import newsletterController from "../controllers/newsletterController.js";
-import { protect, isAdmin } from "../middleware/authMiddleware.js";
+import ctrl from "../controllers/newsletterController.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { requireRole } from "../middleware/requireRole.js";
 import { validateBody } from "../middleware/validateBody.js";
-import {
-  subscribeNewsletterSchema,
-  sendNewsletterSchema,
-} from "../schemas/newsletterSchemas.js";
+import { subscribeSchema, sendSchema } from "../schemas/newsletterSchemas.js";
 
 const router = express.Router();
 
-router.post(
-  "/subscribe",
-  validateBody(subscribeNewsletterSchema),
-  newsletterController.subscribe
-);
+// публічна підписка
+router.post("/subscribe", validateBody(subscribeSchema), ctrl.subscribe);
+
+// розсилка — тільки адміни
 router.post(
   "/send",
   protect,
-  isAdmin,
-  validateBody(sendNewsletterSchema),
-  newsletterController.sendNewsletter
+  requireRole("admin", "superAdmin"),
+  validateBody(sendSchema),
+  ctrl.sendNewsletter
 );
+
+router.post("/unsubscribe", validateBody(subscribeSchema), ctrl.unsubscribe);
 
 export default router;

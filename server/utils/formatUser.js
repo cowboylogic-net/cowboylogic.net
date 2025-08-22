@@ -1,23 +1,30 @@
+// utils/formatUser.js
 export const formatUser = (user) => {
   if (!user) return null;
 
   const plain = user.toJSON?.() || user;
 
-  // 🧹 Видаляємо чутливі або непотрібні поля
+  // Прибираємо чутливе
   delete plain.password;
   delete plain.tokenVersion;
-  delete plain.isSuperAdmin;
-  delete plain.createdAt;
-  delete plain.updatedAt;
 
-  // 🖼️ Фікс URL до аватарки
+  // НЕ видаляємо isSuperAdmin і дати (щоб UI міг їх показати)
+  // Нормалізуємо абсолютний URL для аватарки
   if (plain.avatarURL && !plain.avatarURL.startsWith("http")) {
-    plain.avatarURL = `${process.env.BASE_URL}${plain.avatarURL}`;
+    const base = process.env.BASE_URL?.replace(/\/+$/, "") || "";
+    const rel = plain.avatarURL.startsWith("/") ? plain.avatarURL : `/${plain.avatarURL}`;
+    plain.avatarURL = `${base}${rel}`;
   }
 
-  // 🧾 Форматуємо partnerProfile — віддаємо лише дозволені поля
-  const profile = plain.partnerProfile || null;
+  // Дати -> ISO, щоб не було "Invalid Date"
+  if (plain.createdAt) plain.createdAt = new Date(plain.createdAt).toISOString();
+  if (plain.updatedAt) plain.updatedAt = new Date(plain.updatedAt).toISOString();
 
+  // Зручний ярлик для UI: показувати "superAdmin", якщо прапорець true
+  plain.effectiveRole = plain.isSuperAdmin ? "superAdmin" : plain.role;
+
+  // Акуратно віддати partnerProfile (як і було)
+  const profile = plain.partnerProfile || null;
   plain.partnerProfile = profile?.organizationName
     ? {
         organizationName: profile.organizationName,

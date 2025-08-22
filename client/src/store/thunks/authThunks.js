@@ -1,17 +1,14 @@
-
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../../store/axios";
+import api from "../axios";
 import { showNotification } from "../slices/notificationSlice";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
   async (credentials, { dispatch, rejectWithValue }) => {
     try {
-      const res = await axios.post("/auth/verify-code", credentials);
+      const res = await api.post("/auth/verify-code", credentials);
       localStorage.setItem("token", res.data.data.token);
-      dispatch(
-        showNotification({ type: "success", message: "Welcome back!" })
-      );
+      dispatch(showNotification({ type: "success", message: "Welcome back!" }));
       return res.data.data;
     } catch (err) {
       const msg = err.response?.data?.message || "Login failed";
@@ -25,7 +22,7 @@ export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async (payload, { dispatch, rejectWithValue }) => {
     try {
-      const res = await axios.post("/auth/register", payload);
+      const res = await api.post("/auth/register", payload);
       localStorage.setItem("token", res.data.data.token);
       dispatch(
         showNotification({
@@ -44,15 +41,9 @@ export const registerUser = createAsyncThunk(
 
 export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
-  async (_, { getState, dispatch, rejectWithValue }) => {
-    const token = getState().auth.token;
-    if (!token) {
-      return rejectWithValue("No token");
-    }
+  async (_, { dispatch, rejectWithValue }) => {
     try {
-      const res = await axios.get("/auth/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await api.get("/auth/me"); // ⬅️ правильний шлях
       return res.data.data;
     } catch (err) {
       localStorage.removeItem("token");
@@ -68,7 +59,7 @@ export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      await axios.post("/auth/logout");
+      await api.post("/auth/logout");
       localStorage.removeItem("token");
       dispatch(showNotification({ type: "success", message: "Logged out" }));
       return null;
@@ -87,11 +78,16 @@ export const uploadAvatar = createAsyncThunk(
       const formData = new FormData();
       formData.append("avatar", file);
 
-      const res = await axios.patch("/users/avatar", formData, {
+      // ⬇️ ОБЕРИ ваш реальний бекенд-ендпоінт
+      const AVATAR_ENDPOINT = "/me/avatar"; // або "/auth/me/avatar"
+
+      const res = await api.patch(AVATAR_ENDPOINT, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      dispatch(showNotification({ type: "success", message: "Avatar updated" }));
+      dispatch(
+        showNotification({ type: "success", message: "Avatar updated" })
+      );
       return res.data.data.avatarURL;
     } catch (err) {
       const msg = err.response?.data?.message || "Upload failed";

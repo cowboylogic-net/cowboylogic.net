@@ -46,3 +46,87 @@ export const addToCartThunk = createAsyncThunk(
     }
   }
 );
+
+export const updateCartItemQuantity = createAsyncThunk(
+  "cart/updateCartItemQuantity",
+  async ({ itemId, quantity }, { getState, dispatch, rejectWithValue }) => {
+    if (!itemId) {
+      const msg = "Item ID is required";
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+    const q = Number(quantity);
+    if (!Number.isInteger(q) || q < 1) {
+      const msg = "Quantity must be a positive integer";
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+    const role = getState().auth.user?.role;
+    if (role === "partner" && q < 5) {
+      const msg = "Partners must order at least 5 items";
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+
+    try {
+      const token = getState().auth.token;
+      await axios.patch(
+        `/cart/${itemId}`,
+        { quantity: q },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const res = await dispatch(fetchCartItems());
+      if (res.meta.requestStatus === "fulfilled") return res.payload;
+      return rejectWithValue("Failed to reload cart");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to update item";
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+export const deleteCartItemThunk = createAsyncThunk(
+  "cart/deleteCartItem",
+  async (itemId, { getState, dispatch, rejectWithValue }) => {
+    if (!itemId) {
+      const msg = "Item ID is required";
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+    try {
+      const token = getState().auth.token;
+      await axios.delete(`/cart/${itemId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const res = await dispatch(fetchCartItems());
+      if (res.meta.requestStatus === "fulfilled") return res.payload;
+      return rejectWithValue("Failed to reload cart");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to delete item";
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+  }
+);
+
+export const clearCartThunk = createAsyncThunk(
+  "cart/clearCart",
+  async (_, { getState, dispatch, rejectWithValue }) => {
+    try {
+      const token = getState().auth.token;
+      await axios.delete("/cart", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      dispatch(showSuccess("Cart cleared"));
+      const res = await dispatch(fetchCartItems());
+      if (res.meta.requestStatus === "fulfilled") return res.payload;
+      return rejectWithValue("Failed to reload cart");
+    } catch (err) {
+      const msg = err.response?.data?.message || "Failed to clear cart";
+      dispatch(showError(msg));
+      return rejectWithValue(msg);
+    }
+  }
+);

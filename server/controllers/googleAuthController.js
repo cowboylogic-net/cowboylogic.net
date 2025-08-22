@@ -1,3 +1,4 @@
+// server/controllers/googleAuthController.js
 import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
@@ -11,9 +12,6 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 export const googleAuth = ctrlWrapper(async (req, res) => {
   const { id_token } = req.body;
 
-  // if (!id_token) {
-  //   throw HttpError(400, "No id_token provided");
-  // }
   let ticket;
   try {
     ticket = await client.verifyIdToken({
@@ -25,12 +23,14 @@ export const googleAuth = ctrlWrapper(async (req, res) => {
   }
 
   const payload = ticket.getPayload();
-  const { email, name } = payload;
+  const name = payload.name;
+  const email = String(payload.email || "")
+    .trim()
+    .toLowerCase(); // ✅ нормалізація
 
-  let user = await User.findOne({ where: { email } });
+  let user = await User.findOne({ where: { email } }); // ⬅️ прибрати зайвий символ після цього рядка
 
   if (!user) {
-    // 🆕 Створення нового користувача з Google
     user = await User.create({
       fullName: name || "Google User",
       email,
@@ -39,36 +39,27 @@ export const googleAuth = ctrlWrapper(async (req, res) => {
       isEmailVerified: true,
     });
   } else {
-    // 🔒 Перевірка: якщо user має пароль — не дозволяти Google Login
     if (user.password) {
       throw HttpError(
         400,
         "This email is registered with a password. Please login with email and password."
       );
     }
-
-    // 🟢 Якщо Google user — ensure isEmailVerified true
     if (!user.isEmailVerified) {
       user.isEmailVerified = true;
-      await user.save(); // оновлюємо флаг
+      await user.save();
     }
   }
 
+  const EXPIRES = process.env.JWT_EXPIRES_IN || "7d";
   const token = jwt.sign(
-    {
-      id: user.id,
-      role: user.role,
-      tokenVersion: user.tokenVersion,
-    },
+    { id: user.id, role: user.role, tokenVersion: user.tokenVersion },
     process.env.JWT_SECRET,
-    { expiresIn: "7d" }
+    { expiresIn: EXPIRES }
   );
 
   sendResponse(res, {
     code: 200,
-    data: {
-      token,
-      user: formatUser(user),
-    },
+    data: { token, user: formatUser(user) },
   });
 });

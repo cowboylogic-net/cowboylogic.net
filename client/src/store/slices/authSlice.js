@@ -19,6 +19,19 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    loginSuccess: (state, action) => {
+    state.token = action.payload.token;
+    state.user = action.payload.user;
+    state.isLoading = false;
+    state.error = null;
+  },
+  logout: (state) => {
+    state.user = null;
+    state.token = null;
+    state.emailForVerification = null;
+    state.isLoading = false;
+    state.error = null;
+  },
     updateUserAvatar: (state, action) => {
       if (state.user) {
         state.user.avatarURL = action.payload;
@@ -89,6 +102,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { updateUserAvatar, setEmailForVerification } = authSlice.actions;
+export const { loginSuccess, logout, updateUserAvatar, setEmailForVerification } = authSlice.actions;
 
 export default authSlice.reducer;

@@ -1,7 +1,8 @@
 import styles from "./Newsletter.module.css";
 
 import { useDispatch } from "react-redux";
-import { apiService } from "../../services/axiosService";
+// import { apiService } from "../../services/axiosService";
+import api from "../../store/axios";
 import { showNotification } from "../../store/slices/notificationSlice";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -29,7 +30,7 @@ const Newsletter = () => {
 
   const onSubmit = async (data) => {
     try {
-      await apiService.post("/newsletter/send", data, true);
+      await api.post("/newsletter/send", data);
       reset();
       dispatch(
         showNotification({

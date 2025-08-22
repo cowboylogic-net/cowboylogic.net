@@ -6,75 +6,72 @@ import {
   saveDraftContent,
 } from "../thunks/pageThunks";
 
+// pageSlice.js
 const pageSlice = createSlice({
   name: "pages",
   initialState: {
-    published: {},     
-    drafts: {},        
+    published: {},
+    drafts: {},
     isFetching: false,
-    isUpdating: false,
     isDraftSaving: false,
-    error: null,
+    isUpdating: false,
+    errors: { fetch: null, draft: null, publish: null }, // ⬅️
   },
   reducers: {
-    setDraftManually: (state, action) => {
-      const { slug, content } = action.payload;
+    setDraftManually: (state, { payload }) => {
+      const { slug, content } = payload;
       state.drafts[slug] = content;
     },
-    clearDraft: (state, action) => {
-      delete state.drafts[action.payload];
+    clearDraft: (state, { payload: slug }) => {
+      delete state.drafts[slug];
     },
+    resetPagesState: () => ({
+      published: {},
+      drafts: {},
+      isFetching: false,
+      isDraftSaving: false,
+      isUpdating: false,
+      errors: { fetch: null, draft: null, publish: null },
+    }),
   },
-  extraReducers: (builder) => {
-    builder
-      // 1. Завантаження
-      .addCase(fetchPageVersions.pending, (state) => {
-        state.isFetching = true;
-        state.error = null;
+  extraReducers: (b) => {
+    b // fetch
+      .addCase(fetchPageVersions.pending, (s) => { s.isFetching = true; s.errors.fetch = null; })
+      .addCase(fetchPageVersions.fulfilled, (s, a) => {
+        const { slug, published, draft } = a.payload;
+        s.published[slug] = published;
+        s.drafts[slug] = draft;
+        s.isFetching = false;
       })
-      .addCase(fetchPageVersions.fulfilled, (state, action) => {
-        const { slug, published, draft } = action.payload;
-        state.published[slug] = published;
-        state.drafts[slug] = draft;
-        state.isFetching = false;
-      })
-      .addCase(fetchPageVersions.rejected, (state, action) => {
-        state.isFetching = false;
-        state.error = action.payload;
-      })
+      .addCase(fetchPageVersions.rejected, (s, a) => { s.isFetching = false; s.errors.fetch = a.payload; })
 
-      // 2. Збереження чернетки
-      .addCase(saveDraftContent.pending, (state) => {
-        state.isDraftSaving = true;
-        state.error = null;
+      // draft
+      .addCase(saveDraftContent.pending,   (s) => { s.isDraftSaving = true; s.errors.draft = null; })
+      .addCase(saveDraftContent.fulfilled, (s, a) => {
+        const { slug, content } = a.payload;
+        s.drafts[slug] = content;
+        s.isDraftSaving = false;
       })
-      .addCase(saveDraftContent.fulfilled, (state, action) => {
-        const { slug, content } = action.payload;
-        state.drafts[slug] = content;
-        state.isDraftSaving = false;
-      })
-      .addCase(saveDraftContent.rejected, (state, action) => {
-        state.isDraftSaving = false;
-        state.error = action.payload;
-      })
+      .addCase(saveDraftContent.rejected,  (s, a) => { s.isDraftSaving = false; s.errors.draft = a.payload; })
 
-      // 3. Публікація
-      .addCase(updatePageContent.pending, (state) => {
-        state.isUpdating = true;
-        state.error = null;
+      // publish
+      .addCase(updatePageContent.pending,   (s) => { s.isUpdating = true; s.errors.publish = null; })
+      .addCase(updatePageContent.fulfilled, (s, a) => {
+        const { slug, content } = a.payload;
+        s.published[slug] = content;
+        s.drafts[slug] = content; // sync
+        s.isUpdating = false;
       })
-      .addCase(updatePageContent.fulfilled, (state, action) => {
-        const { slug, content } = action.payload;
-        state.published[slug] = content;
-        state.drafts[slug] = content; // синхронізуємо з live
-        state.isUpdating = false;
-      })
-      .addCase(updatePageContent.rejected, (state, action) => {
-        state.isUpdating = false;
-        state.error = action.payload;
+      .addCase(updatePageContent.rejected,  (s, a) => { s.isUpdating = false; s.errors.publish = a.payload; })
+
+      // опціонально: при logout
+      .addMatcher((act) => act?.type === "auth/logout", (s) => {
+        s.published = {}; s.drafts = {};
+        s.isFetching = s.isDraftSaving = s.isUpdating = false;
+        s.errors = { fetch: null, draft: null, publish: null };
       });
   },
 });
 
-export const { setDraftManually, clearDraft } = pageSlice.actions;
+export const { setDraftManually, clearDraft, resetPagesState } = pageSlice.actions;
 export default pageSlice.reducer;

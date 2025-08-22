@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../../store/axios";
+import api from "../axios";
+
 import {
   showSuccess,
   showError,
@@ -11,9 +12,7 @@ export const fetchPageVersions = createAsyncThunk(
   "pages/fetchPageVersions",
   async (slug, { rejectWithValue, dispatch }) => {
     try {
-      const res = await axios.get(`/pages/${slug}`, {
-        headers: { "Cache-Control": "no-store" },
-      });
+      const res = await api.get(`/pages/${slug}`, { headers: { "Cache-Control": "no-store" } });
 
       const payload = (res?.data && (res.data.data ?? res.data)) || null;
       if (!payload || typeof payload !== "object")
@@ -34,13 +33,10 @@ export const fetchPageVersions = createAsyncThunk(
 // 2. Зберегти чернетку (не публікується)
 export const saveDraftContent = createAsyncThunk(
   "pages/saveDraftContent",
-  async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
+  async ({ slug, content }, { rejectWithValue, dispatch }) => {
     try {
-      await axios.put(
-        `/pages/${slug}/draft`,
-        { draftContent: content },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/pages/${slug}/draft`, { draftContent: content });
+
       dispatch(
         showTemporaryNotification({
           type: "info",
@@ -57,16 +53,12 @@ export const saveDraftContent = createAsyncThunk(
   }
 );
 
-// 3. Зберегти і опублікувати сторінку
 export const updatePageContent = createAsyncThunk(
   "pages/updatePageContent",
-  async ({ slug, content, token }, { rejectWithValue, dispatch }) => {
+  async ({ slug, content }, { rejectWithValue, dispatch }) => {
     try {
-      await axios.put(
-        `/pages/${slug}`,
-        { content },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.put(`/pages/${slug}`, { content });
+
       dispatch(showSuccess(`Changes published for ${slug}`));
       return { slug, content };
     } catch (err) {

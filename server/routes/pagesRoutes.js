@@ -1,6 +1,8 @@
 import express from "express";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
-import { protect, isAdmin } from "../middleware/authMiddleware.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { requireRole } from "../middleware/requireRole.js";
+
 import { optionalAuth } from "../middleware/optionalAuth.js";
 import Page from "../models/Page.js";
 import HttpError from "../helpers/HttpError.js";
@@ -25,31 +27,31 @@ router.get(
   "/:slug/versions",
   validateParams(slugParamSchema),
   protect,
-  isAdmin,
+  requireRole("admin", "superAdmin"),
   ctrlWrapper(async (req, res) => {
-    const { slug } = req.params;
-
+    const slug = String(req.params.slug || "").toLowerCase();
     const page = await Page.findOne({ where: { slug } });
-    if (!page) throw HttpError(404, "Page not found");
 
-    return sendResponse(res, { code: 200, data: { published: page.content, draft: page.draftContent } });
+    if (!page) throw HttpError(404, "Page not found");
+    return sendResponse(res, {
+      code: 200,
+      data: { published: page.content, draft: page.draftContent },
+    });
   })
 );
-
 
 router.put(
   "/:slug/draft",
   protect,
-  isAdmin,
+  requireRole("admin", "superAdmin"),
   validateBody(draftPageSchema),
   ctrlWrapper(pagesController.saveDraft)
 );
 
-
 router.put(
   "/:slug",
   protect,
-  isAdmin,
+  requireRole("admin", "superAdmin"),
   validateBody(publishPageSchema),
   ctrlWrapper(pagesController.updatePage)
 );
@@ -57,7 +59,7 @@ router.put(
 router.post(
   "/",
   protect,
-  isAdmin,
+  requireRole("admin", "superAdmin"),
   validateBody(createPageSchema),
   ctrlWrapper(pagesController.createPage)
 );

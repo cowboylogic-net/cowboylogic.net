@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchCartItems, addToCartThunk } from "../thunks/cartThunks";
+import { fetchCartItems, addToCartThunk, updateCartItemQuantity, deleteCartItemThunk, clearCartThunk } from "../thunks/cartThunks";
 
 const cartSlice = createSlice({
   name: "cart",
@@ -8,6 +8,8 @@ const cartSlice = createSlice({
     error: null,
     isFetching: false,
     isAdding: false,
+    isUpdating: false,
+    isDeleting: false,
   },
   reducers: {
     removeFromCart: (state, action) => {
@@ -51,12 +53,46 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
-        state.items = action.payload; // ✅ payload — це повний масив з fetchCartItems
+        state.items = action.payload; 
         state.isAdding = false;
       })
       .addCase(addToCartThunk.rejected, (state, action) => {
         state.error = action.payload;
         state.isAdding = false;
+      })
+      .addCase(updateCartItemQuantity.pending, (state) => {
+        state.isUpdating = true;
+        state.error = null;
+      })
+      .addCase(updateCartItemQuantity.fulfilled, (state, action) => {
+        state.items = action.payload; // повний масив після refetch
+        state.isUpdating = false;
+      })
+      .addCase(updateCartItemQuantity.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isUpdating = false;
+      })
+
+      // ⬇️ INSERT: deleteCartItemThunk
+      .addCase(deleteCartItemThunk.pending, (state) => {
+        state.isDeleting = true;
+        state.error = null;
+      })
+      .addCase(deleteCartItemThunk.fulfilled, (state, action) => {
+        state.items = action.payload; // повний масив після refetch
+        state.isDeleting = false;
+      })
+      .addCase(deleteCartItemThunk.rejected, (state, action) => {
+        state.error = action.payload;
+        state.isDeleting = false;
+      })
+
+      // ⬇️ INSERT: clearCartThunk
+      .addCase(clearCartThunk.fulfilled, (state, action) => {
+        state.items = action.payload; // []
+      })
+      .addCase(clearCartThunk.rejected, (state, action) => {
+        state.error = action.payload;
       });
   },
 });
