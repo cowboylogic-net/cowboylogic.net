@@ -12,10 +12,11 @@ const SearchResults = () => {
 
   useEffect(() => {
     if (!query) return;
+    const url = `/api/search?q=${encodeURIComponent(query)}`; // було http://localhost:5000...
 
-    fetch(`http://localhost:5000/api/search?q=${query}`)
+    fetch(url)
       .then((res) => res.json())
-      .then((data) => setResults(data.data))
+      .then((data) => setResults(data.data || []))
       .catch((error) => console.error("Error fetching search results:", error));
   }, [query]);
 
@@ -25,11 +26,20 @@ const SearchResults = () => {
       {results.length > 0 ? (
         <div className={styles.grid}>
           {results.map((item) => (
-            <Link to={`/bookstore/book/${item.id}`} key={item.id} className={styles.card}>
-              <img src={item.imageUrl} alt={item.title} className={styles.image} />
+            <Link
+              to={`/bookstore/book/${item.id}`}
+              key={item.id}
+              className={styles.card}
+            >
+              <img
+                src={item.imageUrl || "/images/placeholder-book.png"}
+                alt={item.title}
+                className={styles.image}
+                loading="lazy"
+              />
               <h3>{item.title}</h3>
-              <p>{item.author}</p>
-              <p>${item.price}</p>
+              {item.author && <p>{item.author}</p>}
+              {item.price != null && <p>${String(item.price)}</p>}
             </Link>
           ))}
         </div>

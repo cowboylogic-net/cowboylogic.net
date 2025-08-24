@@ -38,6 +38,8 @@ import staticCors from "./middleware/staticCors.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
 
 dotenv.config();
+import { requireEnv } from "./config/requireEnv.js";
+requireEnv();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -57,10 +59,12 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json());
+
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(helmet());
+app.use("/api/webhook", webhookRoutes);
+app.use(express.json());
 
 app.use("/api", (req, res, next) => {
   res.set(
@@ -81,11 +85,10 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/pages", pagesRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/newsletter", newsletterRoutes);
-app.use("/api/webhook", webhookRoutes);
 app.use("/api/square", squareRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/images", imageRoutes);
-app.use("/api/search", searchRoutes);
+app.use("/api", searchRoutes);
 app.use("/api/me", userSelfRoutes);
 app.use("/uploads", staticCors, express.static("public/uploads"));
 app.use("/documents", staticCors, express.static("public/documents"));

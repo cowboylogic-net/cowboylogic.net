@@ -10,19 +10,16 @@ import sendResponse from "../utils/sendResponse.js";
 
 const getCart = async (req, res) => {
   // ⬇️ INSERT: єдина логіка — дати partnerPrice тільки привілейованим
-  const isPrivileged =
-    req.user?.role === "partner" ||
-    req.user?.role === "admin" ||
-    req.user?.isSuperAdmin;
+  const isPartner = req.user?.role === "partner";
 
   const items = await CartItem.findAll({
     where: { userId: req.user.id },
-    order: [['createdAt', 'ASC']],
+    order: [["createdAt", "ASC"]],
     include: [
       {
         model: Book,
         attributes: {
-          exclude: isPrivileged ? [] : ["partnerPrice"], // ⬅️ INSERT
+          exclude: isPartner ? [] : ["partnerPrice"],
         },
       },
     ],
@@ -39,13 +36,9 @@ const addToCart = async (req, res) => {
   if (error) throw HttpError(400, error.details[0].message);
 
   const { bookId, quantity } = value;
-  const isPartner = req.user.role === "partner";
-
+ 
   // ⬇️ INSERT: хтo привілейований (бачить partnerPrice)
-  const isPrivileged =
-    req.user?.role === "partner" ||
-    req.user?.role === "admin" ||
-    req.user?.isSuperAdmin; // ← INSERT
+  const isPartner = req.user.role === "partner";
 
   const book = await Book.findByPk(bookId);
   if (!book) throw HttpError(404, "Book not found");
@@ -78,7 +71,7 @@ const addToCart = async (req, res) => {
         {
           model: Book,
           attributes: {
-            exclude: isPrivileged ? [] : ["partnerPrice"], // ← INSERT
+            exclude: isPartner ? [] : ["partnerPrice"],
           },
         },
       ],
@@ -100,17 +93,16 @@ const addToCart = async (req, res) => {
     quantity,
   });
 
-
   await item.reload({
     include: [
       {
         model: Book,
         attributes: {
-          exclude: isPrivileged ? [] : ["partnerPrice"], 
+          exclude: isPartner ? [] : ["partnerPrice"],
         },
       },
     ],
-  }); 
+  });
 
   sendResponse(res, {
     code: 201,
@@ -127,19 +119,14 @@ const updateQuantity = async (req, res) => {
   const { itemId } = req.params;
   const isPartner = req.user.role === "partner";
 
-  // ⬇️ INSERT: хто вважається привілейованим (бачать partnerPrice)
-  const isPrivileged =
-    req.user?.role === "partner" ||
-    req.user?.role === "admin" ||
-    req.user?.isSuperAdmin; // ⬅️ INSERT
-
+  
   // ⬇️ INSERT: підтягуємо Book з потрібними атрибутами
   const item = await CartItem.findByPk(itemId, {
     include: [
       {
         model: Book,
         attributes: {
-          exclude: isPrivileged ? [] : ["partnerPrice"], // ⬅️ INSERT
+          exclude: isPartner ? [] : ["partnerPrice"],
         },
       },
     ],
@@ -166,7 +153,7 @@ const updateQuantity = async (req, res) => {
       {
         model: Book,
         attributes: {
-          exclude: isPrivileged ? [] : ["partnerPrice"], // ⬅️ INSERT
+          exclude: isPartner ? [] : ["partnerPrice"],
         },
       },
     ],

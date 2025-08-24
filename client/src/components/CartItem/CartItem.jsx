@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import BaseButton from "../BaseButton/BaseButton";
 import BaseInput from "../BaseInput/BaseInput";
 import styles from "./CartItem.module.css";
+import { useSelector } from "react-redux";
 
 const CartItem = ({
   item,
@@ -13,6 +14,7 @@ const CartItem = ({
 }) => {
   const { t } = useTranslation();
   const [localQty, setLocalQty] = useState(item.quantity);
+  const isPartner = useSelector((s) => s.auth.user?.role === "partner");
 
   // Синхронізуємо після refetch кошика
   useEffect(() => {
@@ -32,13 +34,11 @@ const CartItem = ({
   };
 
   if (!item?.Book) return null;
+  
 
-  const rawPrice =
-    item.Book.partnerPrice !== undefined &&
-    item.Book.partnerPrice !== null &&
-    item.Book.partnerPrice !== ""
-      ? item.Book.partnerPrice
-      : item.Book.price;
+  const rawPrice = isPartner && item.Book?.partnerPrice != null
+   ? item.Book.partnerPrice
+   : item.Book?.price;
 
   const price = Number(rawPrice);
 

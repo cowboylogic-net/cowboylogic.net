@@ -9,13 +9,15 @@ const Order = sequelize.define("Order", {
     primaryKey: true,
   },
   totalPrice: {
-    type: DataTypes.FLOAT,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
   status: {
     type: DataTypes.ENUM("pending", "completed"),
     defaultValue: "pending",
   },
+  squarePaymentId: { type: DataTypes.STRING, unique: true },
+  squareOrderId: { type: DataTypes.STRING, unique: true },
 });
 
 User.hasMany(Order, { foreignKey: "userId", onDelete: "CASCADE" });
