@@ -15,7 +15,7 @@ const CartItem = ({
   const { t } = useTranslation();
   const [localQty, setLocalQty] = useState(item.quantity);
   const isPartner = useSelector((s) => s.auth.user?.role === "partner");
-
+  
   // Синхронізуємо після refetch кошика
   useEffect(() => {
     setLocalQty(item.quantity);
@@ -24,21 +24,26 @@ const CartItem = ({
   const handleChange = (e) => {
     const raw = e.target.value;
     const next = Math.max(1, Math.floor(Number(raw) || 0));
-    setLocalQty(next);
+    const stock = Number(item.Book?.stock ?? 0);
+    const clamped = stock > 0 ? Math.min(next, stock) : next;
+    setLocalQty(clamped);
   };
 
   const handleBlur = () => {
-    if (localQty !== item.quantity) {
-      onQuantityChange(item.id, localQty);
+    const stock = Number(item.Book?.stock ?? 0);
+    const clamped = stock > 0 ? Math.min(localQty, stock) : localQty;
+    if (clamped !== localQty) setLocalQty(clamped);
+    if (clamped !== item.quantity) {
+      onQuantityChange(item.id, clamped);
     }
   };
 
   if (!item?.Book) return null;
-  
 
-  const rawPrice = isPartner && item.Book?.partnerPrice != null
-   ? item.Book.partnerPrice
-   : item.Book?.price;
+  const rawPrice =
+    isPartner && item.Book?.partnerPrice != null
+      ? item.Book.partnerPrice
+      : item.Book?.price;
 
   const price = Number(rawPrice);
 

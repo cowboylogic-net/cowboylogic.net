@@ -88,7 +88,9 @@
     "outOfStockGeneric": "Some items are out of stock. Please review your cart.",
     "checkoutError": "Checkout failed. Please try again later.",
     "minPartnerQuantity": "Partners must order at least {{min}} units per item",
-    "processing": "Processing..."
+    "processing": "Processing...",
+    "loginToBuy": "Login to buy",
+    "registerToBuy": "Register to buy"
   },
   "bookForm": {
     "add": "Add New Book",

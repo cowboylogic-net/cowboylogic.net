@@ -15,6 +15,7 @@ import BaseButton from "../../components/BaseButton/BaseButton";
 import InlineLoader from "../../components/InlineLoader/InlineLoader";
 import Loader from "../../components/Loader/Loader";
 import { ROLES } from "../../constants/roles";
+import { Link } from "react-router-dom";
 
 // ⬅️ INSERT (санки для кількості/видалення)
 import {
@@ -86,6 +87,10 @@ const Cart = () => {
     setIsCheckoutLoading(true);
 
     try {
+      if (!token) {
+        // Захист від випадкових кліків у гостя
+        return;
+      }
       // ⬅️ REPLACE: перевірку складу робимо через санку checkStock
       const stockPayload = items.map(({ Book, quantity }) => ({
         bookId: Book?.id,
@@ -172,24 +177,35 @@ const Cart = () => {
                 <h3 className={styles.total}>
                   {t("cart.total")}: ${formatPrice(totalPrice)}
                 </h3>
-                <BaseButton
-                  onClick={handleSquareCheckout}
-                  disabled={
-                    isAdding || isCheckoutLoading || isUpdating || isDeleting
-                  }
-                  variant="outline"
-                >
-                  {isCheckoutLoading ? (
-                    <>
-                      <InlineLoader />
-                      <span className="visually-hidden">
-                        {t("cart.processing")}
-                      </span>
-                    </>
-                  ) : (
-                    t("cart.checkout")
-                  )}
-                </BaseButton>
+                {token ? (
+                  <BaseButton
+                    onClick={handleSquareCheckout}
+                    disabled={
+                      isAdding || isCheckoutLoading || isUpdating || isDeleting
+                    }
+                    variant="outline"
+                  >
+                    {isCheckoutLoading ? (
+                      <>
+                        <InlineLoader />
+                        <span className="visually-hidden">
+                          {t("cart.processing")}
+                        </span>
+                      </>
+                    ) : (
+                      t("cart.checkout")
+                    )}
+                  </BaseButton>
+                ) : (
+                  <div className={styles.guestCtas}>
+                    <Link to="/login">
+                      <BaseButton variant="outline">Login to buy</BaseButton>
+                    </Link>
+                    <Link to="/register">
+                      <BaseButton variant="outline">Register to buy</BaseButton>
+                    </Link>
+                  </div>
+                )}
               </div>
             </>
           )}

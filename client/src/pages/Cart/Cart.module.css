@@ -25,6 +25,11 @@
   flex-direction: column;
   gap: var(--spacing-md);
 }
+.guestCtas {
+  display: flex;
+  gap: var(--spacing-md);
+  align-items: center;
+}
 
 .total {
   text-align: right;

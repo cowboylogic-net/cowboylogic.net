@@ -59,6 +59,7 @@
   box-sizing: border-box;
 }
 
+
 @media (max-width: 768px) {
   .item {
     flex-direction: column;

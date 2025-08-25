@@ -3,6 +3,7 @@ import bookController from "../controllers/bookController.js";
 import { upload, optimizeImage } from "../middleware/uploadMiddleware.js";
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 import { createBookSchema, updateBookSchema } from "../schemas/bookSchema.js";
+import { optionalAuth } from "../middleware/optionalAuth.js";
 import { validateBody } from "../middleware/validateBody.js";
 import { requireRole } from "../middleware/requireRole.js";
 import { validateParams } from "../middleware/validateParams.js";
@@ -47,10 +48,10 @@ router.get(
   getPartnerBooks
 );
 
-router.get("/", protect, bookController.getBooks);
+router.get("/", optionalAuth, bookController.getBooks);
 router.get(
   "/:id",
-  protect,
+  optionalAuth,
   validateParams(idParamSchema),
   bookController.getBookById
 );

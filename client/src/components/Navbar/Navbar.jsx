@@ -6,7 +6,7 @@ import clsx from "clsx";
 import styles from "./Navbar.module.css";
 import searchIcon from "/assets/svg/search-icon.svg";
 import { ROLES } from "../../constants/roles";
-import { selectUser, selectIsAuth } from "../../store/selectors/authSelectors";
+import { selectUser } from "../../store/selectors/authSelectors";
 
 const buildLinkClass = ({ isActive }) =>
   clsx(styles.navLink, isActive && styles.active);
@@ -23,13 +23,12 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const user = useSelector(selectUser);
-  const isAuth = useSelector(selectIsAuth);
- 
+  // const isAuth = useSelector(selectIsAuth);
+
   const isAdminOrSuper =
-  user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN;
+    user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN;
 
-const isPartnerOnly = user?.role === ROLES.PARTNER;
-
+  const isPartnerOnly = user?.role === ROLES.PARTNER;
 
   const handleSearch = (event) => {
     event.preventDefault();
@@ -72,7 +71,6 @@ const isPartnerOnly = user?.role === ROLES.PARTNER;
           >
             {t("navbar.home")}
           </NavLink>
-    
 
           <div className={styles.dropdown} ref={clStrategiesRef}>
             <NavLink
@@ -140,13 +138,13 @@ const isPartnerOnly = user?.role === ROLES.PARTNER;
                 >
                   {t("navbar.ccPubAuthor")}
                 </NavLink>
-                <NavLink
+                {/* <NavLink
                   to="/clpublishing/b2b-bookstores"
                   className={styles.dropdownItem}
                   onClick={handleCloseDropdown}
                 >
                   {t("navbar.b2bBookstores")}
-                </NavLink>
+                </NavLink> */}
               </div>
             )}
           </div>
@@ -163,46 +161,44 @@ const isPartnerOnly = user?.role === ROLES.PARTNER;
             )}
 
           {isPartnerOnly ? (
-  <NavLink
-    to="/partner-store"
-    className={buildLinkClass}
-    onClick={handleCloseDropdown}
-  >
-    {t("navbar.partnerStore")}
-  </NavLink>
-) : (
-  <>
-    <NavLink
-      to="/bookstore"
-      className={buildLinkClass}
-      onClick={handleCloseDropdown}
-    >
-      {t("navbar.bookStore")}
-    </NavLink>
-    {isAdminOrSuper && (
-      <NavLink
-        to="/partner-store"
-        className={buildLinkClass}
-        onClick={handleCloseDropdown}
-      >
-        {t("navbar.partnerStore")}
-      </NavLink>
-    )}
-  </>
-)}
-
-
+            <NavLink
+              to="/partner-store"
+              className={buildLinkClass}
+              onClick={handleCloseDropdown}
+            >
+              {t("navbar.partnerStore")}
+            </NavLink>
+          ) : (
+            <>
+              <NavLink
+                to="/bookstore"
+                className={buildLinkClass}
+                onClick={handleCloseDropdown}
+              >
+                {t("navbar.bookStore")}
+              </NavLink>
+              {isAdminOrSuper && (
+                <NavLink
+                  to="/partner-store"
+                  className={buildLinkClass}
+                  onClick={handleCloseDropdown}
+                >
+                  {t("navbar.partnerStore")}
+                </NavLink>
+              )}
+            </>
+          )}
         </nav>
 
         <div className={styles.navRight}>
-          {isAuth && (
+          {/* {isAuth && (
             <NavLink to="/profile" className={buildLinkClass}>
               👤
             </NavLink>
-          )}
-          <NavLink to="/favorites" className={buildLinkClass}>
+          )} */}
+          {/* <NavLink to="/favorites" className={buildLinkClass}>
             ❤️
-          </NavLink>
+          </NavLink> */}
 
           <button
             className={styles.searchButton}

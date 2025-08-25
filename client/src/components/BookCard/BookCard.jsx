@@ -93,17 +93,18 @@ const BookCard = ({
         </div>
 
         <div className={styles.bottomRight}>
-          {isLoggedIn &&
-            (!isPartnerView ? (
-              <BaseButton
-                onClick={() => onAddToCart(book.id)}
-                size="sm"
-                variant="outline"
-                disabled={book.stock === 0}
-              >
-                {book.stock === 0 ? t("book.outOfStock") : t("book.addToCart")}
-              </BaseButton>
-            ) : (
+          {!isPartnerView ? (
+            <BaseButton
+              onClick={() => onAddToCart(book.id)}
+              size="sm"
+              variant="outline"
+              disabled={book.stock === 0}
+            >
+              {book.stock === 0 ? t("book.outOfStock") : t("book.addToCart")}
+            </BaseButton>
+          ) : (
+            // партнери — тільки для залогінених
+            isLoggedIn && (
               <div className={styles.partnerControls}>
                 <input
                   type="number"
@@ -131,7 +132,8 @@ const BookCard = ({
                   {t("book.addToCart")}
                 </BaseButton>
               </div>
-            ))}
+            )
+          )}
         </div>
       </div>
     </div>

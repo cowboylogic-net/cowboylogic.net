@@ -36,6 +36,20 @@ const bookSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase("auth/logout", (state) => {
+        state.books = [];
+        state.partnerBooks = [];
+        state.selectedBook = null;
+        state.error = null;
+        state.isFetching = false;
+        state.isFetchingById = false;
+        state.isCreating = false;
+        state.isUpdating = false;
+        state.isDeleting = false;
+        state.isFetchingPartnerBooks = false;
+        state.isCheckingStock = false;
+        state.stockCheckResult = null;
+      })
       // fetchBooks
       .addCase(fetchBooks.pending, (state) => {
         state.isFetching = true;

@@ -6,13 +6,12 @@ import { showSuccess, showError } from "./notificationThunks";
 export const fetchBooks = createAsyncThunk(
   "books/fetchBooks",
   async (_, { rejectWithValue, dispatch, getState }) => {
-    const { token } = getState().auth;
+    // const { token } = getState().auth;
     try {
-      const response = await axios.get("/books", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { token } = getState().auth;
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+      const response = await axios.get("/books", { headers });
+
       return response.data.data;
     } catch {
       const msg = "Failed to load books";
@@ -26,13 +25,12 @@ export const fetchBooks = createAsyncThunk(
 export const fetchBookById = createAsyncThunk(
   "books/fetchBookById",
   async (id, { rejectWithValue, dispatch, getState }) => {
-    const { token } = getState().auth;
+    // const { token } = getState().auth;
     try {
-      const response = await axios.get(`/books/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const { token } = getState().auth;
+      const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
+      const response = await axios.get(`/books/${id}`, { headers });
+
       return response.data.data;
     } catch {
       const msg = "Failed to fetch book by ID";

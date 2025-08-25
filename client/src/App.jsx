@@ -49,7 +49,9 @@ const Register = lazy(() => import("./pages/Register/Register"));
 const Login = lazy(() => import("./pages/Login/Login"));
 const SuccessPage = lazy(() => import("./pages/SuccessPage/SuccessPage"));
 const CancelPage = lazy(() => import("./pages/CancelPage/CancelPage"));
-const VerifyEmailPage = lazy(() => import("./pages/VerifyEmailPage/VerifyEmailPage"));
+const VerifyEmailPage = lazy(() =>
+  import("./pages/VerifyEmailPage/VerifyEmailPage")
+);
 
 // 🔐 Private
 const Orders = lazy(() => import("./pages/Orders/Orders"));
@@ -129,14 +131,7 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-            <Route
-              path="cart"
-              element={
-                <PrivateRoute>
-                  <Cart />
-                </PrivateRoute>
-              }
-            />
+            <Route path="cart" element={<Cart />} />
             <Route
               path="profile"
               element={
@@ -166,7 +161,6 @@ const App = () => {
           {/* 🧨 Not Found */}
           <Route path="*" element={<NotFound />} />
           <Route path="/403" element={<Forbidden />} />
-
         </Routes>
       </Suspense>
     </div>

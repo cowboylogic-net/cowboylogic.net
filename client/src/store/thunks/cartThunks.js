@@ -3,15 +3,20 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../axios";
 import { showError, showSuccess } from "./notificationThunks";
+import { guestCart } from "../../services/guestCart";
+
+const findBookInState = (getState, id) =>
+  getState().books?.books?.find((b) => b.id === id);
 
 export const fetchCartItems = createAsyncThunk(
   "cart/fetchCartItems",
   async (_, { getState, rejectWithValue, dispatch }) => {
     try {
       const token = getState().auth.token;
-      const response = await axios.get("/cart", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (!token) {
+        return guestCart.get();
+      }
+      const response = await axios.get("/cart");
       return response.data.data;
     } catch {
       dispatch(showError("Failed to load cart items"));
@@ -25,20 +30,23 @@ export const addToCartThunk = createAsyncThunk(
   async ({ bookId, quantity }, { getState, rejectWithValue, dispatch }) => {
     try {
       const token = getState().auth.token;
-      const res = await axios.post(
-        "/cart",
-        { bookId, quantity },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      dispatch(showSuccess(res.data.message || "Book added to cart!"));
-
-      // 🟡 Обов’язково оновити cart заново
-      const fetchResult = await dispatch(fetchCartItems());
-      if (fetchResult.meta.requestStatus === "fulfilled") {
-        return fetchResult.payload;
-      } else {
-        return rejectWithValue("Failed to reload cart");
+      if (!token) {
+        const book = findBookInState(getState, bookId);
+        if (!book) {
+          const msg = "Book not found locally";
+          dispatch(showError(msg));
+          return rejectWithValue(msg);
+        }
+        const items = guestCart.add(book, quantity);
+        dispatch(showSuccess("Book added to cart!"));
+        return items; // віддаємо одразу оновлений масив
       }
+      const res = await axios.post("/cart", { bookId, quantity });
+      dispatch(showSuccess(res.data.message || "Book added to cart!"));
+      const fetchResult = await dispatch(fetchCartItems());
+      if (fetchResult.meta.requestStatus === "fulfilled")
+        return fetchResult.payload;
+      return rejectWithValue("Failed to reload cart");
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to add to cart";
       dispatch(showError(msg));
@@ -70,12 +78,10 @@ export const updateCartItemQuantity = createAsyncThunk(
 
     try {
       const token = getState().auth.token;
-      await axios.patch(
-        `/cart/${itemId}`,
-        { quantity: q },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
+      if (!token) {
+        return guestCart.update(itemId, q);
+      }
+      await axios.patch(`/cart/${itemId}`, { quantity: q });
       const res = await dispatch(fetchCartItems());
       if (res.meta.requestStatus === "fulfilled") return res.payload;
       return rejectWithValue("Failed to reload cart");
@@ -97,9 +103,10 @@ export const deleteCartItemThunk = createAsyncThunk(
     }
     try {
       const token = getState().auth.token;
-      await axios.delete(`/cart/${itemId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (!token) {
+        return guestCart.remove(itemId);
+      }
+      await axios.delete(`/cart/${itemId}`);
       const res = await dispatch(fetchCartItems());
       if (res.meta.requestStatus === "fulfilled") return res.payload;
       return rejectWithValue("Failed to reload cart");
@@ -116,9 +123,11 @@ export const clearCartThunk = createAsyncThunk(
   async (_, { getState, dispatch, rejectWithValue }) => {
     try {
       const token = getState().auth.token;
-      await axios.delete("/cart", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      if (!token) {
+        dispatch(showSuccess("Cart cleared"));
+        return guestCart.clear();
+      }
+      await axios.delete("/cart");
       dispatch(showSuccess("Cart cleared"));
       const res = await dispatch(fetchCartItems());
       if (res.meta.requestStatus === "fulfilled") return res.payload;

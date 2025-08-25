@@ -21,7 +21,9 @@ const UserMenu = () => {
       {user ? (
         <>
           <Link to="/cart">
-            <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>
+            <BaseButton variant="outline">{`🛒 ${t(
+              "userMenu.cart"
+            )}`}</BaseButton>
           </Link>
           <Link to="/orders">
             <BaseButton variant="outline">{t("userMenu.orders")}</BaseButton>
@@ -38,6 +40,11 @@ const UserMenu = () => {
         </>
       ) : (
         <>
+          <Link to="/cart">
+            <BaseButton variant="outline">{`🛒 ${t(
+              "userMenu.cart"
+            )}`}</BaseButton>
+          </Link>
           <Link to="/login">
             <BaseButton variant="outline">{t("userMenu.login")}</BaseButton>
           </Link>
