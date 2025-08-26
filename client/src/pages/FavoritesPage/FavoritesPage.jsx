@@ -33,6 +33,15 @@ const FavoritesPage = () => {
           disableAutoFetch
           showAdminActions={false}
           showDeleteModal={false}
+          variant={
+            user?.role === "partner" ||
+            user?.role === "admin" ||
+            user?.isSuperAdmin
+              ? "partner"
+              : "default"
+          }
+          // (опц.) якщо BookList потребує — можна також передати:
+          // isLoggedIn={!!user}
         />
       )}
     </div>

@@ -71,7 +71,10 @@
     "partnerCartSuccess": "Added {{count}} items (minimum for partners)",
     "addedToCart": "Book added to cart",
     "addToCartError": "Failed to add to cart"
+    
+    
   },
+
   "cart": {
     "title": "My Cart",
     "loading": "Loading cart...",

@@ -40,7 +40,8 @@ const BookList = ({
 
   const [bookToDelete, setBookToDelete] = useState(null);
 
-  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+  const isAdmin =
+    user?.role === "admin" || user?.role === "superAdmin" || user?.isSuperAdmin;
   const isLoggedIn = !!user;
 
   useEffect(() => {
@@ -75,14 +76,13 @@ const BookList = ({
       console.error("Add to cart error:", err);
     }
   };
-const handlePartnerAdd = async (book, quantity) => {
-  try {
-    await dispatch(addToCartThunk({ bookId: book.id, quantity })).unwrap();
-  } catch (err) {
-    console.error("Partner add to cart error:", err);
-  }
-};
-
+  const handlePartnerAdd = async (book, quantity) => {
+    try {
+      await dispatch(addToCartThunk({ bookId: book.id, quantity })).unwrap();
+    } catch (err) {
+      console.error("Partner add to cart error:", err);
+    }
+  };
 
   // 💡 Показувати лоадер лише якщо дані відсутні + loading=true
   if (!books || (books.length === 0 && !externalBooks && isFetching)) {
