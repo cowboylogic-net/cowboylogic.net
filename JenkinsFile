@@ -13,8 +13,8 @@ pipeline {
     CODEBASE_SERVER_DIR = 'server'
     CODEBASE_CLIENT_DIR = 'client'
 
-    DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\dev\\server'
-    DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\dev\\client'
+    DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\prd\\server'
+    DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\prd\\client'
 
     HOME = 'C:\\Users\\clp-jenkins'
     PM2_HOME = 'E:\\jenkins_pm2' // ✅ Fixes PM2 for Jenkins user
@@ -22,9 +22,9 @@ pipeline {
 
   stages {
 
-    stage('🧹 Clean Old DEV Deployment') {
+    stage('🧹 Clean Old PROD Deployment') {
       steps {
-        powershell 'E:\\deploy\\_scripts\\Clean-DeploymentFolders.ps1 -ENVIRONMENT "dev"'
+        powershell 'E:\\deploy\\_scripts\\Clean-DeploymentFolders.ps1 -ENVIRONMENT "prd"'
       }
     }
 
@@ -42,15 +42,15 @@ pipeline {
 
     stage('🚀 Deploy & Start Server') {
       steps {
-        withCredentials([file(credentialsId: 'dev.env', variable: 'DEV_ENV_FILE')]) {
-          powershell "E:\\deploy\\_scripts\\Deploy-Server.ps1 -Environment 'dev' -EnvFile '${DEV_ENV_FILE}'"
+        withCredentials([file(credentialsId: 'prd.env', variable: 'PRD_ENV_FILE')]) {
+          powershell "E:\\deploy\\_scripts\\Deploy-Server.ps1 -Environment 'prd' -EnvFile '${PRD_ENV_FILE}'"
         }
       }
     }
 
     stage('🛠️ Build & Start Client') {
       steps {
-        powershell 'E:\\deploy\\_scripts\\Deploy-Client.ps1 -Environment "dev"'
+        powershell 'E:\\deploy\\_scripts\\Deploy-Client.ps1 -Environment "prd"'
       }
     }
   }
