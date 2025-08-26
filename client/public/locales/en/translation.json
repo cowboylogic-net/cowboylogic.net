@@ -194,7 +194,18 @@
     "email": "Email",
     "role": "Role",
     "favorites": "❤️ Favorites",
-    "changePassword": "Change Password"
+    "changePassword": "Change Password",
+    "account": "Account",
+    "partnerProfile": "Partner profile",
+    "security": "Security",
+    "fullName": "Full name",
+    "phoneNumber": "Phone number",
+    "newsletter": "Newsletter",
+    "heardAboutUs": "Heard about us",
+    "avatarUpdated": "Avatar updated",
+    "passwordUpdated": "Password updated",
+    "passwordUpdateError": "Couldn't update password",
+    "saved": "Saved"
   },
   "resetPassword": {
     "title": "Reset Password",
@@ -204,7 +215,9 @@
     "newPlaceholder": "Enter your new password",
     "button": "Update Password",
     "success": "Password updated successfully. You’ll be logged out shortly.",
-    "error": "Failed to update password. Please try again."
+    "error": "Failed to update password. Please try again.",
+    "oldPassword": "Old password",
+    "newPassword": "New password"
   },
   "auth": {
     "success": "✅ Logged in successfully!",
@@ -351,10 +364,8 @@
     "invalidEmail": "Invalid email address",
     "messageRequired": "Message is required",
     "messageMin": "Message must be at least 10 characters",
-
     "success": "Your message was sent successfully!",
     "error": "Something went wrong. Please try again.",
-
     "title": "Contact us"
   },
 
@@ -379,20 +390,21 @@
     "partnerPrice": "Partner Price: ${{price}}",
     "invalidPartnerPrice": "Please enter a valid partner price"
   },
+  "common": { "save": "Save", "cancel": "Cancel" },
   "registerForm": {
-    "newsletter": "Subscribe to our newsletter",
-    "isPartner": "I am a business partner",
     "organizationName": "Organization Name",
     "businessType": "Business Type",
+    "businessWebsite": "Business Website",
+    "contactPhone": "Business Contact Phone",
     "address": "Address",
-    "address2": "Address Line 2",
     "billingAddress": "Billing Address",
     "city": "City",
-    "postalCode": "Postal Code",
     "state": "State",
+    "postalCode": "Postal Code",
     "country": "Country",
-    "terms": "I agree to the Terms and Privacy Policy",
-    "contactPhone": "Business Contact Phone",
-    "businessWebsite": "Business Website"
+    "newsletter": "Subscribe to our newsletter",
+    "isPartner": "I am a business partner",
+    "address2": "Address Line 2",
+    "terms": "I agree to the Terms and Privacy Policy"
   }
 }

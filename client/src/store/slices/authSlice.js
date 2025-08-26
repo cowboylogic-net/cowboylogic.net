@@ -5,6 +5,8 @@ import {
   fetchCurrentUser,
   logoutUser,
   uploadAvatar,
+  updateMe,
+  upsertPartnerProfile
 } from "../thunks/authThunks";
 
 const initialState = {
@@ -98,7 +100,13 @@ const authSlice = createSlice({
         if (state.user) {
           state.user.avatarURL = action.payload;
         }
-      });
+      })
+       .addCase(updateMe.fulfilled, (state, action) => {
+    state.user = action.payload;
+  })
+  .addCase(upsertPartnerProfile.fulfilled, (state, action) => {
+    state.user = action.payload;
+  });
   },
 });
 

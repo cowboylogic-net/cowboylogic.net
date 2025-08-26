@@ -36,6 +36,8 @@ export const formatUser = (user) => {
         postalCode: profile.postalCode || null,
         state: profile.state || null,
         country: profile.country || null,
+        businessWebsite: profile.businessWebsite || null,   
+        contactPhone: profile.contactPhone || null,
       }
     : null;
 

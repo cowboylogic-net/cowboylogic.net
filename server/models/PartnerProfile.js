@@ -71,6 +71,10 @@ const PartnerProfile = sequelize.define(
         isUrl: true,
       },
     },
+    contactPhone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,

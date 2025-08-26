@@ -2,22 +2,28 @@
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
 import userSelfController from "../controllers/userSelfController.js";
-import {
-  upload,
-  optimizeImage,
-  removeOldAvatar,
-} from "../middleware/uploadMiddleware.js";
+import { upload, optimizeImage, removeOldAvatar } from "../middleware/uploadMiddleware.js";
+import { validateBody } from "../middleware/validateBody.js";
+import { userSelfUpdateSchema, partnerProfileUpsertSchema } from "../schemas/meSchemas.js";
 
 const router = express.Router();
 
-// ✅ PATCH /api/me/avatar (твоє правильне ім'я роуту)
+router.use(protect);
+
+router.patch("/", validateBody(userSelfUpdateSchema), userSelfController.updateMe);
+
 router.patch(
   "/avatar",
-  protect,
   upload.single("avatar"),
   removeOldAvatar,
   optimizeImage,
   userSelfController.updateAvatar
+);
+
+router.patch(
+  "/partner-profile",
+  validateBody(partnerProfileUpsertSchema),
+  userSelfController.upsertMyPartnerProfile
 );
 
 export default router;

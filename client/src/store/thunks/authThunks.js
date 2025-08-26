@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../axios";
 import { showNotification } from "../slices/notificationSlice";
+import { apiService } from "../../services/axiosService";
 
 export const loginUser = createAsyncThunk(
   "auth/loginUser",
@@ -54,7 +55,6 @@ export const fetchCurrentUser = createAsyncThunk(
   }
 );
 
-
 export const logoutUser = createAsyncThunk(
   "auth/logoutUser",
   async (_, { dispatch, rejectWithValue }) => {
@@ -93,6 +93,30 @@ export const uploadAvatar = createAsyncThunk(
       const msg = err.response?.data?.message || "Upload failed";
       dispatch(showNotification({ type: "error", message: msg }));
       return rejectWithValue(msg);
+    }
+  }
+);
+
+export const updateMe = createAsyncThunk(
+  "auth/updateMe",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await apiService.patch("/me", payload);
+      return res.data.data; // свіжий user
+    } catch (e) {
+      return rejectWithValue(e.response?.data?.message || e.message);
+    }
+  }
+);
+
+export const upsertPartnerProfile = createAsyncThunk(
+  "auth/upsertPartnerProfile",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const res = await apiService.patch("/me/partner-profile", payload);
+      return res.data.data; // свіжий user
+    } catch (e) {
+      return rejectWithValue(e.response?.data?.message || e.message);
     }
   }
 );

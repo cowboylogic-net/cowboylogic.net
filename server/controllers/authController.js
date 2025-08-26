@@ -12,7 +12,6 @@ import PartnerProfile from "../models/PartnerProfile.js";
 import { sequelize } from "../config/db.js";
 import sendResponse from "../utils/sendResponse.js";
 
-
 const generateToken = (user) => {
   return jwt.sign(
     {
@@ -130,7 +129,7 @@ const registerUser = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("❌ registerUser error:", error.message, error.stack); 
+    console.error("❌ registerUser error:", error.message, error.stack);
     await transaction.rollback();
     throw error;
   }
@@ -140,8 +139,8 @@ const loginUser = async (req, res) => {
   const { email: rawEmail, password } = req.body;
   const email = (rawEmail || "").trim().toLowerCase();
 
-const user = await User.unscoped().findOne({ where: { email } });
-if (!user) throw HttpError(401, "Invalid credentials");
+  const user = await User.unscoped().findOne({ where: { email } });
+  if (!user) throw HttpError(401, "Invalid credentials");
 
   if (!user.isEmailVerified) {
     throw HttpError(403, "Please verify your email before logging in");
@@ -177,10 +176,21 @@ const logoutUser = async (_req, res) => {
   });
 };
 
+// const getCurrentUser = async (req, res) => {
+//    const freshUser = await User.findByPk(req.user.id);
+//   if (!freshUser) throw HttpError(401, "User not found");
+//   sendResponse(res, {
+//     code: 200,
+//     data: formatUser(freshUser),
+//   });
+// };
+
 const getCurrentUser = async (req, res) => {
-  // ⛔ req.user може бути "спрощеним", без avatarURL
-  const freshUser = await User.findByPk(req.user.id);
+  const freshUser = await User.findByPk(req.user.id, {
+    include: [{ association: "partnerProfile", required: false }],
+  });
   if (!freshUser) throw HttpError(401, "User not found");
+
   sendResponse(res, {
     code: 200,
     data: formatUser(freshUser),
