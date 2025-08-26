@@ -12,7 +12,7 @@ const SearchResults = () => {
 
   useEffect(() => {
     if (!query) return;
-    const url = `/api/search?q=${encodeURIComponent(query)}`; // було http://localhost:5000...
+    const url = `/api/search?q=${encodeURIComponent(query)}`; 
 
     fetch(url)
       .then((res) => res.json())
@@ -21,7 +21,7 @@ const SearchResults = () => {
   }, [query]);
 
   return (
-    <div className={styles.resultsPage}>
+    <div className="layoutContainer">
       <h2>{t("search.resultsFor", { query })}</h2>
       {results.length > 0 ? (
         <div className={styles.grid}>

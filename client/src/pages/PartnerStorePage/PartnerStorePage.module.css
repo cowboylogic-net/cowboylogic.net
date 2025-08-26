@@ -2,11 +2,11 @@
   padding: var(--spacing-xl);
   display: flex;
   flex-direction: column;
-  align-items: stretch; /* ❗ важливо для повної ширини */
+  align-items: stretch; 
 }
 
 .partnerStore h1 {
-  font-size: var(--font-xxl);
+  font-size: 2rem; /* або додай --font-xxl у tokens.css */
   color: white;
   margin-bottom: var(--spacing-md);
   text-align: center;

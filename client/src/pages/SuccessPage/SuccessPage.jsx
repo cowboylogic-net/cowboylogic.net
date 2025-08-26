@@ -19,22 +19,27 @@ const SuccessPage = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasConfirmed, setHasConfirmed] = useState(false); // ✅ щоб не повторювати запит
+  const [tries, setTries] = useState(0);
 
   useEffect(() => {
     const confirmOrder = async () => {
       try {
         // ✅ Підтвердження замовлення після Square
-        await axios.post("/orders/confirm", {}, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await axios.post(
+          "/orders/confirm",
+          {},
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         dispatch(clearCart());
 
+        // перша спроба отримати latest (вебхук може затриматись)
         const res = await axios.get("/orders/latest", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        setOrderId(res.data.data.id);
+        setOrderId(res.data?.data?.id || null);
 
         dispatch(
           showNotification({
@@ -43,9 +48,7 @@ const SuccessPage = () => {
           })
         );
       } catch (err) {
-        const msg =
-          err.response?.data?.message ||
-          t("success.errorDefault");
+        const msg = err.response?.data?.message || t("success.errorDefault");
         setError(msg);
         dispatch(showNotification({ type: "error", message: msg }));
       } finally {
@@ -58,6 +61,31 @@ const SuccessPage = () => {
       confirmOrder();
     }
   }, [token, dispatch, t, hasConfirmed]);
+  // 👇 Якщо orderId ще не зʼявився — робимо до 5 повторних спроб
+  useEffect(() => {
+    if (!hasConfirmed || orderId || tries >= 5) return;
+    const timer = setTimeout(async () => {
+      try {
+        const res = await axios.get("/orders/latest", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.data?.data?.id) {
+          setOrderId(res.data.data.id);
+          dispatch(
+            showNotification({
+              type: "success",
+              message: t("success.confirmed", { orderId: res.data.data.id }),
+            })
+          );
+        } else {
+          setTries((x) => x + 1);
+        }
+      } catch {
+        setTries((x) => x + 1);
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [hasConfirmed, orderId, tries, token, dispatch, t]);
 
   useEffect(() => {
     if (orderId && progressRef.current) {
@@ -108,10 +136,11 @@ const SuccessPage = () => {
           <>
             <h2>{t("success.title")}</h2>
             <p>{t("success.confirmed", { orderId })}</p>
-            <p className={styles.muted}>
-              {t("success.redirect")}
-            </p>
-            <button className="btn btn-outline" onClick={() => navigate("/orders")}>
+            <p className={styles.muted}>{t("success.redirect")}</p>
+            <button
+              className="btn btn-outline"
+              onClick={() => navigate("/orders")}
+            >
               {t("success.viewOrders")}
             </button>
           </>

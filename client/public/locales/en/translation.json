@@ -189,7 +189,7 @@
     "filterByStatus": "Filter by status",
     "all": "All",
     "pending": "Pending",
-    "fulfilled": "Fulfilled",
+    "completed": "Completed",
     "cancelled": "Cancelled"
   },
   "profile": {

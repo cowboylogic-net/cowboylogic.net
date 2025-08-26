@@ -55,7 +55,26 @@
   --breakpoint-md: 1024px;
   --breakpoint-lg: 1440px;
 
-  /* Themes */
+ 
+  --color-toast-success: #2ecc71;
+  --color-toast-error: #e74c3c;
+  --color-toast-info: #3498db;
+  --color-toast-warning: #f39c12;
+
+
+  /* Font sizes used in cards/buttons */
+ --font-xs: 0.8rem;
+ --font-sm: 0.95rem;
+ --font-lg: 1.125rem;
+
+ /* Extra colors used in BookCard/BaseButton */
+ --color-accent-light: #ffd9a8;
+ --color-light-text: #e6e6e6;
+ --color-light: #ddd;
+ --color-red: #e74c3c;
+}
+
+ /* Themes */
   [data-theme="dark"] {
     --color-bg: #000;
     --color-text: #fff;
@@ -65,8 +84,3 @@
     --color-bg: #fff;
     --color-text: #000;
   }
-  --color-toast-success: #2ecc71;
-  --color-toast-error: #e74c3c;
-  --color-toast-info: #3498db;
-  --color-toast-warning: #f39c12;
-}

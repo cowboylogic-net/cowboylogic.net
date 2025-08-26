@@ -1,5 +1,7 @@
 // server.js
 import express from "express";
+import verifySquareSignature from "./middleware/verifySquareSignature.js";
+import { squareWebhookHandler } from "./controllers/webhookController.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -64,6 +66,13 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(helmet());
 app.use("/api/webhook", webhookRoutes);
+app.post(
+  "/api/square/webhook",
+  // express.raw({ type: "application/json" }),
+  express.raw({ type: "*/*" }),
+  verifySquareSignature,
+  squareWebhookHandler
+);
 app.use(express.json());
 
 app.use("/api", (req, res, next) => {

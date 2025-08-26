@@ -2,6 +2,7 @@ import Order from "../models/Order.js";
 import OrderItem from "../models/OrderItem.js";
 import CartItem from "../models/CartItem.js";
 import Book from "../models/Book.js";
+import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import sendResponse from "../utils/sendResponse.js";
@@ -107,10 +108,8 @@ const getAllOrders = async (req, res) => {
 
   const orders = await Order.findAll({
     include: [
-      {
-        model: OrderItem,
-        include: [Book], // admin/superAdmin можуть бачити все, включно з partnerPrice
-      },
+      { model: User, attributes: ["id", "email", "fullName"] },
+      { model: OrderItem, include: [Book] },
     ],
     order: [["createdAt", "DESC"]],
   });

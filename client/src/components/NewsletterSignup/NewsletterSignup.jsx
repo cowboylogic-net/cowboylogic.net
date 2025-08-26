@@ -43,7 +43,7 @@ const NewsletterSignup = () => {
   return (
     <div className={styles.newsletter}>
       <form className="form" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <label htmlFor="newsletter">{t("newsletter.label")}</label>
+        {/* <label htmlFor="newsletter">{t("newsletter.label")}</label> */}
 
         <div className={styles.inputGroup}>
           <BaseInput
