@@ -107,14 +107,9 @@ app.use(errorHandler);
 
 // DB init
 connectDB().then(async () => {
-  await sequelize.sync();
-  // await sequelize.sync({ alter: true });
-  if (process.env.NODE_ENV !== "production") {
-    try {
-      await seedSuperAdmin();
-    } catch (error) {
-      console.warn("⚠️ Super admin seed skipped:", error.message);
-    }
+  if (process.env.MIGRATE_WITH_SYNC === "1") {
+    await sequelize.sync();
   }
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 });
+
