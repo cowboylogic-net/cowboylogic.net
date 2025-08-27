@@ -72,13 +72,12 @@ app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // дозволяє грузити картинки крос-домен
+    crossOriginResourcePolicy: { policy: "cross-origin" }, 
   })
 );
 app.use("/api/webhook", webhookRoutes);
 app.post(
   "/api/square/webhook",
-  // express.raw({ type: "application/json" }),
   express.raw({ type: "*/*" }),
   verifySquareSignature,
   squareWebhookHandler
