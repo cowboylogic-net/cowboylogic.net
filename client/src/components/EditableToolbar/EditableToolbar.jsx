@@ -123,13 +123,18 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
   const handleImageInsert = async ({ file, url, width, height }) => {
     try {
       let imageUrl = url?.trim();
+
       if (file) {
         const formData = new FormData();
         formData.append("image", file);
-        const endpoint = `${import.meta.env.VITE_API_URL?.replace(
-          /\/+$/,
-          ""
-        )}/images/upload`;
+
+        const rawBase = import.meta.env.VITE_API_URL?.trim();
+        const apiBase = rawBase ? rawBase.replace(/\/+$/, "") : "";
+        // якщо є VITE_API_URL — шлемо туди; інакше використовуємо відносний шлях (Vercel rewrite)
+        const endpoint = apiBase
+          ? `${apiBase}/images/upload`
+          : `/images/upload`;
+
         const res = await fetch(endpoint, {
           method: "POST",
           headers: authToken
@@ -137,15 +142,18 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
             : undefined,
           body: formData,
         });
+
         if (!res.ok) {
           const txt = await res.text().catch(() => "");
           throw new Error(`Upload failed ${res.status}. ${txt || "No body"}`);
         }
+
         const json = await res.json();
         imageUrl = json?.data?.imageUrl || json?.imageUrl;
-        // якщо бек віддав відносний шлях — префіксуємо базовим API URL
-        const apiBase = import.meta.env.VITE_API_URL?.replace(/\/+$/, "");
-        if (imageUrl && !/^https?:\/\//i.test(imageUrl)) {
+
+        // якщо бек повернув відносний шлях — добудуємо абсолютний лише коли є apiBase;
+        // інакше лишаємо відносний (його покриє rewrite для /uploads/*)
+        if (imageUrl && !/^https?:\/\//i.test(imageUrl) && apiBase) {
           imageUrl = imageUrl.startsWith("/")
             ? `${apiBase}${imageUrl}`
             : `${apiBase}/${imageUrl}`;

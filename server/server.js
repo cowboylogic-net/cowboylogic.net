@@ -61,14 +61,13 @@ app.use((req, res, next) => {
 });
 
 // Middleware
-app.use(
-  cors({
-    origin: true,
-    credentials: true,
-    allowedHeaders: ["Content-Type", "Authorization"],
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  })
-);
+app.use(cors({
+  origin: true,
+  credentials: true,
+  // або прибери allowedHeaders взагалі, щоб cors сам віддавав Access-Control-Allow-Headers з preflight
+  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+}));
 
 app.use(cookieParser());
 app.use(morgan("dev"));
