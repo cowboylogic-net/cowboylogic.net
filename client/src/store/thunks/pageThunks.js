@@ -12,7 +12,7 @@ export const fetchPageVersions = createAsyncThunk(
   "pages/fetchPageVersions",
   async (slug, { rejectWithValue, dispatch }) => {
     try {
-      const res = await api.get(`/pages/${slug}`, { headers: { "Cache-Control": "no-store" } });
+      const res = await api.get(`/pages/${slug}`, { params: { _ts: Date.now() } });
 
       const payload = (res?.data && (res.data.data ?? res.data)) || null;
       if (!payload || typeof payload !== "object")

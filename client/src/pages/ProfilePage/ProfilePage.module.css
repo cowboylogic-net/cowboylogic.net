@@ -1,7 +1,6 @@
 /* ProfilePage.module.css */
 
-/* уніфікована висота для інпутів і кнопок */
-:root { --control-h: 40px; }
+.container { --profile-control-h: 40px; }
 
 .container {
   width: 100%;
@@ -83,12 +82,12 @@
 .control,
 .inputCell input:not([type="checkbox"]),
 .inlineForm input:not([type="checkbox"]) {
-  height: var(--control-h);
+  height: var(--profile-control-h);
 }
 
 .actions button,
 .inlineForm button {
-  height: var(--control-h);
+  height: var(--profile-control-h);
 }
 
 .checkbox {

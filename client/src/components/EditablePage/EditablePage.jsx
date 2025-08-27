@@ -5,7 +5,6 @@ import DOMPurify from "dompurify";
 import debounce from "lodash/debounce";
 import { useTranslation } from "react-i18next";
 
-
 import { ROLES } from "../../constants/roles";
 import EditableToolbar from "../../components/EditableToolbar/EditableToolbar";
 import ConfirmModal from "../../components/modals/ConfirmModal/ConfirmModal";
@@ -40,7 +39,7 @@ const EditablePage = ({ slug, title }) => {
   const isFetching = useSelector(selectPageFetching);
 
   const [localContent, setLocalContent] = useState("");
-  const [initialDraft, setInitialDraft] = useState("");
+  // const [initialDraft, setInitialDraft] = useState("");
   const [lastPublished, setLastPublished] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isPreviewing, setIsPreviewing] = useState(false);
@@ -52,33 +51,32 @@ const EditablePage = ({ slug, title }) => {
     dispatch(fetchPageVersions(slug));
   }, [dispatch, slug]);
 
-  useEffect(() => {
-    setLocalContent(draft || published || "");
-  }, [draft, published]);
+  const lastSavedRef = useRef(""); // ⬅️ нове: тримаємо останній збережений драфт
 
   useEffect(() => {
     if (!isEditing) {
-      setInitialDraft(draft || "");
+      const base = draft ?? published ?? "";
+      setLocalContent(base);
+      lastSavedRef.current = base; // синхронізуємо опорне значення
     }
-  }, [draft, isEditing]);
+  }, [draft, published, isEditing]);
 
   const handleSaveDraft = useCallback(async () => {
     const cleanContent = DOMPurify.sanitize(localContent);
     try {
       await dispatch(
-        saveDraftContent({ slug, content: cleanContent, token })
+        saveDraftContent({ slug, content: cleanContent })
       ).unwrap();
-      if (editorRef.current) {
-        editorRef.current.innerHTML = cleanContent;
-      }
+      // успішно збережено — фіксуємо "опорне" значення
+      lastSavedRef.current = cleanContent;
     } catch (err) {
       console.error("Draft save failed:", err);
     }
-  }, [dispatch, localContent, slug, token]);
+  }, [dispatch, localContent, slug]);
 
   useEffect(() => {
-    debouncedSaveRef.current = debounce((content, draftValue) => {
-      if (content !== draftValue) {
+    debouncedSaveRef.current = debounce((content) => {
+      if (content !== lastSavedRef.current) {
         handleSaveDraft();
       }
     }, 1000);
@@ -100,7 +98,8 @@ const EditablePage = ({ slug, title }) => {
   }, [isEditing, isPreviewing, localContent]);
 
   useEffect(() => {
-    const hasUnsavedChanges = isEditing && localContent !== initialDraft;
+    const hasUnsavedChanges =
+      isEditing && localContent !== lastSavedRef.current;
     const handleBeforeUnload = (e) => {
       if (hasUnsavedChanges) {
         e.preventDefault();
@@ -109,8 +108,10 @@ const EditablePage = ({ slug, title }) => {
     };
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isEditing, localContent, initialDraft]);
+  }, [isEditing, localContent]);
 
+  //  Використовуємо execCommand попри deprecated у типах — працює стабільно для нашого кейсу.
+  // Повний перехід на Range/Selection або інший редактор заплануємо окремо.
   const execCmd = (command, value = null) => {
     document.execCommand(command, false, value);
     if (editorRef.current) {
@@ -158,8 +159,9 @@ const EditablePage = ({ slug, title }) => {
 
     try {
       await dispatch(
-        updatePageContent({ slug, content: cleanContent, token })
+        updatePageContent({ slug, content: cleanContent })
       ).unwrap();
+      lastSavedRef.current = cleanContent;
       setIsEditing(false);
       setIsPreviewing(false);
     } catch (err) {
@@ -168,23 +170,24 @@ const EditablePage = ({ slug, title }) => {
   };
 
   const startEditing = () => {
+    const base = draft || published || "";
     setIsEditing(true);
-    setInitialDraft(draft || "");
+    // setInitialDraft(draft || "");
     setLastPublished(published || "");
+    lastSavedRef.current = base; // ⬅️ додай це
     setTimeout(() => {
       if (editorRef.current) {
-        editorRef.current.innerHTML = DOMPurify.sanitize(
-          draft || published || ""
-        );
+        editorRef.current.innerHTML = DOMPurify.sanitize(base);
       }
     }, 0);
   };
 
   const handleCancel = () => {
-    if (localContent !== initialDraft) {
+    if (localContent !== lastSavedRef.current) {
       setShowConfirm(true);
       return;
     }
+
     setIsEditing(false);
     setIsPreviewing(false);
     setLocalContent(lastPublished);
@@ -208,14 +211,181 @@ const EditablePage = ({ slug, title }) => {
     if (editorRef.current) {
       editorRef.current.innerHTML = DOMPurify.sanitize(lastPublished || "");
     }
-    dispatch(saveDraftContent({ slug, content: published || "", token }));
+    dispatch(saveDraftContent({ slug, content: published || "" }));
+    lastSavedRef.current = published || "";
   };
 
-  if (isFetching || isDraftSaving || isUpdating) {
+  if (isFetching || isUpdating) {
     return <Loader />;
   }
 
   const isDraftDifferent = draft && draft !== published;
+
+  const insertHTMLAtCursor = (html) => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+
+    const range = sel.getRangeAt(0);
+    range.deleteContents();
+
+    // Створюємо фрагмент зі вставлюваним HTML
+    const container = document.createElement("div");
+    container.innerHTML = html;
+
+    const frag = document.createDocumentFragment();
+    let node;
+    let lastNode = null;
+    while ((node = container.firstChild)) {
+      lastNode = frag.appendChild(node);
+    }
+
+    range.insertNode(frag);
+
+    // Переміщаємо курсор у кінець вставленого
+    if (lastNode) {
+      range.setStartAfter(lastNode);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+
+    const cb = e.clipboardData || window.clipboardData;
+    const html = cb.getData("text/html");
+    const text = cb.getData("text/plain");
+
+    let toInsert = "";
+
+    if (html) {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+
+      // 1) Unwrap <font color="">
+      doc.body.querySelectorAll("font[color]").forEach((el) => {
+        el.removeAttribute("color");
+        const parent = el.parentNode;
+        while (el.firstChild) parent.insertBefore(el.firstChild, el);
+        parent.removeChild(el);
+      });
+
+      // 2) Прибрати очевидно небезпечне
+      doc.body
+        .querySelectorAll("script, style, link, meta")
+        .forEach((n) => n.remove());
+      doc.body.querySelectorAll("*").forEach((el) => {
+        const attrs = el.attributes ? Array.from(el.attributes) : [];
+        attrs.forEach(({ name }) => {
+          if (/^on/i.test(name)) el.removeAttribute(name); // onclick, onload, ...
+        });
+      });
+
+      // 3) Вирізаємо лише color/background, mso-класи лишнє
+      doc.body
+        .querySelectorAll("*[style], *[color], *[class]")
+        .forEach((el) => {
+          if (el.hasAttribute("color")) el.removeAttribute("color");
+
+          if (el.hasAttribute("style")) {
+            const cleaned = el
+              .getAttribute("style")
+              .replace(/(^|;)\s*color\s*:\s*[^;]+;?/gi, "$1")
+              .replace(/(^|;)\s*background(?:-color)?\s*:\s*[^;]+;?/gi, "$1")
+              .replace(/;;+/g, ";")
+              .replace(/^\s*;\s*|\s*;\s*$/g, "");
+            cleaned
+              ? el.setAttribute("style", cleaned)
+              : el.removeAttribute("style");
+          }
+
+          const cls = el.getAttribute && el.getAttribute("class");
+          if (cls && /\bmso-/i.test(cls)) el.removeAttribute("class");
+        });
+
+      // після створення doc і перед toInsert = doc.body.innerHTML;
+      doc.body.querySelectorAll("font[size]").forEach((el) => {
+        const n = el.getAttribute("size");
+        const span = doc.createElement("span");
+        const px =
+          {
+            1: "12px",
+            2: "14px",
+            3: "16px",
+            4: "18px",
+            5: "24px",
+            6: "32px",
+            7: "48px",
+          }[n] || "16px";
+        span.setAttribute("style", `font-size:${px}`);
+        while (el.firstChild) span.appendChild(el.firstChild);
+        el.replaceWith(span);
+      });
+
+      toInsert = doc.body.innerHTML;
+    } else if (text) {
+      toInsert = text.replace(/\n/g, "<br>");
+    }
+
+    if (!toInsert) return; // ⬅️ ранній вихід
+
+    if (document.activeElement !== editorRef.current) {
+      editorRef.current?.focus();
+    }
+
+    // Додаткова санітизація під whitelist (узгоджено з бекендом)
+    const safe = DOMPurify.sanitize(toInsert, {
+      ALLOWED_TAGS: [
+        "b",
+        "i",
+        "u",
+        "s",
+        "em",
+        "strong",
+        "p",
+        "ul",
+        "ol",
+        "li",
+        "a",
+        "br",
+        "blockquote",
+        "pre",
+        "code",
+        "h1",
+        "h2",
+        "h3",
+        "hr",
+        "img",
+        "table",
+        "thead",
+        "tbody",
+        "tr",
+        "td",
+        "th",
+      ],
+      // ❗️ масив, не обʼєкт
+      ALLOWED_ATTR: [
+        "href",
+        "target",
+        "rel",
+        "src",
+        "width",
+        "height",
+        "style",
+        "alt",
+        "colspan",
+        "rowspan",
+      ],
+    });
+
+    insertHTMLAtCursor(safe);
+
+    if (editorRef.current) {
+      const htmlNow = editorRef.current.innerHTML;
+      setLocalContent(htmlNow);
+      debouncedSaveRef.current?.(htmlNow);
+    }
+  };
 
   return (
     <section className="layoutContainer">
@@ -273,7 +443,11 @@ const EditablePage = ({ slug, title }) => {
         )}
 
         {isEditing && !isPreviewing && (
-          <EditableToolbar execCmd={execCmd} editorRef={editorRef} />
+          <EditableToolbar
+            execCmd={execCmd}
+            editorRef={editorRef}
+            authToken={token}
+          />
         )}
 
         {isEditing && !isPreviewing ? (
@@ -282,6 +456,7 @@ const EditablePage = ({ slug, title }) => {
             className={`${styles.editable} ${styles.editingArea}`}
             contentEditable
             suppressContentEditableWarning
+            onPaste={handlePaste}
             style={{
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",
@@ -292,7 +467,7 @@ const EditablePage = ({ slug, title }) => {
               if (editorRef.current) {
                 const updatedContent = editorRef.current.innerHTML;
                 setLocalContent(updatedContent);
-                debouncedSaveRef.current(updatedContent, initialDraft);
+                debouncedSaveRef.current?.(updatedContent);
               }
             }}
           />

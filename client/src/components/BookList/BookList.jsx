@@ -24,16 +24,13 @@ const BookList = ({
   disableAutoFetch = false,
   showAdminActions = true,
   showDeleteModal = true,
-  variant = "default", // 👈 NEW
+  variant = "default",
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const reduxBooks = useSelector(selectAllBooks);
-  const books = useMemo(
-    () => externalBooks ?? reduxBooks,
-    [externalBooks, reduxBooks]
-  );
+  const books = useMemo(() => externalBooks ?? reduxBooks, [externalBooks, reduxBooks]);
 
   const user = useSelector(selectUser);
   const { isFetching } = useSelector(selectLoadingFlags);
@@ -44,26 +41,23 @@ const BookList = ({
     user?.role === "admin" || user?.role === "superAdmin" || user?.isSuperAdmin;
   const isLoggedIn = !!user;
 
+  const isPrivileged =
+    !!user && (user.role === "partner" || user.role === "admin" || user.role === "superAdmin" || user.isSuperAdmin);
+  const isPartnerView = variant === "partner" || (variant === "default" && isPrivileged);
+
   useEffect(() => {
     if (!disableAutoFetch && !externalBooks && books.length === 0) {
       dispatch(fetchBooks());
     }
   }, [dispatch, externalBooks, books.length, disableAutoFetch]);
 
-  const handleEdit = (id) => {
-    navigate(`/admin/books/edit/${id}`);
-  };
+  const handleEdit = (id) => navigate(`/admin/books/edit/${id}`);
 
   const handleDelete = async () => {
     try {
       if (!bookToDelete) return;
-
       await dispatch(deleteBook(bookToDelete)).unwrap();
-
-      // Оптимістичне очищення або оновлення Redux
       dispatch(fetchBooks());
-    } catch (err) {
-      console.error("Delete failed", err);
     } finally {
       setBookToDelete(null);
     }
@@ -76,6 +70,7 @@ const BookList = ({
       console.error("Add to cart error:", err);
     }
   };
+
   const handlePartnerAdd = async (book, quantity) => {
     try {
       await dispatch(addToCartThunk({ bookId: book.id, quantity })).unwrap();
@@ -84,26 +79,23 @@ const BookList = ({
     }
   };
 
-  // 💡 Показувати лоадер лише якщо дані відсутні + loading=true
-  if (!books || (books.length === 0 && !externalBooks && isFetching)) {
+  if (!externalBooks && isFetching && (!books || books.length === 0)) {
     return <Loader />;
   }
 
   return (
     <div className="layoutContainer">
       <div className={styles.bookList}>
-        {books.map((book) => (
+        {Array.isArray(books) && books.map((book) => (
           <BookCard
             key={book.id}
             book={book}
             isAdmin={showAdminActions && isAdmin}
             isLoggedIn={isLoggedIn}
             onEdit={onEdit ?? handleEdit}
-            onDeleteClick={
-              showAdminActions ? (id) => setBookToDelete(id) : undefined
-            }
+            onDeleteClick={showAdminActions ? (id) => setBookToDelete(id) : undefined}
             onAddToCart={onAddToCart ?? handleAddToCart}
-            isPartnerView={variant === "partner"}
+            isPartnerView={isPartnerView}
             onPartnerAdd={handlePartnerAdd}
           />
         ))}
@@ -119,5 +111,6 @@ const BookList = ({
     </div>
   );
 };
+
 
 export default BookList;

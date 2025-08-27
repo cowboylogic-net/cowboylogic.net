@@ -1,34 +1,26 @@
 import axios from "axios";
+import { getApiBase } from "../utils/apiBase";
 
 let store;
+export const injectStore = (_store) => { store = _store; };
 
-export const injectStore = (_store) => {
-  store = _store;
-};
-
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE = getApiBase();
 const instance = axios.create({
-  baseURL: `${API_BASE}/api`,
+  baseURL: API_BASE ? `${API_BASE}/api` : "/api",
   withCredentials: false,
 });
 
-// Додаємо токен з Redux у заголовки
 instance.interceptors.request.use(
   (config) => {
-    const token =
-      store?.getState().auth.token || localStorage.getItem("token"); // ⬅️ fallback
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
+    const token = store?.getState().auth.token || localStorage.getItem("token");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-
-// (необов’язково) Автоматичний logout при 401
 instance.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem("token");

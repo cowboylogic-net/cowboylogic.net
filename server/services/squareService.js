@@ -7,9 +7,9 @@ const squareClient = new Client({
     : Environment.Sandbox,
 });
 
-
 export const paymentsApi = squareClient.paymentsApi;
-export const checkoutApi = squareClient.checkoutApi;
+export const checkoutApi = squareClient.checkoutApi; // залишаємо поки що (сумісність)
 export const ordersApi = squareClient.ordersApi;
+export const paymentLinksApi = squareClient.paymentLinksApi; // ⬅️ ДОДАНО
 
 export const locationId = process.env.SQUARE_LOCATION_ID;

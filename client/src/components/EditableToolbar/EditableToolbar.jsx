@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { useTranslation } from "react-i18next"; // 🆕
+import { useTranslation } from "react-i18next";
+import { getApiBase } from "../../utils/apiBase";
 import styles from "./EditableToolbar.module.css";
 import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal.jsx";
 import TableInsertModal from "../modals/TableInsertModal/TableInsertModal.jsx";
@@ -41,8 +42,30 @@ const COLORS = [
   "#fff",
   "#999",
 ];
+// десь зверху в EditableToolbar.jsx
+const FONT_SIZE_MAP = {
+  1: "12px",
+  2: "14px",
+  3: "16px", // “звичайний”
+  4: "18px",
+  5: "24px",
+  6: "32px",
+  7: "48px",
+};
 
-const EditableToolbar = ({ execCmd, editorRef }) => {
+const normalizeFontTags = (rootEl) => {
+  if (!rootEl) return;
+  rootEl.querySelectorAll("font[size]").forEach((fontEl) => {
+    const n = fontEl.getAttribute("size");
+    const span = document.createElement("span");
+    const px = FONT_SIZE_MAP[n] || FONT_SIZE_MAP[3];
+    span.setAttribute("style", `font-size:${px}`);
+    while (fontEl.firstChild) span.appendChild(fontEl.firstChild);
+    fontEl.replaceWith(span);
+  });
+};
+
+const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
   const { t } = useTranslation(); // 🆕
   const isUpdating = useSelector(selectPageUpdating);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -68,32 +91,83 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
     }
   };
 
+  const runCmd = (cmd, value) => {
+    editorRef?.current?.focus();
+    restoreSelection();
+    execCmd(cmd, value);
+  };
+
+  // зберігаємо selection ДО втрати фокуса кнопкою
+  const armSelection = (e) => {
+    e.preventDefault();
+    saveSelection();
+  };
+
+  const armSelectionNoPrevent = () => {
+    saveSelection(); // без e.preventDefault()
+  };
+
+  const setHighlight = (color) => {
+    const supported = (cmd) =>
+      typeof document.queryCommandSupported === "function" &&
+      document.queryCommandSupported(cmd);
+
+    if (supported("hiliteColor")) {
+      runCmd("hiliteColor", color);
+      return;
+    }
+    if (supported("backColor")) {
+      runCmd("backColor", color);
+    }
+  };
+
   const handleImageInsert = async ({ file, url, width, height }) => {
     try {
-      let imageUrl = url;
+      let imageUrl = url?.trim();
+
+      // забороняємо javascript: та інше сміття в ручному URL
+      if (imageUrl && /^javascript:/i.test(imageUrl)) return false;
+
       if (file) {
         const formData = new FormData();
         formData.append("image", file);
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/images/upload`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-        if (!res.ok) throw new Error(`Upload failed with status ${res.status}`);
-        // const data = await res.json();
-        // imageUrl = data.imageUrl;
+
+        const apiBase = getApiBase();
+        const endpoint = apiBase
+          ? `${apiBase}/images/upload`
+          : `/images/upload`;
+
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: authToken
+            ? { Authorization: `Bearer ${authToken}` }
+            : undefined,
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`Upload failed ${res.status}. ${txt || "No body"}`);
+        }
+
         const json = await res.json();
-        imageUrl = json.data.imageUrl;
+        imageUrl = json?.data?.imageUrl || json?.imageUrl;
+
+        // якщо бек повернув відносний шлях — добудовуємо лише коли є apiBase
+        if (imageUrl && !/^https?:\/\//i.test(imageUrl) && apiBase) {
+          imageUrl = imageUrl.startsWith("/")
+            ? `${apiBase}${imageUrl}`
+            : `${apiBase}/${imageUrl}`;
+        }
       }
+
       if (imageUrl && editorRef?.current) {
         editorRef.current.focus();
         restoreSelection();
-        const imgTag = `<img src="${imageUrl}" style="max-width:100%;${
-          width ? ` width:${width}px;` : ""
-        }${height ? ` height:${height}px;` : ""}" />`;
-        execCmd("insertHTML", imgTag);
+        const w = Number(width) ? ` width:${Number(width)}px;` : "";
+        const h = Number(height) ? ` height:${Number(height)}px;` : "";
+        const imgTag = `<img src="${imageUrl}" style="max-width:100%;${w}${h}" />`;
+        runCmd("insertHTML", imgTag);
         return true;
       }
     } catch (err) {
@@ -102,35 +176,46 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
     return false;
   };
 
-  const handleInsertLink = (url) => {
+  const handleInsertLink = (rawUrl) => {
+    if (!rawUrl) return;
+    let url = rawUrl.trim();
+    // дозволяємо https://, http://, // і mailto:
+    if (!/^(https?:\/\/|\/\/|mailto:)/i.test(url)) {
+      url = `https://${url}`;
+    }
+    if (/^javascript:/i.test(url)) return;
+
+    editorRef?.current?.focus();
     restoreSelection();
-    const selection = window.getSelection();
-    const html =
-      !selection || selection.isCollapsed
-        ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
-        : `<a href="${url}" target="_blank" rel="noopener noreferrer">${selection.toString()}</a>`;
+
+    const sel = window.getSelection();
+    const text = !sel || sel.isCollapsed ? url : sel.toString();
+    const html = `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
     execCmd("insertHTML", html);
     setShowLinkModal(false);
   };
 
   const handleClearFormatting = () => {
-    execCmd("removeFormat");
-    execCmd("formatBlock", "P");
+    runCmd("removeFormat");
+    runCmd("formatBlock", "P");
   };
 
   const ButtonWithTooltip = ({ title, onClick, children }) => (
     <div className={styles.tooltipWrapper}>
       <BaseButton
+        type="button"
         variant="outline"
-        onClick={onClick}
         size="small"
         disabled={isUpdating}
+        onMouseDown={armSelection} // ⬅️ зберегти виділення ДО кліку
+        onClick={onClick}
       >
         {children}
       </BaseButton>
       <span className={styles.tooltip}>{t(title)}</span>
     </div>
   );
+
   return (
     <>
       <div className={`${styles.toolbarWrapper} layoutContainer`}>
@@ -139,37 +224,37 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
           <div className={styles.group}>
             <ButtonWithTooltip
               title="toolbar.bold"
-              onClick={() => execCmd("bold")}
+              onClick={() => runCmd("bold")}
             >
               <Bold className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.italic"
-              onClick={() => execCmd("italic")}
+              onClick={() => runCmd("italic")}
             >
               <Italic className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.underline"
-              onClick={() => execCmd("underline")}
+              onClick={() => runCmd("underline")}
             >
               <Underline className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.strikethrough"
-              onClick={() => execCmd("strikeThrough")}
+              onClick={() => runCmd("strikeThrough")}
             >
               <Strikethrough className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.superscript"
-              onClick={() => execCmd("superscript")}
+              onClick={() => runCmd("superscript")}
             >
               <Superscript className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.subscript"
-              onClick={() => execCmd("subscript")}
+              onClick={() => runCmd("subscript")}
             >
               <Subscript className={styles.toolbarIcon} />
             </ButtonWithTooltip>
@@ -179,28 +264,58 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
           <div className={styles.group}>
             <ButtonWithTooltip
               title="toolbar.alignLeft"
-              onClick={() => execCmd("justifyLeft")}
+              onClick={() => runCmd("justifyLeft")}
             >
               <AlignLeft className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.alignCenter"
-              onClick={() => execCmd("justifyCenter")}
+              onClick={() => runCmd("justifyCenter")}
             >
               <AlignCenter className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.alignRight"
-              onClick={() => execCmd("justifyRight")}
+              onClick={() => runCmd("justifyRight")}
             >
               <AlignRight className={styles.toolbarIcon} />
             </ButtonWithTooltip>
           </div>
 
+          {/* Font size */}
+          <div className={styles.group}>
+            <select
+              onMouseDown={armSelectionNoPrevent}
+              onChange={(e) => {
+                const val = Number(e.target.value);
+                if (val) {
+                  runCmd("fontSize", val); // вставляє <font size="N">
+                  normalizeFontTags(editorRef?.current); // перетворюємо у <span style="font-size:...">
+                  editorRef?.current?.dispatchEvent(
+                    new Event("input", { bubbles: true })
+                  );
+                  e.target.value = ""; // повертаємо плейсхолдер
+                }
+              }}
+              defaultValue=""
+              title={t("toolbar.fontSize") /* додай ключ у i18n за бажання */}
+              disabled={isUpdating}
+            >
+              <option value="" disabled>
+                ⬇ {t("toolbar.fontSize") || "Font size"}
+              </option>
+              <option value="2">{t("toolbar.sizeSmall") || "Small"}</option>
+              <option value="3">{t("toolbar.sizeNormal") || "Normal"}</option>
+              <option value="4">{t("toolbar.sizeLarge") || "Large"}</option>
+              <option value="5">{t("toolbar.sizeHuge") || "Huge"}</option>
+            </select>
+          </div>
+
           {/* Headings */}
           <div className={styles.group}>
             <select
-              onChange={(e) => execCmd("formatBlock", e.target.value)}
+              onMouseDown={armSelectionNoPrevent}
+              onChange={(e) => runCmd("formatBlock", e.target.value)}
               defaultValue=""
               title={t("toolbar.heading")}
               disabled={isUpdating}
@@ -221,22 +336,19 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
           <div className={styles.group}>
             <ButtonWithTooltip
               title="toolbar.bulletList"
-              onClick={() => execCmd("insertUnorderedList")}
+              onClick={() => runCmd("insertUnorderedList")}
             >
               <List className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.numberedList"
-              onClick={() => execCmd("insertOrderedList")}
+              onClick={() => runCmd("insertOrderedList")}
             >
               <ListOrdered className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.insertTable"
-              onClick={() => {
-                saveSelection();
-                setShowTableModal(true);
-              }}
+              onClick={() => setShowTableModal(true)}
             >
               <Table className={styles.toolbarIcon} />
             </ButtonWithTooltip>
@@ -246,25 +358,19 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
           <div className={styles.group}>
             <ButtonWithTooltip
               title="toolbar.insertLink"
-              onClick={() => {
-                saveSelection();
-                setShowLinkModal(true);
-              }}
+              onClick={() => setShowLinkModal(true)}
             >
               <Link className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.insertImage"
-              onClick={() => {
-                saveSelection();
-                setShowImageModal(true);
-              }}
+              onClick={() => setShowImageModal(true)}
             >
               <Image className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.insertLine"
-              onClick={() => execCmd("insertHTML", "<hr />")}
+              onClick={() => runCmd("insertHTML", "<hr />")}
             >
               <Minus className={styles.toolbarIcon} />
             </ButtonWithTooltip>
@@ -274,6 +380,8 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
           <div className={styles.group}>
             <div className={styles.tooltipWrapper}>
               <button
+                type="button"
+                onMouseDown={armSelection}
                 onClick={() => setShowTextColors((prev) => !prev)}
                 disabled={isUpdating}
               >
@@ -283,9 +391,11 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
               {showTextColors && (
                 <div className={styles.colorPicker}>
                   <button
+                    type="button"
                     className={styles.resetButton}
+                    onMouseDown={armSelection}
                     onClick={() => {
-                      execCmd("foreColor", "#1b1b1b"); // або "inherit"
+                      runCmd("foreColor", "#1b1b1b");
                       setShowTextColors(false);
                     }}
                   >
@@ -293,10 +403,12 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
                   </button>
                   {COLORS.map((color) => (
                     <button
+                      type="button"
                       key={color}
                       style={{ backgroundColor: color }}
+                      onMouseDown={armSelection}
                       onClick={() => {
-                        execCmd("foreColor", color);
+                        runCmd("foreColor", color);
                         setShowTextColors(false);
                       }}
                     />
@@ -306,6 +418,8 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
             </div>
             <div className={styles.tooltipWrapper}>
               <button
+                type="button"
+                onMouseDown={armSelection}
                 onClick={() => setShowBgColors((prev) => !prev)}
                 disabled={isUpdating}
               >
@@ -315,9 +429,11 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
               {showBgColors && (
                 <div className={styles.colorPicker}>
                   <button
+                    type="button"
                     className={styles.resetButton}
+                    onMouseDown={armSelection}
                     onClick={() => {
-                      execCmd("hiliteColor", "transparent");
+                      setHighlight("transparent");
                       setShowBgColors(false);
                     }}
                   >
@@ -325,10 +441,12 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
                   </button>
                   {COLORS.map((color) => (
                     <button
+                      type="button"
                       key={color}
                       style={{ backgroundColor: color }}
+                      onMouseDown={armSelection}
                       onClick={() => {
-                        execCmd("hiliteColor", color);
+                        setHighlight(color);
                         setShowBgColors(false);
                       }}
                     />
@@ -342,13 +460,13 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
           <div className={styles.group}>
             <ButtonWithTooltip
               title="toolbar.undo"
-              onClick={() => execCmd("undo")}
+              onClick={() => runCmd("undo")}
             >
               <Undo className={styles.toolbarIcon} />
             </ButtonWithTooltip>
             <ButtonWithTooltip
               title="toolbar.redo"
-              onClick={() => execCmd("redo")}
+              onClick={() => runCmd("redo")}
             >
               <Redo className={styles.toolbarIcon} />
             </ButtonWithTooltip>
@@ -379,8 +497,7 @@ const EditableToolbar = ({ execCmd, editorRef }) => {
       {showTableModal && (
         <TableInsertModal
           onInsert={(html) => {
-            restoreSelection();
-            execCmd("insertHTML", html);
+            runCmd("insertHTML", html);
             setShowTableModal(false);
           }}
           onClose={() => setShowTableModal(false)}

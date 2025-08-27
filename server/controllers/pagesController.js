@@ -32,6 +32,7 @@ const sanitizeOptions = {
     "tr",
     "td",
     "th",
+    "span", // ⬅️ додали
   ],
   allowedAttributes: {
     a: ["href", "target", "rel"],
@@ -39,6 +40,7 @@ const sanitizeOptions = {
     td: ["colspan", "rowspan", "style"],
     th: ["colspan", "rowspan", "style"],
     table: ["style"],
+    span: ["style"], // ⬅️ додали
   },
   allowedSchemes: ["http", "https", "mailto"],
   allowedStyles: {
@@ -48,10 +50,16 @@ const sanitizeOptions = {
       height: [/^\d+(px|%)$/],
       "max-width": [/^\d+%$/],
     },
-    table: { width: [/^\d+(px|%)$/] },
-    td: { width: [/^\d+(px|%)$/] },
-    th: { width: [/^\d+(px|%)$/] },
+    table: {
+      width: [/^\d+(px|%)$/],
+      border: [/^.+$/],
+      "border-collapse": [/^(collapse|separate)$/],
+    },
+    td: { width: [/^\d+(px|%)$/], border: [/^.+$/], padding: [/^\d+(px|%)$/] },
+    th: { width: [/^\d+(px|%)$/], border: [/^.+$/], padding: [/^\d+(px|%)$/] },
+    span: { "font-size": [/^\d+(\.\d+)?(px|em|rem|%)$/] }, // ⬅️ додали
   },
+
   transformTags: {
     a: (tagName, attribs) => {
       if (attribs && attribs.target === "_blank") {
@@ -92,11 +100,10 @@ export const getPage = async (req, res) => {
 
   const plain = page.toJSON();
   if (!admin) {
-  delete plain.draftContent;
-  res.set("Cache-Control", "public, max-age=60");
-  res.set("Vary", "Authorization"); // щоб кеш не змішував гостьові й адмінські відповіді
-}
-
+    delete plain.draftContent;
+    res.set("Cache-Control", "public, max-age=60");
+    res.set("Vary", "Authorization"); // щоб кеш не змішував гостьові й адмінські відповіді
+  }
 
   sendResponse(res, { code: 200, data: plain });
 };

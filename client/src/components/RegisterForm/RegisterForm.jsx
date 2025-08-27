@@ -1,3 +1,4 @@
+// src/components/RegisterForm/RegisterForm.jsx
 import styles from "./RegisterForm.module.css";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -6,7 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { registerFormSchema } from "../../validation/formSchemas";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
-import { createApiClient } from "../../api/api";
+import api from "../../store/axios"; // ✅ єдиний axios-інстанс
 import { showNotification } from "../../store/slices/notificationSlice";
 import { setEmailForVerification } from "../../store/slices/authSlice";
 
@@ -40,68 +41,68 @@ const RegisterForm = () => {
   const termsAgreed = watch("termsAgreed");
 
   const onRegister = async (form) => {
-  try {
-    const api = createApiClient();
+    try {
+      // роль
+      form.role = isPartner ? "partner" : "user";
 
-    if (termsAgreed) {
-      form.gdprConsentAt = new Date().toISOString();
+      // GDPR мітка — зберігаємо, якщо погоджено
+      if (termsAgreed) {
+        form.gdprConsentAt = new Date().toISOString();
+      } else {
+        delete form.gdprConsentAt;
+      }
+
+      // не відправляємо helper-поле з форми
+      delete form.isPartner;
+
+      // підчистка partnerProfile
+      if (!isPartner) {
+        delete form.partnerProfile;
+      } else {
+        if (!form.partnerProfile?.businessWebsite) {
+          delete form.partnerProfile?.businessWebsite;
+        }
+        if (!form.partnerProfile?.contactPhone) {
+          delete form.partnerProfile?.contactPhone;
+        }
+      }
+
+      const response = await api.post("/auth/register", form);
+
+      dispatch(showNotification({ message: t("registered"), type: "success" }));
+
+      const { user } = response.data.data; // бек повертає в data.data
+
+      if (!user.isEmailVerified) {
+        dispatch(showNotification({ message: t("codeSent"), type: "info" }));
+        dispatch(setEmailForVerification(user.email));
+        navigate("/verify-email");
+      } else {
+        // fallback — якщо раптом вже верифіковано
+        await api.post("/auth/login", {
+          email: form.email,
+          password: form.password,
+        });
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      dispatch(
+        showNotification({
+          message: err.response?.data?.message || t("registerFailed"),
+          type: "error",
+        })
+      );
     }
-
-    form.role = isPartner ? "partner" : "user";
-    delete form.isPartner;
-    delete form.gdprConsentAt;
-
-    if (!isPartner) {
-      delete form.partnerProfile;
-    } else {
-      if (!form.partnerProfile.businessWebsite)
-        delete form.partnerProfile.businessWebsite;
-      if (!form.partnerProfile.contactPhone)
-        delete form.partnerProfile.contactPhone;
-    }
-
-    const response = await api.post("/auth/register", form);
-
-    dispatch(showNotification({ message: t("registered"), type: "success" }));
-
-    // const { user } = response.data;
-    const { user } = response.data.data;
-
-    if (!user.isEmailVerified) {
-      // ✅ якщо не підтверджено — надсилаємо на verify
-      dispatch(showNotification({ message: t("codeSent"), type: "info" }));
-      dispatch(setEmailForVerification(user.email));
-      navigate("/verify-email");
-    } else {
-      // 🔒 fallback на майбутнє
-      await api.post("/auth/login", {
-        email: form.email,
-        password: form.password,
-      });
-      navigate("/dashboard");
-    }
-  } catch (err) {
-    dispatch(
-      showNotification({
-        message: err.response?.data?.message || t("registerFailed"),
-        type: "error",
-      })
-    );
-  }
-};
-
+  };
 
   const handleGoogleSignup = async (credentialResponse) => {
     try {
-      const res = await createApiClient().post("/auth/google", {
+      const res = await api.post("/auth/google", {
         id_token: credentialResponse.credential,
       });
 
-      // localStorage.setItem("token", res.data.token);
-      localStorage.setItem("token", res.data.data.token);
-      dispatch(
-        showNotification({ message: t("googleSuccess"), type: "success" })
-      );
+      localStorage.setItem("token", res.data?.data?.token);
+      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
       navigate("/");
     } catch {
       dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
@@ -113,72 +114,32 @@ const RegisterForm = () => {
       <h2>{t("registerTitle")}</h2>
 
       <BaseForm onSubmit={handleSubmit(onRegister)}>
-        <FormGroup
-          label={t("fullName")}
-          error={errors.fullName?.message}
-          required
-        >
-          <BaseInput
-            {...register("fullName")}
-            touched={!!touchedFields.fullName}
-          />
+        <FormGroup label={t("fullName")} error={errors.fullName?.message} required>
+          <BaseInput {...register("fullName")} touched={!!touchedFields.fullName} />
         </FormGroup>
 
         <FormGroup label={t("email")} error={errors.email?.message} required>
-          <BaseInput
-            type="email"
-            {...register("email")}
-            touched={!!touchedFields.email}
-          />
+          <BaseInput type="email" {...register("email")} touched={!!touchedFields.email} />
         </FormGroup>
 
-        <FormGroup
-          label={t("password")}
-          error={errors.password?.message}
-          required
-        >
-          <BaseInput
-            type="password"
-            {...register("password")}
-            touched={!!touchedFields.password}
-          />
+        <FormGroup label={t("password")} error={errors.password?.message} required>
+          <BaseInput type="password" {...register("password")} touched={!!touchedFields.password} />
         </FormGroup>
 
-        <FormGroup
-          label={t("repeatPassword")}
-          error={errors.repeatPassword?.message}
-          required
-        >
-          <BaseInput
-            type="password"
-            {...register("repeatPassword")}
-            touched={!!touchedFields.repeatPassword}
-          />
+        <FormGroup label={t("repeatPassword")} error={errors.repeatPassword?.message} required>
+          <BaseInput type="password" {...register("repeatPassword")} touched={!!touchedFields.repeatPassword} />
         </FormGroup>
 
         <FormGroup label={t("phoneNumber")} error={errors.phoneNumber?.message}>
-          <BaseInput
-            type="tel"
-            {...register("phoneNumber")}
-            touched={!!touchedFields.phoneNumber}
-          />
+          <BaseInput type="tel" {...register("phoneNumber")} touched={!!touchedFields.phoneNumber} />
         </FormGroup>
 
-        <FormGroup
-          label={t("heardAboutUs")}
-          error={errors.heardAboutUs?.message}
-        >
-          <BaseInput
-            {...register("heardAboutUs")}
-            touched={!!touchedFields.heardAboutUs}
-          />
+        <FormGroup label={t("heardAboutUs")} error={errors.heardAboutUs?.message}>
+          <BaseInput {...register("heardAboutUs")} touched={!!touchedFields.heardAboutUs} />
         </FormGroup>
 
         <FormGroup>
-          <BaseCheckbox
-            {...register("newsletter")}
-            label={t("registerForm.newsletter")}
-          />
+          <BaseCheckbox {...register("newsletter")} label={t("registerForm.newsletter")} />
         </FormGroup>
 
         <FormGroup>
@@ -222,6 +183,7 @@ const RegisterForm = () => {
             <FormGroup label={t("registerForm.country")}>
               <BaseInput {...register("partnerProfile.country")} />
             </FormGroup>
+
             <FormGroup
               label={t("registerForm.contactPhone")}
               error={errors.partnerProfile?.contactPhone?.message}
@@ -245,13 +207,8 @@ const RegisterForm = () => {
         )}
 
         <FormGroup>
-          <BaseCheckbox
-            {...register("termsAgreed")}
-            label={t("registerForm.terms")}
-          />
-          {errors.termsAgreed && (
-            <p className={styles.error}>{errors.termsAgreed.message}</p>
-          )}
+          <BaseCheckbox {...register("termsAgreed")} label={t("registerForm.terms")} />
+          {errors.termsAgreed && <p className={styles.error}>{errors.termsAgreed.message}</p>}
         </FormGroup>
 
         <BaseButton type="submit" variant="auth">
@@ -263,9 +220,7 @@ const RegisterForm = () => {
         <GoogleLogin
           onSuccess={handleGoogleSignup}
           onError={() =>
-            dispatch(
-              showNotification({ message: t("googleFailed"), type: "error" })
-            )
+            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
           }
         />
       </div>

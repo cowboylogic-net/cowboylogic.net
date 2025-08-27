@@ -1,21 +1,29 @@
-// routes/images.js
+// routes/imageRoutes.js
 import express from "express";
 import { upload, optimizeImage } from "../middleware/uploadMiddleware.js";
-import path from "path";
+import sendResponse from "../utils/sendResponse.js";
 
 const router = express.Router();
 
+// routes/imageRoutes.js
 router.post("/upload", upload.single("image"), optimizeImage, (req, res) => {
   if (!req.file) {
-    return res.status(400).json({ message: "No file uploaded" });
+    return sendResponse(res, { code: 400, message: "No file uploaded" });
   }
 
+  // коректний протокол/хост за проксі
+  const proto = (req.headers["x-forwarded-proto"]?.split(",")[0]) || req.protocol;
+  const host  = req.headers["x-forwarded-host"] || req.get("host");
+  const base  = `${proto}://${host}`.replace(/\/+$/, "");
 
-  const dir = path.basename(path.dirname(req.file.path));
-  const imageUrl = `/uploads/${dir}/${req.file.filename}`;
+  // відносний шлях від мідлвари або запасний варіант
+  const rel = req.file.webPath || `/uploads/${req.file.filename}`;
 
-  res.status(200).json({ imageUrl });
+  // абсолютний URL
+  const imageUrl = /^https?:\/\//i.test(rel) ? rel : `${base}${rel}`;
+
+  return sendResponse(res, { code: 200, data: { imageUrl } });
 });
 
-export default router;
 
+export default router;

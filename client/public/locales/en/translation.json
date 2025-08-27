@@ -71,8 +71,6 @@
     "partnerCartSuccess": "Added {{count}} items (minimum for partners)",
     "addedToCart": "Book added to cart",
     "addToCartError": "Failed to add to cart"
-    
-    
   },
 
   "cart": {
@@ -150,6 +148,7 @@
     "copyright": "Copyright © {{year}}",
     "rights": "All Rights Reserved."
   },
+
   "toolbar": {
     "bold": "Bold",
     "italic": "Italic",
@@ -157,26 +156,42 @@
     "strikethrough": "Strikethrough",
     "superscript": "Superscript",
     "subscript": "Subscript",
-    "alignLeft": "Align Left",
-    "alignCenter": "Align Center",
-    "alignRight": "Align Right",
+
+    "alignLeft": "Align left",
+    "alignCenter": "Align center",
+    "alignRight": "Align right",
+
+    "fontSize": "Font size",
+    "sizeSmall": "Small",
+    "sizeNormal": "Normal",
+    "sizeLarge": "Large",
+    "sizeHuge": "Huge",
+
     "heading": "Heading",
     "paragraph": "Paragraph",
-    "heading1": "Heading 1",
-    "heading2": "Heading 2",
-    "heading3": "Heading 3",
-    "blockquote": "Quote",
-    "pre": "Code Block",
-    "bulletList": "Bullet List",
-    "numberedList": "Numbered List",
-    "insertTable": "Insert Table",
-    "insertLink": "Insert Link",
-    "insertLine": "Insert Horizontal Line",
-    "textColor": "Text Color",
+    "heading1": "Heading H1",
+    "heading2": "Heading H2",
+    "heading3": "Heading H3",
+    "blockquote": "Blockquote",
+    "pre": "Preformatted (pre)",
+
+    "bulletList": "Bulleted list",
+    "numberedList": "Numbered list",
+    "insertTable": "Insert table",
+
+    "insertLink": "Insert link",
+    "insertImage": "Insert image",
+    "insertLine": "Horizontal line",
+
+    "textColor": "Text color",
     "highlight": "Highlight",
+
     "undo": "Undo",
-    "redo": "Redo"
+    "redo": "Redo",
+    "clearFormatting": "Clear formatting",
+    "clearAll": "Clear all"
   },
+
   "orders": {
     "title": "Your Orders",
     "noOrders": "You have no orders yet.",
@@ -189,7 +204,7 @@
     "filterByStatus": "Filter by status",
     "all": "All",
     "pending": "Pending",
-    "fulfilled": "Fulfilled",
+    "completed": "Completed",
     "cancelled": "Cancelled"
   },
   "profile": {

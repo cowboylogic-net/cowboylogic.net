@@ -1,5 +1,7 @@
 // server.js
 import express from "express";
+import verifySquareSignature from "./middleware/verifySquareSignature.js";
+import { squareWebhookHandler } from "./controllers/webhookController.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -41,6 +43,7 @@ dotenv.config();
 import { requireEnv } from "./config/requireEnv.js";
 requireEnv();
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 5000;
 
 // ❌ вимикаємо ETag, щоб не було 304 без тіла
@@ -58,12 +61,27 @@ app.use((req, res, next) => {
 });
 
 // Middleware
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({
+  origin: true,
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "X-Requested-With"],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+}));
 
 app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }, 
+  })
+);
 app.use("/api/webhook", webhookRoutes);
+app.post(
+  "/api/square/webhook",
+  express.raw({ type: "*/*" }),
+  verifySquareSignature,
+  squareWebhookHandler
+);
 app.use(express.json());
 
 app.use("/api", (req, res, next) => {
@@ -90,7 +108,7 @@ app.use("/api/favorites", favoriteRoutes);
 app.use("/images", imageRoutes);
 app.use("/api", searchRoutes);
 app.use("/api/me", userSelfRoutes);
-app.use("/uploads", staticCors, express.static("public/uploads"));
+app.use("/uploads", express.static("public/uploads"));
 app.use("/documents", staticCors, express.static("public/documents"));
 
 // Global error handler
@@ -98,14 +116,8 @@ app.use(errorHandler);
 
 // DB init
 connectDB().then(async () => {
-  await sequelize.sync();
-  // await sequelize.sync({ alter: true });
-  if (process.env.NODE_ENV !== "production") {
-    try {
-      await seedSuperAdmin();
-    } catch (error) {
-      console.warn("⚠️ Super admin seed skipped:", error.message);
-    }
+  if (process.env.MIGRATE_WITH_SYNC === "1") {
+    await sequelize.sync();
   }
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 });
