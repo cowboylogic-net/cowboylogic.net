@@ -5,7 +5,9 @@ export const getApiBase = () => {
   }
 
   const env = import.meta.env?.VITE_API_URL?.trim();
-  if (env) return env.replace(/\/+$/, "");
-
-  return ""; // fallback на відносні шляхи
+  // ігноруємо локальний хост у проді — тоді підемо по відносному шляху і спрацюють rewrites
+  if (env && !/^https?:\/\/localhost(?::\d+)?$/i.test(env)) {
+    return env.replace(/\/+$/, "");
+  }
+  return "";
 };
