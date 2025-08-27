@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
-import { useTranslation } from "react-i18next"; // 🆕
+import { useTranslation } from "react-i18next";
+import { getApiBase } from "../../utils/apiBase";
 import styles from "./EditableToolbar.module.css";
 import ImageInsertModal from "../modals/ImageInsertModal/ImageInsertModal.jsx";
 import TableInsertModal from "../modals/TableInsertModal/TableInsertModal.jsx";
@@ -124,13 +125,14 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
     try {
       let imageUrl = url?.trim();
 
+      // забороняємо javascript: та інше сміття в ручному URL
+      if (imageUrl && /^javascript:/i.test(imageUrl)) return false;
+
       if (file) {
         const formData = new FormData();
         formData.append("image", file);
 
-        const rawBase = import.meta.env.VITE_API_URL?.trim();
-        const apiBase = rawBase ? rawBase.replace(/\/+$/, "") : "";
-        // якщо є VITE_API_URL — шлемо туди; інакше використовуємо відносний шлях (Vercel rewrite)
+        const apiBase = getApiBase();
         const endpoint = apiBase
           ? `${apiBase}/images/upload`
           : `/images/upload`;
@@ -151,8 +153,7 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
         const json = await res.json();
         imageUrl = json?.data?.imageUrl || json?.imageUrl;
 
-        // якщо бек повернув відносний шлях — добудуємо абсолютний лише коли є apiBase;
-        // інакше лишаємо відносний (його покриє rewrite для /uploads/*)
+        // якщо бек повернув відносний шлях — добудовуємо лише коли є apiBase
         if (imageUrl && !/^https?:\/\//i.test(imageUrl) && apiBase) {
           imageUrl = imageUrl.startsWith("/")
             ? `${apiBase}${imageUrl}`
