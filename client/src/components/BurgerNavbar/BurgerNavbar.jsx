@@ -5,14 +5,16 @@ import { ROLES } from "../../constants/roles";
 import styles from "./BurgerNavbar.module.css";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 import { logoutUser } from "../../store/thunks/authThunks";
-
 import BaseButton from "../BaseButton/BaseButton";
 
 const BurgerNavbar = () => {
   const [open, setOpen] = useState(false);
   const [openSubmenu, setOpenSubmenu] = useState(null);
   const wrapperRef = useRef(null);
+
   const user = useSelector((state) => state.auth.user);
+  const role = user?.role;
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -26,9 +28,13 @@ const BurgerNavbar = () => {
     navigate("/");
   };
 
-  const isAdminOrSuper =
-    user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN;
-  const isPartnerOnly = user?.role === ROLES.PARTNER;
+  const isAdminOrSuper = role === ROLES.ADMIN || role === ROLES.SUPERADMIN;
+  const isPartner = role === ROLES.PARTNER;
+  const isUser = role === ROLES.USER;
+
+  // Магазини за ролями
+  const showUserStore = isUser || isAdminOrSuper;     // User + Admin/Super
+  const showPartnerStore = isPartner || isAdminOrSuper; // Partner + Admin/Super
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -37,9 +43,17 @@ const BurgerNavbar = () => {
         setOpenSubmenu(null);
       }
     };
+    const handleEsc = (e) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+        setOpenSubmenu(null);
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
     };
   }, []);
 
@@ -51,42 +65,26 @@ const BurgerNavbar = () => {
 
       {open && (
         <nav className={styles.menu}>
-          <NavLink to="/" onClick={() => setOpen(false)}>
-            Home
-          </NavLink>
-          <NavLink to="/about" onClick={() => setOpen(false)}>
-            About
-          </NavLink>
-          <NavLink to="/favorites" onClick={() => setOpen(false)}>
-            Favorites
-          </NavLink>
+          <NavLink to="/" onClick={() => setOpen(false)}>Home</NavLink>
+          <NavLink to="/about" onClick={() => setOpen(false)}>About</NavLink>
+
+          {/* Cart доступний завжди (як у десктопному меню) */}
+          <NavLink to="/cart" onClick={() => setOpen(false)}>Cart</NavLink>
+
+          {/* Favorites: лише для залогінених, бо роут приватний */}
+          {user && (
+            <NavLink to="/favorites" onClick={() => setOpen(false)}>Favorites</NavLink>
+          )}
 
           <button onClick={() => toggleSubmenu("clstrategies")}>
             CL Strategies ▾
           </button>
           {openSubmenu === "clstrategies" && (
             <div className={styles.submenu}>
-              <NavLink to="/clstrategies" onClick={() => setOpen(false)}>
-                Overview
-              </NavLink>
-              <NavLink
-                to="/clstrategies/cowboy-college-consulting"
-                onClick={() => setOpen(false)}
-              >
-                Consulting
-              </NavLink>
-              <NavLink
-                to="/clstrategies/cowboy-college-start-up"
-                onClick={() => setOpen(false)}
-              >
-                Start-up
-              </NavLink>
-              <NavLink
-                to="/clstrategies/cowboy-college-leadership"
-                onClick={() => setOpen(false)}
-              >
-                Leadership
-              </NavLink>
+              <NavLink to="/clstrategies" onClick={() => setOpen(false)}>Overview</NavLink>
+              <NavLink to="/clstrategies/cowboy-college-consulting" onClick={() => setOpen(false)}>Consulting</NavLink>
+              <NavLink to="/clstrategies/cowboy-college-start-up" onClick={() => setOpen(false)}>Start-up</NavLink>
+              <NavLink to="/clstrategies/cowboy-college-leadership" onClick={() => setOpen(false)}>Leadership</NavLink>
             </div>
           )}
 
@@ -95,50 +93,31 @@ const BurgerNavbar = () => {
           </button>
           {openSubmenu === "clpublishing" && (
             <div className={styles.submenu}>
-              <NavLink to="/clpublishing" onClick={() => setOpen(false)}>
-                Overview
-              </NavLink>
-              <NavLink
-                to="/clpublishing/cowboy-college-pub/author"
-                onClick={() => setOpen(false)}
-              >
-                Author
-              </NavLink>
-              {/* <NavLink
-                to="/clpublishing/b2b-bookstores"
-                onClick={() => setOpen(false)}
-              >
-                B2B Bookstores
-              </NavLink> */}
+              <NavLink to="/clpublishing" onClick={() => setOpen(false)}>Overview</NavLink>
+              <NavLink to="/clpublishing/cowboy-college-pub/author" onClick={() => setOpen(false)}>Author</NavLink>
+              {/* <NavLink to="/clpublishing/b2b-bookstores" onClick={() => setOpen(false)}>B2B Bookstores</NavLink> */}
             </div>
           )}
 
-          {user && (
+          {user ? (
             <>
-              <NavLink to="/profile" onClick={() => setOpen(false)}>
-                Profile
-              </NavLink>
-              <NavLink to="/orders" onClick={() => setOpen(false)}>
-                Orders
-              </NavLink>
-              <NavLink to="/cart" onClick={() => setOpen(false)}>
-                Cart
-              </NavLink>
+              <NavLink to="/profile" onClick={() => setOpen(false)}>Profile</NavLink>
+              <NavLink to="/orders" onClick={() => setOpen(false)}>Orders</NavLink>
 
-              {isPartnerOnly ? (
-                <NavLink to="/partner-store" onClick={() => setOpen(false)}>
-                  Partner Store
-                </NavLink>
-              ) : (
+              {/* Магазини за ролями */}
+              {showUserStore && (
+                <NavLink to="/bookstore" onClick={() => setOpen(false)}>Bookstore</NavLink>
+              )}
+              {showPartnerStore && (
+                <NavLink to="/partner-store" onClick={() => setOpen(false)}>Partner Store</NavLink>
+              )}
+
+              {/* Адмін-секція */}
+              {isAdminOrSuper && (
                 <>
-                  <NavLink to="/bookstore" onClick={() => setOpen(false)}>
-                    Bookstore
-                  </NavLink>
-                  {isAdminOrSuper && (
-                    <NavLink to="/partner-store" onClick={() => setOpen(false)}>
-                      Partner Store
-                    </NavLink>
-                  )}
+                  <NavLink to="/admin" onClick={() => setOpen(false)}>Dashboard</NavLink>
+                  <NavLink to="/admin/newsletter" onClick={() => setOpen(false)}>Newsletter</NavLink>
+                  <NavLink to="/admin/users" onClick={() => setOpen(false)}>Users</NavLink>
                 </>
               )}
 
@@ -146,30 +125,13 @@ const BurgerNavbar = () => {
                 Logout
               </BaseButton>
             </>
-          )}
-
-          {(user?.role === ROLES.ADMIN || user?.role === ROLES.SUPERADMIN) && (
+          ) : (
             <>
-              <NavLink to="/admin" onClick={() => setOpen(false)}>
-                Dashboard
-              </NavLink>
-              <NavLink to="/admin/newsletter" onClick={() => setOpen(false)}>
-                Newsletter
-              </NavLink>
-              <NavLink to="/admin/users" onClick={() => setOpen(false)}>
-                Users
-              </NavLink>
-            </>
-          )}
+              {/* Гість бачить Bookstore */}
+              <NavLink to="/bookstore" onClick={() => setOpen(false)}>Bookstore</NavLink>
 
-          {!user && (
-            <>
-              <NavLink to="/login" onClick={() => setOpen(false)}>
-                Login
-              </NavLink>
-              <NavLink to="/register" onClick={() => setOpen(false)}>
-                Register
-              </NavLink>
+              <NavLink to="/login" onClick={() => setOpen(false)}>Login</NavLink>
+              <NavLink to="/register" onClick={() => setOpen(false)}>Register</NavLink>
             </>
           )}
 
