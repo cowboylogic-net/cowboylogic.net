@@ -32,6 +32,7 @@ export const authRegisterSchema = Joi.object({
   termsAgreed: Joi.boolean().valid(true).required().messages({
     "any.only": "You must agree to the terms and conditions",
   }),
+  // gdprConsentAt: Joi.date().iso().optional(),
 
   partnerProfile: Joi.when("role", {
     is: "partner",

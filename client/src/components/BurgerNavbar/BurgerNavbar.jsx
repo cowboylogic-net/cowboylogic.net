@@ -104,12 +104,12 @@ const BurgerNavbar = () => {
               >
                 Author
               </NavLink>
-              <NavLink
+              {/* <NavLink
                 to="/clpublishing/b2b-bookstores"
                 onClick={() => setOpen(false)}
               >
                 B2B Bookstores
-              </NavLink>
+              </NavLink> */}
             </div>
           )}
 

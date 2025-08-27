@@ -176,15 +176,6 @@ const logoutUser = async (_req, res) => {
   });
 };
 
-// const getCurrentUser = async (req, res) => {
-//    const freshUser = await User.findByPk(req.user.id);
-//   if (!freshUser) throw HttpError(401, "User not found");
-//   sendResponse(res, {
-//     code: 200,
-//     data: formatUser(freshUser),
-//   });
-// };
-
 const getCurrentUser = async (req, res) => {
   const freshUser = await User.findByPk(req.user.id, {
     include: [{ association: "partnerProfile", required: false }],

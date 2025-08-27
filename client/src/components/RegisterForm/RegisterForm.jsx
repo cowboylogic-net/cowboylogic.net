@@ -38,20 +38,19 @@ const RegisterForm = () => {
   });
 
   const isPartner = watch("isPartner");
-  const termsAgreed = watch("termsAgreed");
+  // const termsAgreed = watch("termsAgreed");
 
   const onRegister = async (form) => {
     try {
-      form.email = String(form.email || "").trim().toLowerCase();
+      form.email = String(form.email || "")
+        .trim()
+        .toLowerCase();
       if (form.phoneNumber) form.phoneNumber = String(form.phoneNumber).trim();
 
       form.role = isPartner ? "partner" : "user";
 
-      if (termsAgreed) {
-        form.gdprConsentAt = new Date().toISOString();
-      } else {
-        delete form.gdprConsentAt;
-      }
+      // GDPR не шлемо — бек поставить timestamp сам
+      delete form.gdprConsentAt;
 
       delete form.isPartner;
 
@@ -110,7 +109,9 @@ const RegisterForm = () => {
         localStorage.setItem("token", payload.token);
         dispatch(fetchCurrentUser());
       }
-      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
+      dispatch(
+        showNotification({ message: t("googleSuccess"), type: "success" })
+      );
       navigate("/");
     } catch {
       dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
@@ -122,36 +123,79 @@ const RegisterForm = () => {
       <h2>{t("registerTitle")}</h2>
 
       <BaseForm onSubmit={handleSubmit(onRegister)}>
-        <FormGroup label={t("fullName")} error={errors.fullName?.message} required>
-          <BaseInput {...register("fullName")} touched={!!touchedFields.fullName} />
+        <FormGroup
+          label={t("fullName")}
+          error={errors.fullName?.message}
+          required
+        >
+          <BaseInput
+            {...register("fullName")}
+            touched={!!touchedFields.fullName}
+          />
         </FormGroup>
 
         <FormGroup label={t("email")} error={errors.email?.message} required>
-          <BaseInput type="email" {...register("email")} touched={!!touchedFields.email} />
+          <BaseInput
+            type="email"
+            {...register("email")}
+            touched={!!touchedFields.email}
+          />
         </FormGroup>
 
-        <FormGroup label={t("password")} error={errors.password?.message} required>
-          <BaseInput type="password" {...register("password")} touched={!!touchedFields.password} />
+        <FormGroup
+          label={t("password")}
+          error={errors.password?.message}
+          required
+        >
+          <BaseInput
+            type="password"
+            {...register("password")}
+            touched={!!touchedFields.password}
+          />
         </FormGroup>
 
-        <FormGroup label={t("repeatPassword")} error={errors.repeatPassword?.message} required>
-          <BaseInput type="password" {...register("repeatPassword")} touched={!!touchedFields.repeatPassword} />
+        <FormGroup
+          label={t("repeatPassword")}
+          error={errors.repeatPassword?.message}
+          required
+        >
+          <BaseInput
+            type="password"
+            {...register("repeatPassword")}
+            touched={!!touchedFields.repeatPassword}
+          />
         </FormGroup>
 
         <FormGroup label={t("phoneNumber")} error={errors.phoneNumber?.message}>
-          <BaseInput type="tel" {...register("phoneNumber")} touched={!!touchedFields.phoneNumber} />
+          <BaseInput
+            type="tel"
+            {...register("phoneNumber")}
+            touched={!!touchedFields.phoneNumber}
+          />
         </FormGroup>
 
-        <FormGroup label={t("heardAboutUs")} error={errors.heardAboutUs?.message}>
-          <BaseInput {...register("heardAboutUs")} touched={!!touchedFields.heardAboutUs} />
+        <FormGroup
+          label={t("heardAboutUs")}
+          error={errors.heardAboutUs?.message}
+        >
+          <BaseInput
+            {...register("heardAboutUs")}
+            touched={!!touchedFields.heardAboutUs}
+          />
         </FormGroup>
 
         <FormGroup>
-          <BaseCheckbox {...register("newsletter")} label={t("registerForm.newsletter")} />
+          <BaseCheckbox
+            {...register("newsletter")}
+            label={t("registerForm.newsletter")}
+          />
         </FormGroup>
 
         <FormGroup>
-          <BaseCheckbox {...register("isPartner")} label={t("registerForm.isPartner")} />
+          <BaseCheckbox
+            {...register("isPartner")}
+            label={t("registerForm.isPartner")}
+          />
         </FormGroup>
 
         {isPartner && (
@@ -211,8 +255,13 @@ const RegisterForm = () => {
         )}
 
         <FormGroup>
-          <BaseCheckbox {...register("termsAgreed")} label={t("registerForm.terms")} />
-          {errors.termsAgreed && <p className={styles.error}>{errors.termsAgreed.message}</p>}
+          <BaseCheckbox
+            {...register("termsAgreed")}
+            label={t("registerForm.terms")}
+          />
+          {errors.termsAgreed && (
+            <p className={styles.error}>{errors.termsAgreed.message}</p>
+          )}
         </FormGroup>
 
         <BaseButton type="submit" variant="auth">
@@ -223,7 +272,11 @@ const RegisterForm = () => {
       <div className={styles.googleSignup}>
         <GoogleLogin
           onSuccess={handleGoogleSignup}
-          onError={() => dispatch(showNotification({ message: t("googleFailed"), type: "error" }))}
+          onError={() =>
+            dispatch(
+              showNotification({ message: t("googleFailed"), type: "error" })
+            )
+          }
         />
       </div>
     </div>

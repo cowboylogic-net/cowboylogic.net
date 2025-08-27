@@ -16,7 +16,8 @@ export const validateBody = (schema, isMultipart = false) => {
       }
     }
 
-    const { error } = schema.validate(data);
+    const { error, value } = schema.validate(data, { stripUnknown: true });
+    if (!error) req.body = value;
     if (error) {
       return next(HttpError(400, `Validation error: ${error.message}`));
     }
