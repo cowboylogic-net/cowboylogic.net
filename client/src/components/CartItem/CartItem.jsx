@@ -1,9 +1,9 @@
+// src/components/CartItem/CartItem.jsx
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import BaseButton from "../BaseButton/BaseButton";
 import BaseInput from "../BaseInput/BaseInput";
 import styles from "./CartItem.module.css";
-import { useSelector } from "react-redux";
 
 const CartItem = ({
   item,
@@ -11,68 +11,81 @@ const CartItem = ({
   onRemove,
   isUpdating = false,
   isRemoving = false,
+  minQty = 1, // ⬅️ нове
+  isPartner = false, // ⬅️ нове (для підказки)
 }) => {
   const { t } = useTranslation();
-  const [localQty, setLocalQty] = useState(item.quantity);
-  const isPartner = useSelector((s) => s.auth.user?.role === "partner");
-  
-  // Синхронізуємо після refetch кошика
+
+  const stock = Number(item?.Book?.stock ?? 0);
+  const clamp = (v) => {
+  const n = Math.floor(Number(v) || 0); // ← правильно конвертує string->number
+  const lower = Math.max(minQty, n);
+  return stock > 0 ? Math.min(lower, stock) : lower;
+};
+
+
+  const [localQty, setLocalQty] = useState(clamp(item.quantity));
+
+  // синхронізуємо при рефетчі кошика або зміні minQty
   useEffect(() => {
-    setLocalQty(item.quantity);
-  }, [item.quantity]);
+    setLocalQty(clamp(item.quantity));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [item.quantity, minQty, stock]);
 
   const handleChange = (e) => {
-    const raw = e.target.value;
-    const next = Math.max(1, Math.floor(Number(raw) || 0));
-    const stock = Number(item.Book?.stock ?? 0);
-    const clamped = stock > 0 ? Math.min(next, stock) : next;
-    setLocalQty(clamped);
+    const next = clamp(e.target.value);
+    setLocalQty(next);
   };
 
   const handleBlur = () => {
-    const stock = Number(item.Book?.stock ?? 0);
-    const clamped = stock > 0 ? Math.min(localQty, stock) : localQty;
-    if (clamped !== localQty) setLocalQty(clamped);
-    if (clamped !== item.quantity) {
-      onQuantityChange(item.id, clamped);
-    }
+    const next = clamp(localQty);
+    if (next !== localQty) setLocalQty(next);
+    if (next !== item.quantity) onQuantityChange(item.id, next);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") e.currentTarget.blur();
   };
 
   if (!item?.Book) return null;
 
-  const rawPrice =
+  const showPrice =
     isPartner && item.Book?.partnerPrice != null
-      ? item.Book.partnerPrice
-      : item.Book?.price;
-
-  const price = Number(rawPrice);
+      ? Number(item.Book.partnerPrice)
+      : Number(item.Book?.price ?? 0);
 
   return (
     <li className={styles.item}>
       <div className={styles.info}>
         <strong>{item.Book.title}</strong>
         <span className={styles.price}>
-          {" "}
-          — {isNaN(price) ? "N/A" : `$${price.toFixed(2)}`}
+          {" — "}
+          {Number.isFinite(showPrice) ? `$${showPrice.toFixed(2)}` : "N/A"}
         </span>
       </div>
 
       <div className={styles.controls}>
         <BaseInput
           type="number"
-          min="1"
-          step="1"
+          min={minQty} // ⬅️ ключове
+          step={1}
           inputMode="numeric"
           pattern="[0-9]*"
           value={localQty}
           onChange={handleChange}
           onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
           disabled={isUpdating}
           aria-busy={isUpdating}
           aria-label={t("cart.quantity")}
           inline
-          onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
         />
+
+        {isPartner && (
+          <small className={styles.note}>
+            {t("cart.minPartnerQuantity", { min: minQty })}
+          </small>
+        )}
 
         <BaseButton
           variant="outline"

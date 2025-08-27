@@ -4,12 +4,12 @@ import OrderItem from "../models/OrderItem.js";
 import CartItem from "../models/CartItem.js";
 import Book from "../models/Book.js";
 import User from "../models/User.js";
-import { Sequelize } from "sequelize";
 import { sequelize } from "../config/db.js";
 import { ordersApi, paymentsApi } from "../services/squareService.js";
 import { sendOrderConfirmationEmail } from "../services/emailService.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import sendResponse from "../utils/sendResponse.js";
+import { Sequelize, Op } from "sequelize";
 
 export const squareWebhookHandler = ctrlWrapper(async (req, res) => {
   const event = Buffer.isBuffer(req.body)
@@ -90,12 +90,13 @@ export const squareWebhookHandler = ctrlWrapper(async (req, res) => {
   const shippingAddress = rec?.address || null; // це об'єкт з addressLine1/2, locality, administrativeDistrictLevel1, postalCode, country
 
   // 6) Транзакція: створення локального ордера, айтемів, склад, очищення кошика
+  // 6) Транзакція: створення локального ордера, айтемів, склад, очищення кошика
   let order;
   await sequelize.transaction(async (t) => {
     order = await Order.create(
       {
         userId,
-        totalPrice, // DECIMAL як рядок "12.34"
+        totalPrice,
         status: "completed",
         squarePaymentId: payment.id,
         squareOrderId: payment.orderId,
@@ -112,9 +113,28 @@ export const squareWebhookHandler = ctrlWrapper(async (req, res) => {
     for (const li of lineItems) {
       const bookId = li.note || null; // ми клали book.id у note
       const quantity = Number(li.quantity || 0);
-      const unitCents = li.basePriceMoney?.amount ?? 0;
-      const unitPrice = (Number(unitCents) / 100).toFixed(2);
+      const unitCents = Number(li.basePriceMoney?.amount ?? 0);
+      const unitPrice = (unitCents / 100).toFixed(2);
       if (!bookId || quantity <= 0) continue;
+
+      // 🔒 атомарне списання лише якщо вистачає складу
+      const [affected] = await Book.update(
+        {
+          stock: Sequelize.literal(`stock - ${quantity}`),
+          inStock: Sequelize.literal(
+            `CASE WHEN stock - ${quantity} > 0 THEN 1 ELSE 0 END`
+          ),
+        },
+        {
+          where: { id: bookId, stock: { [Op.gte]: quantity } },
+          transaction: t,
+        }
+      );
+      if (affected !== 1) {
+        throw new Error(
+          `Insufficient stock for book ${bookId} at fulfillment time`
+        );
+      }
 
       orderItemsPayload.push({
         orderId: order.id,
@@ -122,16 +142,6 @@ export const squareWebhookHandler = ctrlWrapper(async (req, res) => {
         quantity,
         price: unitPrice,
       });
-
-      await Book.update(
-        {
-          stock: Sequelize.literal(`GREATEST(stock - ${quantity}, 0)`),
-          inStock: Sequelize.literal(
-            `CASE WHEN stock - ${quantity} > 0 THEN 1 ELSE 0 END`
-          ),
-        },
-        { where: { id: bookId }, transaction: t }
-      );
     }
 
     if (orderItemsPayload.length) {

@@ -17,16 +17,16 @@ const BookCard = ({
   onPartnerAdd,
 }) => {
   const { t } = useTranslation();
-
   const [quantity, setQuantity] = useState(5);
 
   const getImageUrl = (url) => {
     if (!url) return "/fallback-image.png";
     if (url.startsWith("http")) return url;
-
     const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
     return `${baseUrl}${url}`;
   };
+
+  const mode = isPartnerView ? "partner" : "user";
 
   return (
     <div className={styles.card}>
@@ -43,11 +43,16 @@ const BookCard = ({
       </div>
 
       <div className={styles.info}>
-        <Link to={`/bookstore/book/${book.id}`} className={styles.titleLink}>
+        <Link
+          to={`/bookstore/book/${book.id}?mode=${mode}`}
+          state={{ view: mode }}
+          className={styles.titleLink}
+        >
           <h3 className={styles.cardTitle}>{book.title}</h3>
         </Link>
 
         <p className={styles.cardText}>{book.author}</p>
+
         {!isPartnerView ? (
           <p className={styles.cardText}>
             {t("book.price", { price: book.price })}
@@ -62,9 +67,7 @@ const BookCard = ({
         )}
 
         <p
-          className={`${styles.cardText} ${
-            book.stock === 0 ? styles.outOfStock : ""
-          }`}
+          className={`${styles.cardText} ${book.stock === 0 ? styles.outOfStock : ""}`}
         >
           {book.stock > 0
             ? t("book.inStock", { count: book.stock })
@@ -74,18 +77,10 @@ const BookCard = ({
         <div className={styles.actionRow}>
           {isAdmin && (
             <div className={styles.adminButtons}>
-              <BaseButton
-                onClick={() => onEdit(book.id)}
-                size="sm"
-                variant="card"
-              >
+              <BaseButton onClick={() => onEdit(book.id)} size="sm" variant="card">
                 {t("book.edit")}
               </BaseButton>
-              <BaseButton
-                onClick={() => onDeleteClick(book.id)}
-                size="sm"
-                variant="card"
-              >
+              <BaseButton onClick={() => onDeleteClick(book.id)} size="sm" variant="card">
                 {t("book.delete")}
               </BaseButton>
             </div>
@@ -103,7 +98,6 @@ const BookCard = ({
               {book.stock === 0 ? t("book.outOfStock") : t("book.addToCart")}
             </BaseButton>
           ) : (
-            // партнери — тільки для залогінених
             isLoggedIn && (
               <div className={styles.partnerControls}>
                 <input
@@ -113,18 +107,13 @@ const BookCard = ({
                   max={book.stock}
                   onChange={(e) => {
                     const val = parseInt(e.target.value, 10);
-                    if (!isNaN(val) && val >= 5 && val <= book.stock) {
-                      setQuantity(val);
-                    } else if (val < 5) {
-                      setQuantity(5);
-                    }
+                    if (!isNaN(val) && val >= 5 && val <= book.stock) setQuantity(val);
+                    else if (val < 5) setQuantity(5);
                   }}
                   className={styles.partnerInput}
                 />
                 <BaseButton
-                  onClick={() =>
-                    quantity >= 5 && onPartnerAdd?.(book, quantity)
-                  }
+                  onClick={() => quantity >= 5 && onPartnerAdd?.(book, quantity)}
                   size="sm"
                   variant="outline"
                   disabled={quantity < 5 || book.stock === 0}

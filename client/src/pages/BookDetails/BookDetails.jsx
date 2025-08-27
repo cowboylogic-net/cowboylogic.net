@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { ROLES } from "../../constants/roles";
@@ -20,6 +20,7 @@ import { toast } from "react-toastify";
 
 const BookDetails = () => {
   const { id } = useParams();
+  const location = useLocation();
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
@@ -30,9 +31,20 @@ const BookDetails = () => {
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
 
-  const isPartner = user?.role === ROLES.PARTNER;
+  // ---- View mode resolution ----
+  const searchParams = new URLSearchParams(location.search);
+  const qsMode = searchParams.get("mode"); // "partner" | "user" | null
+  const stateMode = location.state?.view;
+
+  const isPartnerRole = user?.role === ROLES.PARTNER;
+  // партнер бачить тільки partner-view, навіть якщо прийшов з user-сторінки
+  const viewMode = isPartnerRole
+    ? "partner"
+    : (qsMode || stateMode || "user").toLowerCase();
+  const isPartnerView = viewMode === "partner";
+
   const displayPrice =
-    isPartner && book?.partnerPrice
+    isPartnerView && book?.partnerPrice
       ? Number(book.partnerPrice).toFixed(2)
       : Number(book?.price ?? 0).toFixed(2);
 
@@ -49,12 +61,12 @@ const BookDetails = () => {
 
   const handleAddToCart = async () => {
     if (!book) return;
-    const quantity = isPartner ? 5 : 1;
+    const quantity = isPartnerView ? 5 : 1;
 
     try {
       await dispatch(addToCartThunk({ bookId: book.id, quantity })).unwrap();
       toast.success(
-        isPartner
+        isPartnerView
           ? t("book.partnerCartSuccess", { count: quantity })
           : t("book.addedToCart")
       );
@@ -70,9 +82,9 @@ const BookDetails = () => {
       return;
     }
 
-    const quantity = isPartner ? 5 : 1;
+    const quantity = isPartnerView ? 5 : 1;
     const pricePerUnit =
-      isPartner && book.partnerPrice
+      isPartnerView && book?.partnerPrice
         ? Number(book.partnerPrice)
         : Number(book.price);
 
@@ -130,7 +142,7 @@ const BookDetails = () => {
 
           <p className={styles.price}>
             ${displayPrice}
-            {isPartner && book.partnerPrice && (
+            {isPartnerView && book?.partnerPrice && (
               <span className={styles.cardNote}>— {t("book.partnerNote")}</span>
             )}
           </p>

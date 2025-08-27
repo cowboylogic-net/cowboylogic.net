@@ -1,5 +1,5 @@
 // controllers/squareController.js
-import { checkoutApi, locationId } from "../services/squareService.js";
+import { paymentLinksApi, locationId } from "../services/squareService.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import sendResponse from "../utils/sendResponse.js";
@@ -64,13 +64,22 @@ const createPaymentHandler = async (req, res) => {
   }, new Map());
   if (isPartner) {
     const tooSmall = [...aggregated.entries()].find(([, qty]) => qty < 5);
-    if (tooSmall) throw HttpError(403, `Partners must order at least 5 items per title`);
+    if (tooSmall)
+      throw HttpError(403, `Partners must order at least 5 items per title`);
   }
 
   const ids = [...aggregated.keys()];
   const books = await Book.findAll({
     where: { id: { [Op.in]: ids } },
-    attributes: ["id", "title", "price", "partnerPrice", "isWholesaleAvailable", "inStock", "stock"],
+    attributes: [
+      "id",
+      "title",
+      "price",
+      "partnerPrice",
+      "isWholesaleAvailable",
+      "inStock",
+      "stock",
+    ],
     raw: true,
   });
   if (books.length !== ids.length) {
@@ -79,11 +88,17 @@ const createPaymentHandler = async (req, res) => {
     throw HttpError(400, `Some books not found: ${missing.join(", ")}`);
   }
 
-  const itemsNormalized = [...aggregated.entries()].map(([bookId, quantity]) => ({ bookId, quantity }));
-  const lineItems = buildLineItemsFromDB({ books, items: itemsNormalized, isPartner });
+  const itemsNormalized = [...aggregated.entries()].map(
+    ([bookId, quantity]) => ({ bookId, quantity })
+  );
+  const lineItems = buildLineItemsFromDB({
+    books,
+    items: itemsNormalized,
+    isPartner,
+  });
 
   try {
-    const resp = await checkoutApi.createPaymentLink({
+    const resp = await paymentLinksApi.createPaymentLink({
       idempotencyKey: crypto.randomUUID(),
       order: { locationId, referenceId: String(userId), lineItems },
       checkoutOptions: {
@@ -93,12 +108,17 @@ const createPaymentHandler = async (req, res) => {
       prePopulatedData: { buyerEmail: email || undefined },
     });
 
-    const checkoutUrl = resp.result?.paymentLink?.url || resp.result?.paymentLink?.longUrl;
-    if (!checkoutUrl) throw HttpError(500, "Missing checkout URL from Square (Payment Links)");
+    const checkoutUrl =
+      resp.result?.paymentLink?.url || resp.result?.paymentLink?.longUrl;
+    if (!checkoutUrl)
+      throw HttpError(500, "Missing checkout URL from Square (Payment Links)");
 
     return sendResponse(res, { code: 200, data: { checkoutUrl } });
   } catch (err) {
-    console.error("Square createPaymentLink error:", err?.body || err?.message || err);
+    console.error(
+      "Square createPaymentLink error:",
+      err?.body || err?.message || err
+    );
     throw HttpError(500, "Failed to create payment");
   }
 };

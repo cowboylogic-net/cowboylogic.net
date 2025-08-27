@@ -7,6 +7,8 @@ import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import sendResponse from "../utils/sendResponse.js";
 import { updateOrderStatusSchema } from "../schemas/orderSchemas.js";
+import { sequelize } from "../config/db.js";
+import { Sequelize, Op } from "sequelize";
 
 // єдине правило привілеїв (бачать partnerPrice)
 const isPrivileged = (user) =>
@@ -51,30 +53,55 @@ const createOrder = async (req, res) => {
     return sum + item.quantity * unit;
   }, 0);
 
-  const order = await Order.create({ userId, totalPrice, status: "pending" });
+  await sequelize.transaction(async (t) => {
+    const order = await Order.create(
+      { userId, totalPrice, status: "pending" },
+      { transaction: t }
+    );
 
-  const orderItems = cartItems.map((item) => {
-    const usingPartner = partner && item.Book.partnerPrice != null;
-    return {
-      orderId: order.id,
-      bookId: item.bookId,
-      quantity: item.quantity,
-      price: usingPartner ? item.Book.partnerPrice : item.Book.price,
-      pricingType: usingPartner ? "partner" : "standard",
-    };
-  });
-  await OrderItem.bulkCreate(orderItems);
+    const orderItems = [];
+    for (const item of cartItems) {
+      const qty = item.quantity;
 
-  for (const item of cartItems) {
-    item.Book.stock -= item.quantity;
-    await item.Book.save();
-  }
-  await CartItem.destroy({ where: { userId } });
+      // 🔒 атомарне списання зі складу
+      const [affected] = await Book.update(
+        {
+          stock: Sequelize.literal(`stock - ${qty}`),
+          inStock: Sequelize.literal(
+            `CASE WHEN stock - ${qty} > 0 THEN 1 ELSE 0 END`
+          ),
+        },
+        {
+          where: { id: item.bookId, stock: { [Op.gte]: qty } },
+          transaction: t,
+        }
+      );
 
-  sendResponse(res, {
-    code: 201,
-    message: "Order placed",
-    data: { orderId: order.id },
+      if (affected !== 1) {
+        throw HttpError(409, `Not enough stock for "${item.Book.title}"`);
+      }
+
+      const usingPartner = partner && item.Book.partnerPrice != null;
+      orderItems.push({
+        orderId: order.id,
+        bookId: item.bookId,
+        quantity: qty,
+        price: usingPartner ? item.Book.partnerPrice : item.Book.price,
+        pricingType: usingPartner ? "partner" : "standard",
+      });
+    }
+
+    if (orderItems.length) {
+      await OrderItem.bulkCreate(orderItems, { transaction: t });
+    }
+
+    await CartItem.destroy({ where: { userId }, transaction: t });
+
+    sendResponse(res, {
+      code: 201,
+      message: "Order placed",
+      data: { orderId: order.id },
+    });
   });
 };
 

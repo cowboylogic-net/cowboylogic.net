@@ -24,7 +24,7 @@ const BookList = ({
   disableAutoFetch = false,
   showAdminActions = true,
   showDeleteModal = true,
-  variant = "default",
+  variant = "user", // <- явний дефолт
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -41,9 +41,8 @@ const BookList = ({
     user?.role === "admin" || user?.role === "superAdmin" || user?.isSuperAdmin;
   const isLoggedIn = !!user;
 
-  const isPrivileged =
-    !!user && (user.role === "partner" || user.role === "admin" || user.role === "superAdmin" || user.isSuperAdmin);
-  const isPartnerView = variant === "partner" || (variant === "default" && isPrivileged);
+  // ВАЖЛИВО: тільки проп керує відображенням
+  const isPartnerView = variant === "partner";
 
   useEffect(() => {
     if (!disableAutoFetch && !externalBooks && books.length === 0) {
@@ -111,6 +110,5 @@ const BookList = ({
     </div>
   );
 };
-
 
 export default BookList;

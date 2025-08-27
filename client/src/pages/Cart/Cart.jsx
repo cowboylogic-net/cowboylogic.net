@@ -41,6 +41,8 @@ const Cart = () => {
     (state) => state.cart
   );
 
+  const isPartner = user?.role === ROLES.PARTNER;
+
   useEffect(() => {
     if (!items.length) {
       dispatch(fetchCartItems());
@@ -169,6 +171,8 @@ const Cart = () => {
                     onRemove={handleRemove}
                     isUpdating={isUpdating}
                     isRemoving={isDeleting}
+                    minQty={isPartner ? 5 : 1} // ⬅️ нове
+                    isPartner={isPartner} // ⬅️ (опційно для підказок у UI)
                   />
                 ))}
               </ul>
