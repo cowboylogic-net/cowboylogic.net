@@ -10,13 +10,17 @@ router.post("/upload", upload.single("image"), optimizeImage, (req, res) => {
     return sendResponse(res, { code: 400, message: "No file uploaded" });
   }
 
-  // ✅ Використовуємо веб-шлях, який підготувала мідлвара (включно з -optimized.webp)
-  const imageUrl = req.file.webPath;
+  // 1) База з поточного запиту (працює і локально, і на проді)
+  const base = `${req.protocol}://${req.get("host")}`.replace(/\/+$/, "");
 
-  return sendResponse(res, {
-    code: 200,
-    data: { imageUrl }, // ✅ shape: json.data.imageUrl
-  });
+  // 2) Відносний шлях: беремо те, що виставила мідлвара, або будуємо самі
+  //    (припускаємо, що файли лежать у public/uploads)
+  const rel = req.file.webPath || `/uploads/${req.file.filename}`; 
+
+  // 3) Якщо мідлвара віддала абсолютний — лишаємо як є
+  const imageUrl = /^https?:\/\//i.test(rel) ? rel : `${base}${rel}`;
+
+  return sendResponse(res, { code: 200, data: { imageUrl } });
 });
 
 export default router;

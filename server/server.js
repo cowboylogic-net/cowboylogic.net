@@ -60,11 +60,22 @@ app.use((req, res, next) => {
 });
 
 // Middleware
-app.use(cors({ origin: true, credentials: true }));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  })
+);
 
 app.use(cookieParser());
 app.use(morgan("dev"));
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // дозволяє грузити картинки крос-домен
+  })
+);
 app.use("/api/webhook", webhookRoutes);
 app.post(
   "/api/square/webhook",
@@ -99,7 +110,7 @@ app.use("/api/favorites", favoriteRoutes);
 app.use("/images", imageRoutes);
 app.use("/api", searchRoutes);
 app.use("/api/me", userSelfRoutes);
-app.use("/uploads", staticCors, express.static("public/uploads"));
+app.use("/uploads", express.static("public/uploads"));
 app.use("/documents", staticCors, express.static("public/documents"));
 
 // Global error handler
@@ -112,4 +123,3 @@ connectDB().then(async () => {
   }
   app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 });
-

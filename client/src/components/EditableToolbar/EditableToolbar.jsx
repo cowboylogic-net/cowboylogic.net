@@ -103,8 +103,8 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
   };
 
   const armSelectionNoPrevent = () => {
-  saveSelection(); // без e.preventDefault()
-};
+    saveSelection(); // без e.preventDefault()
+  };
 
   const setHighlight = (color) => {
     const supported = (cmd) =>
@@ -126,20 +126,30 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
       if (file) {
         const formData = new FormData();
         formData.append("image", file);
-        const res = await fetch(
-          `${import.meta.env.VITE_API_URL}/images/upload`,
-          {
-            method: "POST",
-            headers: authToken
-              ? { Authorization: `Bearer ${authToken}` }
-              : undefined,
-            body: formData,
-          }
-        );
-        if (!res.ok) throw new Error(`Upload failed with status ${res.status}`);
+        const endpoint = `${import.meta.env.VITE_API_URL?.replace(
+          /\/+$/,
+          ""
+        )}/images/upload`;
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: authToken
+            ? { Authorization: `Bearer ${authToken}` }
+            : undefined,
+          body: formData,
+        });
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error(`Upload failed ${res.status}. ${txt || "No body"}`);
+        }
         const json = await res.json();
-        // підтримуємо обидві форми: {data:{imageUrl}} або {imageUrl}
         imageUrl = json?.data?.imageUrl || json?.imageUrl;
+        // якщо бек віддав відносний шлях — префіксуємо базовим API URL
+        const apiBase = import.meta.env.VITE_API_URL?.replace(/\/+$/, "");
+        if (imageUrl && !/^https?:\/\//i.test(imageUrl)) {
+          imageUrl = imageUrl.startsWith("/")
+            ? `${apiBase}${imageUrl}`
+            : `${apiBase}/${imageUrl}`;
+        }
       }
 
       if (imageUrl && editorRef?.current) {
@@ -272,7 +282,9 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
                 if (val) {
                   runCmd("fontSize", val); // вставляє <font size="N">
                   normalizeFontTags(editorRef?.current); // перетворюємо у <span style="font-size:...">
-                  editorRef?.current?.dispatchEvent(new Event("input", { bubbles: true }));
+                  editorRef?.current?.dispatchEvent(
+                    new Event("input", { bubbles: true })
+                  );
                   e.target.value = ""; // повертаємо плейсхолдер
                 }
               }}
