@@ -64,9 +64,8 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: true,
   credentials: true,
-  // або прибери allowedHeaders взагалі, щоб cors сам віддавав Access-Control-Allow-Headers з preflight
-  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "X-Requested-With"],
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
 }));
 
 app.use(cookieParser());
