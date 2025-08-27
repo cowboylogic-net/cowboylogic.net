@@ -9,16 +9,12 @@ import { useTranslation } from "react-i18next";
 import BaseButton from "../BaseButton/BaseButton";
 import BaseInput from "../BaseInput/BaseInput";
 import BaseForm from "../BaseForm/BaseForm";
-import axios from "../../store/axios";
+import api from "../../store/axios";
 import { loginSuccess } from "../../store/slices/authSlice";
-
 import { loginUser, fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
 import FormGroup from "../FormGroup/FormGroup";
-import {
-  loginFormSchema,
-  codeVerificationSchema,
-} from "../../validation/formSchemas";
+import { loginFormSchema, codeVerificationSchema } from "../../validation/formSchemas";
 
 const LoginForm = () => {
   const { t } = useTranslation("login");
@@ -35,44 +31,40 @@ const LoginForm = () => {
     formState: { errors, touchedFields },
     setValue,
   } = useForm({
-    resolver: yupResolver(
-      step === 1 ? loginFormSchema(t) : codeVerificationSchema(t)
-    ),
+    resolver: yupResolver(step === 1 ? loginFormSchema(t) : codeVerificationSchema(t)),
+    shouldFocusError: true,
   });
 
-  // 🔁 Countdown для resend
   useEffect(() => {
     if (resendCooldown > 0) {
-      const timer = setTimeout(
-        () => setResendCooldown(resendCooldown - 1),
-        1000
-      );
+      const timer = setTimeout(() => setResendCooldown((v) => v - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [resendCooldown]);
 
   const onLogin = async (data) => {
     try {
-      const res = await axios.post("/auth/login", data);
-      const { token, user } = res.data.data;
+      const normalizedEmail = String(data.email || "").trim().toLowerCase();
+      const res = await api.post("/auth/login", { ...data, email: normalizedEmail });
 
-      localStorage.setItem("token", token);
+      const payload = res?.data?.data ?? res?.data ?? {};
+      const token = payload.token;
+      const user = payload.user ?? {};
 
-      // ⬇️ миттєво оновлюємо Redux-стейт, щоб інтерцептор бачив токен і UI перемалювався
+      if (token) {
+        localStorage.setItem("token", token);
+      }
+
       dispatch(loginSuccess({ token, user }));
-
-      // опціонально: підтягнути «свіжого» юзера з бекенда
       dispatch(fetchCurrentUser());
-
-      dispatch(
-        showNotification({ message: t("welcomeBack"), type: "success" })
-      );
+      dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
       navigate("/");
     } catch (err) {
       const status = err.response?.status;
       if (status === 403) {
-        setEmail(data.email);
-        await axios.post("/auth/request-code", { email: data.email });
+        const normalizedEmail = String(data.email || "").trim().toLowerCase();
+        setEmail(normalizedEmail);
+        await api.post("/auth/request-code", { email: normalizedEmail });
         setValue("email", "");
         setValue("password", "");
         setStep(2);
@@ -92,8 +84,14 @@ const LoginForm = () => {
   const onVerify = async (data) => {
     try {
       const result = await dispatch(loginUser({ email, code: data.code }));
-
       if (loginUser.fulfilled.match(result)) {
+        const payload = result.payload ?? {};
+        const token = payload.token;
+        const user = payload.user ?? {};
+        if (token) {
+          localStorage.setItem("token", token);
+        }
+        dispatch(loginSuccess({ token, user }));
         dispatch(fetchCurrentUser());
         navigate("/");
       } else {
@@ -111,7 +109,8 @@ const LoginForm = () => {
 
   const handleResendCode = async () => {
     try {
-      await axios.post("/auth/request-code", { email });
+      if (!email || resendCooldown > 0) return;
+      await api.post("/auth/request-code", { email });
       setResendCooldown(30);
       dispatch(showNotification({ message: t("codeResent"), type: "info" }));
     } catch {
@@ -121,29 +120,22 @@ const LoginForm = () => {
 
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const res = await axios.post("/auth/google", {
-        id_token: credentialResponse.credential,
-      });
-
-      // const { token, user } = res.data;
-      const { token, user } = res.data.data;
+      const res = await api.post("/auth/google", { id_token: credentialResponse.credential });
+      const payload = res?.data?.data ?? res?.data ?? {};
+      const token = payload.token;
+      const user = payload.user ?? {};
 
       if (!user.isEmailVerified) {
-        dispatch(
-          showNotification({
-            message: t("emailNotVerified"),
-            type: "warning",
-          })
-        );
-        return; // 🛑 не логінимо
+        dispatch(showNotification({ message: t("emailNotVerified"), type: "warning" }));
+        return;
       }
 
-      localStorage.setItem("token", token);
+      if (token) {
+        localStorage.setItem("token", token);
+      }
       dispatch(loginSuccess({ token, user }));
       dispatch(fetchCurrentUser());
-      dispatch(
-        showNotification({ message: t("googleSuccess"), type: "success" })
-      );
+      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
       navigate("/");
       setStep(1);
       setEmail("");
@@ -158,28 +150,12 @@ const LoginForm = () => {
 
       {step === 1 ? (
         <BaseForm onSubmit={handleSubmit(onLogin)}>
-          <FormGroup
-            label={t("emailPlaceholder")}
-            error={errors.email?.message}
-            required
-          >
-            <BaseInput
-              type="email"
-              {...register("email")}
-              touched={!!touchedFields.email}
-            />
+          <FormGroup label={t("emailPlaceholder")} error={errors.email?.message} required>
+            <BaseInput type="email" {...register("email")} touched={!!touchedFields.email} />
           </FormGroup>
 
-          <FormGroup
-            label={t("passwordPlaceholder")}
-            error={errors.password?.message}
-            required
-          >
-            <BaseInput
-              type="password"
-              {...register("password")}
-              touched={!!touchedFields.password}
-            />
+          <FormGroup label={t("passwordPlaceholder")} error={errors.password?.message} required>
+            <BaseInput type="password" {...register("password")} touched={!!touchedFields.password} />
           </FormGroup>
 
           <BaseButton type="submit" variant="auth" disabled={isLoading}>
@@ -189,16 +165,8 @@ const LoginForm = () => {
       ) : (
         <>
           <BaseForm onSubmit={handleSubmit(onVerify)}>
-            <FormGroup
-              label={t("codePlaceholder")}
-              error={errors.code?.message}
-              required
-            >
-              <BaseInput
-                type="text"
-                {...register("code")}
-                touched={!!touchedFields.code}
-              />
+            <FormGroup label={t("codePlaceholder")} error={errors.code?.message} required>
+              <BaseInput type="text" {...register("code")} touched={!!touchedFields.code} />
             </FormGroup>
 
             <BaseButton type="submit" variant="auth" disabled={isLoading}>
@@ -207,14 +175,8 @@ const LoginForm = () => {
           </BaseForm>
 
           <div className={styles.resend}>
-            <button
-              onClick={handleResendCode}
-              disabled={resendCooldown > 0}
-              className={styles.resendButton}
-            >
-              {resendCooldown > 0
-                ? t("resendIn", { seconds: resendCooldown })
-                : t("resendCode")}
+            <button onClick={handleResendCode} disabled={resendCooldown > 0} className={styles.resendButton}>
+              {resendCooldown > 0 ? t("resendIn", { seconds: resendCooldown }) : t("resendCode")}
             </button>
           </div>
         </>
@@ -223,11 +185,7 @@ const LoginForm = () => {
       <div className={styles["google-login"]}>
         <GoogleLogin
           onSuccess={handleGoogleLogin}
-          onError={() =>
-            dispatch(
-              showNotification({ message: t("googleFailed"), type: "error" })
-            )
-          }
+          onError={() => dispatch(showNotification({ message: t("googleFailed"), type: "error" }))}
         />
       </div>
     </div>

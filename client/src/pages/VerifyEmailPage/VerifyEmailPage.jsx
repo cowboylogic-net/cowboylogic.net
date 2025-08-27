@@ -1,4 +1,3 @@
-// src/pages/VerifyEmailPage/VerifyEmailPage.jsx  (або src/pages/VerifyEmailPage/VerifyEmailPage.jsx)
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerCodeSchema } from "../../validation/formSchemas";
@@ -9,9 +8,7 @@ import { useTranslation } from "react-i18next";
 
 import { fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
-
-// 👇 ЄДИНИЙ axios-інстанс
-import api from "../../store/axios"; // якщо файл НЕ у підпапці VerifyEmailPage, використай "../store/axios"
+import api from "../../store/axios";
 
 import styles from "./VerifyEmailPage.module.css";
 import BaseForm from "../../components/BaseForm/BaseForm";
@@ -40,6 +37,8 @@ const VerifyEmailPage = () => {
     formState: { errors, touchedFields },
   } = useForm({
     resolver: yupResolver(registerCodeSchema(t)),
+    defaultValues: { code: "" },
+    shouldFocusError: true,
   });
 
   const onSubmit = async (data) => {
@@ -49,13 +48,14 @@ const VerifyEmailPage = () => {
         code: data.code,
       });
 
-      const token = res?.data?.token;
+      const payload = res?.data?.data ?? res?.data ?? {};
+      const token = payload.token;
       if (token) {
         localStorage.setItem("token", token);
-        dispatch(fetchCurrentUser(token));
       }
 
-      dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
+      dispatch(fetchCurrentUser());
+      dispatch(showNotification({ message: t("emailVerified"), type: "success" }));
       navigate("/");
     } catch (err) {
       dispatch(

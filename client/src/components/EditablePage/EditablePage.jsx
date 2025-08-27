@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import DOMPurify from "dompurify";
 import debounce from "lodash/debounce";
 import { useTranslation } from "react-i18next";
+import { getApiBase } from "../../utils/apiBase";
 
 import { ROLES } from "../../constants/roles";
 import EditableToolbar from "../../components/EditableToolbar/EditableToolbar";
@@ -46,6 +47,21 @@ const EditablePage = ({ slug, title }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const editorRef = useRef(null);
   const debouncedSaveRef = useRef(null);
+
+  const normalizeUploadsInHtml = (html) => {
+    if (!html) return html;
+    const apiBase = getApiBase(); // напр. https://clpit.duckdns.org у проді; "" локально
+    const replaceTo = (p1) => (apiBase ? `${apiBase}${p1}` : p1);
+    return html
+      .replace(
+        /https?:\/\/[a-z0-9-]+\.vercel\.app(\/uploads\/[^\s"'<>]+)/gi,
+        (_, p1) => replaceTo(p1)
+      )
+      .replace(
+        /\/\/[a-z0-9-]+\.vercel\.app(\/uploads\/[^\s"'<>]+)/gi,
+        (_, p1) => replaceTo(p1)
+      );
+  };
 
   useEffect(() => {
     dispatch(fetchPageVersions(slug));
@@ -92,7 +108,9 @@ const EditablePage = ({ slug, title }) => {
       prevPreviewRef.current === true &&
       editorRef.current
     ) {
-      editorRef.current.innerHTML = DOMPurify.sanitize(localContent);
+      editorRef.current.innerHTML = DOMPurify.sanitize(
+        normalizeUploadsInHtml(localContent)
+      );
     }
     prevPreviewRef.current = isPreviewing;
   }, [isEditing, isPreviewing, localContent]);
@@ -177,7 +195,9 @@ const EditablePage = ({ slug, title }) => {
     lastSavedRef.current = base; // ⬅️ додай це
     setTimeout(() => {
       if (editorRef.current) {
-        editorRef.current.innerHTML = DOMPurify.sanitize(base);
+        editorRef.current.innerHTML = DOMPurify.sanitize(
+          normalizeUploadsInHtml(base)
+        );
       }
     }, 0);
   };
@@ -475,7 +495,7 @@ const EditablePage = ({ slug, title }) => {
           <div
             className={`editableContent ${styles.preview}`}
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(localContent),
+              __html: DOMPurify.sanitize(normalizeUploadsInHtml(localContent)),
             }}
           />
         )}

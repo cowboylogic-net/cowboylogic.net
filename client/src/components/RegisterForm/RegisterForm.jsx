@@ -1,4 +1,3 @@
-// src/components/RegisterForm/RegisterForm.jsx
 import styles from "./RegisterForm.module.css";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -7,9 +6,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { registerFormSchema } from "../../validation/formSchemas";
 import { GoogleLogin } from "@react-oauth/google";
 import { useTranslation } from "react-i18next";
-import api from "../../store/axios"; // ✅ єдиний axios-інстанс
+import api from "../../store/axios";
 import { showNotification } from "../../store/slices/notificationSlice";
 import { setEmailForVerification } from "../../store/slices/authSlice";
+import { fetchCurrentUser } from "../../store/thunks/authThunks";
 
 import BaseInput from "../BaseInput/BaseInput";
 import BaseButton from "../BaseButton/BaseButton";
@@ -26,7 +26,6 @@ const RegisterForm = () => {
     register,
     handleSubmit,
     formState: { errors, touchedFields },
-    setValue,
     watch,
   } = useForm({
     resolver: yupResolver(registerFormSchema(t)),
@@ -35,6 +34,7 @@ const RegisterForm = () => {
       termsAgreed: false,
       newsletter: false,
     },
+    shouldFocusError: true,
   });
 
   const isPartner = watch("isPartner");
@@ -42,47 +42,51 @@ const RegisterForm = () => {
 
   const onRegister = async (form) => {
     try {
-      // роль
+      form.email = String(form.email || "").trim().toLowerCase();
+      if (form.phoneNumber) form.phoneNumber = String(form.phoneNumber).trim();
+
       form.role = isPartner ? "partner" : "user";
 
-      // GDPR мітка — зберігаємо, якщо погоджено
       if (termsAgreed) {
         form.gdprConsentAt = new Date().toISOString();
       } else {
         delete form.gdprConsentAt;
       }
 
-      // не відправляємо helper-поле з форми
       delete form.isPartner;
 
-      // підчистка partnerProfile
       if (!isPartner) {
         delete form.partnerProfile;
-      } else {
-        if (!form.partnerProfile?.businessWebsite) {
-          delete form.partnerProfile?.businessWebsite;
+      } else if (form.partnerProfile) {
+        if (!form.partnerProfile.businessWebsite) {
+          delete form.partnerProfile.businessWebsite;
         }
-        if (!form.partnerProfile?.contactPhone) {
-          delete form.partnerProfile?.contactPhone;
+        if (!form.partnerProfile.contactPhone) {
+          delete form.partnerProfile.contactPhone;
         }
       }
 
       const response = await api.post("/auth/register", form);
 
       dispatch(showNotification({ message: t("registered"), type: "success" }));
-
-      const { user } = response.data.data; // бек повертає в data.data
+      const payload = response?.data?.data ?? response?.data ?? {};
+      const user = payload.user ?? payload;
 
       if (!user.isEmailVerified) {
         dispatch(showNotification({ message: t("codeSent"), type: "info" }));
         dispatch(setEmailForVerification(user.email));
         navigate("/verify-email");
       } else {
-        // fallback — якщо раптом вже верифіковано
-        await api.post("/auth/login", {
+        const loginRes = await api.post("/auth/login", {
           email: form.email,
           password: form.password,
         });
+        const loginPayload = loginRes?.data?.data ?? loginRes?.data ?? {};
+        const token = loginPayload.token;
+        if (token) {
+          localStorage.setItem("token", token);
+          dispatch(fetchCurrentUser());
+        }
         navigate("/dashboard");
       }
     } catch (err) {
@@ -101,7 +105,11 @@ const RegisterForm = () => {
         id_token: credentialResponse.credential,
       });
 
-      localStorage.setItem("token", res.data?.data?.token);
+      const payload = res?.data?.data ?? res?.data ?? {};
+      if (payload.token) {
+        localStorage.setItem("token", payload.token);
+        dispatch(fetchCurrentUser());
+      }
       dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
       navigate("/");
     } catch {
@@ -143,11 +151,7 @@ const RegisterForm = () => {
         </FormGroup>
 
         <FormGroup>
-          <BaseCheckbox
-            {...register("isPartner")}
-            label={t("registerForm.isPartner")}
-            onChange={(e) => setValue("isPartner", e.target.checked)}
-          />
+          <BaseCheckbox {...register("isPartner")} label={t("registerForm.isPartner")} />
         </FormGroup>
 
         {isPartner && (
@@ -219,9 +223,7 @@ const RegisterForm = () => {
       <div className={styles.googleSignup}>
         <GoogleLogin
           onSuccess={handleGoogleSignup}
-          onError={() =>
-            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
-          }
+          onError={() => dispatch(showNotification({ message: t("googleFailed"), type: "error" }))}
         />
       </div>
     </div>
