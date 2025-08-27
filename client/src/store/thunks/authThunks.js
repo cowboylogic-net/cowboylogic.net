@@ -44,8 +44,12 @@ export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
   async (_, { dispatch, rejectWithValue }) => {
     try {
-      const res = await api.get("/auth/me"); // ⬅️ правильний шлях
-      return res.data.data;
+      const res = await api.get("/auth/me");
+      const payload = res?.data?.data;
+      if (!payload || typeof payload !== "object" || !payload.id) {
+        throw new Error("Invalid /auth/me response");
+      }
+      return payload;
     } catch (err) {
       localStorage.removeItem("token");
       const msg = err.response?.data?.message || "Session expired";

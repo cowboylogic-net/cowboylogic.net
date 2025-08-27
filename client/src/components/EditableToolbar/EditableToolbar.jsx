@@ -139,9 +139,10 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
 
         const res = await fetch(endpoint, {
           method: "POST",
-          headers: authToken
-            ? { Authorization: `Bearer ${authToken}` }
-            : undefined,
+          headers: {
+            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+            "ngrok-skip-browser-warning": "true",
+          },
           body: formData,
         });
 

@@ -64,7 +64,7 @@ app.use((req, res, next) => {
 app.use(cors({
   origin: true,
   credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "X-Requested-With"],
+  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "X-Requested-With", "ngrok-skip-browser-warning"],
   methods: ["GET","POST","PUT","DELETE","OPTIONS"],
 }));
 
