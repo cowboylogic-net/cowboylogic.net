@@ -1,46 +1,47 @@
 pipeline {
-  agent {
-    node {
-      label 'built-in'
-    }
-  }
+  agent { node { label 'built-in' } }
 
   tools {
     nodejs 'node24'
+  }
+
+  options {
+    timestamps()
+    disableConcurrentBuilds()
+    timeout(time: 45, unit: 'MINUTES')
   }
 
   environment {
     CODEBASE_SERVER_DIR = 'server'
     CODEBASE_CLIENT_DIR = 'client'
 
-    DEV_DEPLOY_SERVER_DIR = 'E:\\deploy\\prd\\server'
-    DEV_DEPLOY_CLIENT_DIR = 'E:\\deploy\\prd\\client'
+    PRD_DEPLOY_SERVER_DIR = 'E:\\deploy\\prd\\server'
+    PRD_DEPLOY_CLIENT_DIR = 'E:\\deploy\\prd\\client'
 
-    HOME = 'C:\\Users\\clp-jenkins'
-    PM2_HOME = 'E:\\jenkins_pm2' // ✅ Fixes PM2 for Jenkins user
+    HOME     = 'C:\\Users\\clp-jenkins'
+    PM2_HOME = 'E:\\jenkins_pm2'
+    NPM_CONFIG_AUDIT = 'false'
+    NPM_CONFIG_FUND  = 'false'
   }
 
   stages {
-
-    stage('🧹 Clean Old PROD Deployment') {
+    stage('Clean old PROD deployment') {
       steps {
         powershell 'E:\\deploy\\_scripts\\Clean-DeploymentFolders.ps1 -ENVIRONMENT "prd"'
       }
     }
 
-    stage('📥 Checkout SCM') {
-      steps {
-        checkout scm
-      }
+    stage('Checkout SCM') {
+      steps { checkout scm }
     }
 
-    stage('🧪 Verify Node Environment') {
+    stage('Verify Node environment') {
       steps {
         powershell 'E:\\deploy\\_scripts\\Verify-NodeEnvironment.ps1'
       }
     }
 
-    stage('🚀 Deploy & Start Server') {
+    stage('Deploy and start server') {
       steps {
         withCredentials([file(credentialsId: 'prd.env', variable: 'PRD_ENV_FILE')]) {
           powershell "E:\\deploy\\_scripts\\Deploy-Server.ps1 -Environment 'prd' -EnvFile '${PRD_ENV_FILE}'"
@@ -48,7 +49,7 @@ pipeline {
       }
     }
 
-    stage('🛠️ Build & Start Client') {
+    stage('Build and start client') {
       steps {
         powershell 'E:\\deploy\\_scripts\\Deploy-Client.ps1 -Environment "prd"'
       }
