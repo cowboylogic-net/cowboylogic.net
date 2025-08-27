@@ -1,23 +1,23 @@
-// src/pages/VerifyEmailPage.jsx
-
+// src/pages/VerifyEmailPage/VerifyEmailPage.jsx  (або src/pages/VerifyEmailPage/VerifyEmailPage.jsx)
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { registerCodeSchema } from "../../validation/formSchemas";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
+
 import { fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
-import { useSelector } from "react-redux";
 
+// 👇 ЄДИНИЙ axios-інстанс
+import api from "../../store/axios"; // якщо файл НЕ у підпапці VerifyEmailPage, використай "../store/axios"
 
 import styles from "./VerifyEmailPage.module.css";
 import BaseForm from "../../components/BaseForm/BaseForm";
 import BaseInput from "../../components/BaseInput/BaseInput";
 import BaseButton from "../../components/BaseButton/BaseButton";
 import FormGroup from "../../components/FormGroup/FormGroup";
-import { createApiClient } from "../../api/api";
 
 const VerifyEmailPage = () => {
   const { t } = useTranslation("login");
@@ -25,11 +25,11 @@ const VerifyEmailPage = () => {
   const navigate = useNavigate();
 
   const email = useSelector((state) => state.auth.emailForVerification);
-  const [cooldown, setCooldown] = useState(0); // в секундах
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
     if (cooldown > 0) {
-      const timer = setTimeout(() => setCooldown(cooldown - 1), 1000);
+      const timer = setTimeout(() => setCooldown((v) => v - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [cooldown]);
@@ -44,22 +44,18 @@ const VerifyEmailPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      const api = createApiClient();
       const res = await api.post("/auth/verify-code", {
         email,
         code: data.code,
       });
 
-      const token = res?.data?.data?.token;
-
+      const token = res?.data?.token;
       if (token) {
         localStorage.setItem("token", token);
         dispatch(fetchCurrentUser(token));
       }
 
-      dispatch(
-        showNotification({ message: t("welcomeBack"), type: "success" })
-      );
+      dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
       navigate("/");
     } catch (err) {
       dispatch(
@@ -70,14 +66,13 @@ const VerifyEmailPage = () => {
       );
     }
   };
+
   const handleResend = async () => {
     try {
-      if (!email) return;
-      const api = createApiClient();
+      if (!email || cooldown > 0) return;
       await api.post("/auth/request-code", { email });
-
       dispatch(showNotification({ message: t("codeResent"), type: "info" }));
-      setCooldown(60); // 60 секунд блокування
+      setCooldown(60);
     } catch (err) {
       dispatch(
         showNotification({
@@ -88,9 +83,7 @@ const VerifyEmailPage = () => {
     }
   };
 
-  if (!email) {
-    return <p>{t("missingEmail")}</p>;
-  }
+  if (!email) return <p>{t("missingEmail")}</p>;
 
   return (
     <div className={styles.container}>
@@ -100,22 +93,15 @@ const VerifyEmailPage = () => {
       </p>
 
       <BaseForm onSubmit={handleSubmit(onSubmit)}>
-        <FormGroup
-          label={t("codePlaceholder")}
-          error={errors.code?.message}
-          required
-        >
-          <BaseInput
-            type="text"
-            {...register("code")}
-            touched={!!touchedFields.code}
-          />
+        <FormGroup label={t("codePlaceholder")} error={errors.code?.message} required>
+          <BaseInput type="text" {...register("code")} touched={!!touchedFields.code} />
         </FormGroup>
 
         <BaseButton type="submit" variant="auth">
           {t("Verify")}
         </BaseButton>
       </BaseForm>
+
       <div className={styles.resendWrapper}>
         <button
           type="button"
@@ -123,9 +109,7 @@ const VerifyEmailPage = () => {
           onClick={handleResend}
           disabled={cooldown > 0}
         >
-          {cooldown > 0
-            ? t("resendIn", { seconds: cooldown })
-            : t("resendCode")}
+          {cooldown > 0 ? t("resendIn", { seconds: cooldown }) : t("resendCode")}
         </button>
       </div>
     </div>
