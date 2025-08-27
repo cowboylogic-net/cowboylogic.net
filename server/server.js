@@ -43,6 +43,7 @@ dotenv.config();
 import { requireEnv } from "./config/requireEnv.js";
 requireEnv();
 const app = express();
+app.set("trust proxy", 1);
 const PORT = process.env.PORT || 5000;
 
 // ❌ вимикаємо ETag, щоб не було 304 без тіла
