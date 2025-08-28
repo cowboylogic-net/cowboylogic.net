@@ -5,7 +5,7 @@ import CartItem from "../models/CartItem.js";
 import Book from "../models/Book.js";
 import User from "../models/User.js";
 import { sequelize } from "../config/db.js";
-import { ordersApi, paymentsApi } from "../services/squareService.js";
+import { getOrder, getPayment } from "../services/squareService.js";
 import { sendOrderConfirmationEmail } from "../services/emailService.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import sendResponse from "../utils/sendResponse.js";
@@ -28,8 +28,8 @@ export const squareWebhookHandler = ctrlWrapper(async (req, res) => {
   // 1) Якщо у події немає orderId — дотягуємо його з Payments API
   if (!payment.orderId) {
     try {
-      const { result } = await paymentsApi.getPayment(payment.id);
-      payment.orderId = result?.payment?.orderId || null;
+      const payResp = await getPayment(payment.id); // { payment }
+      payment.orderId = payResp?.payment?.orderId || null;
     } catch {}
     if (!payment.orderId) {
       return sendResponse(res, { code: 200, data: { received: true } });
@@ -45,8 +45,8 @@ export const squareWebhookHandler = ctrlWrapper(async (req, res) => {
   }
 
   // 3) Тягнемо Square-ордер
-  const { result } = await ordersApi.retrieveOrder(payment.orderId);
-  const sqOrder = result?.order;
+  const orderResp = await getOrder(payment.orderId); // { order }
+  const sqOrder = orderResp?.order;
   const userId = sqOrder?.referenceId || null;
   if (!sqOrder || !userId) {
     return sendResponse(res, {

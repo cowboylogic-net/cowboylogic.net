@@ -1,15 +1,97 @@
-import { Client, Environment } from 'square';
+// server/services/squareService.js
+import "dotenv/config";
+import { SquareClient, SquareEnvironment } from "square"; // новий SDK
+import { requireEnv } from "../config/requireEnv.js";
 
-const squareClient = new Client({
-  accessToken: process.env.SQUARE_ACCESS_TOKEN,
-  environment: process.env.NODE_ENV === 'production'
-    ? Environment.Production
-    : Environment.Sandbox,
+requireEnv();
+
+const environment =
+  process.env.NODE_ENV === "production"
+    ? SquareEnvironment.Production
+    : SquareEnvironment.Sandbox;
+
+// УВАГА: у новому SDK ключ називається "token", не "accessToken"
+export const client = new SquareClient({
+  token: process.env.SQUARE_ACCESS_TOKEN,
+  environment,
 });
 
-export const paymentsApi = squareClient.paymentsApi;
-export const checkoutApi = squareClient.checkoutApi; // залишаємо поки що (сумісність)
-export const ordersApi = squareClient.ordersApi;
-export const paymentLinksApi = squareClient.paymentLinksApi; // ⬅️ ДОДАНО
+// Групи API у новому SDK (без *Api суфіксів)
+const newCheckout = client.checkout;
+const newPayments = client.payments;
+const newOrders = client.orders;
 
-export const locationId = process.env.SQUARE_LOCATION_ID;
+export const locationId = (process.env.SQUARE_LOCATION_ID || "").trim();
+
+/**
+ * Стандартизовані обгортки під createPaymentLink / getPayment / getOrder,
+ * що працюють і з новим SDK, і з legacy при наявності "square/legacy".
+ */
+export async function createPaymentLink(body) {
+  // Новий SDK (v40+)
+  if (newCheckout && typeof newCheckout.createPaymentLink === "function") {
+    // У новому SDK відповіді відразу повертають тіло { paymentLink, ... }
+    return await newCheckout.createPaymentLink(body);
+  }
+
+  // Legacy fallback
+  const { Client: LegacyClient, Environment: LegacyEnv } = await import("square/legacy");
+  const legacyClient = new LegacyClient({
+    bearerAuthCredentials: { accessToken: process.env.SQUARE_ACCESS_TOKEN },
+    environment:
+      environment === SquareEnvironment.Production
+        ? LegacyEnv.Production
+        : LegacyEnv.Sandbox,
+  });
+
+  if (legacyClient.paymentLinksApi?.createPaymentLink) {
+    // деякі версії мали окремий paymentLinksApi
+    const resp = await legacyClient.paymentLinksApi.createPaymentLink(body);
+    return resp.result; // вирівнюємо формат
+  }
+  if (legacyClient.checkoutApi?.createPaymentLink) {
+    // інші — через checkoutApi
+    const resp = await legacyClient.checkoutApi.createPaymentLink(body);
+    return resp.result; // вирівнюємо формат
+  }
+
+  throw new Error("Square SDK: createPaymentLink() недоступний ані в новому, ані в legacy клієнті.");
+}
+
+export async function getPayment(paymentId) {
+  if (newPayments && typeof newPayments.get === "function") {
+    // новий SDK: { payment }
+    return await newPayments.get({ paymentId });
+  }
+
+  // legacy fallback -> { result: { payment } } -> повернемо уніфіковано { payment }
+  const { Client: LegacyClient, Environment: LegacyEnv } = await import("square/legacy");
+  const lc = new LegacyClient({
+    bearerAuthCredentials: { accessToken: process.env.SQUARE_ACCESS_TOKEN },
+    environment:
+      environment === SquareEnvironment.Production
+        ? LegacyEnv.Production
+        : LegacyEnv.Sandbox,
+  });
+  const resp = await lc.paymentsApi.getPayment(paymentId);
+  return resp.result;
+}
+
+export async function getOrder(orderId) {
+  if (newOrders && typeof newOrders.get === "function") {
+    // новий SDK: { order }
+    return await newOrders.get({ orderId });
+  }
+
+  // legacy fallback -> { result: { order } } -> повернемо уніфіковано { order }
+  const { Client: LegacyClient, Environment: LegacyEnv } = await import("square/legacy");
+  const lc = new LegacyClient({
+    bearerAuthCredentials: { accessToken: process.env.SQUARE_ACCESS_TOKEN },
+    environment:
+      environment === SquareEnvironment.Production
+        ? LegacyEnv.Production
+        : LegacyEnv.Sandbox,
+  });
+  const resp = await lc.ordersApi.retrieveOrder(orderId);
+  return resp.result;
+}

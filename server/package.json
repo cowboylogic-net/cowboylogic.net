@@ -35,13 +35,15 @@
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
     "mysql2": "^3.14.0",
+    "nanoid": "^4.0.2",
     "nodemailer": "^6.10.1",
     "pg": "^8.14.1",
     "pg-hstore": "^2.3.4",
     "react-toastify": "^11.0.5",
+    "sanitize-html": "^2.17.0",
     "sequelize": "^6.37.7",
     "sharp": "^0.34.2",
-    "square": "^34.0.1",
+    "square": "^43.0.2",
     "stripe": "^18.1.0"
   },
   "devDependencies": {
