@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+
 import {
   loginUser,
   registerUser,
@@ -6,12 +7,13 @@ import {
   logoutUser,
   uploadAvatar,
   updateMe,
-  upsertPartnerProfile
+  upsertPartnerProfile,
+  refreshSession
 } from "../thunks/authThunks";
 
 const initialState = {
   user: null,
-  token: localStorage.getItem("token") || null,
+  token: null,
   emailForVerification: null,
   isLoading: false,
   error: null,
@@ -45,6 +47,9 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+    .addCase(refreshSession.fulfilled, (state, action) => {
+        state.token = action.payload; // лише access token
+      })
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
         state.error = null;

@@ -5,6 +5,7 @@ import {
   fetchCurrentUser,
   loginUser as loginThunk,
   logoutUser as logoutThunk,
+  refreshSession,
 } from "../store/thunks/authThunks";
 import { AuthContext } from "./AuthContext";
 import { jwtDecode } from "jwt-decode";
@@ -16,14 +17,20 @@ export const AuthProvider = ({ children }) => {
   const isLoading = useSelector((state) => state.auth.isLoading);
 
   const isLoggedIn = Boolean(user);
-  const isAdmin = user?.role === "admin" || user?.role === "superadmin";
+  const isAdmin = user?.role === "admin" || user?.role === "superAdmin";
   const isPartner = user?.role === "partner";
 
   useEffect(() => {
-    if (token && !user) {
-      dispatch(fetchCurrentUser());
-    }
-  }, [token, user, dispatch]);
+
+  if (!token) {
+    dispatch(refreshSession())
+      .unwrap()
+      .then(() => dispatch(fetchCurrentUser()))
+      .catch(() => {/* лишаємось без сесії */});
+  } else if (token && !user) {
+    dispatch(fetchCurrentUser());
+  }
+}, [token, user, dispatch]);
 
   const login = ({ email, code }) => {
     dispatch(loginThunk({ email, code }));
@@ -40,7 +47,6 @@ export const AuthProvider = ({ children }) => {
       decodedToken = jwtDecode(token);
     } catch (err) {
       console.error("❌ Failed to decode token", err);
-      localStorage.removeItem("token");
       decodedToken = null;
     }
   }

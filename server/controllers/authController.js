@@ -11,13 +11,19 @@ import { formatUser } from "../utils/formatUser.js";
 import PartnerProfile from "../models/PartnerProfile.js";
 import { sequelize } from "../config/db.js";
 import sendResponse from "../utils/sendResponse.js";
+import { setRefreshCookie, clearRefreshCookie } from "../utils/cookies.js";
+
+const ACCESS_MIN = parseInt(process.env.ACCESS_TOKEN_TTL_MIN || "15", 10);
+const REFRESH_DAYS = parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || "7", 10);
 
 const generateToken = (user) => {
   return jwt.sign(
     {
-      id: user.id,
+      id: user.id, // для зворотної сумісності
+      sub: user.id, // сучасне поле
       role: user.role,
       tokenVersion: user.tokenVersion,
+      tv: user.tokenVersion || 0, // коротке поле для refresh-сумісності
     },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
@@ -158,6 +164,13 @@ const loginUser = async (req, res) => {
   } catch (_) {}
 
   const token = generateToken(user);
+  // refresh-cookie (httpOnly)
+  const refresh = jwt.sign(
+    { sub: user.id, tv: user.tokenVersion || 0, type: "refresh" },
+    process.env.JWT_SECRET,
+    { expiresIn: `${REFRESH_DAYS}d` }
+  );
+  setRefreshCookie(res, refresh, req);
 
   sendResponse(res, {
     code: 200,
@@ -168,8 +181,8 @@ const loginUser = async (req, res) => {
   });
 };
 
-const logoutUser = async (_req, res) => {
-  res.clearCookie("token");
+const logoutUser = async (req, res) => {
+  clearRefreshCookie(res, req);
   sendResponse(res, {
     code: 200,
     message: "Logged out successfully",

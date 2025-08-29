@@ -3,22 +3,30 @@ import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
 
 export const protect = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  const authHeader = req.headers.authorization || "";
+  const match = authHeader.match(/^Bearer\s+(.+)$/i);
+  if (!match) {
     return res.status(401).json({ message: "Not authorized, no token" });
   }
-
-  const token = authHeader.split(" ")[1];
+  const token = match[1];
+  if (!token || token === "undefined" || token === "null") {
+    return res.status(401).json({ message: "Not authorized, bad token" });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.id);
+    const userId = decoded.id ?? decoded.sub;
+    if (!userId) {
+      return res.status(401).json({ message: "Invalid token payload" });
+    }
+
+    const user = await User.findByPk(userId);
 
     if (!user) return res.status(401).json({ message: "User not found" });
 
-    // ✅ Перевіряємо відповідність tokenVersion
-    if (decoded.tokenVersion !== user.tokenVersion) {
+    const tokenVersion = decoded.tokenVersion ?? decoded.tv ?? 0;
+    const currentVersion = user.tokenVersion ?? 0;
+    if (tokenVersion !== currentVersion) {
       return res.status(401).json({ message: "Token has been invalidated" });
     }
 
@@ -30,12 +38,20 @@ export const protect = async (req, res, next) => {
 
     next();
   } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
+    }
     res.status(401).json({ message: "Invalid token" });
   }
 };
 
 export const isAdmin = (req, res, next) => {
-  if (req.user && (req.user.role === "admin" || req.user.role === "superAdmin" || req.user?.isSuperAdmin === true)) {
+  if (
+    req.user &&
+    (req.user.role === "admin" ||
+      req.user.role === "superAdmin" ||
+      req.user?.isSuperAdmin === true)
+  ) {
     next();
   } else {
     res.status(403).json({ message: "Access denied. Admins only." });
@@ -48,7 +64,6 @@ export const isSuperAdmin = (req, res, next) => {
   }
   return res.status(403).json({ message: "Access denied. Super admin only." });
 };
-
 
 export const isAdminOrSuperAdmin = (req, res, next) => {
   if (!req.user) {

@@ -3,9 +3,12 @@ import User from "../models/User.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import jwt from "jsonwebtoken";
+import { setRefreshCookie } from "../utils/cookies.js";
 import { formatUser } from "../utils/formatUser.js";
 import sendResponse from "../utils/sendResponse.js";
 import { Op } from "sequelize";
+
+const REFRESH_DAYS = parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || "7", 10);
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -52,7 +55,23 @@ const verifyCode = async (req, res) => {
   } catch (_) {}
 
   // 🔐 Генеруємо токен
-  const token = generateToken(user);
+  const token = jwt.sign(
+    {
+      id: user.id,
+      sub: user.id,
+      role: user.role,
+      tokenVersion: user.tokenVersion,
+      tv: user.tokenVersion || 0,
+    },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || "1d" }
+  );
+  const refresh = jwt.sign(
+    { sub: user.id, tv: user.tokenVersion || 0, type: "refresh" },
+    process.env.JWT_SECRET,
+    { expiresIn: `${REFRESH_DAYS}d` }
+  );
+  setRefreshCookie(res, refresh, req);
 
   sendResponse(res, {
     code: 200,

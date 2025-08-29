@@ -14,7 +14,10 @@ import { loginSuccess } from "../../store/slices/authSlice";
 import { loginUser, fetchCurrentUser } from "../../store/thunks/authThunks";
 import { showNotification } from "../../store/slices/notificationSlice";
 import FormGroup from "../FormGroup/FormGroup";
-import { loginFormSchema, codeVerificationSchema } from "../../validation/formSchemas";
+import {
+  loginFormSchema,
+  codeVerificationSchema,
+} from "../../validation/formSchemas";
 
 const LoginForm = () => {
   const { t } = useTranslation("login");
@@ -31,7 +34,9 @@ const LoginForm = () => {
     formState: { errors, touchedFields },
     setValue,
   } = useForm({
-    resolver: yupResolver(step === 1 ? loginFormSchema(t) : codeVerificationSchema(t)),
+    resolver: yupResolver(
+      step === 1 ? loginFormSchema(t) : codeVerificationSchema(t)
+    ),
     shouldFocusError: true,
   });
 
@@ -44,23 +49,29 @@ const LoginForm = () => {
 
   const onLogin = async (data) => {
     try {
-      const normalizedEmail = String(data.email || "").trim().toLowerCase();
-      const res = await api.post("/auth/login", { ...data, email: normalizedEmail });
+      const normalizedEmail = String(data.email || "")
+        .trim()
+        .toLowerCase();
+      const res = await api.post("/auth/login", {
+        ...data,
+        email: normalizedEmail,
+      });
 
       const payload = res?.data?.data ?? res?.data ?? {};
       const token = payload.token;
       const user = payload.user ?? {};
-
-      if (token) localStorage.setItem("token", token);
-
       dispatch(loginSuccess({ token, user }));
       dispatch(fetchCurrentUser());
-      dispatch(showNotification({ message: t("welcomeBack"), type: "success" }));
+      dispatch(
+        showNotification({ message: t("welcomeBack"), type: "success" })
+      );
       navigate("/");
     } catch (err) {
       const status = err.response?.status;
       if (status === 403) {
-        const normalizedEmail = String(data.email || "").trim().toLowerCase();
+        const normalizedEmail = String(data.email || "")
+          .trim()
+          .toLowerCase();
         setEmail(normalizedEmail);
         await api.post("/auth/request-code", { email: normalizedEmail });
         setValue("email", "");
@@ -86,12 +97,16 @@ const LoginForm = () => {
         const payload = result.payload ?? {};
         const token = payload.token;
         const user = payload.user ?? {};
-        if (token) localStorage.setItem("token", token);
         dispatch(loginSuccess({ token, user }));
         dispatch(fetchCurrentUser());
         navigate("/");
       } else {
-        dispatch(showNotification({ message: result.payload || t("codeInvalid"), type: "error" }));
+        dispatch(
+          showNotification({
+            message: result.payload || t("codeInvalid"),
+            type: "error",
+          })
+        );
       }
     } catch {
       dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
@@ -111,20 +126,25 @@ const LoginForm = () => {
 
   const handleGoogleLogin = async (credentialResponse) => {
     try {
-      const res = await api.post("/auth/google", { id_token: credentialResponse.credential });
+      const res = await api.post("/auth/google", {
+        id_token: credentialResponse.credential,
+      });
       const payload = res?.data?.data ?? res?.data ?? {};
       const token = payload.token;
       const user = payload.user ?? {};
+      dispatch(loginSuccess({ token, user }));
 
       if (!user.isEmailVerified) {
-        dispatch(showNotification({ message: t("emailNotVerified"), type: "warning" }));
+        dispatch(
+          showNotification({ message: t("emailNotVerified"), type: "warning" })
+        );
         return;
       }
 
-      if (token) localStorage.setItem("token", token);
-      dispatch(loginSuccess({ token, user }));
       dispatch(fetchCurrentUser());
-      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
+      dispatch(
+        showNotification({ message: t("googleSuccess"), type: "success" })
+      );
       navigate("/");
       setStep(1);
       setEmail("");
@@ -202,7 +222,9 @@ const LoginForm = () => {
               disabled={resendCooldown > 0}
               className={styles.resendButton}
             >
-              {resendCooldown > 0 ? t("resendIn", { seconds: resendCooldown }) : t("resendCode")}
+              {resendCooldown > 0
+                ? t("resendIn", { seconds: resendCooldown })
+                : t("resendCode")}
             </button>
           </div>
         </>
@@ -212,7 +234,9 @@ const LoginForm = () => {
         <GoogleLogin
           onSuccess={handleGoogleLogin}
           onError={() =>
-            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
+            dispatch(
+              showNotification({ message: t("googleFailed"), type: "error" })
+            )
           }
         />
       </div>

@@ -41,7 +41,9 @@ const RegisterForm = () => {
 
   const onRegister = async (form) => {
     try {
-      form.email = String(form.email || "").trim().toLowerCase();
+      form.email = String(form.email || "")
+        .trim()
+        .toLowerCase();
       if (form.phoneNumber) form.phoneNumber = String(form.phoneNumber).trim();
 
       form.role = isPartner ? "partner" : "user";
@@ -51,8 +53,10 @@ const RegisterForm = () => {
       if (!isPartner) {
         delete form.partnerProfile;
       } else if (form.partnerProfile) {
-        if (!form.partnerProfile.businessWebsite) delete form.partnerProfile.businessWebsite;
-        if (!form.partnerProfile.contactPhone) delete form.partnerProfile.contactPhone;
+        if (!form.partnerProfile.businessWebsite)
+          delete form.partnerProfile.businessWebsite;
+        if (!form.partnerProfile.contactPhone)
+          delete form.partnerProfile.contactPhone;
       }
 
       const response = await api.post("/auth/register", form);
@@ -73,7 +77,6 @@ const RegisterForm = () => {
         const loginPayload = loginRes?.data?.data ?? loginRes?.data ?? {};
         const token = loginPayload.token;
         if (token) {
-          localStorage.setItem("token", token);
           dispatch(fetchCurrentUser());
         }
         navigate("/dashboard");
@@ -96,10 +99,11 @@ const RegisterForm = () => {
 
       const payload = res?.data?.data ?? res?.data ?? {};
       if (payload.token) {
-        localStorage.setItem("token", payload.token);
         dispatch(fetchCurrentUser());
       }
-      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
+      dispatch(
+        showNotification({ message: t("googleSuccess"), type: "success" })
+      );
       navigate("/");
     } catch {
       dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
@@ -111,7 +115,12 @@ const RegisterForm = () => {
       <h2>{t("registerTitle")}</h2>
 
       <BaseForm onSubmit={handleSubmit(onRegister)}>
-        <FormGroup label={t("fullName")} error={errors.fullName?.message} required forId="reg-fullName">
+        <FormGroup
+          label={t("fullName")}
+          error={errors.fullName?.message}
+          required
+          forId="reg-fullName"
+        >
           <BaseInput
             id="reg-fullName"
             {...register("fullName")}
@@ -120,7 +129,12 @@ const RegisterForm = () => {
           />
         </FormGroup>
 
-        <FormGroup label={t("email")} error={errors.email?.message} required forId="reg-email">
+        <FormGroup
+          label={t("email")}
+          error={errors.email?.message}
+          required
+          forId="reg-email"
+        >
           <BaseInput
             id="reg-email"
             type="email"
@@ -130,7 +144,12 @@ const RegisterForm = () => {
           />
         </FormGroup>
 
-        <FormGroup label={t("password")} error={errors.password?.message} required forId="reg-pass">
+        <FormGroup
+          label={t("password")}
+          error={errors.password?.message}
+          required
+          forId="reg-pass"
+        >
           <BaseInput
             id="reg-pass"
             type="password"
@@ -155,7 +174,11 @@ const RegisterForm = () => {
           />
         </FormGroup>
 
-        <FormGroup label={t("phoneNumber")} error={errors.phoneNumber?.message} forId="reg-phone">
+        <FormGroup
+          label={t("phoneNumber")}
+          error={errors.phoneNumber?.message}
+          forId="reg-phone"
+        >
           <BaseInput
             id="reg-phone"
             type="tel"
@@ -165,7 +188,11 @@ const RegisterForm = () => {
           />
         </FormGroup>
 
-        <FormGroup label={t("heardAboutUs")} error={errors.heardAboutUs?.message} forId="reg-how">
+        <FormGroup
+          label={t("heardAboutUs")}
+          error={errors.heardAboutUs?.message}
+          forId="reg-how"
+        >
           <BaseInput
             id="reg-how"
             {...register("heardAboutUs")}
@@ -175,11 +202,17 @@ const RegisterForm = () => {
         </FormGroup>
 
         <FormGroup>
-          <BaseCheckbox {...register("newsletter")} label={t("registerForm.newsletter")} />
+          <BaseCheckbox
+            {...register("newsletter")}
+            label={t("registerForm.newsletter")}
+          />
         </FormGroup>
 
         <FormGroup>
-          <BaseCheckbox {...register("isPartner")} label={t("registerForm.isPartner")} />
+          <BaseCheckbox
+            {...register("isPartner")}
+            label={t("registerForm.isPartner")}
+          />
         </FormGroup>
 
         {isPartner && (
@@ -211,7 +244,10 @@ const RegisterForm = () => {
             </FormGroup>
 
             <FormGroup label={t("registerForm.address")} forId="reg-address">
-              <BaseInput id="reg-address" {...register("partnerProfile.address")} />
+              <BaseInput
+                id="reg-address"
+                {...register("partnerProfile.address")}
+              />
             </FormGroup>
 
             <FormGroup label={t("registerForm.city")} forId="reg-city">
@@ -219,7 +255,10 @@ const RegisterForm = () => {
             </FormGroup>
 
             <FormGroup label={t("registerForm.country")} forId="reg-country">
-              <BaseInput id="reg-country" {...register("partnerProfile.country")} />
+              <BaseInput
+                id="reg-country"
+                {...register("partnerProfile.country")}
+              />
             </FormGroup>
 
             <FormGroup
@@ -251,8 +290,13 @@ const RegisterForm = () => {
         )}
 
         <FormGroup>
-          <BaseCheckbox {...register("termsAgreed")} label={t("registerForm.terms")} />
-          {errors.termsAgreed && <p className={styles.error}>{errors.termsAgreed.message}</p>}
+          <BaseCheckbox
+            {...register("termsAgreed")}
+            label={t("registerForm.terms")}
+          />
+          {errors.termsAgreed && (
+            <p className={styles.error}>{errors.termsAgreed.message}</p>
+          )}
         </FormGroup>
 
         <BaseButton type="submit" variant="auth">
@@ -264,7 +308,9 @@ const RegisterForm = () => {
         <GoogleLogin
           onSuccess={handleGoogleSignup}
           onError={() =>
-            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
+            dispatch(
+              showNotification({ message: t("googleFailed"), type: "error" })
+            )
           }
         />
       </div>

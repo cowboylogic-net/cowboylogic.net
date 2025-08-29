@@ -8,7 +8,6 @@ export const loginUser = createAsyncThunk(
   async (credentials, { dispatch, rejectWithValue }) => {
     try {
       const res = await api.post("/auth/verify-code", credentials);
-      localStorage.setItem("token", res.data.data.token);
       dispatch(showNotification({ type: "success", message: "Welcome back!" }));
       return res.data.data;
     } catch (err) {
@@ -24,7 +23,6 @@ export const registerUser = createAsyncThunk(
   async (payload, { dispatch, rejectWithValue }) => {
     try {
       const res = await api.post("/auth/register", payload);
-      localStorage.setItem("token", res.data.data.token);
       dispatch(
         showNotification({
           type: "success",
@@ -51,7 +49,6 @@ export const fetchCurrentUser = createAsyncThunk(
       }
       return payload;
     } catch (err) {
-      localStorage.removeItem("token");
       const msg = err.response?.data?.message || "Session expired";
       dispatch(showNotification({ type: "error", message: msg }));
       return rejectWithValue(msg);
@@ -64,7 +61,6 @@ export const logoutUser = createAsyncThunk(
   async (_, { dispatch, rejectWithValue }) => {
     try {
       await api.post("/auth/logout");
-      localStorage.removeItem("token");
       dispatch(showNotification({ type: "success", message: "Logged out" }));
       return null;
     } catch (err) {
@@ -121,6 +117,20 @@ export const upsertPartnerProfile = createAsyncThunk(
       return res.data.data; // свіжий user
     } catch (e) {
       return rejectWithValue(e.response?.data?.message || e.message);
+    }
+  }
+);
+
+export const refreshSession = createAsyncThunk(
+  "auth/refreshSession",
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await api.post("/auth/refresh"); // cookie поїде автоматично
+      const token = res?.data?.data?.token || res?.data?.token;
+      if (!token) throw new Error("No token");
+      return token;
+    } catch (err) {
+      return rejectWithValue(err?.response?.data?.message || err.message);
     }
   }
 );

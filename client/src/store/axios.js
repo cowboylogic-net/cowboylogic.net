@@ -9,12 +9,12 @@ export const injectStore = (_store) => {
 const API_BASE = getApiBase();
 const instance = axios.create({
   baseURL: API_BASE ? `${API_BASE}/api` : "/api",
-  withCredentials: false,
+  withCredentials: true,
 });
 
 instance.interceptors.request.use(
   (config) => {
-    const token = store?.getState().auth.token || localStorage.getItem("token");
+    const token = store?.getState().auth.token;
     if (token) config.headers.Authorization = `Bearer ${token}`;
     // важливо для ngrok, інакше /auth/me інколи віддає HTML-інтерстішл
     config.headers["ngrok-skip-browser-warning"] = "true";
@@ -38,7 +38,6 @@ instance.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem("token");
       store?.dispatch({ type: "auth/logout" });
     }
     return Promise.reject(error);

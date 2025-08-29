@@ -59,24 +59,37 @@ app.use((req, res, next) => {
   res.set("Expires", "0");
   next();
 });
-
 // Middleware
-app.use(cors({
-  origin: true,
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "X-Requested-With", "ngrok-skip-browser-warning"],
-  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS","HEAD"],
-}));
-
+const allowedOrigins = (process.env.CORS_ORIGINS || "")
+  .split(",")
+  .map((o) => o.trim())
+  .filter(Boolean);
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      return cb(null, false);
+    },
+    credentials: true,
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "Cache-Control",
+      "X-Requested-With",
+      "ngrok-skip-browser-warning",
+    ],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
+  })
+);
 
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(
   helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }, 
+    crossOriginResourcePolicy: { policy: "cross-origin" },
   })
 );
-app.use("/api/webhook", webhookRoutes);
+
 app.post(
   "/api/square/webhook",
   express.raw({ type: "*/*" }),
@@ -84,6 +97,7 @@ app.post(
   squareWebhookHandler
 );
 app.use(express.json());
+app.use("/api/webhook", webhookRoutes);
 
 app.use("/api", (req, res, next) => {
   res.set(

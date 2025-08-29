@@ -8,6 +8,7 @@ import { authLimiter } from "../middleware/authLimiter.js";
 import verifyCodeController from "../controllers/verifyCodeController.js";
 import codeController from "../controllers/requestCodeController.js";
 import resetPasswordController from "../controllers/resetPasswordController.js";
+import { refreshSession } from "../controllers/refreshController.js";
 import { googleAuthSchema } from "../schemas/googleAuthSchema.js";
 import {
   requestLoginCodeSchema,
@@ -19,7 +20,7 @@ const router = express.Router();
 
 router.post(
   "/register",
-  // authLimiter, // (опційно)
+  authLimiter,
   validateBody(authRegisterSchema),
   authController.registerUser
 );
@@ -50,8 +51,11 @@ router.post(
 router.patch(
   "/reset-password",
   protect,
+  authLimiter,
   validateBody(passwordResetSchema),
   resetPasswordController.resetPassword
 );
+
+router.post("/refresh", refreshSession);
 
 export default router;

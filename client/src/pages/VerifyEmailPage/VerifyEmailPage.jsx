@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { fetchCurrentUser } from "../../store/thunks/authThunks";
+import { fetchCurrentUser, loginUser } from "../../store/thunks/authThunks";
+import { setEmailForVerification } from "../../store/slices/authSlice";
 import { showNotification } from "../../store/slices/notificationSlice";
 import api from "../../store/axios";
 
@@ -34,7 +35,7 @@ const VerifyEmailPage = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, touchedFields },
+    formState: { errors, touchedFields, isSubmitting },
   } = useForm({
     resolver: yupResolver(registerCodeSchema(t)),
     defaultValues: { code: "" },
@@ -43,27 +44,25 @@ const VerifyEmailPage = () => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await api.post("/auth/verify-code", {
-        email,
-        code: data.code,
-      });
-
-      const payload = res?.data?.data ?? res?.data ?? {};
-      const token = payload.token;
-      if (token) {
-        localStorage.setItem("token", token);
+      const result = await dispatch(
+        loginUser({ email, code: String(data.code || "").trim() })
+      );
+      if (!loginUser.fulfilled.match(result)) {
+        const p = result.payload;
+        const errMsg =
+          typeof p === "string" ? p : p?.message || "Verification failed";
+        throw new Error(errMsg);
       }
-
-      dispatch(fetchCurrentUser());
-      dispatch(showNotification({ message: t("emailVerified"), type: "success" }));
+      await dispatch(fetchCurrentUser());
+      dispatch(setEmailForVerification(null));
+      dispatch(
+        showNotification({ message: t("emailVerified"), type: "success" })
+      );
       navigate("/");
     } catch (err) {
-      dispatch(
-        showNotification({
-          message: err.response?.data?.message || t("codeInvalid"),
-          type: "error",
-        })
-      );
+      const msg =
+        err?.response?.data?.message || err?.message || t("codeInvalid");
+      dispatch(showNotification({ message: msg, type: "error" }));
     }
   };
 
@@ -93,12 +92,24 @@ const VerifyEmailPage = () => {
       </p>
 
       <BaseForm onSubmit={handleSubmit(onSubmit)}>
-        <FormGroup label={t("codePlaceholder")} error={errors.code?.message} required>
-          <BaseInput type="text" {...register("code")} touched={!!touchedFields.code} />
+        <FormGroup
+          label={t("codePlaceholder")}
+          error={errors.code?.message}
+          required
+          forId="verify-code"
+        >
+          <BaseInput
+            type="text"
+            id="verify-code"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            {...register("code")}
+            touched={!!touchedFields.code}
+          />
         </FormGroup>
 
-        <BaseButton type="submit" variant="auth">
-          {t("Verify")}
+        <BaseButton type="submit" variant="auth" disabled={isSubmitting}>
+          {isSubmitting ? t("Verifying") || "Verifying…" : t("Verify")}
         </BaseButton>
       </BaseForm>
 
@@ -109,7 +120,9 @@ const VerifyEmailPage = () => {
           onClick={handleResend}
           disabled={cooldown > 0}
         >
-          {cooldown > 0 ? t("resendIn", { seconds: cooldown }) : t("resendCode")}
+          {cooldown > 0
+            ? t("resendIn", { seconds: cooldown })
+            : t("resendCode")}
         </button>
       </div>
     </div>
