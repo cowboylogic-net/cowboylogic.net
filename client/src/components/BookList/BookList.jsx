@@ -1,6 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import {
+  selectBooksMeta,
+  selectPartnerMeta,
+} from "../../store/selectors/bookSelectors";
+import { fetchPartnerBooks } from "../../store/thunks/bookThunks";
 
 import {
   selectAllBooks,
@@ -30,7 +35,10 @@ const BookList = ({
   const navigate = useNavigate();
 
   const reduxBooks = useSelector(selectAllBooks);
-  const books = useMemo(() => externalBooks ?? reduxBooks, [externalBooks, reduxBooks]);
+  const books = useMemo(
+    () => externalBooks ?? reduxBooks,
+    [externalBooks, reduxBooks]
+  );
 
   const user = useSelector(selectUser);
   const { isFetching } = useSelector(selectLoadingFlags);
@@ -43,6 +51,9 @@ const BookList = ({
 
   // ВАЖЛИВО: тільки проп керує відображенням
   const isPartnerView = variant === "partner";
+  const meta = useSelector(isPartnerView ? selectPartnerMeta : selectBooksMeta);
+  const currentPage = meta?.page ?? 1;
+  const currentLimit = meta?.limit ?? 12;
 
   useEffect(() => {
     if (!disableAutoFetch && !externalBooks && books.length === 0) {
@@ -56,7 +67,11 @@ const BookList = ({
     try {
       if (!bookToDelete) return;
       await dispatch(deleteBook(bookToDelete)).unwrap();
-      dispatch(fetchBooks());
+      if (isPartnerView) {
+        dispatch(fetchPartnerBooks({ page: currentPage, limit: currentLimit }));
+      } else {
+        dispatch(fetchBooks({ page: currentPage, limit: currentLimit }));
+      }
     } finally {
       setBookToDelete(null);
     }
@@ -85,19 +100,22 @@ const BookList = ({
   return (
     <div className="layoutContainer">
       <div className={styles.bookList}>
-        {Array.isArray(books) && books.map((book) => (
-          <BookCard
-            key={book.id}
-            book={book}
-            isAdmin={showAdminActions && isAdmin}
-            isLoggedIn={isLoggedIn}
-            onEdit={onEdit ?? handleEdit}
-            onDeleteClick={showAdminActions ? (id) => setBookToDelete(id) : undefined}
-            onAddToCart={onAddToCart ?? handleAddToCart}
-            isPartnerView={isPartnerView}
-            onPartnerAdd={handlePartnerAdd}
-          />
-        ))}
+        {Array.isArray(books) &&
+          books.map((book) => (
+            <BookCard
+              key={book.id}
+              book={book}
+              isAdmin={showAdminActions && isAdmin}
+              isLoggedIn={isLoggedIn}
+              onEdit={onEdit ?? handleEdit}
+              onDeleteClick={
+                showAdminActions ? (id) => setBookToDelete(id) : undefined
+              }
+              onAddToCart={onAddToCart ?? handleAddToCart}
+              isPartnerView={isPartnerView}
+              onPartnerAdd={handlePartnerAdd}
+            />
+          ))}
       </div>
 
       {showDeleteModal && (

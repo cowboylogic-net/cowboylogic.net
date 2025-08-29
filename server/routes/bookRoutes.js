@@ -8,6 +8,11 @@ import { validateBody } from "../middleware/validateBody.js";
 import { requireRole } from "../middleware/requireRole.js";
 import { validateParams } from "../middleware/validateParams.js";
 import { idParamSchema } from "../schemas/paramsSchemas.js";
+import validateQuery from "../middleware/validateQuery.js";
+import {
+  booksQuerySchema,
+  partnerBooksQuerySchema,
+} from "../schemas/paginationSchema.js";
 
 const router = express.Router();
 const { getPartnerBooks } = bookController;
@@ -45,10 +50,16 @@ router.get(
   "/partner-books",
   protect,
   requireRole("partner", "admin", "superAdmin"),
+  validateQuery(partnerBooksQuerySchema),
   getPartnerBooks
 );
 
-router.get("/", optionalAuth, bookController.getBooks);
+router.get(
+  "/",
+  optionalAuth,
+  validateQuery(booksQuerySchema),
+  bookController.getBooks
+);
 router.get(
   "/:id",
   optionalAuth,

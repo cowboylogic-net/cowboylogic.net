@@ -1,13 +1,16 @@
 .partnerStore {
-  padding: var(--spacing-xl);
+  width: 100%;
+  max-width: var(--max-width-container);
+  margin: var(--spacing-xxl) auto;
+  padding: 0 var(--spacing-md);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  align-items: stretch; 
 }
 
 .partnerStore h1 {
-  font-size: 2rem; /* або додай --font-xxl у tokens.css */
-  color: white;
-  margin-bottom: var(--spacing-md);
+  font-size: 2rem;
+  color: #fff;
   text-align: center;
+  margin: 0 0 var(--spacing-xl); 
 }

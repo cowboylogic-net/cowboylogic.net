@@ -13,17 +13,37 @@ import {
 const initialState = {
   books: [],
   partnerBooks: [],
+  partnerPagination: {
+    page: 1,
+    limit: 12,
+    totalItems: 0,
+    totalPages: 1,
+    hasPrev: false,
+    hasNext: false,
+    sortBy: "createdAt",
+    order: "desc",
+  },
   selectedBook: null,
   error: null,
+  pagination: {
+    page: 1,
+    limit: 12,
+    totalItems: 0,
+    totalPages: 1,
+    hasPrev: false,
+    hasNext: false,
+    sortBy: "createdAt",
+    order: "desc",
+  },
 
   isFetching: false,
   isFetchingById: false,
   isCreating: false,
   isUpdating: false,
   isDeleting: false,
-  isFetchingPartnerBooks: false, // якщо ще не додавала — додай
-  isCheckingStock: false, // ← для чек-стоку
-  stockCheckResult: null, // ← true/false/null
+  isFetchingPartnerBooks: false,
+  isCheckingStock: false,
+  stockCheckResult: null,
 };
 
 const bookSlice = createSlice({
@@ -36,6 +56,7 @@ const bookSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // auth/logout
       .addCase("auth/logout", (state) => {
         state.books = [];
         state.partnerBooks = [];
@@ -49,29 +70,51 @@ const bookSlice = createSlice({
         state.isFetchingPartnerBooks = false;
         state.isCheckingStock = false;
         state.stockCheckResult = null;
+        state.pagination = {
+          page: 1,
+          limit: 12,
+          totalItems: 0,
+          totalPages: 1,
+          hasPrev: false,
+          hasNext: false,
+          sortBy: "createdAt",
+          order: "desc",
+        };
+        state.partnerPagination = {
+          page: 1,
+          limit: 12,
+          totalItems: 0,
+          totalPages: 1,
+          hasPrev: false,
+          hasNext: false,
+          sortBy: "createdAt",
+          order: "desc",
+        };
       })
-      // fetchBooks
+
+      // ✅ ЄДИНИЙ блок для fetchBooks
       .addCase(fetchBooks.pending, (state) => {
         state.isFetching = true;
         state.error = null;
       })
       .addCase(fetchBooks.fulfilled, (state, action) => {
-        state.books = action.payload;
+        const { items, meta } = action.payload;
+        state.books = items;
+        state.pagination = meta;
         state.isFetching = false;
       })
       .addCase(fetchBooks.rejected, (state, action) => {
-        state.error = action.payload;
         state.isFetching = false;
+        state.error = action.payload || "Failed to fetch books";
       })
 
-      // slices/bookSlice.js (всередині builder)
+      // checkStock
       .addCase(checkStock.pending, (state) => {
         state.isCheckingStock = true;
         state.stockCheckResult = null;
         state.error = null;
       })
       .addCase(checkStock.fulfilled, (state, action) => {
-        // санка повертає res.data.data -> { success: true/false }
         state.isCheckingStock = false;
         state.stockCheckResult = Boolean(action.payload?.success);
       })
@@ -90,7 +133,7 @@ const bookSlice = createSlice({
         state.selectedBook = action.payload;
         state.isFetchingById = false;
 
-        // 🧠 Додаємо в books[], якщо її ще немає
+        // Опціонально: не додавати в список сторінки, щоб не «засмічувати» пагінований список
         const exists = state.books.find((b) => b.id === action.payload.id);
         if (!exists) {
           state.books.push(action.payload);
@@ -160,7 +203,9 @@ const bookSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchPartnerBooks.fulfilled, (state, action) => {
-        state.partnerBooks = action.payload;
+        const { items, meta } = action.payload;
+        state.partnerBooks = items;
+        state.partnerPagination = meta;
         state.isFetchingPartnerBooks = false;
       })
       .addCase(fetchPartnerBooks.rejected, (state, action) => {

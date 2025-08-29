@@ -31,5 +31,7 @@ export const selectPartnerBooks = (state) => state.books.partnerBooks;
 export const selectBooksError = (state) => state.books.error;
 export const selectIsFetchingPartnerBooks = (state) =>
   state.books.isFetchingPartnerBooks;
+export const selectBooksMeta = (state) => state.books.pagination;
+export const selectPartnerMeta = (state) => state.books.partnerPagination;
 
 

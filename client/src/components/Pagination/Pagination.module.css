@@ -1,0 +1,12 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md, 12px);
+  justify-content: center;
+  margin-top: var(--spacing-xl, 24px);
+}
+
+.info {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}

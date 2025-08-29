@@ -15,6 +15,7 @@
   width: 100%;
   max-width: 100%;
   min-height: 260px;
+  height: 100%;
 }
 
 .card:hover {
@@ -165,6 +166,14 @@
   min-height: 28px;
 } /* дрібний резерв під заголовок+серце */
 
+.cardNoteInline{
+  font-size: var(--font-xs);
+  color: var(--color-accent-light);
+  font-style: italic;
+  margin-left: .5rem;
+  white-space: nowrap;
+}
+
 /* адаптив */
 @media (max-width: 1024px) {
   .card {
@@ -207,10 +216,10 @@
 }
 
 @media (min-width: 1025px) {
+  
   .info {
     align-items: flex-start;
     text-align: left;
-    max-width: calc(100% - 240px); /* місце під картинку + gap */
   }
 }
 @media (max-width: 480px) {

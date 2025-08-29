@@ -1,21 +1,27 @@
-.bookStore {
-  padding: var(--spacing-xl);
-  display: flex;
-  flex-direction: column;
-  align-items: stretch; /* ❗ важливо для повної ширини */
+/* Верхній контейнер сторінки */
+.container {
+  width: 100%;
+  max-width: var(--max-width-container);
+  margin: var(--spacing-xxl) auto;
+  padding: 0 var(--spacing-md);
+  box-sizing: border-box;
 }
 
-.bookStore h1 {
-  /* було: font-size: var(--font-xxl); */
-  font-size: 2rem;
-  color: white;
-  margin-bottom: var(--spacing-md);
-  text-align: center;
-}
-
-
-.addButtonWrapper {
-  margin-bottom: var(--spacing-lg);
+/* Рядок заголовок + кнопка */
+.headerRow {
   display: flex;
+  flex-direction: column;           /* ⬅ кнопка під заголовком */
+  align-items: center;
   justify-content: center;
+  gap: var(--spacing-md);           /* відступ між h1 та кнопкою */
+ margin-bottom: var(--spacing-xl); /* відступ від карток */
+}
+
+/* Заголовок */
+.title {
+  margin: 0;
+  font-size: 2rem;              /* як у тебе було */
+  line-height: 1.1;
+  color: #fff;
+  text-align: center;
 }

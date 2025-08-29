@@ -64,12 +64,12 @@ const BookCard = ({
             {t("book.price", { price: book.price })}
           </p>
         ) : (
-          <>
-            <p className={styles.cardText}>
-              {t("book.partnerPrice", { price: book.partnerPrice })}
-            </p>
-            <p className={styles.cardNote}>{t("book.wholesaleNote")}</p>
-          </>
+          <p className={styles.cardText}>
+            {t("book.partnerPrice", { price: book.partnerPrice })}
+            <span className={styles.cardNoteInline}>
+              · {t("book.wholesaleNote")}
+            </span>
+          </p>
         )}
 
         <p

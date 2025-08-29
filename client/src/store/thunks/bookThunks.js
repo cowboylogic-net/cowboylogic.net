@@ -5,16 +5,28 @@ import { showSuccess, showError } from "./notificationThunks";
 // 📚 Отримати всі книги
 export const fetchBooks = createAsyncThunk(
   "books/fetchBooks",
-  async (_, { rejectWithValue, dispatch, getState }) => {
-    // const { token } = getState().auth;
+  async (params = {}, { rejectWithValue, dispatch, getState }) => {
     try {
       const { token } = getState().auth;
       const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-      const response = await axios.get("/books", { headers });
 
+      const page = params.page ?? 1;
+      const limit = params.limit ?? 12;
+      const sortBy = params.sortBy ?? "createdAt";
+      const order = params.order ?? "desc";
+
+      const qs = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        sortBy,
+        order,
+      }).toString();
+
+      const response = await axios.get(`/books?${qs}`, { headers });
+      // { data: { items, meta } }
       return response.data.data;
-    } catch {
-      const msg = "Failed to load books";
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Failed to fetch books";
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }
@@ -113,17 +125,30 @@ export const deleteBook = createAsyncThunk(
 
 export const fetchPartnerBooks = createAsyncThunk(
   "books/fetchPartnerBooks",
-  async (_, { rejectWithValue, getState, dispatch }) => {
+  async (params = {}, { rejectWithValue, getState, dispatch }) => {
     try {
       const { token } = getState().auth;
-      const response = await axios.get("/books/partner-books", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const headers = { Authorization: `Bearer ${token}` };
+
+      const page = params.page ?? 1;
+      const limit = params.limit ?? 12;
+      const sortBy = params.sortBy ?? "createdAt";
+      const order = params.order ?? "desc";
+
+      const qs = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        sortBy,
+        order,
+      }).toString();
+
+      const response = await axios.get(`/books/partner-books?${qs}`, {
+        headers,
       });
-      return response.data.data;
+      return response.data.data; // { items, meta }
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to load partner books";
+      const msg =
+        err?.response?.data?.message || "Failed to load partner books";
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }

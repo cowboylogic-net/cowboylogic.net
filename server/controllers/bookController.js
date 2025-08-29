@@ -120,18 +120,55 @@ const updateBook = async (req, res) => {
   sendResponse(res, { code: 200, data: book });
 };
 
-// ✅ GET ALL
+// controllers/bookController.js
 const getBooks = async (req, res) => {
   const isPrivileged =
     req.user?.role === "partner" ||
     req.user?.role === "admin" ||
     req.user?.isSuperAdmin;
 
-  const books = await Book.findAll({
+  // 1) беремо з мідлвара, якщо є
+  const q = (req.validated && req.validated.query) || req.query || {};
+
+  // 2) будуємо whitelist для сорту з урахуванням наявності поля createdAt
+  const attrs = Book.rawAttributes || Book.getAttributes?.() || {};
+  const allowedSort = new Set(["title", "price", "stock"]);
+  if ("createdAt" in attrs) allowedSort.add("createdAt");
+
+  const sortByRaw = q.sortBy ?? "createdAt";
+  const sortBy = allowedSort.has(sortByRaw) ? sortByRaw : [...allowedSort][0];
+
+  const orderRaw = String(q.order ?? "desc").toUpperCase();
+  const order = orderRaw === "ASC" ? "ASC" : "DESC";
+
+  const pageNum = Number.parseInt(q.page, 10);
+  const limitNum = Number.parseInt(q.limit, 10);
+  const page = Number.isFinite(pageNum) && pageNum > 0 ? pageNum : 1;
+  const limit = Number.isFinite(limitNum)
+    ? Math.min(Math.max(limitNum, 1), 50)
+    : 12;
+  const offset = (page - 1) * limit;
+
+  const { rows, count } = await Book.findAndCountAll({
     attributes: { exclude: isPrivileged ? [] : ["partnerPrice"] },
+    limit,
+    offset,
+    order: [[sortBy, order]],
   });
 
-  sendResponse(res, { code: 200, data: books });
+  const totalPages = Math.max(1, Math.ceil(count / limit));
+  const meta = {
+    page,
+    limit,
+    totalItems: count,
+    totalPages,
+    hasPrev: page > 1,
+    hasNext: page < totalPages,
+    sortBy,
+    order: order.toLowerCase(),
+  };
+
+  sendResponse(res, { code: 200, data: { items: rows, meta } });
 };
 
 // ✅ GET ONE
@@ -178,14 +215,31 @@ const deleteBook = async (req, res) => {
   });
 };
 
-const getPartnerBooks = async (_req, res) => {
-  const books = await Book.findAll({
-    where: {
-      isWholesaleAvailable: true,
-      partnerPrice: {
-        [Op.ne]: null,
-      },
-    },
+const getPartnerBooks = async (req, res) => {
+  const q = (req.validated && req.validated.query) || req.query || {};
+
+  const allowedSort = new Set(["createdAt", "title", "partnerPrice", "stock"]);
+  const sortByRaw = q.sortBy ?? "createdAt";
+  const sortBy = allowedSort.has(sortByRaw) ? sortByRaw : "createdAt";
+
+  const orderRaw = String(q.order ?? "desc").toUpperCase();
+  const order = orderRaw === "ASC" ? "ASC" : "DESC";
+
+  const pageNum = parseInt(q.page, 10);
+  const limitNum = parseInt(q.limit, 10);
+  const page = Number.isFinite(pageNum) && pageNum > 0 ? pageNum : 1;
+  const limit = Number.isFinite(limitNum)
+    ? Math.min(Math.max(limitNum, 1), 50)
+    : 12;
+  const offset = (page - 1) * limit;
+
+  const where = {
+    isWholesaleAvailable: true,
+    partnerPrice: { [Op.ne]: null },
+  };
+
+  const { rows, count } = await Book.findAndCountAll({
+    where,
     attributes: [
       "id",
       "title",
@@ -194,14 +248,28 @@ const getPartnerBooks = async (_req, res) => {
       "partnerPrice",
       "stock",
       "imageUrl",
+      "createdAt",
     ],
+    limit,
+    offset,
+    order: [[sortBy, order]],
   });
 
-  sendResponse(res, {
-    code: 200,
-    data: books,
-  });
+  const totalPages = Math.max(1, Math.ceil(count / limit));
+  const meta = {
+    page,
+    limit,
+    totalItems: count,
+    totalPages,
+    hasPrev: page > 1,
+    hasNext: page < totalPages,
+    sortBy,
+    order: order.toLowerCase(),
+  };
+
+  sendResponse(res, { code: 200, data: { items: rows, meta } });
 };
+
 const checkStock = async (req, res) => {
   const items = Array.isArray(req.body) ? req.body : req.body?.items;
   if (!Array.isArray(items) || items.length === 0) {
