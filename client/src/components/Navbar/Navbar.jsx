@@ -132,7 +132,7 @@ const Navbar = () => {
                   {t("navbar.clPublishingHome")}
                 </NavLink>
                 <NavLink
-                  to="/clpublishing/cowboy-college-pub/author"
+                  to="/clpublishing/cowboy-college-pub-author"
                   className={styles.dropdownItem}
                   onClick={handleCloseDropdown}
                 >

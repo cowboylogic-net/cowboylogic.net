@@ -1,3 +1,4 @@
+// controllers/searchController.js
 import { Op, Sequelize } from "sequelize";
 import Book from "../models/Book.js";
 import sendResponse from "../utils/sendResponse.js";
@@ -14,9 +15,20 @@ export const searchBooks = async (req, res) => {
     return sendResponse(res, { code: 200, data: [] });
   }
 
-  const ATTRS = ["id", "title", "author", "imageUrl", "price"];
+  // 👇 Додаємо partnerPrice
+  const ATTRS = ["id", "title", "author", "imageUrl", "price", "partnerPrice"];
+  const isPartner = req.user?.role === "partner";
 
-  const starts = await Book.findAll({
+  const applyRolePrice = (rows) =>
+    rows.map(({ partnerPrice, ...rest }) => ({
+      ...rest,
+      // якщо партнер і є partnerPrice — віддаємо його у полі price
+      price: isPartner && partnerPrice != null ? partnerPrice : rest.price,
+      // якщо не хочеш світити сире partnerPrice на фронт, не додавай окреме поле
+      // partnerPrice, // ← можеш повернути і обидва поля, якщо фронт це очікує
+    }));
+
+  const startsRaw = await Book.findAll({
     attributes: ATTRS,
     where: { title: { [Op.like]: `${q}%` } },
     order: [
@@ -26,16 +38,17 @@ export const searchBooks = async (req, res) => {
     limit,
     raw: true,
   });
+  const starts = applyRolePrice(startsRaw);
 
   if (starts.length >= limit) {
     return sendResponse(res, { code: 200, data: starts });
   }
 
-  const inner = await Book.findAll({
+  const innerRaw = await Book.findAll({
     attributes: ATTRS,
     where: {
       title: { [Op.like]: `%${q}%` },
-      id: { [Op.notIn]: starts.map((b) => b.id) },
+      id: { [Op.notIn]: startsRaw.map((b) => b.id) }, // важливо: порівнюємо з raw-IDs
     },
     order: [
       [Sequelize.fn("CHAR_LENGTH", Sequelize.col("title")), "ASC"],
@@ -44,6 +57,7 @@ export const searchBooks = async (req, res) => {
     limit: limit - starts.length,
     raw: true,
   });
+  const inner = applyRolePrice(innerRaw);
 
   return sendResponse(res, { code: 200, data: [...starts, ...inner] });
 };

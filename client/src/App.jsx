@@ -102,7 +102,7 @@ const App = () => {
             />
             <Route path="clpublishing" element={<CLPublishing />} />
             <Route
-              path="clpublishing/cowboy-college-pub/author"
+              path="clpublishing/cowboy-college-pub-author"
               element={<CowboyCollegePubAuthor />}
             />
 

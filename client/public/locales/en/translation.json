@@ -232,7 +232,8 @@
     "saveAvatar": "Save Avatar",
     "avatarPreview": "Avatar preview",
     "currentAvatar": "Current avatar",
-    "defaultAvatar": "Default avatar"
+    "defaultAvatar": "Default avatar",
+    "security": "Change password"
   },
   "resetPassword": {
     "title": "Change password",
@@ -245,6 +246,7 @@
     "button": "Update Password",
     "success": "Password updated successfully. You’ll be logged out shortly.",
     "error": "Failed to update password. Please try again."
+    
   },
 
   "admin": {
