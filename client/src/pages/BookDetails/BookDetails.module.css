@@ -75,7 +75,7 @@
 .stock {
   font-weight: 500;
   margin-top: 0.25rem;
-  color: var(--color-brown);
+  color: var(--color-white);
 }
 /* BookDetails.module.css */
 .cardNote {
