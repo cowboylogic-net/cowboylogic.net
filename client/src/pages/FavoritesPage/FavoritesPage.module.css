@@ -6,7 +6,6 @@
 }
 
 .heading {
-  /* було: font-size: var(--font-xxl); */
   font-size: 2rem;
   color: white;
   margin-bottom: var(--spacing-md);
@@ -14,8 +13,7 @@
 }
 
 .page p {
-  /* було: font-size: var(--font-xxl); */
-  font-size: 2rem;
+  font-size: var(--font-md);
   color: white;
   margin-bottom: var(--spacing-md);
   text-align: center;

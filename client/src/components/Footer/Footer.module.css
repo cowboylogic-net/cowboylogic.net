@@ -81,12 +81,13 @@
 
 /* посилання у нижньому рядку — глобальний стиль лінка */
 .footerContent a {
-  color: var(--color-link);
+  
   text-decoration: underline;
 }
 
 .footerContent a:hover,
 .footerContent a:focus-visible {
+  color: var(--color-inner-buttons);
   text-decoration: none;
   outline: none;
 }

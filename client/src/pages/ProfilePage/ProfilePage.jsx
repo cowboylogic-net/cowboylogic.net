@@ -292,7 +292,7 @@ const ProfilePage = () => {
           />
 
           <div className={styles.row}>
-            <Link to="/favorites">{t("profile.favorites")}</Link>
+            <Link to="/favorites">❤️ {t("profile.favorites")}</Link>
           </div>
         </div>
 
