@@ -46,7 +46,7 @@
     "clPublishing": "CLPublishing",
     "clPublishingHome": "CLPublishing Home",
     "ccPubAuthor": "Cowboy College Pub/Author",
-    "b2bBookstores": "B2B Bookstores",
+    "Books": "Books",
     "adminDashboard": "Admin Dashboard",
     "bookStore": "CLP Book Store",
     "searchPlaceholder": "Search...",
@@ -207,40 +207,46 @@
     "completed": "Completed",
     "cancelled": "Cancelled"
   },
+
+  "auth": {
+    "error": "You need to be signed in.",
+    "success": "✅ Logged in successfully!"
+  },
   "profile": {
-    "title": "My Profile",
+    "title": "Profile",
+    "account": "Account",
     "email": "Email",
     "role": "Role",
-    "favorites": "❤️ Favorites",
-    "changePassword": "Change Password",
-    "account": "Account",
-    "partnerProfile": "Partner profile",
-    "security": "Security",
     "fullName": "Full name",
     "phoneNumber": "Phone number",
-    "newsletter": "Newsletter",
-    "heardAboutUs": "Heard about us",
-    "avatarUpdated": "Avatar updated",
-    "passwordUpdated": "Password updated",
-    "passwordUpdateError": "Couldn't update password",
-    "saved": "Saved"
+    "newsletter": "Newsletter subscription",
+    "heardAboutUs": "How did you hear about us?",
+    "favorites": "Favorites",
+    "partnerProfile": "Partner profile",
+    "saved": "Changes saved.",
+    "avatarUpdated": "Avatar updated.",
+    "avatarUploadError": "Failed to upload avatar.",
+    "passwordUpdated": "Password updated.",
+    "passwordUpdateError": "Failed to update password.",
+    "changeAvatar": "Change Avatar",
+    "saveAvatar": "Save Avatar",
+    "avatarPreview": "Avatar preview",
+    "currentAvatar": "Current avatar",
+    "defaultAvatar": "Default avatar"
   },
   "resetPassword": {
-    "title": "Reset Password",
+    "title": "Change password",
+    "oldPassword": "Current password",
+    "newPassword": "New password",
     "currentLabel": "Current Password",
     "currentPlaceholder": "Enter your current password",
     "newLabel": "New Password",
     "newPlaceholder": "Enter your new password",
     "button": "Update Password",
     "success": "Password updated successfully. You’ll be logged out shortly.",
-    "error": "Failed to update password. Please try again.",
-    "oldPassword": "Old password",
-    "newPassword": "New password"
+    "error": "Failed to update password. Please try again."
   },
-  "auth": {
-    "success": "✅ Logged in successfully!",
-    "error": "❌ Invalid email or password"
-  },
+
   "admin": {
     "accessDenied": "❌ Access denied",
     "dashboardTitle": "Admin Dashboard",
@@ -408,7 +414,12 @@
     "partnerPrice": "Partner Price: ${{price}}",
     "invalidPartnerPrice": "Please enter a valid partner price"
   },
-  "common": { "save": "Save", "cancel": "Cancel" },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "saving": "Saving..."
+  },
   "registerForm": {
     "organizationName": "Organization Name",
     "businessType": "Business Type",

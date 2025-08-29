@@ -51,9 +51,7 @@ const LoginForm = () => {
       const token = payload.token;
       const user = payload.user ?? {};
 
-      if (token) {
-        localStorage.setItem("token", token);
-      }
+      if (token) localStorage.setItem("token", token);
 
       dispatch(loginSuccess({ token, user }));
       dispatch(fetchCurrentUser());
@@ -88,19 +86,12 @@ const LoginForm = () => {
         const payload = result.payload ?? {};
         const token = payload.token;
         const user = payload.user ?? {};
-        if (token) {
-          localStorage.setItem("token", token);
-        }
+        if (token) localStorage.setItem("token", token);
         dispatch(loginSuccess({ token, user }));
         dispatch(fetchCurrentUser());
         navigate("/");
       } else {
-        dispatch(
-          showNotification({
-            message: result.payload || t("codeInvalid"),
-            type: "error",
-          })
-        );
+        dispatch(showNotification({ message: result.payload || t("codeInvalid"), type: "error" }));
       }
     } catch {
       dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
@@ -130,9 +121,7 @@ const LoginForm = () => {
         return;
       }
 
-      if (token) {
-        localStorage.setItem("token", token);
-      }
+      if (token) localStorage.setItem("token", token);
       dispatch(loginSuccess({ token, user }));
       dispatch(fetchCurrentUser());
       dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
@@ -150,12 +139,34 @@ const LoginForm = () => {
 
       {step === 1 ? (
         <BaseForm onSubmit={handleSubmit(onLogin)}>
-          <FormGroup label={t("emailPlaceholder")} error={errors.email?.message} required>
-            <BaseInput type="email" {...register("email")} touched={!!touchedFields.email} />
+          <FormGroup
+            label={t("emailPlaceholder")}
+            error={errors.email?.message}
+            required
+            forId="login-email"
+          >
+            <BaseInput
+              id="login-email"
+              type="email"
+              {...register("email")}
+              touched={!!touchedFields.email}
+              error={errors.email?.message}
+            />
           </FormGroup>
 
-          <FormGroup label={t("passwordPlaceholder")} error={errors.password?.message} required>
-            <BaseInput type="password" {...register("password")} touched={!!touchedFields.password} />
+          <FormGroup
+            label={t("passwordPlaceholder")}
+            error={errors.password?.message}
+            required
+            forId="login-password"
+          >
+            <BaseInput
+              id="login-password"
+              type="password"
+              {...register("password")}
+              touched={!!touchedFields.password}
+              error={errors.password?.message}
+            />
           </FormGroup>
 
           <BaseButton type="submit" variant="auth" disabled={isLoading}>
@@ -165,8 +176,19 @@ const LoginForm = () => {
       ) : (
         <>
           <BaseForm onSubmit={handleSubmit(onVerify)}>
-            <FormGroup label={t("codePlaceholder")} error={errors.code?.message} required>
-              <BaseInput type="text" {...register("code")} touched={!!touchedFields.code} />
+            <FormGroup
+              label={t("codePlaceholder")}
+              error={errors.code?.message}
+              required
+              forId="login-code"
+            >
+              <BaseInput
+                id="login-code"
+                type="text"
+                {...register("code")}
+                touched={!!touchedFields.code}
+                error={errors.code?.message}
+              />
             </FormGroup>
 
             <BaseButton type="submit" variant="auth" disabled={isLoading}>
@@ -175,7 +197,11 @@ const LoginForm = () => {
           </BaseForm>
 
           <div className={styles.resend}>
-            <button onClick={handleResendCode} disabled={resendCooldown > 0} className={styles.resendButton}>
+            <button
+              onClick={handleResendCode}
+              disabled={resendCooldown > 0}
+              className={styles.resendButton}
+            >
               {resendCooldown > 0 ? t("resendIn", { seconds: resendCooldown }) : t("resendCode")}
             </button>
           </div>
@@ -185,7 +211,9 @@ const LoginForm = () => {
       <div className={styles["google-login"]}>
         <GoogleLogin
           onSuccess={handleGoogleLogin}
-          onError={() => dispatch(showNotification({ message: t("googleFailed"), type: "error" }))}
+          onError={() =>
+            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
+          }
         />
       </div>
     </div>

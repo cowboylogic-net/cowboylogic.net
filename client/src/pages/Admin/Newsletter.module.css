@@ -17,7 +17,7 @@
   font-size: 2rem;
   margin-bottom: var(--spacing-lg);
   font-weight: bold;
-  color: var(--color-headings);
+  color: var(--color-titles);
 }
 
 .form {

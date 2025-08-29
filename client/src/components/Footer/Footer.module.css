@@ -2,14 +2,12 @@
 
 .footer {
   background-color: transparent;
-  color: white;
+  color: var(--color-text);
   padding: var(--spacing-xxl) 0 var(--spacing-xl);
   margin-top: var(--spacing-xxl);
 }
 
 .topSection {
-  /* display: grid; */
-  /* grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); */
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-xl);
@@ -23,6 +21,9 @@
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-sm);
+  /* стабільний перенос колонок */
+  flex: 1 1 220px;
+  min-width: 220px;
 }
 
 .heading {
@@ -44,7 +45,7 @@
 
 .navList a,
 .socialList a {
-  color: white;
+  color: var(--color-text);
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -52,6 +53,14 @@
   transition: color var(--transition-fast);
 }
 
+.navList a:hover,
+.navList a:focus-visible,
+.socialList a:hover,
+.socialList a:focus-visible {
+  color: var(--color-inner-buttons);
+  outline: none;
+  text-decoration: underline;
+}
 
 .icon {
   font-size: 1.2rem;
@@ -70,6 +79,19 @@
   transition: color var(--transition-fast);
 }
 
+/* посилання у нижньому рядку — глобальний стиль лінка */
+.footerContent a {
+  color: var(--color-link);
+  text-decoration: underline;
+}
+
+.footerContent a:hover,
+.footerContent a:focus-visible {
+  text-decoration: none;
+  outline: none;
+}
+
+/* вирівнювання контенту newsletter колонки */
 .column:first-child form,
 .column:first-child input,
 .column:first-child button,
@@ -77,4 +99,12 @@
 .column:first-child p {
   text-align: left;
   align-self: flex-start;
+}
+
+/* невеликий респонсив-тюнінг */
+@media (max-width: 600px) {
+  .topSection {
+    justify-content: center;
+    row-gap: var(--spacing-lg);
+  }
 }

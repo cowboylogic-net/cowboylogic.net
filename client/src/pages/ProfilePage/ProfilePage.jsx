@@ -10,6 +10,7 @@ import { apiService } from "../../services/axiosService";
 import { showNotification } from "../../store/slices/notificationSlice";
 import { updateUserAvatar } from "../../store/slices/authSlice";
 import { updateMe, upsertPartnerProfile } from "../../store/thunks/authThunks";
+import { ROLES } from "../../constants/roles";
 
 const InlineEditRow = ({
   label,
@@ -18,6 +19,7 @@ const InlineEditRow = ({
   type = "text",
   disabled = false,
 }) => {
+  const { t } = useTranslation();
   const [editing, setEditing] = useState(false);
   const [next, setNext] = useState(value ?? "");
 
@@ -31,7 +33,7 @@ const InlineEditRow = ({
           {!disabled && (
             <div className={styles.actions}>
               <BaseButton variant="outline" onClick={() => setEditing(true)}>
-                Edit
+                {t("common.edit")}
               </BaseButton>
             </div>
           )}
@@ -67,7 +69,7 @@ const InlineEditRow = ({
                 setEditing(false);
               }}
             >
-              Save
+              {t("common.save")}
             </BaseButton>
             <BaseButton
               className={styles.control}
@@ -77,7 +79,7 @@ const InlineEditRow = ({
                 setEditing(false);
               }}
             >
-              Cancel
+              {t("common.cancel")}
             </BaseButton>
           </div>
         </>
@@ -207,7 +209,7 @@ const ProfilePage = () => {
     );
   }
 
-  const isPartner = user.role === "partner";
+  const isPartner = user.role === ROLES.PARTNER;
 
   return (
     <div className="layoutContainer">

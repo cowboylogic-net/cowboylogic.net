@@ -12,7 +12,7 @@
 }
 
 .modal {
-  background-color: var(--overlay-bg);;
+  background-color: var(--overlay-bg);
   color: var(--color-text);
   border: 1px solid var(--color-brown);
   border-radius: var(--radius-md);
@@ -21,7 +21,7 @@
   width: 100%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   box-sizing: border-box;
-   backdrop-filter: var(--overlay-blur);
+  backdrop-filter: var(--overlay-blur);
 }
 
 .modal h3 {
@@ -43,7 +43,10 @@
   justify-content: center;
   gap: var(--spacing-md);
 }
-
+.actions button {
+  z-index: 1002;
+  position: relative;
+}
 /* 📱 Mobile tweaks */
 @media (max-width: 480px) {
   .modal {

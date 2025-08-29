@@ -138,13 +138,13 @@ const Navbar = () => {
                 >
                   {t("navbar.ccPubAuthor")}
                 </NavLink>
-                {/* <NavLink
-                  to="/clpublishing/b2b-bookstores"
+                <NavLink
+                  to="/clpublishing/Books"
                   className={styles.dropdownItem}
                   onClick={handleCloseDropdown}
                 >
-                  {t("navbar.b2bBookstores")}
-                </NavLink> */}
+                  {t("navbar.Books")}
+                </NavLink>
               </div>
             )}
           </div>

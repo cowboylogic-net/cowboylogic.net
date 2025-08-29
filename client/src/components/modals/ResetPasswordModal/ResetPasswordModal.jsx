@@ -4,7 +4,12 @@ import styles from "./ResetPasswordModal.module.css";
 const ResetPasswordModal = ({ onClose }) => {
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>{`Reset Password`}</h3>
         <ResetPasswordForm onSuccess={onClose} />
       </div>

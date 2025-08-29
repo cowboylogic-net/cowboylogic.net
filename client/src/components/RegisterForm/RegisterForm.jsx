@@ -38,31 +38,21 @@ const RegisterForm = () => {
   });
 
   const isPartner = watch("isPartner");
-  // const termsAgreed = watch("termsAgreed");
 
   const onRegister = async (form) => {
     try {
-      form.email = String(form.email || "")
-        .trim()
-        .toLowerCase();
+      form.email = String(form.email || "").trim().toLowerCase();
       if (form.phoneNumber) form.phoneNumber = String(form.phoneNumber).trim();
 
       form.role = isPartner ? "partner" : "user";
-
-      // GDPR не шлемо — бек поставить timestamp сам
       delete form.gdprConsentAt;
-
       delete form.isPartner;
 
       if (!isPartner) {
         delete form.partnerProfile;
       } else if (form.partnerProfile) {
-        if (!form.partnerProfile.businessWebsite) {
-          delete form.partnerProfile.businessWebsite;
-        }
-        if (!form.partnerProfile.contactPhone) {
-          delete form.partnerProfile.contactPhone;
-        }
+        if (!form.partnerProfile.businessWebsite) delete form.partnerProfile.businessWebsite;
+        if (!form.partnerProfile.contactPhone) delete form.partnerProfile.contactPhone;
       }
 
       const response = await api.post("/auth/register", form);
@@ -109,9 +99,7 @@ const RegisterForm = () => {
         localStorage.setItem("token", payload.token);
         dispatch(fetchCurrentUser());
       }
-      dispatch(
-        showNotification({ message: t("googleSuccess"), type: "success" })
-      );
+      dispatch(showNotification({ message: t("googleSuccess"), type: "success" }));
       navigate("/");
     } catch {
       dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
@@ -123,34 +111,32 @@ const RegisterForm = () => {
       <h2>{t("registerTitle")}</h2>
 
       <BaseForm onSubmit={handleSubmit(onRegister)}>
-        <FormGroup
-          label={t("fullName")}
-          error={errors.fullName?.message}
-          required
-        >
+        <FormGroup label={t("fullName")} error={errors.fullName?.message} required forId="reg-fullName">
           <BaseInput
+            id="reg-fullName"
             {...register("fullName")}
             touched={!!touchedFields.fullName}
+            error={errors.fullName?.message}
           />
         </FormGroup>
 
-        <FormGroup label={t("email")} error={errors.email?.message} required>
+        <FormGroup label={t("email")} error={errors.email?.message} required forId="reg-email">
           <BaseInput
+            id="reg-email"
             type="email"
             {...register("email")}
             touched={!!touchedFields.email}
+            error={errors.email?.message}
           />
         </FormGroup>
 
-        <FormGroup
-          label={t("password")}
-          error={errors.password?.message}
-          required
-        >
+        <FormGroup label={t("password")} error={errors.password?.message} required forId="reg-pass">
           <BaseInput
+            id="reg-pass"
             type="password"
             {...register("password")}
             touched={!!touchedFields.password}
+            error={errors.password?.message}
           />
         </FormGroup>
 
@@ -158,44 +144,42 @@ const RegisterForm = () => {
           label={t("repeatPassword")}
           error={errors.repeatPassword?.message}
           required
+          forId="reg-pass2"
         >
           <BaseInput
+            id="reg-pass2"
             type="password"
             {...register("repeatPassword")}
             touched={!!touchedFields.repeatPassword}
+            error={errors.repeatPassword?.message}
           />
         </FormGroup>
 
-        <FormGroup label={t("phoneNumber")} error={errors.phoneNumber?.message}>
+        <FormGroup label={t("phoneNumber")} error={errors.phoneNumber?.message} forId="reg-phone">
           <BaseInput
+            id="reg-phone"
             type="tel"
             {...register("phoneNumber")}
             touched={!!touchedFields.phoneNumber}
+            error={errors.phoneNumber?.message}
           />
         </FormGroup>
 
-        <FormGroup
-          label={t("heardAboutUs")}
-          error={errors.heardAboutUs?.message}
-        >
+        <FormGroup label={t("heardAboutUs")} error={errors.heardAboutUs?.message} forId="reg-how">
           <BaseInput
+            id="reg-how"
             {...register("heardAboutUs")}
             touched={!!touchedFields.heardAboutUs}
+            error={errors.heardAboutUs?.message}
           />
         </FormGroup>
 
         <FormGroup>
-          <BaseCheckbox
-            {...register("newsletter")}
-            label={t("registerForm.newsletter")}
-          />
+          <BaseCheckbox {...register("newsletter")} label={t("registerForm.newsletter")} />
         </FormGroup>
 
         <FormGroup>
-          <BaseCheckbox
-            {...register("isPartner")}
-            label={t("registerForm.isPartner")}
-          />
+          <BaseCheckbox {...register("isPartner")} label={t("registerForm.isPartner")} />
         </FormGroup>
 
         {isPartner && (
@@ -203,65 +187,72 @@ const RegisterForm = () => {
             <FormGroup
               label={t("registerForm.organizationName")}
               error={errors.partnerProfile?.organizationName?.message}
+              forId="reg-orgName"
             >
               <BaseInput
+                id="reg-orgName"
                 {...register("partnerProfile.organizationName")}
                 touched={!!touchedFields.partnerProfile?.organizationName}
+                error={errors.partnerProfile?.organizationName?.message}
               />
             </FormGroup>
 
             <FormGroup
               label={t("registerForm.businessType")}
               error={errors.partnerProfile?.businessType?.message}
+              forId="reg-bType"
             >
               <BaseInput
+                id="reg-bType"
                 {...register("partnerProfile.businessType")}
                 touched={!!touchedFields.partnerProfile?.businessType}
+                error={errors.partnerProfile?.businessType?.message}
               />
             </FormGroup>
 
-            <FormGroup label={t("registerForm.address")}>
-              <BaseInput {...register("partnerProfile.address")} />
+            <FormGroup label={t("registerForm.address")} forId="reg-address">
+              <BaseInput id="reg-address" {...register("partnerProfile.address")} />
             </FormGroup>
 
-            <FormGroup label={t("registerForm.city")}>
-              <BaseInput {...register("partnerProfile.city")} />
+            <FormGroup label={t("registerForm.city")} forId="reg-city">
+              <BaseInput id="reg-city" {...register("partnerProfile.city")} />
             </FormGroup>
 
-            <FormGroup label={t("registerForm.country")}>
-              <BaseInput {...register("partnerProfile.country")} />
+            <FormGroup label={t("registerForm.country")} forId="reg-country">
+              <BaseInput id="reg-country" {...register("partnerProfile.country")} />
             </FormGroup>
 
             <FormGroup
               label={t("registerForm.contactPhone")}
               error={errors.partnerProfile?.contactPhone?.message}
+              forId="reg-contactPhone"
             >
               <BaseInput
+                id="reg-contactPhone"
                 {...register("partnerProfile.contactPhone")}
                 touched={!!touchedFields.partnerProfile?.contactPhone}
+                error={errors.partnerProfile?.contactPhone?.message}
               />
             </FormGroup>
 
             <FormGroup
               label={t("registerForm.businessWebsite")}
               error={errors.partnerProfile?.businessWebsite?.message}
+              forId="reg-website"
             >
               <BaseInput
+                id="reg-website"
                 {...register("partnerProfile.businessWebsite")}
                 touched={!!touchedFields.partnerProfile?.businessWebsite}
+                error={errors.partnerProfile?.businessWebsite?.message}
               />
             </FormGroup>
           </>
         )}
 
         <FormGroup>
-          <BaseCheckbox
-            {...register("termsAgreed")}
-            label={t("registerForm.terms")}
-          />
-          {errors.termsAgreed && (
-            <p className={styles.error}>{errors.termsAgreed.message}</p>
-          )}
+          <BaseCheckbox {...register("termsAgreed")} label={t("registerForm.terms")} />
+          {errors.termsAgreed && <p className={styles.error}>{errors.termsAgreed.message}</p>}
         </FormGroup>
 
         <BaseButton type="submit" variant="auth">
@@ -273,9 +264,7 @@ const RegisterForm = () => {
         <GoogleLogin
           onSuccess={handleGoogleSignup}
           onError={() =>
-            dispatch(
-              showNotification({ message: t("googleFailed"), type: "error" })
-            )
+            dispatch(showNotification({ message: t("googleFailed"), type: "error" }))
           }
         />
       </div>

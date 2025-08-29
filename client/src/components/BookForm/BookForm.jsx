@@ -39,7 +39,7 @@ const BookForm = ({ onSuccess, onError }) => {
   const error = useSelector((state) => state.books.error);
   const selectedBook = useSelector(selectSelectedBook);
 
-  const schema = bookFormSchema(t); // ✅ ОНОВЛЕНО
+  const schema = bookFormSchema(t);
 
   const {
     register,
@@ -54,6 +54,7 @@ const BookForm = ({ onSuccess, onError }) => {
       author: "",
       description: "",
       price: "",
+      partnerPrice: "",
       imageUrl: "",
       inStock: true,
       stock: 0,
@@ -77,10 +78,10 @@ const BookForm = ({ onSuccess, onError }) => {
         author: selectedBook.author,
         description: selectedBook.description || "",
         price: selectedBook.price,
+        partnerPrice: selectedBook.partnerPrice || "",
         imageUrl: selectedBook.imageUrl || "",
         inStock: selectedBook.inStock,
         stock: selectedBook.stock ?? 0,
-        partnerPrice: selectedBook.partnerPrice || "",
       });
       setPreview(selectedBook.imageUrl || null);
     }
@@ -103,12 +104,13 @@ const BookForm = ({ onSuccess, onError }) => {
     const formData = new FormData();
 
     const parsedPrice = parseFloat(data.price);
-    const parsedStock = parseInt(data.stock);
+    const parsedStock = parseInt(data.stock, 10);
 
-    if (isNaN(parsedPrice) || isNaN(parsedStock)) {
+    if (Number.isNaN(parsedPrice) || Number.isNaN(parsedStock)) {
       onError?.(t("bookForm.invalidPriceOrStock"));
       return;
     }
+
     if (data.partnerPrice) {
       formData.append("partnerPrice", parseFloat(data.partnerPrice));
     }
@@ -131,15 +133,6 @@ const BookForm = ({ onSuccess, onError }) => {
         : data.imageUrl;
       formData.append("imageUrl", fullUrl);
     }
-
-    // 🔍 Debug (можна видалити після перевірки)
-    console.log("📦 Sending form data:", {
-      title: data.title,
-      price: parsedPrice,
-      stock: parsedStock,
-      inStock: data.inStock,
-      image: imageFile || data.imageUrl,
-    });
 
     try {
       if (isEditMode && id) {
@@ -166,11 +159,14 @@ const BookForm = ({ onSuccess, onError }) => {
 
       <BaseForm onSubmit={handleSubmit(onSubmit)}>
         <FormGroup
+          className={styles.group}
           label={t("bookForm.title")}
           error={errors.title?.message}
           required
+          forId="book-title"
         >
           <BaseInput
+            id="book-title"
             type="text"
             placeholder={t("bookForm.title")}
             {...register("title")}
@@ -179,11 +175,14 @@ const BookForm = ({ onSuccess, onError }) => {
         </FormGroup>
 
         <FormGroup
+          className={styles.group}
           label={t("bookForm.author")}
           error={errors.author?.message}
           required
+          forId="book-author"
         >
           <BaseInput
+            id="book-author"
             type="text"
             placeholder={t("bookForm.author")}
             {...register("author")}
@@ -192,10 +191,13 @@ const BookForm = ({ onSuccess, onError }) => {
         </FormGroup>
 
         <FormGroup
+          className={styles.group}
           label={t("bookForm.description")}
           error={errors.description?.message}
+          forId="book-desc"
         >
           <BaseTextarea
+            id="book-desc"
             placeholder={t("bookForm.description")}
             {...register("description")}
             touched={touchedFields.description}
@@ -203,11 +205,14 @@ const BookForm = ({ onSuccess, onError }) => {
         </FormGroup>
 
         <FormGroup
+          className={styles.group}
           label={t("bookForm.price")}
           error={errors.price?.message}
           required
+          forId="book-price"
         >
           <BaseInput
+            id="book-price"
             type="number"
             step="0.01"
             placeholder={t("bookForm.price")}
@@ -215,11 +220,15 @@ const BookForm = ({ onSuccess, onError }) => {
             touched={touchedFields.price}
           />
         </FormGroup>
+
         <FormGroup
+          className={styles.group}
           label={t("bookForm.partnerPrice")}
           error={errors.partnerPrice?.message}
+          forId="book-partnerPrice"
         >
           <BaseInput
+            id="book-partnerPrice"
             type="number"
             step="0.01"
             placeholder={t("bookForm.partnerPrice")}
@@ -229,11 +238,14 @@ const BookForm = ({ onSuccess, onError }) => {
         </FormGroup>
 
         <FormGroup
+          className={styles.group}
           label={t("bookForm.stock")}
           error={errors.stock?.message}
           required
+          forId="book-stock"
         >
           <BaseInput
+            id="book-stock"
             type="number"
             min="0"
             placeholder={t("bookForm.stock")}
@@ -242,28 +254,38 @@ const BookForm = ({ onSuccess, onError }) => {
           />
         </FormGroup>
 
-        <BaseButton
-          type="button"
-          variant="outline"
-          onClick={() => setShowImageModal(true)}
-        >
-          {t("bookForm.chooseImage")}
-        </BaseButton>
+        <div className={styles.actionsTop}>
+          <BaseButton
+            type="button"
+            variant="outline"
+            className={styles.centerButton}
+            onClick={() => setShowImageModal(true)}
+          >
+            {t("bookForm.chooseImage")}
+          </BaseButton>
+        </div>
 
         {preview && (
           <div className={styles.preview}>
-            <p>{t("bookForm.imagePreview")}</p>
+            <div className={styles.previewTitle}>
+              {t("bookForm.imagePreview")}
+            </div>
             <img src={preview} alt="Preview" className={styles.previewImage} />
           </div>
         )}
 
-        <BaseCheckbox label={t("bookForm.inStock")} {...register("inStock")} />
+        <BaseCheckbox
+          className={styles.checkboxCenter}
+          label={t("bookForm.inStock")}
+          {...register("inStock")}
+        />
 
-        <div className={styles.buttonWrapper}>
+        <div className={styles.actions}>
           <BaseButton
             type="submit"
             variant="outline"
             disabled={isCreating || isUpdating}
+            className={styles.centerButton}
           >
             {isEditMode
               ? isUpdating

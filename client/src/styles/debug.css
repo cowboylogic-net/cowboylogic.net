@@ -1,0 +1,3 @@
+/* debug.css — підключай лише локально */
+.debug-outline * { outline: 1px dashed rgba(255,255,255,0.15); }
+.debug-container { outline: 2px solid hotpink; }

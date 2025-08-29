@@ -1,0 +1,16 @@
+.box {
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--color-text);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(4px);
+  padding: var(--spacing-xl);
+  margin: var(--spacing-xl) auto;
+  text-align: center;
+  max-width: 720px;
+}
+
+.box h1 {
+  font-size: 2rem;
+  margin-bottom: var(--spacing-sm);
+}

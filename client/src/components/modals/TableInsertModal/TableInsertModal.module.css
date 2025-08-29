@@ -30,14 +30,14 @@
   margin-bottom: var(--spacing-md);
 }
 
-form {
+.modal form {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
 }
 
 /* Спеціально для полів типу number (глобально-стилізовані BaseInput-и) */
-input[type="number"] {
+.modal input[type="number"] {
   width: 100%;
   padding: 0.5rem 0.75rem;
   font-size: 1rem;

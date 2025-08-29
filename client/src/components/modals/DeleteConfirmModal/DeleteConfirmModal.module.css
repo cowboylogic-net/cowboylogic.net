@@ -10,7 +10,7 @@
 }
 
 .modal {
-  background-color: var(--overlay-bg);;
+  background-color: var(--overlay-bg);
   color: var(--color-text);
   border: 1px solid var(--color-brown);
   border-radius: var(--radius-md);
@@ -40,6 +40,11 @@
   display: flex;
   justify-content: center;
   gap: var(--spacing-md);
+}
+
+.actions button {
+  z-index: 1002;
+  position: relative;
 }
 
 /* 📱 Mobile */

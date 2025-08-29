@@ -36,31 +36,36 @@
   color: #999;
   margin-top: var(--spacing-md);
 }
+
 .resultsPage {
   padding: 2rem;
   color: white;
 }
 
+/* ✅ Адаптивна сітка під телефон/планшет/десктоп */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--spacing-xl);
   padding: var(--spacing-xl);
-   justify-content: start;
+  justify-content: center;
 }
 
+/* ✅ Карта в стилі магазину (темний оверлей) */
 .card {
   text-decoration: none;
-  background: white;
-  padding: 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--color-text);
+  padding: var(--spacing-md);
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  color: black;
-  transition: transform 0.2s ease;
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(4px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .card:hover {
-  transform: scale(1.02);
+  transform: translateY(-2px);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
 }
 
 .image {
@@ -68,4 +73,11 @@
   height: 220px;
   object-fit: cover;
   border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
 }

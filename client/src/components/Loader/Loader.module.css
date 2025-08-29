@@ -1,17 +1,39 @@
-.loaderWrapper {
+.wrapper {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height: 60vh; /* ⬅️ або 100vh, якщо потрібно */
+  min-height: 60vh; /* як у тебе було */
+  gap: var(--spacing-sm);
+  text-align: center;
 }
 
-.loader {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: var(--color-accent, #fff);
-  padding: var(--spacing-md);
-  border: 2px solid var(--color-accent, #fff);
-  border-radius: var(--radius-md);
-  background-color: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(2px);
+.fullScreen {
+  min-height: 100vh;
+}
+
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--color-accent, #fff);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text, #fff);
+  opacity: 0.9;
+}
+
+/* обертання */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* reduce motion — без анімації, але індикатор видно */
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; }
 }

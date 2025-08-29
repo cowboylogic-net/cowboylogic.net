@@ -19,6 +19,7 @@
   margin-top: 0.2rem;
   color:var(--color-text);
   font-family: var(--font-body);
+  word-break: break-word;
 }
 
 .google-login {
@@ -65,7 +66,7 @@
 .resendButton {
   background: none;
   border: none;
-  color: var(--primary-color);
+  color: var(--color-link);
   font-weight: bold;
   cursor: pointer;
   padding: 0.5rem 1rem;

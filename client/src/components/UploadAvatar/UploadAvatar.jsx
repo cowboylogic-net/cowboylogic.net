@@ -1,11 +1,14 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./UploadAvatar.module.css";
 import BaseButton from "../BaseButton/BaseButton";
+import { useTranslation } from "react-i18next";
 
 const UploadAvatar = ({ currentAvatar, onUpload }) => {
+  const { t } = useTranslation();
   const fileInputRef = useRef(null);
   const [preview, setPreview] = useState(currentAvatar);
   const [file, setFile] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   const resizeImage = (file, maxSize = 200) =>
     new Promise((resolve, reject) => {
@@ -30,6 +33,11 @@ const UploadAvatar = ({ currentAvatar, onUpload }) => {
 
         canvas.toBlob(
           (blob) => {
+            // safeguard: інколи toBlob може повернути null
+            if (!blob) {
+              resolve(file); // повертаємо оригінал без ресайзу
+              return;
+            }
             const resizedFile = new File([blob], file.name, {
               type: "image/jpeg",
               lastModified: Date.now(),
@@ -37,7 +45,7 @@ const UploadAvatar = ({ currentAvatar, onUpload }) => {
             resolve(resizedFile);
           },
           "image/jpeg",
-          0.8 // quality
+          0.8
         );
       };
 
@@ -61,21 +69,53 @@ const UploadAvatar = ({ currentAvatar, onUpload }) => {
   };
 
   const handleUploadClick = async () => {
-    if (file) {
-      await onUpload(file); // ✅ чекаємо
-      setFile(null); // ✅ скидаємо стан
+    if (!file || saving) return;
+    try {
+      setSaving(true);
+      await onUpload(file);
+      setFile(null);
+      // прев’ю оновиться через проп currentAvatar (див. useEffect нижче)
+    } finally {
+      setSaving(false);
     }
   };
+
+  // синхронізуємо прев’ю, якщо прийшов новий currentAvatar від батька
+  useEffect(() => {
+    if (currentAvatar) setPreview(currentAvatar);
+  }, [currentAvatar]);
+
+  // прибирання blob: URL щоб не текла пам’ять
+  useEffect(() => {
+    return () => {
+      if (
+        preview &&
+        typeof preview === "string" &&
+        preview.startsWith("blob:")
+      ) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.avatarPreview}>
         {preview ? (
-          <img src={preview} alt="Preview" />
+          <img
+            src={preview}
+            alt={t("profile.avatarPreview", { defaultValue: "Avatar preview" })}
+          />
         ) : currentAvatar ? (
-          <img src={currentAvatar} alt="Current Avatar" />
+          <img
+            src={currentAvatar}
+            alt={t("profile.currentAvatar", { defaultValue: "Current avatar" })}
+          />
         ) : (
-          <img src="/assets/images/default-avatar.png" alt="Default Avatar" />
+          <img
+            src="/assets/images/default-avatar.png"
+            alt={t("profile.defaultAvatar", { defaultValue: "Default avatar" })}
+          />
         )}
       </div>
 
@@ -89,13 +129,20 @@ const UploadAvatar = ({ currentAvatar, onUpload }) => {
         />
         <BaseButton
           variant="outline"
-          onClick={() => fileInputRef.current.click()}
+          onClick={() => fileInputRef.current?.click()}
+          disabled={saving}
         >
-          Change Avatar
+          {t("profile.changeAvatar", { defaultValue: "Change Avatar" })}
         </BaseButton>
         {file && (
-          <BaseButton variant="outline" onClick={handleUploadClick}>
-            Save Avatar
+          <BaseButton
+            variant="outline"
+            onClick={handleUploadClick}
+            disabled={saving}
+          >
+            {saving
+              ? t("common.saving", { defaultValue: "Saving..." })
+              : t("profile.saveAvatar", { defaultValue: "Save Avatar" })}
           </BaseButton>
         )}
       </div>

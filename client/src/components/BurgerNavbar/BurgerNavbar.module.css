@@ -1,76 +1,103 @@
 .wrapper {
+  position: relative;              /* 👈 прив’язуємо меню до кнопки */
   display: flex;
-  justify-content: flex-end; /* ✅ на всяк випадок */
+  justify-content: flex-end;
 }
 
-.menu {
+/* бекдроп */
+.backdrop {
   position: fixed;
-  top: 60px;
-  right: 1rem;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 900;                    /* нижче за меню */
+}
+
+/* меню — тепер прив’язане до кнопки, без жорсткого top:60px */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--spacing-sm));
+  right: 0;
   background: var(--color-dark);
   padding: var(--spacing-md);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
   border-radius: var(--radius-md);
-  z-index: 1000;
+  z-index: 950;                    /* нижче за .modalOverlay (1000) */
   min-width: 240px;
-  max-height: 90vh;
+  max-width: 90vw;                 /* не вилазить за екран */
+  max-height: 80vh;
   overflow-y: auto;
   box-shadow: var(--shadow-card);
-  animation: fadeIn 0.3s ease;
+  animation: fadeIn 0.2s ease;
+  border: 1px solid var(--color-border);
 }
-
-
-
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+/* елементи меню */
 .menu a,
 .menu button {
   all: unset;
-  color: white;
+  color: var(--color-text);
   font-size: 1rem;
   text-align: left;
-  padding: var(--spacing-xs) var(--spacing-sm);
+  padding: 0.5rem 0.625rem;        /* зручна зона тапа */
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
-  line-height: 1.3;
+  line-height: 1.35;
   font-family: var(--font-body);
   box-sizing: border-box;
 }
 
+/* hover/focus */
 .menu a:hover,
 .menu button:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: var(--color-accent);
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--color-link);
 }
 
+.menu a:focus-visible,
+.menu button:focus-visible {
+  outline: 2px solid var(--color-link);
+  outline-offset: 2px;
+}
+
+/* активний маршрут (NavLink додає aria-current="page") */
+.menu a[aria-current="page"] {
+  color: var(--color-link);
+  font-weight: 600;
+}
+
+/* підменю */
 .submenu {
   display: flex;
   flex-direction: column;
   padding-left: var(--spacing-sm);
   gap: var(--spacing-xs);
   margin-top: var(--spacing-xs);
+  border-left: 1px dashed rgba(255,255,255,0.2);
 }
 
 .submenu a {
   font-size: 0.95rem;
-  color: white;
+  color: var(--color-text);
   padding-left: var(--spacing-sm);
   transition: color 0.2s ease;
 }
 
 .submenu a:hover {
-  color: var(--color-accent);
+  color: var(--color-link);
+}
+
+/* дрібний адаптив — для надто вузьких екранів зробимо ширину впритул */
+@media (max-width: 360px) {
+  .menu {
+    min-width: 200px;
+    right: 0;
+  }
 }

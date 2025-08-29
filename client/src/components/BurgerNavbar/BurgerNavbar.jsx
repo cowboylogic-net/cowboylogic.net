@@ -33,7 +33,7 @@ const BurgerNavbar = () => {
   const isUser = role === ROLES.USER;
 
   // Магазини за ролями
-  const showUserStore = isUser || isAdminOrSuper;     // User + Admin/Super
+  const showUserStore = isUser || isAdminOrSuper; // User + Admin/Super
   const showPartnerStore = isPartner || isAdminOrSuper; // Partner + Admin/Super
 
   useEffect(() => {
@@ -59,84 +59,178 @@ const BurgerNavbar = () => {
 
   return (
     <div className={styles.wrapper} ref={wrapperRef}>
-      <BaseButton variant="outline" size="small" onClick={() => setOpen(!open)}>
+      <BaseButton
+        variant="outline"
+        size="small"
+        onClick={() => setOpen(!open)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+      >
         ☰
       </BaseButton>
 
       {open && (
-        <nav className={styles.menu}>
-          <NavLink to="/" onClick={() => setOpen(false)}>Home</NavLink>
-          <NavLink to="/about" onClick={() => setOpen(false)}>About</NavLink>
+        <>
+          {/* бекдроп для кліку поза меню */}
+          <div
+            className={styles.backdrop}
+            onClick={() => {
+              setOpen(false);
+              setOpenSubmenu(null);
+            }}
+          />
 
-          {/* Cart доступний завжди (як у десктопному меню) */}
-          <NavLink to="/cart" onClick={() => setOpen(false)}>Cart</NavLink>
+          <nav
+            className={styles.menu}
+            role="menu"
+            aria-label="Mobile navigation"
+          >
+            <NavLink to="/" onClick={() => setOpen(false)}>
+              Home
+            </NavLink>
+            <NavLink to="/about" onClick={() => setOpen(false)}>
+              About
+            </NavLink>
 
-          {/* Favorites: лише для залогінених, бо роут приватний */}
-          {user && (
-            <NavLink to="/favorites" onClick={() => setOpen(false)}>Favorites</NavLink>
-          )}
+            {/* Cart доступний завжди */}
+            <NavLink to="/cart" onClick={() => setOpen(false)}>
+              Cart
+            </NavLink>
 
-          <button onClick={() => toggleSubmenu("clstrategies")}>
-            CL Strategies ▾
-          </button>
-          {openSubmenu === "clstrategies" && (
-            <div className={styles.submenu}>
-              <NavLink to="/clstrategies" onClick={() => setOpen(false)}>Overview</NavLink>
-              <NavLink to="/clstrategies/cowboy-college-consulting" onClick={() => setOpen(false)}>Consulting</NavLink>
-              <NavLink to="/clstrategies/cowboy-college-start-up" onClick={() => setOpen(false)}>Start-up</NavLink>
-              <NavLink to="/clstrategies/cowboy-college-leadership" onClick={() => setOpen(false)}>Leadership</NavLink>
-            </div>
-          )}
+            {/* Favorites — тільки для залогінених */}
+            {user && (
+              <NavLink to="/favorites" onClick={() => setOpen(false)}>
+                Favorites
+              </NavLink>
+            )}
 
-          <button onClick={() => toggleSubmenu("clpublishing")}>
-            CL Publishing ▾
-          </button>
-          {openSubmenu === "clpublishing" && (
-            <div className={styles.submenu}>
-              <NavLink to="/clpublishing" onClick={() => setOpen(false)}>Overview</NavLink>
-              <NavLink to="/clpublishing/cowboy-college-pub/author" onClick={() => setOpen(false)}>Author</NavLink>
-              {/* <NavLink to="/clpublishing/b2b-bookstores" onClick={() => setOpen(false)}>B2B Bookstores</NavLink> */}
-            </div>
-          )}
+            <button
+              type="button"
+              onClick={() => toggleSubmenu("clstrategies")}
+              aria-expanded={openSubmenu === "clstrategies"}
+              aria-controls="submenu-clstrategies"
+            >
+              CL Strategies ▾
+            </button>
+            {openSubmenu === "clstrategies" && (
+              <div id="submenu-clstrategies" className={styles.submenu}>
+                <NavLink to="/clstrategies" onClick={() => setOpen(false)}>
+                  Overview
+                </NavLink>
+                <NavLink
+                  to="/clstrategies/cowboy-college-consulting"
+                  onClick={() => setOpen(false)}
+                >
+                  Consulting
+                </NavLink>
+                <NavLink
+                  to="/clstrategies/cowboy-college-start-up"
+                  onClick={() => setOpen(false)}
+                >
+                  Start-up
+                </NavLink>
+                <NavLink
+                  to="/clstrategies/cowboy-college-leadership"
+                  onClick={() => setOpen(false)}
+                >
+                  Leadership
+                </NavLink>
+              </div>
+            )}
 
-          {user ? (
-            <>
-              <NavLink to="/profile" onClick={() => setOpen(false)}>Profile</NavLink>
-              <NavLink to="/orders" onClick={() => setOpen(false)}>Orders</NavLink>
+            <button
+              type="button"
+              onClick={() => toggleSubmenu("clpublishing")}
+              aria-expanded={openSubmenu === "clpublishing"}
+              aria-controls="submenu-clpublishing"
+            >
+              CL Publishing ▾
+            </button>
+            {openSubmenu === "clpublishing" && (
+              <div id="submenu-clpublishing" className={styles.submenu}>
+                <NavLink to="/clpublishing" onClick={() => setOpen(false)}>
+                  Overview
+                </NavLink>
+                <NavLink
+                  to="/clpublishing/cowboy-college-pub/author"
+                  onClick={() => setOpen(false)}
+                >
+                  Author
+                </NavLink>
+                <NavLink
+                  to="/clpublishing/books"
+                  onClick={() => setOpen(false)}
+                >
+                  Books
+                </NavLink>
+              </div>
+            )}
 
-              {/* Магазини за ролями */}
-              {showUserStore && (
-                <NavLink to="/bookstore" onClick={() => setOpen(false)}>Bookstore</NavLink>
-              )}
-              {showPartnerStore && (
-                <NavLink to="/partner-store" onClick={() => setOpen(false)}>Partner Store</NavLink>
-              )}
+            {user ? (
+              <>
+                <NavLink to="/profile" onClick={() => setOpen(false)}>
+                  Profile
+                </NavLink>
+                <NavLink to="/orders" onClick={() => setOpen(false)}>
+                  Orders
+                </NavLink>
 
-              {/* Адмін-секція */}
-              {isAdminOrSuper && (
-                <>
-                  <NavLink to="/admin" onClick={() => setOpen(false)}>Dashboard</NavLink>
-                  <NavLink to="/admin/newsletter" onClick={() => setOpen(false)}>Newsletter</NavLink>
-                  <NavLink to="/admin/users" onClick={() => setOpen(false)}>Users</NavLink>
-                </>
-              )}
+                {/* Магазини за ролями */}
+                {showUserStore && (
+                  <NavLink to="/bookstore" onClick={() => setOpen(false)}>
+                    Bookstore
+                  </NavLink>
+                )}
+                {showPartnerStore && (
+                  <NavLink to="/partner-store" onClick={() => setOpen(false)}>
+                    Partner Store
+                  </NavLink>
+                )}
 
-              <BaseButton variant="outline" size="small" onClick={handleLogout}>
-                Logout
-              </BaseButton>
-            </>
-          ) : (
-            <>
-              {/* Гість бачить Bookstore */}
-              <NavLink to="/bookstore" onClick={() => setOpen(false)}>Bookstore</NavLink>
+                {/* Адмін-секція */}
+                {isAdminOrSuper && (
+                  <>
+                    <NavLink to="/admin" onClick={() => setOpen(false)}>
+                      Dashboard
+                    </NavLink>
+                    <NavLink
+                      to="/admin/newsletter"
+                      onClick={() => setOpen(false)}
+                    >
+                      Newsletter
+                    </NavLink>
+                    <NavLink to="/admin/users" onClick={() => setOpen(false)}>
+                      Users
+                    </NavLink>
+                  </>
+                )}
 
-              <NavLink to="/login" onClick={() => setOpen(false)}>Login</NavLink>
-              <NavLink to="/register" onClick={() => setOpen(false)}>Register</NavLink>
-            </>
-          )}
+                <BaseButton
+                  variant="outline"
+                  size="small"
+                  onClick={handleLogout}
+                >
+                  Logout
+                </BaseButton>
+              </>
+            ) : (
+              <>
+                {/* Гість бачить Bookstore */}
+                <NavLink to="/bookstore" onClick={() => setOpen(false)}>
+                  Bookstore
+                </NavLink>
+                <NavLink to="/login" onClick={() => setOpen(false)}>
+                  Login
+                </NavLink>
+                <NavLink to="/register" onClick={() => setOpen(false)}>
+                  Register
+                </NavLink>
+              </>
+            )}
 
-          <LanguageSwitcher />
-        </nav>
+            <LanguageSwitcher />
+          </nav>
+        </>
       )}
     </div>
   );

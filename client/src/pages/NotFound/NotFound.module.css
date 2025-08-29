@@ -2,18 +2,31 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 3rem;
-  color: white;
+  padding: var(--spacing-xl);
+  color: var(--color-text);
   text-align: center;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  backdrop-filter: blur(4px);
+  max-width: 720px;
+  margin: var(--spacing-xl) auto;
 }
 
 .container h1 {
-  font-size: 6rem;
-  margin-bottom: 1rem;
+  font-size: 4rem;
+  margin-bottom: 0.5rem;
   color: var(--color-accent);
 }
 
 .container p {
-  font-size: 1.2rem;
-  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  margin-bottom: var(--spacing-lg);
+}
+
+/* 📱 */
+@media (max-width: 480px) {
+  .container h1 {
+    font-size: 3rem;
+  }
 }

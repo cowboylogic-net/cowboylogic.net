@@ -133,9 +133,11 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
         formData.append("image", file);
 
         const apiBase = getApiBase();
+        const joinUrl = (base, path) =>
+          `${base.replace(/\/+$/, "")}/${String(path).replace(/^\/+/, "")}`;
         const endpoint = apiBase
-          ? `${apiBase}/images/upload`
-          : `/images/upload`;
+          ? joinUrl(apiBase, "/images/upload")
+          : "/images/upload";
 
         const res = await fetch(endpoint, {
           method: "POST",
@@ -151,8 +153,19 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
           throw new Error(`Upload failed ${res.status}. ${txt || "No body"}`);
         }
 
-        const json = await res.json();
-        imageUrl = json?.data?.imageUrl || json?.imageUrl;
+        const json = await res.json().catch(() => ({}));
+
+        imageUrl =
+          json?.data?.imageUrl ||
+          json?.imageUrl ||
+          json?.data?.url ||
+          json?.url ||
+          json?.path ||
+          "";
+
+        if (!imageUrl) {
+          throw new Error("Upload response has no image URL");
+        }
 
         // якщо бек повернув відносний шлях — добудовуємо лише коли є apiBase
         if (imageUrl && !/^https?:\/\//i.test(imageUrl) && apiBase) {
@@ -167,8 +180,9 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
         restoreSelection();
         const w = Number(width) ? ` width:${Number(width)}px;` : "";
         const h = Number(height) ? ` height:${Number(height)}px;` : "";
-        const imgTag = `<img src="${imageUrl}" style="max-width:100%;${w}${h}" />`;
+        const imgTag = `<img src="${imageUrl}" alt="" style="max-width:100%;${w}${h}" />`;
         runCmd("insertHTML", imgTag);
+
         return true;
       }
     } catch (err) {

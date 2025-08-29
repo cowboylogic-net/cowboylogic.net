@@ -9,9 +9,7 @@
 }
 
 .main {
-  width: 100%;
-  max-width: var(--max-width-container);
-  margin: 0 auto;
-  padding: 0;
   flex: 1;
+  width: 100%;
+  /* без max-width / margin — цим керує .layoutContainer */
 }

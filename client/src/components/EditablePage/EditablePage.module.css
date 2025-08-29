@@ -32,6 +32,32 @@
   align-items: center;
 }
 
+.editingArea a {
+  color: #1b1b1b;
+  text-decoration: underline;
+}
+
+
+/* керування фоном через пропс */
+.bgWhite { background:#fff; color: var(--color-dark); }
+.bgTransparent { background: transparent; color: var(--color-text); border-color: var(--color-border); }
+
+/* Плейсхолдер у порожньому contentEditable */
+.editingArea:empty:before {
+  content: attr(data-placeholder);
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
+/* ✨ ВИКОРИСТОВУЄТЬСЯ У JSX */
+.preview {
+  background: transparent;
+  color: var(--color-text);
+  padding: 0;
+  border: none;
+  box-sizing: border-box;
+}
+
+
 .editable {
   width: 100%;
   font-size: 1rem;
@@ -84,6 +110,17 @@
   border-radius: var(--radius-sm);
   margin-bottom: var(--spacing-md);
   font-size: 0.9rem;
+}
+
+:global(.editableContent img){max-width:100%;height:auto}
+:global(.editableContent table){
+  border-collapse: collapse;
+  max-width: 100%;
+}
+:global(.editableContent th),
+:global(.editableContent td){
+  border:1px solid var(--color-border);
+  padding: .5rem;
 }
 
 /* ========== MEDIA QUERIES ========== */

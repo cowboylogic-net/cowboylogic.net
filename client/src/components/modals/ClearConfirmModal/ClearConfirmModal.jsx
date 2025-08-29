@@ -6,8 +6,13 @@ const ClearConfirmModal = ({ onConfirm, onClose }) => {
   const { t } = useTranslation();
 
   return (
-    <div className={styles.overlay}>
-      <div className={styles.modal}>
+    <div className={styles.overlay} onClick={onClose}>
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>{t("modals.clearAllTitle")}</h3>
         <p>{t("modals.clearAllMessage")}</p>
         <div className={styles.actions}>

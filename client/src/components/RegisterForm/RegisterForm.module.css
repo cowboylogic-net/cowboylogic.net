@@ -19,6 +19,7 @@
   margin-top: 0.2rem;
   color:var(--color-text);
   font-family: var(--font-body);
+  word-break: break-word;
 }
 .error {
   color: var(--color-error);

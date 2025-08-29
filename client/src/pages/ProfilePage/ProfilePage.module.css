@@ -21,7 +21,7 @@
   font-size: 2.2rem;
   line-height: 1.2;
   font-weight: 800;
-  color: var(--color-headings);
+  color: var(--color-titles);
   text-align: center;
   margin: 0 0 1.25rem 0;
 }
@@ -37,7 +37,7 @@
 .subtitle {
   font-size: 1.15rem;
   font-weight: 700;
-  color: var(--color-headings);
+  color: var(--color-titles);
   margin: 0 0 0.75rem 0;
   text-align: left;
 }
@@ -53,7 +53,7 @@
 
 .label {
   font-weight: 700;
-  color: var(--color-headings);
+  color: var(--color-titles);
   text-align: left;
 }
 
@@ -106,12 +106,14 @@
 
 /* посилання у рядку (Favorites) */
 .row a {
-  color: var(--color-text);
+  color: var(--color-accent);
   text-decoration: none;
 }
+
 .row a:hover,
 .row a:focus {
   color: var(--color-inner-buttons);
+  text-decoration: underline;
 }
 
 /* мобільна адаптація */

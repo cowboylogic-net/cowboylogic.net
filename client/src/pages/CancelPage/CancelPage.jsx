@@ -4,6 +4,7 @@ import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { showNotification } from "../../store/slices/notificationSlice";
 import styles from "./CancelPage.module.css";
+import BaseButton from "../../components/BaseButton/BaseButton";
 
 const CancelPage = () => {
   const dispatch = useDispatch();
@@ -43,13 +44,13 @@ const CancelPage = () => {
       <div className={styles.centered}>
         <h2>❌ {t("cancel.title")}</h2>
         <p>
-          {t("cancel.description")}{" "}
+          {t("cancel.description")}
           <br />
           <strong>{t("cancel.redirectInfo")}</strong>
         </p>
 
-        <Link to="/cart" className="btn btn-outline">
-          {t("cancel.button")}
+        <Link to="/cart">
+          <BaseButton variant="outline">{t("cancel.button")}</BaseButton>
         </Link>
       </div>
     </div>

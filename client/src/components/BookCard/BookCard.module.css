@@ -1,5 +1,4 @@
 .card {
-  
   display: flex;
   flex-direction: row;
   align-items: stretch;
@@ -15,28 +14,78 @@
   transition: box-shadow var(--transition-fast);
   width: 100%;
   max-width: 100%;
-  min-height: 260px; /* 👈 додає однакову висоту */
+  min-height: 260px;
 }
 
-.partnerControls {
+.card:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+}
+
+/* обкладинка */
+.imageWrapper {
+  flex-shrink: 0;
+  width: 160px;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.3rem;
-  flex-wrap: nowrap; /* 🔒 не переносити на новий рядок */
+  justify-content: center;
+  border-radius: var(--radius-md);
+}
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 }
 
-.partnerInput {
-  width: 50px; /* 🔽 ще менше */
-  padding: var(--spacing-sm) var(--spacing-md);
-  font-size: 1rem;
-  text-align: center;
-  border: 1px solid var(--color-light);
-  border-radius: var(--radius-sm);
-  background-color: var(--color-white);
-  color: var(--color-dark);
+/* контент */
+.info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  gap: var(--spacing-xs);
 }
 
+/* заголовок + favorites в одному рядку */
+.headerRow {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* службові ряди тягнемо на всю ширину */
+.headerRow,
+.ctaRow,
+.adminButtons {
+  width: 100%;
+  align-self: stretch;
+}
+
+/* 🔧 гарантія, що іконка стане праворуч навіть якщо headerRow не розтягнеться */
+.favWrap {
+  flex: 0 0 auto;
+  margin-left: auto;
+}
+
+.titleLink {
+  text-decoration: none;
+  color: inherit;
+}
+.cardTitle {
+  font-size: var(--font-lg);
+  font-weight: 700;
+  color: var(--color-white);
+  margin: 0 0 var(--spacing-xs);
+}
+
+.cardText {
+  font-size: var(--font-sm);
+  color: var(--color-light-text);
+}
 
 .cardNote {
   font-size: var(--font-xs);
@@ -45,133 +94,132 @@
   margin-top: 0.25rem;
 }
 
-
-
-.card:hover {
-  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-}
-.imageWrapper {
-  flex-shrink: 0;
-  width: 160px;
-  aspect-ratio: 3 / 4; 
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-md);
- 
-}
-
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: inherit;
-}
-
-
-
-
-.info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  position: relative;
-  min-height: 220px; /* 👈 стабілізує висоту */
-}
-
-.titleLink {
-  text-decoration: none;
-  color: inherit;
-}
-
-.cardTitle {
-  font-size: var(--font-lg);
-  font-weight: 700;
-  color: var(--color-white);
-  margin-bottom: var(--spacing-xs);
-}
-
-.cardText {
-  font-size: var(--font-sm);
-  color: var(--color-light-text);
-}
-
-.actionRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-top: var(--spacing-md);
-  min-height: 40px;
-  position: relative;
-}
-
-.topRight {
-  position: absolute;
-  top: var(--spacing-sm);
-  right: var(--spacing-sm);
-  z-index: 2;
-}
-
-.bottomRight {
-  position: absolute;
-  bottom: var(--spacing-sm);
-  right: var(--spacing-sm);
-  z-index: 2;
-}
-
-.adminButtons {
-  display: flex;
-  gap: var(--spacing-xs);
-  flex-wrap: wrap;
-}
 .outOfStock {
   color: var(--color-red);
   font-weight: 500;
 }
 
-/* === TABLET & MOBILE === */
+/* адмін-кнопки — ПРАВОРУЧ за замовчуванням */
+.adminButtons {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: flex-end; /* ⬅️ було center */
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: var(--spacing-sm);
+}
+
+/* CTA-зона внизу — ПРАВОРУЧ + фікс від “стрибків” */
+.ctaRow {
+  margin-top: auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: var(--spacing-sm);
+  min-height: 40px; /* ⬅️ резерв місця під кнопку */
+}
+
+/* партнёрський інпут + кнопка */
+.partnerControls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
+
+@supports (width: 56px) {
+  .partnerInput {
+    width: 56px !important;
+  }
+}
+
+.partnerInput {
+  width: 56px;
+  max-width: 80px;
+  padding: var(--spacing-sm);
+  font-size: 1rem;
+  text-align: center;
+  border: 1px solid var(--color-light);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-white);
+  color: var(--color-dark);
+  height: 38px; /* близько до висоти кнопки */
+  box-sizing: border-box;
+}
+
+.partnerControls > button {
+  flex: 0 0 auto;
+  white-space: nowrap;
+  min-width: 120px; /* достатньо для "Add to cart" */
+}
+
+/* input теж фіксований, щоб не тиснув кнопку */
+.partnerControls > input {
+  flex: 0 0 auto;
+}
+/* + ДО ДІЮЧОГО CSS */
+.adminButtons {
+  min-height: 36px;
+} /* резерв місця під 2 маленькі кнопки */
+.headerRow {
+  min-height: 28px;
+} /* дрібний резерв під заголовок+серце */
+
+/* адаптив */
 @media (max-width: 1024px) {
   .card {
     flex-direction: column;
     align-items: center;
     text-align: center;
-    min-height: auto; /* мобайл може бути гнучкішим */
-  }
-
-  .image {
-    width: 100%;
-    max-height: 300px;
+    min-height: auto;
   }
 
   .info {
     width: 100%;
     align-items: center;
-    max-width: 100%;
+    gap: var(--spacing-sm);
   }
 
-  .actionRow {
-    flex-direction: column;
+  .headerRow {
+    width: 100%;
     align-items: center;
   }
 
-  .bottomRight {
-    position: static;
-    margin-top: var(--spacing-sm);
+  .adminButtons {
+    justify-content: center; /* мобільний — по центру */
   }
 
-  .topRight {
-    top: var(--spacing-xs);
-    right: var(--spacing-xs);
+  .headerRow,
+  .ctaRow,
+  .adminButtons {
+    width: 100%;
+    align-self: stretch;
+  }
+
+  .headerRow {
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .ctaRow {
+    justify-content: center; /* мобільний — по центру */
+    flex-wrap: wrap;
   }
 }
 
-/* === DESKTOP === */
 @media (min-width: 1025px) {
   .info {
-    max-width: calc(100% - 240px); /* залишити місце під картинку + gap */
     align-items: flex-start;
     text-align: left;
+    max-width: calc(100% - 240px); /* місце під картинку + gap */
+  }
+}
+@media (max-width: 480px) {
+  .partnerControls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .partnerControls > button {
+    min-width: 0;
+    width: 100%;
   }
 }

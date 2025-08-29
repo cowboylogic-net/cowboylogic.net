@@ -13,7 +13,9 @@ const AdminLayout = () => {
       <Navbar /> {/* 👈 Вставляємо сюди */}
       <Notification />
       <main className={styles.main}>
-        <Outlet />
+        <div className="layoutContainer">
+          <Outlet />
+        </div>
       </main>
     </div>
   );

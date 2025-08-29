@@ -11,12 +11,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--spacing-lg);
+  font-family: var(--font-body);
 }
 
 .ordersPage h2 {
-  font-size: var(--font-xxl);
+  font-size: 2rem;
   font-weight: bold;
   color: var(--color-text);
+  text-align: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.controlsRow {
+  display: flex;
+  justify-content: flex-start;
+  gap: var(--spacing-md);
 }
 
 .error {
@@ -25,49 +34,136 @@
   margin-bottom: var(--spacing-md);
 }
 
+.empty {
+  text-align: center;
+  opacity: 0.9;
+}
+
+/* === Картка одного замовлення (окремий фон як у CartItem) === */
 .orderCard {
-  
+  background: var(--color-bg-light);
   border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-lg);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
   box-shadow: var(--shadow-card);
-}
-
-.orderCard h4 {
-  font-size: var(--font-lg);
-  font-weight: 600;
-  margin-bottom: var(--spacing-sm);
   color: var(--color-text);
 }
 
+/* Заголовок + статус */
+.headerRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-xs);
+}
+
+.orderId {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.statusBadge {
+  padding: 0.3rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  line-height: 1;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  text-transform: capitalize;
+}
+
+/* Візуальні відтінки статусів */
+.status_pending {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffd27a;
+  border-color: rgba(255, 193, 7, 0.35);
+}
+
+.status_completed {
+  background: rgba(40, 167, 69, 0.15);
+  color: #9be0b1;
+  border-color: rgba(40, 167, 69, 0.35);
+}
+
+/* Клієнт (для адміна) */
+.customer {
+  margin: 0;
+}
+
+/* Разом */
+.metaRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--spacing-xs);
+}
+
+.total {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* Доставка */
+.shipBlock {
+  margin-top: var(--spacing-sm);
+  padding-top: var(--spacing-sm);
+  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+}
+
+.shipBlock h5 {
+  margin: 0 0 var(--spacing-xs);
+  font-size: 1rem;
+  color: var(--color-text);
+}
+
+.shipLine {
+  margin: 0;
+}
+
+/* Товари */
 .orderList {
   list-style: none;
   padding-left: 0;
-  margin: var(--spacing-sm) 0;
+  margin: var(--spacing-sm) 0 0;
   display: flex;
   flex-direction: column;
   gap: var(--spacing-xs);
 }
 
-.orderList li {
+.orderItem {
   font-size: var(--font-md);
   color: var(--color-text);
 }
 
-.selectWrapper {
-  max-width: 260px;
-  width: 100%;
+/* Дії адміна */
+.adminRow {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  margin-top: var(--spacing-md);
 }
 
+/* Адаптація під мобільні */
 @media (max-width: 768px) {
-  .orderCard {
-    font-size: var(--font-sm);
+  .ordersPage {
+    padding: var(--spacing-lg);
   }
 
-  .selectWrapper {
-    max-width: 100%;
+  .headerRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  .metaRow {
+    justify-content: flex-start;
+  }
+
+  .adminRow {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

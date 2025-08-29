@@ -26,7 +26,9 @@ const Layout = () => {
       <Navbar />
       <Notification />
       <main className={styles.main}>
-        <Outlet />
+        <div className="layoutContainer">
+          <Outlet />
+        </div>
       </main>
       <Footer />
     </div>

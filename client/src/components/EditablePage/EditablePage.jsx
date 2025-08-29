@@ -27,7 +27,7 @@ import {
   selectPageFetching,
 } from "../../store/selectors/pageSelectors";
 
-const EditablePage = ({ slug, title }) => {
+const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
@@ -47,6 +47,26 @@ const EditablePage = ({ slug, title }) => {
   const [showConfirm, setShowConfirm] = useState(false);
   const editorRef = useRef(null);
   const debouncedSaveRef = useRef(null);
+
+  const enforceAnchorTargets = useCallback((html) => {
+    if (!html) return html;
+    try {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+      doc.body.querySelectorAll("a[href]").forEach((a) => {
+        const href = (a.getAttribute("href") || "").trim();
+        if (!href || /^javascript:/i.test(href)) {
+          const txt = a.textContent || "";
+          a.replaceWith(doc.createTextNode(txt));
+          return;
+        }
+        a.setAttribute("target", "_blank");
+        a.setAttribute("rel", "noopener noreferrer");
+      });
+      return doc.body.innerHTML;
+    } catch {
+      return html;
+    }
+  }, []);
 
   const normalizeUploadsInHtml = (html) => {
     if (!html) return html;
@@ -78,17 +98,19 @@ const EditablePage = ({ slug, title }) => {
   }, [draft, published, isEditing]);
 
   const handleSaveDraft = useCallback(async () => {
-    const cleanContent = DOMPurify.sanitize(localContent);
+    const cleanContent = DOMPurify.sanitize(
+      enforceAnchorTargets(localContent),
+      { ADD_ATTR: ["style", "target", "rel"] }
+    );
     try {
       await dispatch(
         saveDraftContent({ slug, content: cleanContent })
       ).unwrap();
-      // успішно збережено — фіксуємо "опорне" значення
       lastSavedRef.current = cleanContent;
     } catch (err) {
       console.error("Draft save failed:", err);
     }
-  }, [dispatch, localContent, slug]);
+  }, [dispatch, localContent, slug, enforceAnchorTargets]);
 
   useEffect(() => {
     debouncedSaveRef.current = debounce((content) => {
@@ -109,11 +131,12 @@ const EditablePage = ({ slug, title }) => {
       editorRef.current
     ) {
       editorRef.current.innerHTML = DOMPurify.sanitize(
-        normalizeUploadsInHtml(localContent)
+        enforceAnchorTargets(normalizeUploadsInHtml(localContent)),
+        { ADD_ATTR: ["style", "target", "rel"] }
       );
     }
     prevPreviewRef.current = isPreviewing;
-  }, [isEditing, isPreviewing, localContent]);
+  }, [isEditing, isPreviewing, localContent, enforceAnchorTargets]);
 
   useEffect(() => {
     const hasUnsavedChanges =
@@ -133,7 +156,9 @@ const EditablePage = ({ slug, title }) => {
   const execCmd = (command, value = null) => {
     document.execCommand(command, false, value);
     if (editorRef.current) {
-      setLocalContent(editorRef.current.innerHTML);
+      const html = editorRef.current.innerHTML;
+      setLocalContent(html);
+      debouncedSaveRef.current?.(html);
     }
   };
 
@@ -147,7 +172,11 @@ const EditablePage = ({ slug, title }) => {
   };
 
   const handleSave = async () => {
-    const cleanContent = DOMPurify.sanitize(localContent);
+    const cleanContent = DOMPurify.sanitize(
+      enforceAnchorTargets(localContent),
+      { ADD_ATTR: ["style", "target", "rel"] }
+    );
+
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = cleanContent;
 
@@ -196,7 +225,8 @@ const EditablePage = ({ slug, title }) => {
     setTimeout(() => {
       if (editorRef.current) {
         editorRef.current.innerHTML = DOMPurify.sanitize(
-          normalizeUploadsInHtml(base)
+          enforceAnchorTargets(normalizeUploadsInHtml(base)),
+          { ADD_ATTR: ["style", "target", "rel"] }
         );
       }
     }, 0);
@@ -229,7 +259,10 @@ const EditablePage = ({ slug, title }) => {
     setIsPreviewing(false);
     setLocalContent(lastPublished);
     if (editorRef.current) {
-      editorRef.current.innerHTML = DOMPurify.sanitize(lastPublished || "");
+      editorRef.current.innerHTML = DOMPurify.sanitize(
+        enforceAnchorTargets(lastPublished || ""),
+        { ADD_ATTR: ["style", "target", "rel"] }
+      );
     }
     dispatch(saveDraftContent({ slug, content: published || "" }));
     lastSavedRef.current = published || "";
@@ -288,6 +321,20 @@ const EditablePage = ({ slug, title }) => {
         const parent = el.parentNode;
         while (el.firstChild) parent.insertBefore(el.firstChild, el);
         parent.removeChild(el);
+      });
+
+      // після doc = new DOMParser()...
+      doc.body.querySelectorAll("a").forEach((a) => {
+        const href = (a.getAttribute("href") || "").trim();
+        if (!href || /^javascript:/i.test(href)) {
+          const txt = a.textContent || "";
+          a.replaceWith(doc.createTextNode(txt));
+        } else {
+          a.setAttribute("target", "_blank");
+          a.setAttribute("rel", "noopener noreferrer");
+          // прибираємо inline-колір, щоб у редакторі було чорним за CSS
+          a.style && a.style.removeProperty("color");
+        }
       });
 
       // 2) Прибрати очевидно небезпечне
@@ -473,10 +520,13 @@ const EditablePage = ({ slug, title }) => {
         {isEditing && !isPreviewing ? (
           <div
             ref={editorRef}
-            className={`${styles.editable} ${styles.editingArea}`}
+            className={`${styles.editable} ${styles.editingArea} ${
+              whiteBackground ? styles.bgWhite : styles.bgTransparent
+            }`}
             contentEditable
             suppressContentEditableWarning
             onPaste={handlePaste}
+            data-placeholder={placeholder || ""}
             style={{
               whiteSpace: "pre-wrap",
               wordBreak: "break-word",
@@ -495,7 +545,10 @@ const EditablePage = ({ slug, title }) => {
           <div
             className={`editableContent ${styles.preview}`}
             dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(normalizeUploadsInHtml(localContent)),
+              __html: DOMPurify.sanitize(
+                enforceAnchorTargets(normalizeUploadsInHtml(localContent)),
+                { ADD_ATTR: ["style", "target", "rel"] }
+              ),
             }}
           />
         )}

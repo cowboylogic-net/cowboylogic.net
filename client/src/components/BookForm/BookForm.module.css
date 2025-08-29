@@ -10,7 +10,7 @@
   box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
   box-sizing: border-box;
   text-align: center;
-  font-family: var(--font-family-body);
+  font-family: var(--font-body);
 }
 
 .bookForm h2 {
@@ -19,7 +19,21 @@
   color: #fff6e6;
 }
 
-/* Видалено .bookForm form input/textarea — тепер їх стилізує Base-компонент */
+/* Центруємо сам контейнер FormGroup (має max-width у своєму модулі) */
+.group {
+  margin-inline: auto;
+}
+
+/* Preview */
+.preview {
+  margin: 0.75rem 0 0.5rem;
+}
+
+.previewTitle {
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
 
 .previewImage {
   max-width: 200px;
@@ -29,8 +43,28 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
-.buttonWrapper {
+/* Buttons centering (BaseForm -> align-items: stretch) */
+.actionsTop,
+.actions {
   display: flex;
   justify-content: center;
+  width: 100%;
 }
 
+.centerButton {
+  align-self: center;
+}
+
+/* Errors coming from component logic */
+.error {
+  color: var(--color-error);
+  font-size: 0.9rem;
+  margin: 0.5rem 0 0;
+  text-align: center;
+}
+.checkboxCenter {
+  align-self: center;      /* перекриває align-items: stretch у BaseForm */
+  justify-content: center; /* вирівнює вміст самого label (wrapper) */
+  gap: var(--spacing-xs);
+  margin: 0.5rem 0;
+}

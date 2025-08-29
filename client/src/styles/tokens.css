@@ -1,3 +1,6 @@
+/* 
+==========token.css========== */
+
 :root {
   /* Fonts */
   --font-body: "PlayfairDisplay-VariableFont_wght", serif;
@@ -15,7 +18,7 @@
   --color-light-grey: #555;
 
   /* Accent / Brand */
-  --color-brown: #5a2d0c;
+  --color-brown: #e5cfc0ff;
   --color-inner-buttons: #8b4513;
   --color-link: #5d5fef;
   --color-border: var(--color-brown);
@@ -29,6 +32,8 @@
   --color-bg-header: rgba(27, 18, 10, 0.8);
   --overlay-bg: rgba(0, 0, 0, 0.7);
   --overlay-blur: blur(4px);
+  --color-border-light: rgba(255, 255, 255, 0.15);
+  --color-accent:  #ffffff;/* використовується в hover/checkbox */
 
   /* Radius */
   --radius-sm: 4px;
@@ -55,32 +60,33 @@
   --breakpoint-md: 1024px;
   --breakpoint-lg: 1440px;
 
- 
   --color-toast-success: #2ecc71;
   --color-toast-error: #e74c3c;
   --color-toast-info: #3498db;
   --color-toast-warning: #f39c12;
 
-
+  --color-titles: var(--color-text);
+  --color-bg-light: #2b2b2b;
   /* Font sizes used in cards/buttons */
- --font-xs: 0.8rem;
- --font-sm: 0.95rem;
- --font-lg: 1.125rem;
+  --font-xs: 0.8rem;
+  --font-sm: 0.95rem;
+  --font-lg: 1.125rem;
+  --font-md: 1rem;
 
- /* Extra colors used in BookCard/BaseButton */
- --color-accent-light: #ffd9a8;
- --color-light-text: #e6e6e6;
- --color-light: #ddd;
- --color-red: #e74c3c;
+  /* Extra colors used in BookCard/BaseButton */
+  --color-accent-light: #ffd9a8;
+  --color-light-text: #e6e6e6;
+  --color-light: #ddd;
+  --color-red: #e74c3c;
 }
 
- /* Themes */
-  [data-theme="dark"] {
-    --color-bg: #000;
-    --color-text: #fff;
-  }
+/* Themes */
+[data-theme="dark"] {
+  --color-bg: #000;
+  --color-text: #fff;
+}
 
-  [data-theme="light"] {
-    --color-bg: #fff;
-    --color-text: #000;
-  }
+[data-theme="light"] {
+  --color-bg: #fff;
+  --color-text: #000;
+}

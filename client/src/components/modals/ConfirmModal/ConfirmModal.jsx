@@ -1,4 +1,3 @@
-
 import styles from "./ConfirmModal.module.css";
 import BaseButton from "../../BaseButton/BaseButton";
 import { useTranslation } from "react-i18next";
@@ -10,6 +9,8 @@ const ConfirmModal = ({ onConfirm, onClose, title, message }) => {
     <div className={styles.overlay} onClick={onClose}>
       <div
         className={styles.modal}
+        role="dialog"
+        aria-modal="true"
         onClick={(e) => e.stopPropagation()} // prevent modal close when clicking inside
       >
         <h3>{title || t("confirm.title")}</h3>

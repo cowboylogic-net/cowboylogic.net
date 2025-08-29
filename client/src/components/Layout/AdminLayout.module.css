@@ -3,14 +3,12 @@
   display: grid;
   grid-template-rows: auto auto 1fr;
   min-height: 100vh;
-    background-color: transparent; 
+  background-color: transparent;
 }
 
 .main {
-  padding: var(--spacing-lg);
+  padding: var(--spacing-lg) 0; /* вертикальні паддинги, горизонтальні дає layoutContainer */
   width: 100%;
-  max-width: var(--max-width-container);
-  margin: 0 auto;
 }
 .navbarWrapper {
   display: none;

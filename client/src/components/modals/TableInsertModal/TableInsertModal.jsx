@@ -27,7 +27,12 @@ const TableInsertModal = ({ onInsert, onClose }) => {
 
   return (
     <div className={styles.overlay} onClick={onClose}>
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>{t("modals.insertTableTitle")}</h3>
         <BaseForm onSubmit={handleSubmit}>
           <FormGroup label={t("modals.rows")}>
