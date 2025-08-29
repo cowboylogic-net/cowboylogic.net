@@ -1,5 +1,5 @@
 import express from "express";
-import { protect, isSuperAdmin } from "../middleware/authMiddleware.js";
+import { protect, isAdminOrSuperAdmin } from "../middleware/authMiddleware.js";
 import userController from "../controllers/userController.js";
 import logSuperAdminAccess from "../middleware/logSuperAdminAccess.js";
 import { validateBody } from "../middleware/validateBody.js";
@@ -10,7 +10,7 @@ import { idParamSchema } from "../schemas/paramsSchemas.js";
 const router = express.Router();
 
 // 🔐 Спершу захист, потім логування
-router.use(protect, isSuperAdmin, logSuperAdminAccess);
+router.use(protect, isAdminOrSuperAdmin, logSuperAdminAccess);
 
 router.get("/", userController.getAllUsers);
 

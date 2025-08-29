@@ -435,5 +435,16 @@
     "isPartner": "I am a business partner",
     "address2": "Address Line 2",
     "terms": "I agree to the Terms and Privacy Policy"
+  },
+  "routes": {
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "bookstore": "Book Store",
+    "favorites": "Favorites",
+    "partnerStore": "Partner Store",
+    "clPublishing": "CL Publishing",
+    "clStrategies": "CL Strategies",
+    "search": "Search"
   }
 }
