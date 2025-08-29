@@ -65,8 +65,9 @@ app.use(cors({
   origin: true,
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "Cache-Control", "X-Requested-With", "ngrok-skip-browser-warning"],
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS","HEAD"],
 }));
+
 
 app.use(cookieParser());
 app.use(morgan("dev"));
