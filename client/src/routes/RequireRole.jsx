@@ -1,20 +1,21 @@
-// src/routes/RequireRole.jsx
+// routes/RequireRole.jsx
 import { Navigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import Loader from "../components/Loader/Loader";
 
-const RequireRole = ({ role, roles, redirectTo = "/403", children }) => {
-  const { user, isLoading } = useSelector((state) => state.auth);
+const RequireRole = ({ roles = [], redirectTo = "/403", children }) => {
+  const { user, token, isLoading } = useSelector((s) => s.auth);
 
-  if (isLoading || !user) return <Loader />;
+  const isAuthBooting = isLoading || (!!token && !user);
+  if (isAuthBooting) return <Loader />;
 
-  const hasRole = role
-    ? user.role === role
-    : roles
-    ? roles.includes(user.role)
-    : true;
+  if (!user) return <Navigate to="/login" replace />;
 
-  if (!hasRole) return <Navigate to={redirectTo} replace />;
+  if (roles.length) {
+    const isSA = user.role === "superAdmin" || user.isSuperAdmin === true;
+    const allowed = isSA || roles.includes(user.role);
+    if (!allowed) return <Navigate to={redirectTo} replace />;
+  }
 
   return children;
 };
