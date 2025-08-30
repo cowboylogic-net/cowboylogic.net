@@ -2,13 +2,13 @@
 import styles from "./AdminDashboard.module.css";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import RequireRole from "../../routes/RequireRole";
+
 
 const AdminDashboard = () => {
   const { t } = useTranslation();
 
   return (
-    <RequireRole roles={["admin", "superadmin"]}>
+
       <div className="layoutContainer">
         <div className={styles.adminDashboard}>
           <h2>{t("admin.dashboardTitle")}</h2>
@@ -25,7 +25,7 @@ const AdminDashboard = () => {
           </ul>
         </div>
       </div>
-    </RequireRole>
+
   );
 };
 
