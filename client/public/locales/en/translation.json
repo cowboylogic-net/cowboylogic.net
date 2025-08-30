@@ -133,7 +133,7 @@
     "cart": "Cart",
     "orders": "My Orders",
     "profile": "My Profile",
-    "welcome": "Welcome, {{email}}",
+    "welcome": "Welcome, {{name}}",
     "logout": "Logout",
     "login": "Login",
     "register": "Register"
@@ -246,7 +246,6 @@
     "button": "Update Password",
     "success": "Password updated successfully. You’ll be logged out shortly.",
     "error": "Failed to update password. Please try again."
-    
   },
 
   "admin": {

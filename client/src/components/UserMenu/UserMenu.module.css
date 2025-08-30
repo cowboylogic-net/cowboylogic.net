@@ -1,8 +1,8 @@
 .userEmail {
-  font-size: 0.9rem;
-  color: white;
-  white-space: nowrap;
+  max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 200px;
+  white-space: nowrap;
+  display: inline-block;
+  margin: 0 var(--spacing-sm);
 }

@@ -1,3 +1,4 @@
+// components/UserMenu/UserMenu.jsx
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { logoutUser } from "../../store/thunks/authThunks";
@@ -16,14 +17,19 @@ const UserMenu = () => {
     dispatch(logoutUser());
   };
 
+  // 👇 Обчислюємо ім’я
+  const firstName =
+    (user?.fullName?.trim()?.split(/\s+/)[0]) ||
+    (user?.name?.trim()?.split(/\s+/)[0]) ||
+    (user?.email?.split("@")[0]) ||
+    "";
+
   return (
     <>
       {user ? (
         <>
           <Link to="/cart">
-            <BaseButton variant="outline">{`🛒 ${t(
-              "userMenu.cart"
-            )}`}</BaseButton>
+            <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>
           </Link>
           <Link to="/orders">
             <BaseButton variant="outline">{t("userMenu.orders")}</BaseButton>
@@ -31,9 +37,12 @@ const UserMenu = () => {
           <Link to="/profile">
             <BaseButton variant="outline">{t("userMenu.profile")}</BaseButton>
           </Link>
-          <span className={styles.userEmail}>
-            {t("userMenu.welcome", { email: user.email })}
+
+          {/* ⬇️ було: welcome з { email } */}
+          <span className={styles.userEmail /* можна перейменувати на userName */}>
+            {t("userMenu.welcome", { name: firstName })}
           </span>
+
           <BaseButton variant="outline" onClick={handleLogout}>
             {t("userMenu.logout")}
           </BaseButton>
@@ -41,9 +50,7 @@ const UserMenu = () => {
       ) : (
         <>
           <Link to="/cart">
-            <BaseButton variant="outline">{`🛒 ${t(
-              "userMenu.cart"
-            )}`}</BaseButton>
+            <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>
           </Link>
           <Link to="/login">
             <BaseButton variant="outline">{t("userMenu.login")}</BaseButton>
