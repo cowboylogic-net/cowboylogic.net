@@ -1,7 +1,9 @@
 import styles from "./App.module.css";
 import { Routes, Route } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useRef } from "react";
 import clsx from "clsx";
+import { useDispatch } from "react-redux";
+import { refreshSession, fetchCurrentUser } from "./store/thunks/authThunks";
 
 import Loader from "./components/Loader/Loader";
 import Layout from "./components/Layout/Layout";
@@ -66,6 +68,23 @@ const UserManagement = lazy(() => import("./pages/Admin/UserManagement"));
 const Newsletter = lazy(() => import("./pages/Admin/Newsletter"));
 
 const App = () => {
+  const dispatch = useDispatch();
+  const bootstrapped = useRef(false);
+  useEffect(() => {
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
+
+    (async () => {
+      try {
+        // 1) пробуємо оновити access за httpOnly refresh-cookie
+        const token = await dispatch(refreshSession()).unwrap();
+        // 2) якщо вийшло — тягнемо /auth/me без 401 у консолі
+        if (token) await dispatch(fetchCurrentUser({ silent: true }));
+      } catch {
+        // гість — нічого не робимо і ніяких нотифікацій
+      }
+    })();
+  }, [dispatch]);
   return (
     <div className={clsx(styles.container, "app-layout")}>
       <Suspense fallback={<Loader />}>

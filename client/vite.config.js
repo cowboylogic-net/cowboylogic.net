@@ -1,10 +1,18 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
+const securityHeaders = {
+  "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
+  // COEP вимикаємо повністю (не додаємо цей заголовок на фронті)
+  "Cross-Origin-Resource-Policy": "cross-origin",
+};
+
 export default defineConfig({
-  base: "/",
   plugins: [react()],
+
+  base: "/",
   server: {
+    headers: securityHeaders,
     proxy: {
       "/api": "http://localhost:5000",
       "/uploads": {
@@ -14,6 +22,7 @@ export default defineConfig({
       },
     },
   },
+  preview: { headers: securityHeaders },
   build: {
     outDir: "dist",
     target: "esnext",

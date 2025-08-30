@@ -6,8 +6,10 @@ import HttpError from "../helpers/HttpError.js";
 import { formatUser } from "../utils/formatUser.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import sendResponse from "../utils/sendResponse.js";
+import { setRefreshCookie } from "../utils/cookies.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const REFRESH_DAYS = parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || "7", 10);
 
 export const googleAuth = ctrlWrapper(async (req, res) => {
   const { id_token } = req.body;
@@ -51,12 +53,27 @@ export const googleAuth = ctrlWrapper(async (req, res) => {
     }
   }
 
-  const EXPIRES = process.env.JWT_EXPIRES_IN || "7d";
+  // access token
+  const EXPIRES = process.env.JWT_EXPIRES_IN || "1d";
   const token = jwt.sign(
-    { id: user.id, role: user.role, tokenVersion: user.tokenVersion },
+    {
+      id: user.id,
+      sub: user.id,
+      role: user.role,
+      tokenVersion: user.tokenVersion,
+      tv: user.tokenVersion || 0,
+    },
     process.env.JWT_SECRET,
     { expiresIn: EXPIRES }
   );
+
+  // refresh token + httpOnly cookie
+  const refresh = jwt.sign(
+    { sub: user.id, tv: user.tokenVersion || 0, type: "refresh" },
+    process.env.JWT_SECRET,
+    { expiresIn: `${REFRESH_DAYS}d` }
+  );
+  setRefreshCookie(res, refresh, req);
 
   sendResponse(res, {
     code: 200,

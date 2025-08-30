@@ -238,6 +238,11 @@ const LoginForm = () => {
               showNotification({ message: t("googleFailed"), type: "error" })
             )
           }
+          theme="outline"
+          size="large"
+          text="signin_with"
+          shape="rectangular"
+          logo_alignment="left"
         />
       </div>
     </div>

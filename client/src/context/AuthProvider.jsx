@@ -1,11 +1,11 @@
 // src/context/AuthProvider.jsx
 import { useSelector, useDispatch } from "react-redux";
-import { useEffect } from "react";
+
 import {
-  fetchCurrentUser,
+  
   loginUser as loginThunk,
   logoutUser as logoutThunk,
-  refreshSession,
+  
 } from "../store/thunks/authThunks";
 import { AuthContext } from "./AuthContext";
 import { jwtDecode } from "jwt-decode";
@@ -20,17 +20,17 @@ export const AuthProvider = ({ children }) => {
   const isAdmin = user?.role === "admin" || user?.role === "superAdmin";
   const isPartner = user?.role === "partner";
 
-  useEffect(() => {
+//   useEffect(() => {
 
-  if (!token) {
-    dispatch(refreshSession())
-      .unwrap()
-      .then(() => dispatch(fetchCurrentUser()))
-      .catch(() => {/* лишаємось без сесії */});
-  } else if (token && !user) {
-    dispatch(fetchCurrentUser());
-  }
-}, [token, user, dispatch]);
+//   if (!token) {
+//     dispatch(refreshSession())
+//       .unwrap()
+//       .then(() => dispatch(fetchCurrentUser()))
+//       .catch(() => {/* лишаємось без сесії */});
+//   } else if (token && !user) {
+//     dispatch(fetchCurrentUser());
+//   }
+// }, [token, user, dispatch]);
 
   const login = ({ email, code }) => {
     dispatch(loginThunk({ email, code }));

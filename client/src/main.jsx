@@ -18,7 +18,6 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(<Loader />);
 
-// ВАЖЛИВО: викликаємо ПОЗА рендером, один раз
 injectStore(store);
 
 root.render(

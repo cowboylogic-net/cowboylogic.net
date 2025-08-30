@@ -40,7 +40,8 @@ export const registerUser = createAsyncThunk(
 
 export const fetchCurrentUser = createAsyncThunk(
   "auth/fetchCurrentUser",
-  async (_, { dispatch, rejectWithValue }) => {
+  async (opts = {}, { dispatch, rejectWithValue }) => {
+    const silent = !!opts.silent;
     try {
       const res = await api.get("/auth/me");
       const payload = res?.data?.data;
@@ -50,7 +51,9 @@ export const fetchCurrentUser = createAsyncThunk(
       return payload;
     } catch (err) {
       const msg = err.response?.data?.message || "Session expired";
-      dispatch(showNotification({ type: "error", message: msg }));
+      if (!silent) {
+        dispatch(showNotification({ type: "error", message: msg }));
+      }
       return rejectWithValue(msg);
     }
   }
