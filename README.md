@@ -65,15 +65,6 @@ CowboyLogic is a full-featured bilingual (EN/UA) publishing and strategy platfor
 
 ---
 
-## 🌍 Internationalization (i18n)
-
-- Fully supports English and Ukrainian
-- Language switcher in UI
-- Translations stored in `public/locales/{lang}`
-- Editable content remains language-agnostic (stored per slug)
-
----
-
 ## 🧩 Tech Stack
 
 | Layer         | Technology                         |
@@ -113,6 +104,7 @@ cowboylogic.net/
 | Role        | Permissions Summary |
 |-------------|---------------------|
 | **User**    | View books, manage cart, place orders, edit profile |
+| **Partner** |  |
 | **Admin**   | Manage content, books, orders, newsletters |
 | **SuperAdmin** | Full control including user management and protected deletion |
 
@@ -124,15 +116,6 @@ cowboylogic.net/
 - Use `vite` for frontend dev and `nodemon` / `pm2` for backend dev/prod
 - Database schema changes should be done via Sequelize CLI (migrations)
 - For i18n: avoid hardcoded strings; use `t("key")` and proper locale files
-
----
-
-## 🔧 TODO Highlights (See full TODO)
-
-- [ ] Finalize validation and error handling
-- [ ] Translate all pages/components to full bilingual
-- [ ] Add tests (Vitest + Jest or React Testing Library)
-- [ ] Enhance SEO and performance
 
 ---
 
