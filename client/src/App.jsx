@@ -25,6 +25,8 @@ const FavoritesPage = lazy(() => import("./pages/FavoritesPage/FavoritesPage"));
 const SearchResults = lazy(() => import("./pages/SearchResult/SearchResult"));
 const NotFound = lazy(() => import("./pages/NotFound/NotFound"));
 const Forbidden = lazy(() => import("./pages/Forbidden/Forbidden"));
+const Privacy = lazy(() => import("./pages/Privacy/Privacy"));
+const Terms = lazy(() => import("./pages/Terms/Terms"));
 
 // ✅ CLStrategies
 const CLStrategiesHome = lazy(() =>
@@ -132,6 +134,8 @@ const App = () => {
             <Route path="verify-email" element={<VerifyEmailPage />} />
             <Route path="success" element={<SuccessPage />} />
             <Route path="cancel" element={<CancelPage />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="terms" element={<Terms />} />
             <Route
               path="favorites"
               element={

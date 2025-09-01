@@ -102,10 +102,32 @@
   align-self: flex-start;
 }
 
+.bottomSection {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+
+.footerContent {
+  display: flex;
+  flex-wrap: wrap;        /* не ламає в малих екранах */
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;             /* базовий відступ між елементами */
+}
+
+.sep {
+  margin: 0 .5rem;
+  opacity: .6;
+}
+
 /* невеликий респонсив-тюнінг */
 @media (max-width: 600px) {
   .topSection {
     justify-content: center;
     row-gap: var(--spacing-lg);
   }
+}
+@media (min-width: 768px) {
+  .footerContent { white-space: nowrap; }
 }

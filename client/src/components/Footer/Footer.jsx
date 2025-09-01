@@ -62,6 +62,10 @@ export default function Footer() {
           <p className={styles.footerContent}>
             {t("footer.copyright", { year: "2025" })}{" "}
             <Link to="/">Roger Haller</Link>. {t("footer.rights")}
+            <span className={styles.sep}>·</span>
+            <Link to="/privacy">Privacy</Link>
+            <span className={styles.sep}>·</span>
+            <Link to="/terms">Terms</Link>
           </p>
         </div>
       </div>

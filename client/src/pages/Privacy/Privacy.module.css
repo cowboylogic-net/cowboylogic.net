@@ -1,0 +1,18 @@
+.page {
+  max-width: 880px;
+  margin: 32px auto;
+  padding: 0 16px;
+  line-height: 1.6;
+}
+.page h1 {
+  margin-bottom: 8px;
+}
+.meta {
+  color: #666;
+  margin-bottom: 24px;
+}
+.note {
+  margin-top: 24px;
+  color: #666;
+  font-size: 0.95rem;
+}
