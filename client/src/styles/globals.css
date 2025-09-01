@@ -29,11 +29,11 @@ body {
   margin: 0;
   font-family: var(--font-body);
   color: var(--color-text);
-  background-image: linear-gradient(
+  /* background-image: linear-gradient(
       rgba(46, 47, 66, 0.5),
       rgba(46, 47, 66, 0.5)
     ),
-    url(/assets/images/body_bg_cowboy.jpg);
+    url(/assets/images/body_bg_cowboy.jpg); */
   background-repeat: round;
   background-position: center;
   background-attachment: scroll;
