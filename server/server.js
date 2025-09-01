@@ -8,7 +8,6 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import helmet from "helmet";
 import { sequelize } from "./config/db.js";
-import { seedSuperAdmin } from "./seeds/seedSuperAdmin.js";
 import connectDB from "./config/db.js";
 
 // Models
