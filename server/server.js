@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Порти
-const PORT_HTTP  = Number(process.env.PORT_HTTP || 5000);  // фолбек
+const PORT_HTTP  = Number(process.env.PORT || 5000);  // фолбек
 const PORT_HTTPS = Number(process.env.PORT_HTTPS || process.env.PORT || 8443);
 
 // Шляхи до сертифікатів
