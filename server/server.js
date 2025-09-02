@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Порти
-const PORT_HTTP  = Number(process.env.PORT || 5000);  // фолбек
+const PORT  = Number(process.env.PORT || 5000);  // фолбек
 const PORT_HTTPS = Number(process.env.PORT_HTTPS || process.env.PORT || 8443);
 
 // Шляхи до сертифікатів
@@ -46,8 +46,8 @@ async function start() {
     } catch (e) {
       console.warn(`⚠️  HTTPS disabled (cert/key not found or unreadable): ${e.message}`);
       // Фолбек на HTTP
-      http.createServer(app).listen(PORT_HTTP, () => {
-        console.log(`🟡 HTTP backend running on port ${PORT_HTTP}`);
+      http.createServer(app).listen(PORT, () => {
+        console.log(`🟡 HTTP backend running on port ${PORT}`);
       });
     }
   } catch (err) {
