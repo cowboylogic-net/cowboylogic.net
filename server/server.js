@@ -1,139 +1,59 @@
 // server.js
-import express from "express";
-import verifySquareSignature from "./middleware/verifySquareSignature.js";
-import { squareWebhookHandler } from "./controllers/webhookController.js";
+import http from "http";
+import https from "https";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import cors from "cors";
-import cookieParser from "cookie-parser";
-import morgan from "morgan";
-import helmet from "helmet";
-import { sequelize } from "./config/db.js";
-import connectDB from "./config/db.js";
-
-// Models
-import "./models/User.js";
-import "./models/Book.js";
-import "./models/CartItem.js";
-import "./models/Order.js";
-import "./models/OrderItem.js";
-import "./models/LoginCode.js";
-import "./models/Favorite.js";
-import "./models/index.js";
-
-// Routes
-import authRoutes from "./routes/authRoutes.js";
-import userRoutes from "./routes/userRoutes.js";
-import bookRoutes from "./routes/bookRoutes.js";
-import cartRoutes from "./routes/cartRoutes.js";
-import orderRoutes from "./routes/orderRoutes.js";
-import pagesRoutes from "./routes/pagesRoutes.js";
-import contactRoutes from "./routes/contactRoutes.js";
-import newsletterRoutes from "./routes/newsletterRoutes.js";
-import webhookRoutes from "./routes/webhookRoutes.js";
-import squareRoutes from "./routes/squareRoutes.js";
-import favoriteRoutes from "./routes/favoriteRoutes.js";
-import imageRoutes from "./routes/imageRoutes.js";
-import searchRoutes from "./routes/searchRoutes.js";
-import userSelfRoutes from "./routes/userSelfRoutes.js";
-import staticCors from "./middleware/staticCors.js";
-import { errorHandler } from "./middleware/errorMiddleware.js";
+import app from "./app.js";
+import connectDB, { sequelize } from "./config/db.js";
 
 dotenv.config();
-import { requireEnv } from "./config/requireEnv.js";
-requireEnv();
-const app = express();
-app.set("trust proxy", 1);
-const PORT = process.env.PORT || 5000;
 
-// ❌ вимикаємо ETag, щоб не було 304 без тіла
-app.set("etag", false);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ❗ гарантуємо, що тіло завжди свіже
-app.use((req, res, next) => {
-  res.set(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate"
-  );
-  res.set("Pragma", "no-cache");
-  res.set("Expires", "0");
-  next();
-});
-// Middleware
-const allowedOrigins = (process.env.CORS_ORIGINS || "")
-  .split(",")
-  .map((o) => o.trim())
-  .filter(Boolean);
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
-      return cb(null, false);
-    },
-    credentials: true,
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "Cache-Control",
-      "X-Requested-With",
-      "ngrok-skip-browser-warning",
-    ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"],
-  })
-);
+// Порти
+const PORT_HTTP  = Number(process.env.PORT_HTTP || 5000);  // фолбек
+const PORT_HTTPS = Number(process.env.PORT_HTTPS || process.env.PORT || 8443);
 
-app.use(cookieParser());
-app.use(morgan("dev"));
-app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" },
-    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
-    crossOriginEmbedderPolicy: false,
-  })
-);
+// Шляхи до сертифікатів
+const KEY_PATH_DEFAULT  = path.join(__dirname, "api_cowboylogic_net.key");
+const CERT_PATH_DEFAULT = path.join(__dirname, "api_cowboylogic_net.crt");
+const KEY_PATH  = process.env.SSL_KEY_PATH  || KEY_PATH_DEFAULT;
+const CERT_PATH = process.env.SSL_CERT_PATH || CERT_PATH_DEFAULT;
 
-app.post(
-  "/api/square/webhook",
-  express.raw({ type: "*/*" }),
-  verifySquareSignature,
-  squareWebhookHandler
-);
-app.use(express.json());
-app.use("/api/webhook", webhookRoutes);
+function createHttpsServer() {
+  const key  = fs.readFileSync(KEY_PATH);
+  const cert = fs.readFileSync(CERT_PATH);
+  return https.createServer({ key, cert }, app);
+}
 
-app.use("/api", (req, res, next) => {
-  res.set(
-    "Cache-Control",
-    "no-store, no-cache, must-revalidate, proxy-revalidate"
-  );
-  res.set("Pragma", "no-cache");
-  res.set("Expires", "0");
-  next();
-});
+async function start() {
+  try {
+    // DB init
+    await connectDB();
+    if (process.env.MIGRATE_WITH_SYNC === "1") {
+      await sequelize.sync();
+    }
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/books", bookRoutes);
-app.use("/api/cart", cartRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/pages", pagesRoutes);
-app.use("/api/contact", contactRoutes);
-app.use("/api/newsletter", newsletterRoutes);
-app.use("/api/square", squareRoutes);
-app.use("/api/favorites", favoriteRoutes);
-app.use("/images", imageRoutes);
-app.use("/api", searchRoutes);
-app.use("/api/me", userSelfRoutes);
-app.use("/uploads", express.static("public/uploads"));
-app.use("/documents", staticCors, express.static("public/documents"));
-
-// Global error handler
-app.use(errorHandler);
-
-// DB init
-connectDB().then(async () => {
-  if (process.env.MIGRATE_WITH_SYNC === "1") {
-    await sequelize.sync();
+    // Спробуємо HTTPS
+    try {
+      const httpsServer = createHttpsServer();
+      httpsServer.listen(PORT_HTTPS, () => {
+        console.log(`🔒 HTTPS backend running on port ${PORT_HTTPS}`);
+      });
+    } catch (e) {
+      console.warn(`⚠️  HTTPS disabled (cert/key not found or unreadable): ${e.message}`);
+      // Фолбек на HTTP
+      http.createServer(app).listen(PORT_HTTP, () => {
+        console.log(`🟡 HTTP backend running on port ${PORT_HTTP}`);
+      });
+    }
+  } catch (err) {
+    console.error("❌ Failed to start server:", err);
+    process.exit(1);
   }
-  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-});
+}
+
+start();
