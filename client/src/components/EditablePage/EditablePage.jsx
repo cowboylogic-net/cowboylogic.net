@@ -26,68 +26,6 @@ import {
   selectPageUpdating,
   selectPageFetching,
 } from "../../store/selectors/pageSelectors";
-const SANITIZE_HTML = {
-  ALLOWED_TAGS: [
-    "b",
-    "i",
-    "u",
-    "s",
-    "em",
-    "strong",
-    "p",
-    "ul",
-    "ol",
-    "li",
-    "a",
-    "br",
-    "blockquote",
-    "pre",
-    "code",
-    "h1",
-    "h2",
-    "h3",
-    "hr",
-    "img",
-    "picture",
-    "source",
-    "table",
-    "thead",
-    "tbody",
-    "tr",
-    "td",
-    "th",
-  ],
-  ALLOWED_ATTR: [
-    "href",
-    "target",
-    "rel",
-    "src",
-    "alt",
-    "width",
-    "height",
-    "style",
-    "colspan",
-    "rowspan",
-    "srcset",
-    "sizes",
-    "type",
-    "loading",
-    "decoding",
-  ],
-};
-const normalizeUploadsInHtml = (html) => {
-  if (!html) return html;
-  const apiBase = getApiBase();
-  const replaceTo = (p1) => (apiBase ? `${apiBase}${p1}` : p1);
-  return html
-    .replace(
-      /https?:\/\/[a-z0-9-]+\.vercel\.app(\/uploads\/[^\s"'<>]+)/gi,
-      (_, p1) => replaceTo(p1)
-    )
-    .replace(/\/\/[a-z0-9-]+\.vercel\.app(\/uploads\/[^\s"'<>]+)/gi, (_, p1) =>
-      replaceTo(p1)
-    );
-};
 
 const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
   const { t } = useTranslation();
@@ -130,6 +68,21 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
     }
   }, []);
 
+  const normalizeUploadsInHtml = (html) => {
+    if (!html) return html;
+    const apiBase = getApiBase(); // напр. https://clpit.duckdns.org у проді; "" локально
+    const replaceTo = (p1) => (apiBase ? `${apiBase}${p1}` : p1);
+    return html
+      .replace(
+        /https?:\/\/[a-z0-9-]+\.vercel\.app(\/uploads\/[^\s"'<>]+)/gi,
+        (_, p1) => replaceTo(p1)
+      )
+      .replace(
+        /\/\/[a-z0-9-]+\.vercel\.app(\/uploads\/[^\s"'<>]+)/gi,
+        (_, p1) => replaceTo(p1)
+      );
+  };
+
   useEffect(() => {
     dispatch(fetchPageVersions(slug));
   }, [dispatch, slug]);
@@ -147,7 +100,7 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
   const handleSaveDraft = useCallback(async () => {
     const cleanContent = DOMPurify.sanitize(
       enforceAnchorTargets(localContent),
-      SANITIZE_HTML
+      { ADD_ATTR: ["style", "target", "rel"] }
     );
     try {
       await dispatch(
@@ -179,7 +132,7 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
     ) {
       editorRef.current.innerHTML = DOMPurify.sanitize(
         enforceAnchorTargets(normalizeUploadsInHtml(localContent)),
-        SANITIZE_HTML
+        { ADD_ATTR: ["style", "target", "rel"] }
       );
     }
     prevPreviewRef.current = isPreviewing;
@@ -221,7 +174,7 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
   const handleSave = async () => {
     const cleanContent = DOMPurify.sanitize(
       enforceAnchorTargets(localContent),
-      SANITIZE_HTML
+      { ADD_ATTR: ["style", "target", "rel"] }
     );
 
     const tempDiv = document.createElement("div");
@@ -273,7 +226,7 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
       if (editorRef.current) {
         editorRef.current.innerHTML = DOMPurify.sanitize(
           enforceAnchorTargets(normalizeUploadsInHtml(base)),
-          SANITIZE_HTML
+          { ADD_ATTR: ["style", "target", "rel"] }
         );
       }
     }, 0);
@@ -308,7 +261,7 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
     if (editorRef.current) {
       editorRef.current.innerHTML = DOMPurify.sanitize(
         enforceAnchorTargets(lastPublished || ""),
-        SANITIZE_HTML
+        { ADD_ATTR: ["style", "target", "rel"] }
       );
     }
     dispatch(saveDraftContent({ slug, content: published || "" }));
@@ -448,7 +401,49 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
     }
 
     // Додаткова санітизація під whitelist (узгоджено з бекендом)
-    const safe = DOMPurify.sanitize(toInsert, SANITIZE_HTML);
+    const safe = DOMPurify.sanitize(toInsert, {
+      ALLOWED_TAGS: [
+        "b",
+        "i",
+        "u",
+        "s",
+        "em",
+        "strong",
+        "p",
+        "ul",
+        "ol",
+        "li",
+        "a",
+        "br",
+        "blockquote",
+        "pre",
+        "code",
+        "h1",
+        "h2",
+        "h3",
+        "hr",
+        "img",
+        "table",
+        "thead",
+        "tbody",
+        "tr",
+        "td",
+        "th",
+      ],
+      // ❗️ масив, не обʼєкт
+      ALLOWED_ATTR: [
+        "href",
+        "target",
+        "rel",
+        "src",
+        "width",
+        "height",
+        "style",
+        "alt",
+        "colspan",
+        "rowspan",
+      ],
+    });
 
     insertHTMLAtCursor(safe);
 
@@ -519,7 +514,6 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
             execCmd={execCmd}
             editorRef={editorRef}
             authToken={token}
-            insertHtml={insertHTMLAtCursor} // ⬅️ новий проп
           />
         )}
 
@@ -530,8 +524,6 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
               whiteBackground ? styles.bgWhite : styles.bgTransparent
             }`}
             contentEditable
-            role="textbox"
-            aria-multiline="true"
             suppressContentEditableWarning
             onPaste={handlePaste}
             data-placeholder={placeholder || ""}
@@ -555,7 +547,7 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(
                 enforceAnchorTargets(normalizeUploadsInHtml(localContent)),
-                SANITIZE_HTML
+                { ADD_ATTR: ["style", "target", "rel"] }
               ),
             }}
           />

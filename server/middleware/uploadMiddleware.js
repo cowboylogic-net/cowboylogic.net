@@ -9,7 +9,6 @@ import {
   uploadBasePath,
 } from "../config/imageConfig.js";
 import { resolveUploadDir } from "../utils/resolveUploadDir.js";
-import { VARIANTS, FORMATS } from "../config/imageVariants.js";
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -57,72 +56,33 @@ export const optimizeImage = async (req, res, next) => {
 
   const ext = path.extname(req.file.filename).toLowerCase();
   const dir = path.dirname(req.file.path);
-  const base = path.basename(req.file.filename, ext);
-  const subdir = req._uploadSubdir || "misc";
-
-  const widths = VARIANTS[subdir] || VARIANTS.misc;
-
-  // з’ясуємо фактичну ширину оригіналу
-  let origW;
-  try {
-    const meta = await sharp(req.file.path).metadata();
-    origW = meta.width || undefined;
-  } catch {}
-  // беремо лише ті цілі ширини, що не більші за оригінал (якщо відома)
-  const targetWidths = Array.isArray(widths)
-    ? origW
-      ? widths.filter((w) => w <= origW)
-      : widths
-    : [];
+  const optimizedName = `${path.basename(
+    req.file.filename,
+    ext
+  )}-optimized.webp`;
+  const optimizedPath = path.join(dir, optimizedName);
 
   try {
-    const created = []; // { url, w, fmt }
+    await sharp(req.file.path)
+      .resize({ width: 400, withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toFile(optimizedPath);
 
-    // Створюємо варіанти
-    const widthsToMake = targetWidths.length ? targetWidths : [widths[0]];
-    for (const w of widthsToMake) {
-      for (const f of FORMATS) {
-        const outName = `${base}-w${w}.${f.ext}`;
-        const outPath = path.join(dir, outName);
+    await fs.unlink(req.file.path); // прибираємо оригінал
 
-        const pipeline = sharp(req.file.path)
-          .rotate() // ✅ авто-виправлення EXIF орієнтації
-          .resize({
-            width: w,
-            withoutEnlargement: true,
-          });
-        await f.sharp(pipeline).toFile(outPath);
+    req.file.path = optimizedPath; // абсолютний шлях на диску
+    req.file.mimetype = "image/webp";
 
-        created.push({
-          url: "/" + path.posix.join("uploads", subdir, outName), // POSIX URL
-          w,
-          fmt: f.ext,
-        });
-      }
-    }
-
-    // Оригінал більше не потрібен
-    try {
-      await fs.unlink(req.file.path);
-    } catch {}
-
-    // Вибираємо дефолт для зворотної сумісності відповіді
-    // (беремо середній webp, або перший доступний)
-    const uniqueW = [...new Set(created.map((x) => x.w))].sort((a, b) => a - b);
-    const midW = uniqueW[Math.min(1, uniqueW.length - 1)];
-    const def =
-      created.find((x) => x.w === midW && x.fmt === "webp") || created[0];
-
-    // Записуємо в req.file
-    req.file.variants = created; // повний список
-    req.file.webPath = def.url; // старе поле — працює далі
-    req.file.path = path.join(dir, path.basename(def.url)); // не критично, але хай вказує на дефолт
+    const subdir = req._uploadSubdir || "misc";
+    // важливо: для URL завжди POSIX-слеші
+    req.file.webPath = "/" + path.posix.join("uploads", subdir, optimizedName); // ← те, що віддаємо клієнту
   } catch (err) {
     console.error("Image optimization failed:", err.message);
-    // fallback: залишаємо оригінал як є, але даємо webPath для нього
-    req.file.variants = [];
+    const subdir = req._uploadSubdir || "misc";
+    // оригінал лишається на диску, тому віддаємо його веб-шлях
     req.file.webPath =
       "/" + path.posix.join("uploads", subdir, req.file.filename);
+    // залишаємо оригінальний mimetype як є
   }
 
   next();
@@ -151,34 +111,7 @@ export const removeOldAvatar = async (req, res, next) => {
         .replace(/^\/?uploads[\\/]/i, "")
         .replace(/\\/g, "/");
       const full = path.join(uploadBasePath, relUnderUploads);
-      const dir = path.dirname(full);
-      const base = path.basename(full);
-      // шукаємо патерн <name>-wNNN.ext → видаляємо всі варіанти з тим самим префіксом <name>-w
-      const m = base.match(/^(.*)-w\d+\.(avif|webp|jpe?g)$/i);
-      if (m) {
-        const prefix = `${m[1]}-w`;
-        try {
-          const names = await fs.readdir(dir);
-          await Promise.all(
-            names
-              .filter(
-                (n) => n.startsWith(prefix) && /\.(avif|webp|jpe?g)$/i.test(n)
-              )
-              .map((n) =>
-                fs.unlink(path.join(dir, n)).catch((e) => {
-                  if (e.code !== "ENOENT")
-                    console.warn("unlink variant failed:", e.message);
-                })
-              )
-          );
-        } catch (e) {
-          if (e.code !== "ENOENT")
-            console.warn("readdir variants failed:", e.message);
-        }
-      } else {
-        // старі аватари без варіантів
-        await fs.unlink(full);
-      }
+      await fs.unlink(full);
     }
   } catch (err) {
     if (err.code !== "ENOENT") {
