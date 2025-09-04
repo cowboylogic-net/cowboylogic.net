@@ -7,4 +7,3 @@ export const maxImageSize = 5 * 1024 * 1024; // 5MB
 export const uploadBasePath = process.env.UPLOADS_DIR
   ? path.resolve(process.env.UPLOADS_DIR)
   : path.resolve("public/uploads");
-
