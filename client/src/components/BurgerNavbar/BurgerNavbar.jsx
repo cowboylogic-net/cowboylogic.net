@@ -152,7 +152,7 @@ const BurgerNavbar = () => {
                   Overview
                 </NavLink>
                 <NavLink
-                  to="/clpublishing/cowboy-college-pub/author"
+                  to="/clpublishing/cowboy-college-pub-author"
                   onClick={() => setOpen(false)}
                 >
                   Author

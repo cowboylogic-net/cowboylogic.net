@@ -7,6 +7,7 @@ import PartnerProfile from "../models/PartnerProfile.js";
 import { formatUser } from "../utils/formatUser.js";
 import path from "path";
 import { uploadBasePath } from "../config/imageConfig.js";
+import { getPublicBase } from "../config/publicBase.js";
 
 const updateAvatar = async (req, res) => {
   if (!req.file) {
@@ -29,8 +30,7 @@ const updateAvatar = async (req, res) => {
   req.user.avatarURL = relPath;
   await req.user.save();
 
-  const base = (process.env.BASE_URL || "").replace(/\/+$/, "");
-  const absUrl = base ? `${base}${relPath}` : relPath;
+ const absUrl = `${getPublicBase(req)}${relPath}`;
 
   return sendResponse(res, { code: 200, data: { avatarURL: absUrl } });
 };

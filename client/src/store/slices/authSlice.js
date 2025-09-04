@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { toAbsoluteMediaUrl } from "../../utils/mediaUrl";
 
 import {
   loginUser,
@@ -8,7 +9,7 @@ import {
   uploadAvatar,
   updateMe,
   upsertPartnerProfile,
-  refreshSession
+  refreshSession,
 } from "../thunks/authThunks";
 
 const initialState = {
@@ -24,21 +25,24 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     loginSuccess: (state, action) => {
-    state.token = action.payload.token;
-    state.user = action.payload.user;
-    state.isLoading = false;
-    state.error = null;
-  },
-  logout: (state) => {
-    state.user = null;
-    state.token = null;
-    state.emailForVerification = null;
-    state.isLoading = false;
-    state.error = null;
-  },
+      state.token = action.payload.token;
+      state.user = {
+        ...action.payload.user,
+        avatarURL: toAbsoluteMediaUrl(action.payload.user?.avatarURL),
+      };
+      state.isLoading = false;
+      state.error = null;
+    },
+    logout: (state) => {
+      state.user = null;
+      state.token = null;
+      state.emailForVerification = null;
+      state.isLoading = false;
+      state.error = null;
+    },
     updateUserAvatar: (state, action) => {
       if (state.user) {
-        state.user.avatarURL = action.payload;
+        state.user.avatarURL = toAbsoluteMediaUrl(action.payload);
       }
     },
     setEmailForVerification: (state, action) => {
@@ -47,7 +51,7 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-    .addCase(refreshSession.fulfilled, (state, action) => {
+      .addCase(refreshSession.fulfilled, (state, action) => {
         state.token = action.payload; // лише access token
       })
       .addCase(loginUser.pending, (state) => {
@@ -56,7 +60,10 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.fulfilled, (state, action) => {
         state.token = action.payload.token;
-        state.user = action.payload.user;
+        state.user = {
+          ...action.payload.user,
+          avatarURL: toAbsoluteMediaUrl(action.payload.user?.avatarURL),
+        };
         state.isLoading = false;
       })
       .addCase(loginUser.rejected, (state, action) => {
@@ -69,7 +76,10 @@ const authSlice = createSlice({
       })
       .addCase(registerUser.fulfilled, (state, action) => {
         state.token = action.payload.token;
-        state.user = action.payload.user;
+        state.user = {
+          ...action.payload.user,
+          avatarURL: toAbsoluteMediaUrl(action.payload.user?.avatarURL),
+        };
         state.isLoading = false;
       })
       .addCase(registerUser.rejected, (state, action) => {
@@ -81,7 +91,10 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-        state.user = action.payload;
+        state.user = {
+          ...action.payload,
+          avatarURL: toAbsoluteMediaUrl(action.payload?.avatarURL),
+        };
         state.isLoading = false;
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
@@ -103,18 +116,29 @@ const authSlice = createSlice({
       })
       .addCase(uploadAvatar.fulfilled, (state, action) => {
         if (state.user) {
-          state.user.avatarURL = action.payload;
+          state.user.avatarURL = toAbsoluteMediaUrl(action.payload);
         }
       })
-       .addCase(updateMe.fulfilled, (state, action) => {
-    state.user = action.payload;
-  })
-  .addCase(upsertPartnerProfile.fulfilled, (state, action) => {
-    state.user = action.payload;
-  });
+      .addCase(updateMe.fulfilled, (state, action) => {
+        state.user = {
+          ...action.payload,
+          avatarURL: toAbsoluteMediaUrl(action.payload?.avatarURL),
+        };
+      })
+      .addCase(upsertPartnerProfile.fulfilled, (state, action) => {
+        state.user = {
+          ...action.payload,
+          avatarURL: toAbsoluteMediaUrl(action.payload?.avatarURL),
+        };
+      });
   },
 });
 
-export const { loginSuccess, logout, updateUserAvatar, setEmailForVerification } = authSlice.actions;
+export const {
+  loginSuccess,
+  logout,
+  updateUserAvatar,
+  setEmailForVerification,
+} = authSlice.actions;
 
 export default authSlice.reducer;
