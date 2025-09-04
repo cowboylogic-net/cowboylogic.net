@@ -64,7 +64,7 @@
     "inStock": "In stock: {{count}}",
     "outOfStock": "Out of stock",
     "addToCart": "Add to cart",
-    "partnerPrice": "Partner Price: ${{price}}",
+    "partnerPrice": "Partner Price: ",
     "invalidPartnerPrice": "Please enter a valid partner price",
     "wholesaleNote": "Wholesale from 5 units",
     "partnerNote": "min. 5 pcs for partner price",

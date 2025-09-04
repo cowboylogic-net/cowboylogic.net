@@ -31,6 +31,7 @@ import {
   Highlighter,
 } from "lucide-react";
 import { selectPageUpdating } from "../../store/selectors/pageSelectors";
+import { buildResponsiveImageHTML } from "../../utils/buildResponsiveImageHTML";
 
 const COLORS = [
   "#000",
@@ -65,7 +66,7 @@ const normalizeFontTags = (rootEl) => {
   });
 };
 
-const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
+const EditableToolbar = ({ execCmd, editorRef, authToken, insertHtml }) => {
   const { t } = useTranslation(); // 🆕
   const isUpdating = useSelector(selectPageUpdating);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -124,6 +125,7 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
   const handleImageInsert = async ({ file, url, width, height }) => {
     try {
       let imageUrl = url?.trim();
+      let variantsFromServer = [];
 
       // забороняємо javascript: та інше сміття в ручному URL
       if (imageUrl && /^javascript:/i.test(imageUrl)) return false;
@@ -135,9 +137,11 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
         const apiBase = getApiBase();
         const joinUrl = (base, path) =>
           `${base.replace(/\/+$/, "")}/${String(path).replace(/^\/+/, "")}`;
+        // DEV/локалка: ходимо на /api/images/upload (проксі працює)
+        // PROD: ходимо напряму на https://api.../images/upload
         const endpoint = apiBase
           ? joinUrl(apiBase, "/images/upload")
-          : "/images/upload";
+          : "/api/images/upload";
 
         const res = await fetch(endpoint, {
           method: "POST",
@@ -163,6 +167,10 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
           json?.path ||
           "";
 
+        variantsFromServer = Array.isArray(json?.data?.variants)
+          ? json.data.variants
+          : [];
+
         if (!imageUrl) {
           throw new Error("Upload response has no image URL");
         }
@@ -173,16 +181,38 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
             ? `${apiBase}${imageUrl}`
             : `${apiBase}/${imageUrl}`;
         }
+        // так само нормалізуємо variants → абсолютні URL за потреби
+        if (variantsFromServer.length && apiBase) {
+          variantsFromServer = variantsFromServer.map((v) =>
+            /^https?:\/\//i.test(v.url)
+              ? v
+              : { ...v, url: `${apiBase.replace(/\/+$/, "")}${v.url}` }
+          );
+        }
       }
 
-      if (imageUrl && editorRef?.current) {
-        editorRef.current.focus();
-        restoreSelection();
-        const w = Number(width) ? ` width:${Number(width)}px;` : "";
-        const h = Number(height) ? ` height:${Number(height)}px;` : "";
-        const imgTag = `<img src="${imageUrl}" alt="" style="max-width:100%;${w}${h}" />`;
-        runCmd("insertHTML", imgTag);
+      // Готуємо HTML для вставки:
+      let html = "";
+      if (Array.isArray(variantsFromServer) && variantsFromServer.length) {
+        html = buildResponsiveImageHTML({
+          variants: variantsFromServer,
+          alt: "inserted image",
+        });
+      } else if (imageUrl) {
+        const w = Number(width) ? ` width="${Number(width)}"` : "";
+        const h = Number(height) ? ` height="${Number(height)}"` : "";
+        html = `<img src="${imageUrl}" alt="" loading="lazy" decoding="async"${w}${h} style="max-width:100%;" />`;
+      }
 
+      if (html) {
+        editorRef?.current?.focus();
+        restoreSelection();
+        if (typeof insertHtml === "function") {
+          insertHtml(html); // ⬅️ точна вставка в місце курсора
+        } else {
+          runCmd("insertHTML", html); // запасний шлях
+        }
+        setShowImageModal(false); // закриваємо модалку після успіху
         return true;
       }
     } catch (err) {

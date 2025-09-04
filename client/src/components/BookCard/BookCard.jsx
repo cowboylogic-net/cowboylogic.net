@@ -5,6 +5,7 @@ import { useState } from "react";
 import styles from "./BookCard.module.css";
 import FavoriteButton from "../FavoriteButton/FavoriteButton";
 import BaseButton from "../BaseButton/BaseButton";
+import SmartImage from "../SmartImage";
 
 const BookCard = ({
   book,
@@ -19,24 +20,33 @@ const BookCard = ({
   const { t } = useTranslation();
   const [quantity, setQuantity] = useState(5);
 
-  const getImageUrl = (url) => {
-    if (!url) return "/fallback-image.png";
-    if (url.startsWith("http")) return url;
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-    return `${baseUrl}${url}`;
-  };
+  // const getImageUrl = (url) => {
+  //   if (!url) return "/fallback-image.png";
+  //   if (url.startsWith("http")) return url;
+  //   const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+  //   return `${baseUrl}${url}`;
+  // };
 
   const mode = isPartnerView ? "partner" : "user";
 
   return (
     <div className={styles.card}>
       <div className={styles.imageWrapper}>
-        <img
-          src={getImageUrl(book.imageUrl)}
-          alt={`Cover of ${book.title}`}
-          className={styles.image}
-          loading="lazy"
-        />
+        {Array.isArray(book.imageVariants) && book.imageVariants.length > 0 ? (
+          <SmartImage
+            variants={book.imageVariants}
+            alt={`Cover of ${book.title}`}
+            className={styles.image}
+          />
+        ) : (
+          <img
+            src={book.imageUrl || "/fallback-image.png"}
+            alt={`Cover of ${book.title}`}
+            className={styles.image}
+            loading="lazy"
+            decoding="async"
+          />
+        )}
       </div>
 
       <div className={styles.info}>
