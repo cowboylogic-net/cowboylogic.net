@@ -5,29 +5,34 @@ import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import User from "../models/User.js";
 import PartnerProfile from "../models/PartnerProfile.js";
 import { formatUser } from "../utils/formatUser.js";
+import path from "path";
+import { uploadBasePath } from "../config/imageConfig.js";
 
 const updateAvatar = async (req, res) => {
   if (!req.file) {
-    return sendResponse(res, {
-      code: 400,
-      message: "No avatar uploaded",
-    });
+    return sendResponse(res, { code: 400, message: "No avatar uploaded" });
+  }
+  // будуємо "/uploads/..." коректно:
+  let relPath;
+  if (req.file.webPath) {
+    relPath = req.file.webPath; // вже "/uploads/..."
+  } else {
+    const abs = path.resolve(req.file.path || "");
+    const relUnderUploads = path
+      .relative(uploadBasePath, abs)
+      .replace(/\\/g, "/");
+    relPath = "/" + ["uploads", relUnderUploads].join("/");
   }
 
-  const avatarURL =
-    req.file.webPath /* якщо мідлвара вже поклала готовий веб-шлях */ ||
-    "/" +
-      String(req.file.path || "")
-        .replace(/^.*?public[\\/]/, "") // відкинути все до public/
-        .replace(/\\/g, "/"); // Windows -> POSIX
-
-  req.user.avatarURL = avatarURL;
+  // Зберігаємо В БД відносний шлях (стабільно),
+  // але у відповіді віддаємо АБСОЛЮТНИЙ для фронта
+  req.user.avatarURL = relPath;
   await req.user.save();
 
-  sendResponse(res, {
-    code: 200,
-    data: { avatarURL },
-  });
+  const base = (process.env.BASE_URL || "").replace(/\/+$/, "");
+  const absUrl = base ? `${base}${relPath}` : relPath;
+
+  return sendResponse(res, { code: 200, data: { avatarURL: absUrl } });
 };
 
 const updateMe = async (req, res) => {

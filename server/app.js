@@ -5,6 +5,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import helmet from "helmet";
+import path from "path";
 
 import verifySquareSignature from "./middleware/verifySquareSignature.js";
 import { squareWebhookHandler } from "./controllers/webhookController.js";
@@ -43,9 +44,15 @@ const app = express();
 app.set("trust proxy", 1);
 app.set("etag", false);
 
+const UPLOADS_DIR = process.env.UPLOADS_DIR
+  ? path.resolve(process.env.UPLOADS_DIR)
+  : path.resolve("public/uploads");
 // Заборона кешу
 app.use((req, res, next) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
   res.set("Pragma", "no-cache");
   res.set("Expires", "0");
   next();
@@ -59,7 +66,10 @@ const allowedOrigins = (process.env.CORS_ORIGINS || "")
 
 app.use(
   cors({
-    origin: (origin, cb) => (!origin || allowedOrigins.includes(origin) ? cb(null, true) : cb(null, false)),
+    origin: (origin, cb) =>
+      !origin || allowedOrigins.includes(origin)
+        ? cb(null, true)
+        : cb(null, false),
     credentials: true,
     allowedHeaders: [
       "Content-Type",
@@ -96,7 +106,10 @@ app.use("/api/webhook", webhookRoutes);
 
 // Додаткова антикеш-політика для /api
 app.use("/api", (req, res, next) => {
-  res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.set(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate"
+  );
   res.set("Pragma", "no-cache");
   res.set("Expires", "0");
   next();
@@ -114,14 +127,23 @@ app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/square", squareRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/images", imageRoutes);
+app.use("/api/images", imageRoutes);
 app.use("/api", searchRoutes);
 app.use("/api/me", userSelfRoutes);
 
 // Static
-app.use("/uploads", express.static("public/uploads"));
+app.use("/uploads", (req, res, next) => {
+  res.set("Cache-Control", "public, max-age=31536000, immutable");
+  next();
+});
+app.use("/uploads", express.static(UPLOADS_DIR));
 app.use("/documents", staticCors, express.static("public/documents"));
 
 // Errors
 app.use(errorHandler);
+
+app.get("/__static_check", (req, res) => {
+  res.json({ ok: true, uploadsDir: UPLOADS_DIR });
+});
 
 export default app;

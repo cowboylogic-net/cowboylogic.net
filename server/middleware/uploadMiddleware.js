@@ -91,10 +91,26 @@ export const optimizeImage = async (req, res, next) => {
 // Видалення попереднього аватара
 export const removeOldAvatar = async (req, res, next) => {
   try {
-    const oldUrl = req.user?.avatarURL; // очікуємо "/uploads/avatars/xxx.webp"
-    if (oldUrl && oldUrl.startsWith("/uploads/")) {
-      const rel = oldUrl.replace(/^\//, ""); // "uploads/avatars/xxx.webp"
-      const full = path.join("public", rel);
+    if (!req.file) return next(); // лише якщо новий файл справді прийшов
+
+    let oldUrl = req.user?.avatarURL; // може бути "/uploads/..." або "https://.../uploads/..."
+    if (!oldUrl) return next();
+
+    // ✅ Якщо абсолютний — витягнемо pathname
+    if (/^https?:\/\//i.test(oldUrl)) {
+      try {
+        const u = new URL(oldUrl);
+        oldUrl = u.pathname || oldUrl;
+      } catch {}
+    }
+
+    // ✅ працюємо тільки з тим, що реально під /uploads/
+    if (oldUrl.startsWith("/uploads/")) {
+      // "uploads/avatars/xxx.webp" або "uploads\avatars\xxx.webp" -> "avatars/xxx.webp"
+      const relUnderUploads = oldUrl
+        .replace(/^\/?uploads[\\/]/i, "")
+        .replace(/\\/g, "/");
+      const full = path.join(uploadBasePath, relUnderUploads);
       await fs.unlink(full);
     }
   } catch (err) {

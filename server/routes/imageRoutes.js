@@ -17,8 +17,12 @@ router.post(
     }
 
     const rel = req.file.webPath || `/uploads/${req.file.filename}`;
-
-    return sendResponse(res, { code: 200, data: { imageUrl: rel } });
+    const base = (process.env.BASE_URL || "").replace(/\/+$/, "");
+    const abs = base ? `${base}${rel}` : rel;
+    return sendResponse(res, {
+      code: 200,
+      data: { imageUrl: abs, relUrl: rel },
+    });
   }
 );
 export default router;
