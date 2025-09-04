@@ -232,3 +232,29 @@
     width: 100%;
   }
 }
+@media (max-width: 1024px) {
+  /* Заголовок посередині замість space-between */
+  .headerRow {
+    justify-content: center;      /* було: space-between */
+  }
+
+  /* Робимо клік-зону заголовка “повною шириною” для надійного центрування */
+  .titleLink { 
+    width: 100%; 
+    display: block;
+  }
+
+  .cardTitle {
+    text-align: center;
+    margin: 0 0 var(--spacing-xs);
+  }
+
+  /* Серце в правому верхньому куті картки (оверлей) */
+  .favWrap {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    margin-left: 0;               /* прибираємо “штовхач” з desktop-версії */
+    z-index: 2;
+  }
+}

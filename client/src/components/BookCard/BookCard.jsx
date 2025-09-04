@@ -5,7 +5,7 @@ import { useState } from "react";
 import styles from "./BookCard.module.css";
 import FavoriteButton from "../FavoriteButton/FavoriteButton";
 import BaseButton from "../BaseButton/BaseButton";
-import SmartImage from "../SmartImage";
+import SmartImage from "../SmartImage/SmartImage";
 
 const BookCard = ({
   book,
@@ -19,13 +19,6 @@ const BookCard = ({
 }) => {
   const { t } = useTranslation();
   const [quantity, setQuantity] = useState(5);
-
-  // const getImageUrl = (url) => {
-  //   if (!url) return "/fallback-image.png";
-  //   if (url.startsWith("http")) return url;
-  //   const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
-  //   return `${baseUrl}${url}`;
-  // };
 
   const mode = isPartnerView ? "partner" : "user";
 

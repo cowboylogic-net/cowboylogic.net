@@ -131,3 +131,45 @@
 @media (min-width: 768px) {
   .footerContent { white-space: nowrap; }
 }
+
+/* ==== Mobile (≤600px): stack & center ==== */
+@media (max-width: 600px) {
+  .topSection {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;           /* центрує заголовки/текст всередині колонок */
+    gap: var(--spacing-lg);
+  }
+
+  .column {
+    align-items: center;          /* центрує елементи в колонці */
+    flex: 0 1 auto;
+    min-width: 0;
+    width: 100%;
+    max-width: 520px;             /* опційно, щоб не «розтікалось» */
+  }
+
+  .heading { text-align: center; }
+
+  .navList,
+  .socialList { align-items: center; }
+
+  .navList a,
+  .socialList a { justify-content: center; }  /* іконка + текст по центру */
+
+  /* Перекриваємо ліве вирівнювання, яке задане для першої колонки */
+  .column:first-child :where(form, input, button, label, p) {
+    align-self: center;
+    text-align: center;
+  }
+
+  /* Додатково гарантуємо акуратну верстку форми newsletter на мобільному */
+  .column:nth-child(3) form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    width: 100%;
+  }
+}
