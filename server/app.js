@@ -29,7 +29,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 import pagesRoutes from "./routes/pagesRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import newsletterRoutes from "./routes/newsletterRoutes.js";
-import webhookRoutes from "./routes/webhookRoutes.js";
+// import webhookRoutes from "./routes/webhookRoutes.js";
 import squareRoutes from "./routes/squareRoutes.js";
 import favoriteRoutes from "./routes/favoriteRoutes.js";
 import imageRoutes from "./routes/imageRoutes.js";
@@ -102,7 +102,7 @@ app.post(
 
 // JSON після raw-маршруту
 app.use(express.json());
-app.use("/api/webhook", webhookRoutes);
+// app.use("/api/webhook", webhookRoutes);
 
 // Додаткова антикеш-політика для /api
 app.use("/api", (req, res, next) => {

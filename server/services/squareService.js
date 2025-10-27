@@ -5,14 +5,15 @@ import { requireEnv } from "../config/requireEnv.js";
 
 requireEnv();
 
-const environment =
-  process.env.NODE_ENV === "production"
-    ? SquareEnvironment.Production
-    : SquareEnvironment.Sandbox;
+const wantProd =
+  (process.env.SQUARE_ENV || process.env.NODE_ENV) === "production";
+const environment = wantProd
+  ? SquareEnvironment.Production
+  : SquareEnvironment.Sandbox;
 
 // УВАГА: у новому SDK ключ називається "token", не "accessToken"
 export const client = new SquareClient({
-  token: process.env.SQUARE_ACCESS_TOKEN,
+  token: (process.env.SQUARE_ACCESS_TOKEN || "").trim(),
   environment,
 });
 
@@ -35,9 +36,11 @@ export async function createPaymentLink(body) {
   }
 
   // Legacy fallback
-  const { Client: LegacyClient, Environment: LegacyEnv } = await import("square/legacy");
+  const { Client: LegacyClient, Environment: LegacyEnv } = await import(
+    "square/legacy"
+  );
   const legacyClient = new LegacyClient({
-    bearerAuthCredentials: { accessToken: process.env.SQUARE_ACCESS_TOKEN },
+    bearerAuthCredentials: { accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim() },
     environment:
       environment === SquareEnvironment.Production
         ? LegacyEnv.Production
@@ -55,7 +58,9 @@ export async function createPaymentLink(body) {
     return resp.result; // вирівнюємо формат
   }
 
-  throw new Error("Square SDK: createPaymentLink() недоступний ані в новому, ані в legacy клієнті.");
+  throw new Error(
+    "Square SDK: createPaymentLink() недоступний ані в новому, ані в legacy клієнті."
+  );
 }
 
 export async function getPayment(paymentId) {
@@ -65,9 +70,13 @@ export async function getPayment(paymentId) {
   }
 
   // legacy fallback -> { result: { payment } } -> повернемо уніфіковано { payment }
-  const { Client: LegacyClient, Environment: LegacyEnv } = await import("square/legacy");
+  const { Client: LegacyClient, Environment: LegacyEnv } = await import(
+    "square/legacy"
+  );
   const lc = new LegacyClient({
-    bearerAuthCredentials: { accessToken: process.env.SQUARE_ACCESS_TOKEN },
+    bearerAuthCredentials: {
+      accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim(),
+    },
     environment:
       environment === SquareEnvironment.Production
         ? LegacyEnv.Production
@@ -84,9 +93,11 @@ export async function getOrder(orderId) {
   }
 
   // legacy fallback -> { result: { order } } -> повернемо уніфіковано { order }
-  const { Client: LegacyClient, Environment: LegacyEnv } = await import("square/legacy");
+  const { Client: LegacyClient, Environment: LegacyEnv } = await import(
+    "square/legacy"
+  );
   const lc = new LegacyClient({
-    bearerAuthCredentials: { accessToken: process.env.SQUARE_ACCESS_TOKEN },
+    bearerAuthCredentials: { accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim() },
     environment:
       environment === SquareEnvironment.Production
         ? LegacyEnv.Production
