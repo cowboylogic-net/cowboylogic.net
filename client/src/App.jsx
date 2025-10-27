@@ -29,9 +29,6 @@ const Privacy = lazy(() => import("./pages/Privacy/Privacy"));
 const Terms = lazy(() => import("./pages/Terms/Terms"));
 
 // ✅ CLStrategies
-const CLStrategiesHome = lazy(() =>
-  import("./pages/CLStrategiesHome/CLStrategiesHome")
-);
 const CowboyCollegeConsulting = lazy(() =>
   import("./pages/CowboyCollegeConsulting/CowboyCollegeConsulting")
 );
@@ -108,7 +105,6 @@ const App = () => {
 
             <Route path="bookstore/book/:id" element={<BookDetails />} />
             <Route path="clstrategies" element={<CLStrategies />} />
-            <Route path="clstrategies/home" element={<CLStrategiesHome />} />
             <Route
               path="clstrategies/cowboy-college-consulting"
               element={<CowboyCollegeConsulting />}
