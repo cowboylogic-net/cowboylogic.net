@@ -104,7 +104,7 @@ app.post(
 // JSON після raw-маршруту
 app.use(express.json());
 // app.use("/api/webhook", webhookRoutes);
-
+// app.use("/api/webhook", webhookRoutes);
 
 // 🔎 Тимчасова діагностика Square — показати локації для поточного токена
 if (process.env.ENABLE_SQUARE_DIAG === "1") {
