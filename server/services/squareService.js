@@ -40,7 +40,9 @@ export async function createPaymentLink(body) {
     "square/legacy"
   );
   const legacyClient = new LegacyClient({
-    bearerAuthCredentials: { accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim() },
+    bearerAuthCredentials: {
+      accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim(),
+    },
     environment:
       environment === SquareEnvironment.Production
         ? LegacyEnv.Production
@@ -107,27 +109,57 @@ export async function createPaymentLink(body) {
 //   return resp.result;
 // }
 export async function getPayment(paymentId) {
-  try { if (client?.payments?.getPayment) return await client.payments.getPayment({ paymentId }); } catch {}
-  try { if (client?.payments?.get)       return await client.payments.get({ paymentId }); } catch {}
-  try { if (client?.paymentsApi?.getPayment) return (await client.paymentsApi.getPayment(paymentId)).result; } catch {}
+  try {
+    if (client?.payments?.getPayment)
+      return await client.payments.getPayment({ paymentId });
+  } catch {}
+  try {
+    if (client?.payments?.get) return await client.payments.get({ paymentId });
+  } catch {}
+  try {
+    if (client?.paymentsApi?.getPayment)
+      return (await client.paymentsApi.getPayment(paymentId)).result;
+  } catch {}
 
-  const { Client: LegacyClient, Environment: LegacyEnv } = await import("square/legacy");
+  const { Client: LegacyClient, Environment: LegacyEnv } = await import(
+    "square/legacy"
+  );
   const lc = new LegacyClient({
-    bearerAuthCredentials: { accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim() },
-    environment: environment === SquareEnvironment.Production ? LegacyEnv.Production : LegacyEnv.Sandbox,
+    bearerAuthCredentials: {
+      accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim(),
+    },
+    environment:
+      environment === SquareEnvironment.Production
+        ? LegacyEnv.Production
+        : LegacyEnv.Sandbox,
   });
   return (await lc.paymentsApi.getPayment(paymentId)).result;
 }
 
 export async function getOrder(orderId) {
-  try { if (client?.orders?.getOrder) return await client.orders.getOrder({ orderId }); } catch {}
-  try { if (client?.orders?.get)      return await client.orders.get({ orderId }); } catch {}
-  try { if (client?.ordersApi?.retrieveOrder) return (await client.ordersApi.retrieveOrder(orderId)).result; } catch {}
+  try {
+    if (client?.orders?.getOrder)
+      return await client.orders.getOrder({ orderId });
+  } catch {}
+  try {
+    if (client?.orders?.get) return await client.orders.get({ orderId });
+  } catch {}
+  try {
+    if (client?.ordersApi?.retrieveOrder)
+      return (await client.ordersApi.retrieveOrder(orderId)).result;
+  } catch {}
 
-  const { Client: LegacyClient, Environment: LegacyEnv } = await import("square/legacy");
+  const { Client: LegacyClient, Environment: LegacyEnv } = await import(
+    "square/legacy"
+  );
   const lc = new LegacyClient({
-    bearerAuthCredentials: { accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim() },
-    environment: environment === SquareEnvironment.Production ? LegacyEnv.Production : LegacyEnv.Sandbox,
+    bearerAuthCredentials: {
+      accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim(),
+    },
+    environment:
+      environment === SquareEnvironment.Production
+        ? LegacyEnv.Production
+        : LegacyEnv.Sandbox,
   });
   return (await lc.ordersApi.retrieveOrder(orderId)).result;
 }
