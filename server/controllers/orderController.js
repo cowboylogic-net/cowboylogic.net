@@ -187,7 +187,11 @@ const getLatestOrder = async (req, res) => {
     order: [["createdAt", "DESC"]],
   });
 
-  if (!latestOrder) throw HttpError(404, "No orders found");
+  // На момент редиректу після оплати вебхук може ще не створити локальний ордер.
+  // Це НЕ помилка — просто ще немає даних. Віддаємо 204 No Content, щоб фронт продовжив полінг без error-стеків.
+  if (!latestOrder) {
+    return res.status(204).end();
+  }
 
   sendResponse(res, { code: 200, data: latestOrder });
 };
