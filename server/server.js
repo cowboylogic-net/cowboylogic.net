@@ -1,10 +1,11 @@
 // server.js
+import dotenv from "dotenv";
 import http from "http";
 import https from "https";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import dotenv from "dotenv";
+
 import app from "./app.js";
 import connectDB, { sequelize } from "./config/db.js";
 

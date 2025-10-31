@@ -9,6 +9,7 @@ import sendResponse from "../utils/sendResponse.js";
 import { updateOrderStatusSchema } from "../schemas/orderSchemas.js";
 import { sequelize } from "../config/db.js";
 import { Sequelize, Op } from "sequelize";
+import { materializeSquareOrder } from "../utils/materializeSquareOrder.js";
 
 // єдине правило привілеїв (бачать partnerPrice)
 const isPrivileged = (user) =>
@@ -213,7 +214,16 @@ const deleteOrder = async (req, res) => {
 };
 
 const confirmSquareOrder = async (req, res) => {
-  return sendResponse(res, { code: 200, message: "Confirmation received" });
+  const { paymentId, orderId } = req.body || req.query || {};
+  const result = await materializeSquareOrder({ paymentId, orderId });
+
+  if (result.status === "ok") {
+    return sendResponse(res, { code: 200, data: result.order });
+  }
+  if (result.status === "pending") {
+    return res.status(202).json({ status: "pending" });
+  }
+  return res.status(204).end();
 };
 
 export default {
