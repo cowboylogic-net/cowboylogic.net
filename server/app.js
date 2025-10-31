@@ -100,7 +100,7 @@ app.post(
   verifySquareSignature,
   squareWebhookHandler
 );
-
+ 
 // JSON після raw-маршруту
 app.use(express.json());
 // app.use("/api/webhook", webhookRoutes);
