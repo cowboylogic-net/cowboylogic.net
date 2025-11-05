@@ -92,6 +92,11 @@ app.use(
     crossOriginEmbedderPolicy: false,
   })
 );
+// app.js  — тимчасовий no-op вебхук
+app.post("/api/square/webhook", (req, res) => {
+  console.log("[WH:NOOP] got", new Date().toISOString(), req.get("user-agent"));
+  res.status(200).send("ok");
+});
 
 // Square webhook — RAW тіло ДО express.json()
 app.post(
