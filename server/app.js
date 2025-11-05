@@ -99,12 +99,12 @@ app.post("/api/square/webhook", (req, res) => {
 });
 
 // Square webhook — RAW тіло ДО express.json()
-app.post(
-  "/api/square/webhook",
-  express.raw({ type: "*/*" }),
-  verifySquareSignature,
-  squareWebhookHandler
-);
+// app.post(
+//   "/api/square/webhook",
+//   express.raw({ type: "*/*" }),
+//   verifySquareSignature,
+//   squareWebhookHandler
+// );
  
 // JSON після raw-маршруту
 app.use(express.json());
