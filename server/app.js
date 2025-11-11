@@ -100,7 +100,7 @@ app.post(
   verifySquareSignature,
   squareWebhookHandler
 );
- 
+
 // JSON після raw-маршруту
 app.use(express.json());
 // app.use("/api/webhook", webhookRoutes);
@@ -109,8 +109,68 @@ app.use(express.json());
 if (process.env.ENABLE_SQUARE_DIAG === "1") {
   app.get("/_diag/square/locations", async (req, res) => {
     try {
-      const resp = await client.locations.list({});
-      res.json({ ok: true, locations: resp?.locations || resp });
+      // const resp = await client.locations.listLocations();
+      // res.json({ ok: true, locations: resp?.locations || resp });
+      const env = (
+        process.env.SQUARE_ENV ||
+        process.env.NODE_ENV ||
+        ""
+      ).toLowerCase();
+      const token = (process.env.SQUARE_ACCESS_TOKEN || "").trim();
+      console.log("[DIAG] env=", env, "tokenLen=", token.length);
+      // 1) Нові клієнти
+      if (client?.locations?.listLocations) {
+        const r = await client.locations.listLocations();
+        return res.json({
+          ok: true,
+          source: "client.locations.listLocations",
+          locations: r?.locations ?? [],
+        });
+      }
+      if (client?.locations?.list) {
+        const r = await client.locations.list();
+        return res.json({
+          ok: true,
+          source: "client.locations.list",
+          locations: r?.locations ?? [],
+        });
+      }
+      // 2) Старі клієнти (Api-суфікс)
+      if (client?.locationsApi?.listLocations) {
+        const r = await client.locationsApi.listLocations();
+        return res.json({
+          ok: true,
+          source: "client.locationsApi.listLocations",
+          locations: r?.result?.locations ?? r?.locations ?? [],
+        });
+      }
+      if (client?.locationsApi?.list) {
+        const r = await client.locationsApi.list();
+        return res.json({
+          ok: true,
+          source: "client.locationsApi.list",
+          locations: r?.result?.locations ?? r?.locations ?? [],
+        });
+      }
+      // 3) Фолбек: прямий REST виклик (працює з будь-якою версією)
+      const base =
+        env === "production"
+          ? "https://connect.squareup.com"
+          : "https://connect.squareupsandbox.com";
+      const resp = await fetch(`${base}/v2/locations`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+          "Square-Version": "2025-09-24", // або твоя поточна
+        },
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw data;
+      return res.json({
+        ok: true,
+        source: "fetch /v2/locations",
+        locations: data?.locations ?? [],
+      });
     } catch (e) {
       console.error("Diag locations error:", e?.body || e);
       res.status(500).json(e?.body || { error: String(e) });

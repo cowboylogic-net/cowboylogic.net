@@ -13,14 +13,12 @@ const environment = wantProd
 
 // УВАГА: у новому SDK ключ називається "token", не "accessToken"
 export const client = new SquareClient({
-  token: (process.env.SQUARE_ACCESS_TOKEN || "").trim(),
+  accessToken: (process.env.SQUARE_ACCESS_TOKEN || "").trim(),
   environment,
 });
 
 // Групи API у новому SDK (без *Api суфіксів)
 const newCheckout = client.checkout;
-const newPayments = client.payments;
-const newOrders = client.orders;
 
 export const locationId = (process.env.SQUARE_LOCATION_ID || "").trim();
 

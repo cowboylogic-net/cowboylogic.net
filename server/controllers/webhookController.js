@@ -17,18 +17,19 @@ export const squareWebhookHandler = async (req, res) => {
       ? JSON.parse(req.body.toString("utf8"))
       : req.body;
 
-    if (event?.type !== "payment.updated") {
-      console.log("[WH] skip type:", event?.type);
+    const type = event?.type;
+    if (type !== "payment.created" && type !== "payment.updated") {
+      console.log("[WH] skip type:", type);
       return sendResponse(res, { code: 200, data: { received: true } });
     }
 
     const payment = event?.data?.object?.payment;
     if (!payment || payment.status !== "COMPLETED") {
-      console.log("[WH] skip status:", payment?.status);
+      console.log("[WH] skip status:", payment?.status, "type:", type);
       return sendResponse(res, { code: 200, data: { received: true } });
     }
 
-    // 1) Якщо у події немає orderId — дотягуємо його з Payments API
+        // 1) Якщо у події немає orderId — дотягуємо його з Payments API
     if (!payment.orderId) {
       try {
         const payResp = await getPayment(payment.id); // { payment }
@@ -127,7 +128,10 @@ export const squareWebhookHandler = async (req, res) => {
           const unitPrice = (unitCents / 100).toFixed(2);
 
           if (!bookId || quantity <= 0) {
-            console.warn("[WH] skip li (no bookId/qty<=0)", { bookId, quantity });
+            console.warn("[WH] skip li (no bookId/qty<=0)", {
+              bookId,
+              quantity,
+            });
             continue;
           }
 
