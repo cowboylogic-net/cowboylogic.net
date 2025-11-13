@@ -58,7 +58,11 @@ app.use((req, res, next) => {
   res.set("Expires", "0");
   next();
 });
-
+// 0) швидкий healthcheck спеціально для тунелю/Cloudflare
+app.get("/api/square/_ping", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  return res.status(204).end();
+});
 // CORS
 const allowedOrigins = (process.env.CORS_ORIGINS || "")
   .split(",")
@@ -94,13 +98,35 @@ app.use(
 );
 
 // Square webhook — RAW тіло ДО express.json()
-app.post(
-  "/api/square/webhook",
+// app.post(
+//   "/api/square/webhook",
+//   express.raw({ type: "*/*" }),
+//   verifySquareSignature,
+//   squareWebhookHandler
+// );
+// 1) діагностичний лог на вході вебхука (до verifySquareSignature)
+app.post("/api/square/webhook",
   express.raw({ type: "*/*" }),
+  (req, res, next) => {
+    try {
+      console.log("[SQUARE] inbound",
+        new Date().toISOString(),
+        {
+          ip: req.headers["cf-connecting-ip"] || req.ip,
+          ua: req.headers["user-agent"],
+          len: req.headers["content-length"],
+          sig1: req.headers["x-square-signature"],
+          sig2: req.headers["x-square-hmacsha256-signature"],
+          host: req.headers["host"],
+          path: req.url,
+        }
+      );
+    } catch {}
+    next();
+  },
   verifySquareSignature,
   squareWebhookHandler
 );
-
 // JSON після raw-маршруту
 app.use(express.json());
 // app.use("/api/webhook", webhookRoutes);
