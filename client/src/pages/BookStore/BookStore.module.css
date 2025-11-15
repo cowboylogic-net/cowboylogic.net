@@ -10,25 +10,30 @@
 /* Рядок заголовок + кнопка */
 .headerRow {
   display: flex;
-  flex-direction: column;           /* ⬅ кнопка під заголовком */
+  flex-direction: column; /* ⬅ кнопка під заголовком */
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-md);           /* відступ між h1 та кнопкою */
- margin-bottom: var(--spacing-xl); /* відступ від карток */
+  gap: var(--spacing-md); /* відступ між h1 та кнопкою */
+  margin-bottom: var(--spacing-xl); /* відступ від карток */
 }
 
 /* Заголовок */
 .title {
   margin: 0;
-  font-size: 2rem;              /* як у тебе було */
+  font-size: 2rem; /* як у тебе було */
   line-height: 1.1;
   color: #fff;
   text-align: center;
 }
 
 .controls {
-  width: 100%;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--spacing-lg);
+  justify-content: flex-start;
+  margin-bottom: var(--spacing-md);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.95rem;
+  min-width: max-content;
+  max-width: 160px;
+  width: 100%;
+  line-height: 1.2;
 }
