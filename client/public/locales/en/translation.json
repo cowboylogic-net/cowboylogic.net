@@ -70,7 +70,27 @@
     "partnerNote": "min. 5 pcs for partner price",
     "partnerCartSuccess": "Added {{count}} items (minimum for partners)",
     "addedToCart": "Book added to cart",
-    "addToCartError": "Failed to add to cart"
+    "addToCartError": "Failed to add to cart",
+    "formatLabel": "Format",
+    "format": {
+      "PAPERBACK": "Paperback",
+      "HARDCOVER": "Hardcover",
+      "EBOOK_EPUB": "eBook (EPUB)",
+      "KINDLE_AMAZON": "Kindle (Amazon)",
+      "AUDIOBOOK": "Audiobook"
+    },
+    "buyOnAmazon": "Buy on Amazon",
+    "sort": {
+      "label": "Sort by",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "titleAsc": "Title A → Z",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "partnerPriceAsc": "Partner price: low to high",
+      "partnerPriceDesc": "Partner price: high to low",
+      "displayOrderAsc": "Custom display order"
+    }
   },
 
   "cart": {
@@ -118,7 +138,22 @@
     "updating": "Updating...",
     "update": "Update Book",
     "partnerPrice": "Partner Price: ${{price}}",
-    "invalidPartnerPrice": "Please enter a valid partner price"
+    "invalidPartnerPrice": "Please enter a valid partner price",
+    "format": "Format",
+    "displayOrder": "Display order",
+    "displayOrderPlaceholder": "0 = top of the list",
+    "amazonUrl": "Amazon URL",
+    "amazonUrlPlaceholder": "https://www.amazon.com/...",
+    "downloadUrl": "Download URL",
+    "downloadUrlPlaceholder": "https://...",
+    "formatRequired": "Format is required",
+    "formatInvalid": "Please select a valid format",
+    "displayOrderRequired": "Display order is required",
+    "displayOrderType": "Display order must be a number",
+    "displayOrderInteger": "Display order must be an integer",
+    "displayOrderMin": "Display order cannot be negative",
+    "amazonUrlRequired": "Amazon URL is required for Kindle titles",
+    "downloadUrlNotAllowed": "Download URL is not allowed for Kindle titles"
   },
   "favorites": {
     "heading": "My Favorite Books",
@@ -407,7 +442,8 @@
   "validation": {
     "required": "This field is required",
     "minStock": "Stock must be 0 or more",
-    "mustBeNumber": "Must be a valid number"
+    "mustBeNumber": "Must be a valid number",
+    "invalidUrl": "Must be a valid URL"
   },
   "partnerStore": {
     "title": "Partner Book Store",

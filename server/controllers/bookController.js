@@ -7,6 +7,22 @@ import path from "path";
 import { Op } from "sequelize";
 import sendResponse from "../utils/sendResponse.js";
 
+const ALLOWED_FORMATS = [
+  "PAPERBACK",
+  "HARDCOVER",
+  "EBOOK_EPUB",
+  "KINDLE_AMAZON",
+  "AUDIOBOOK",
+];
+
+const normalizeFormat = (value = "PAPERBACK") => {
+  const normalized = String(value || "").toUpperCase();
+  if (!ALLOWED_FORMATS.includes(normalized)) {
+    throw HttpError(400, "Invalid format");
+  }
+  return normalized;
+};
+
 const createBook = async (req, res) => {
   const {
     title,
@@ -17,6 +33,10 @@ const createBook = async (req, res) => {
     inStock,
     stock,
     isWholesaleAvailable,
+    format,
+    displayOrder,
+    amazonUrl,
+    downloadUrl,
   } = req.body;
 
   const wholesale = String(isWholesaleAvailable).toLowerCase() === "true";
@@ -31,6 +51,32 @@ const createBook = async (req, res) => {
     }
   }
 
+  const normalizedFormat = normalizeFormat(format || "PAPERBACK");
+
+  let normalizedAmazonUrl = typeof amazonUrl === "string" ? amazonUrl.trim() : amazonUrl;
+  let normalizedDownloadUrl =
+    typeof downloadUrl === "string" ? downloadUrl.trim() : downloadUrl;
+
+  if (normalizedFormat === "KINDLE_AMAZON") {
+    if (!normalizedAmazonUrl) {
+      throw HttpError(400, "Amazon URL is required for Kindle books");
+    }
+    normalizedDownloadUrl = null;
+  } else {
+    normalizedAmazonUrl = normalizedAmazonUrl || null;
+    if (normalizedFormat === "EBOOK_EPUB" || normalizedFormat === "AUDIOBOOK") {
+      normalizedDownloadUrl = normalizedDownloadUrl || null;
+    } else {
+      normalizedDownloadUrl = null;
+    }
+  }
+
+  const parsedDisplayOrderRaw = Number.parseInt(displayOrder, 10);
+  const parsedDisplayOrder =
+    Number.isNaN(parsedDisplayOrderRaw) || parsedDisplayOrderRaw < 0
+      ? 0
+      : parsedDisplayOrderRaw;
+
   const newBook = {
     title,
     author,
@@ -41,6 +87,10 @@ const createBook = async (req, res) => {
     inStock: String(inStock).toLowerCase() === "true",
     stock: parseInt(stock) || 0,
     imageUrl: req.file?.webPath || req.body.imageUrl || null, // ✅ головне
+    format: normalizedFormat,
+    displayOrder: parsedDisplayOrder,
+    amazonUrl: normalizedAmazonUrl,
+    downloadUrl: normalizedDownloadUrl,
   };
 
   const book = await Book.create(newBook);
@@ -100,6 +150,64 @@ const updateBook = async (req, res) => {
     updateData.partnerPrice = pp;
   }
 
+  let nextFormat = book.format;
+  if ("format" in req.body) {
+    nextFormat = normalizeFormat(req.body.format);
+    updateData.format = nextFormat;
+  }
+
+  if ("displayOrder" in req.body) {
+    const parsedDisplayOrder = parseInt(req.body.displayOrder, 10);
+    if (Number.isNaN(parsedDisplayOrder) || parsedDisplayOrder < 0) {
+      throw HttpError(400, "Invalid displayOrder");
+    }
+    updateData.displayOrder = parsedDisplayOrder;
+  }
+
+  let nextAmazonUrl = book.amazonUrl;
+  if ("amazonUrl" in req.body) {
+    const trimmed =
+      typeof req.body.amazonUrl === "string" ? req.body.amazonUrl.trim() : req.body.amazonUrl;
+    nextAmazonUrl = trimmed || null;
+    updateData.amazonUrl = nextAmazonUrl;
+  }
+
+  let nextDownloadUrl = book.downloadUrl;
+  if ("downloadUrl" in req.body) {
+    const trimmed =
+      typeof req.body.downloadUrl === "string"
+        ? req.body.downloadUrl.trim()
+        : req.body.downloadUrl;
+    nextDownloadUrl = trimmed || null;
+    updateData.downloadUrl = nextDownloadUrl;
+  }
+
+  if (!("format" in req.body)) {
+    nextFormat = book.format;
+  }
+
+  if (!("amazonUrl" in req.body)) {
+    nextAmazonUrl = book.amazonUrl;
+  }
+
+  if (!("downloadUrl" in req.body)) {
+    nextDownloadUrl = book.downloadUrl;
+  }
+
+  if (nextFormat === "KINDLE_AMAZON") {
+    if (!nextAmazonUrl) {
+      throw HttpError(400, "Amazon URL is required for Kindle books");
+    }
+    updateData.amazonUrl = nextAmazonUrl;
+    updateData.downloadUrl = null;
+  } else if (nextFormat === "EBOOK_EPUB" || nextFormat === "AUDIOBOOK") {
+    updateData.amazonUrl = nextAmazonUrl || null;
+    updateData.downloadUrl = nextDownloadUrl || null;
+  } else {
+    updateData.amazonUrl = nextAmazonUrl || null;
+    updateData.downloadUrl = null;
+  }
+
   // 🖼️ якщо прийшов новий файл — видаляємо старий /uploads/* і ставимо новий шлях
   if (req.file?.webPath) {
     if (book.imageUrl && book.imageUrl.startsWith("/uploads/")) {
@@ -134,6 +242,7 @@ const getBooks = async (req, res) => {
   const attrs = Book.rawAttributes || Book.getAttributes?.() || {};
   const allowedSort = new Set(["title", "price", "stock"]);
   if ("createdAt" in attrs) allowedSort.add("createdAt");
+  if ("displayOrder" in attrs) allowedSort.add("displayOrder");
 
   const sortByRaw = q.sortBy ?? "createdAt";
   const sortBy = allowedSort.has(sortByRaw) ? sortByRaw : [...allowedSort][0];
@@ -218,7 +327,7 @@ const deleteBook = async (req, res) => {
 const getPartnerBooks = async (req, res) => {
   const q = (req.validated && req.validated.query) || req.query || {};
 
-  const allowedSort = new Set(["createdAt", "title", "partnerPrice", "stock"]);
+  const allowedSort = new Set(["createdAt", "title", "partnerPrice", "stock", "displayOrder"]);
   const sortByRaw = q.sortBy ?? "createdAt";
   const sortBy = allowedSort.has(sortByRaw) ? sortByRaw : "createdAt";
 
@@ -249,6 +358,10 @@ const getPartnerBooks = async (req, res) => {
       "stock",
       "imageUrl",
       "createdAt",
+      "format",
+      "displayOrder",
+      "amazonUrl",
+      "downloadUrl",
     ],
     limit,
     offset,

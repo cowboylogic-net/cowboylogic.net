@@ -30,6 +30,7 @@ const BookDetails = () => {
   const book = useSelector(selectSelectedBook);
   const user = useSelector((state) => state.auth.user);
   const token = useSelector((state) => state.auth.token);
+  const isKindle = book?.format === "KINDLE_AMAZON";
 
   // ---- View mode resolution ----
   const searchParams = new URLSearchParams(location.search);
@@ -153,24 +154,41 @@ const BookDetails = () => {
               : t("book.outOfStock")}
           </p>
 
-          {user && (
+          {isKindle ? (
             <div className={styles.actions}>
               <BaseButton
-                onClick={handleAddToCart}
-                size="lg"
-                variant="outline"
-                disabled={book.stock === 0}
-              >
-                {book.stock === 0 ? t("book.outOfStock") : t("book.addToCart")}
-              </BaseButton>
-              <BaseButton
-                onClick={handleSquareCheckout}
+                as="a"
+                href={book.amazonUrl || "#"}
+                target="_blank"
+                rel="noopener noreferrer"
                 size="lg"
                 variant="outline"
               >
-                {t("book.buyNow")}
+                {t("book.buyOnAmazon")}
               </BaseButton>
             </div>
+          ) : (
+            user && (
+              <div className={styles.actions}>
+                <BaseButton
+                  onClick={handleAddToCart}
+                  size="lg"
+                  variant="outline"
+                  disabled={book.stock === 0}
+                >
+                  {book.stock === 0
+                    ? t("book.outOfStock")
+                    : t("book.addToCart")}
+                </BaseButton>
+                <BaseButton
+                  onClick={handleSquareCheckout}
+                  size="lg"
+                  variant="outline"
+                >
+                  {t("book.buyNow")}
+                </BaseButton>
+              </div>
+            )
           )}
         </div>
       </div>

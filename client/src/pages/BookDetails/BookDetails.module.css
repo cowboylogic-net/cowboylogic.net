@@ -56,6 +56,13 @@
   color: #eee;
 }
 
+.format {
+  font-size: 0.95rem;
+  color: var(--color-accent-light, #d0d0ff);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .description {
   font-size: 1rem;
   color: #ddd;
@@ -85,7 +92,6 @@
   color: var(--color-accent);
   font-style: italic;
 }
-
 
 /* 🔁 Mobile */
 @media (max-width: 767px) {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useTranslation } from "react-i18next";
 
@@ -26,6 +26,7 @@ import BaseTextarea from "../BaseTextarea/BaseTextarea";
 import BaseForm from "../BaseForm/BaseForm";
 import FormGroup from "../FormGroup/FormGroup";
 import BaseCheckbox from "../BaseCheckbox/BaseCheckbox";
+import BaseSelect from "../BaseSelect/BaseSelect";
 
 const BookForm = ({ onSuccess, onError }) => {
   const { t } = useTranslation();
@@ -43,8 +44,10 @@ const BookForm = ({ onSuccess, onError }) => {
 
   const {
     register,
+    control,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors, touchedFields },
   } = useForm({
@@ -65,6 +68,8 @@ const BookForm = ({ onSuccess, onError }) => {
   const [preview, setPreview] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
 
+  const formatValue = watch("format");
+
   useEffect(() => {
     if (isEditMode && id) {
       dispatch(fetchBookById(id));
@@ -82,10 +87,20 @@ const BookForm = ({ onSuccess, onError }) => {
         imageUrl: selectedBook.imageUrl || "",
         inStock: selectedBook.inStock,
         stock: selectedBook.stock ?? 0,
+        format: selectedBook.format || "PAPERBACK",
+        displayOrder: selectedBook.displayOrder ?? 0,
+        amazonUrl: selectedBook.amazonUrl || "",
+        downloadUrl: selectedBook.downloadUrl || "",
       });
       setPreview(selectedBook.imageUrl || null);
     }
   }, [selectedBook, reset, isEditMode]);
+
+  useEffect(() => {
+    if (formatValue === "KINDLE_AMAZON") {
+      setValue("downloadUrl", "");
+    }
+  }, [formatValue, setValue]);
 
   const handleImageInsert = ({ file, url }) => {
     if (file) {
@@ -122,6 +137,16 @@ const BookForm = ({ onSuccess, onError }) => {
     formData.append("stock", parsedStock);
     formData.append("inStock", !!data.inStock);
     formData.append("isWholesaleAvailable", true);
+    formData.append("format", data.format);
+    formData.append("displayOrder", Number(data.displayOrder) || 0);
+
+    if (data.amazonUrl) {
+      formData.append("amazonUrl", data.amazonUrl.trim());
+    }
+
+    if (data.downloadUrl && data.format !== "KINDLE_AMAZON") {
+      formData.append("downloadUrl", data.downloadUrl.trim());
+    }
 
     const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
@@ -171,6 +196,84 @@ const BookForm = ({ onSuccess, onError }) => {
             placeholder={t("bookForm.title")}
             {...register("title")}
             touched={touchedFields.title}
+          />
+        </FormGroup>
+        <FormGroup
+          className={styles.group}
+          label={t("bookForm.format")}
+          error={errors.format?.message}
+          required
+          forId="book-format"
+        >
+          <Controller
+            control={control}
+            name="format"
+            render={({ field }) => (
+              <BaseSelect
+                id="book-format"
+                {...field}
+                touched={touchedFields.format}
+                options={[
+                  { value: "PAPERBACK", label: t("book.format.PAPERBACK") },
+                  { value: "HARDCOVER", label: t("book.format.HARDCOVER") },
+                  { value: "EBOOK_EPUB", label: t("book.format.EBOOK_EPUB") },
+                  {
+                    value: "KINDLE_AMAZON",
+                    label: t("book.format.KINDLE_AMAZON"),
+                  },
+                  { value: "AUDIOBOOK", label: t("book.format.AUDIOBOOK") },
+                ]}
+                error={errors.format?.message}
+              />
+            )}
+          />
+        </FormGroup>
+
+        <FormGroup
+          className={styles.group}
+          label={t("bookForm.displayOrder")}
+          error={errors.displayOrder?.message}
+          required
+          forId="book-display-order"
+        >
+          <BaseInput
+            id="book-display-order"
+            type="number"
+            min="0"
+            placeholder={t("bookForm.displayOrderPlaceholder")}
+            {...register("displayOrder")}
+            touched={touchedFields.displayOrder}
+          />
+        </FormGroup>
+
+        <FormGroup
+          className={styles.group}
+          label={t("bookForm.amazonUrl")}
+          error={errors.amazonUrl?.message}
+          forId="book-amazon-url"
+        >
+          <BaseInput
+            id="book-amazon-url"
+            type="url"
+            placeholder={t("bookForm.amazonUrlPlaceholder")}
+            {...register("amazonUrl")}
+            touched={touchedFields.amazonUrl}
+          />
+        </FormGroup>
+
+        <FormGroup
+          className={styles.group}
+          label={t("bookForm.downloadUrl")}
+          error={errors.downloadUrl?.message}
+          forId="book-download-url"
+        >
+          <BaseInput
+            id="book-download-url"
+            type="url"
+            placeholder={t("bookForm.downloadUrlPlaceholder")}
+            {...register("downloadUrl")}
+            touched={touchedFields.downloadUrl}
+            disabled={formatValue === "KINDLE_AMAZON"}
           />
         </FormGroup>
 

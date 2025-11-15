@@ -60,7 +60,27 @@
     "addToCart": "Agregar al carrito",
     "buyNow": "Comprar ahora",
     "favorite": "Agregar a favoritos",
-    "unfavorite": "Quitar de favoritos"
+    "unfavorite": "Quitar de favoritos",
+    "formatLabel": "Formato",
+    "format": {
+      "PAPERBACK": "Libro impreso",
+      "HARDCOVER": "Tapa dura",
+      "EBOOK_EPUB": "eBook (EPUB)",
+      "KINDLE_AMAZON": "Kindle (Amazon)",
+      "AUDIOBOOK": "Audiolibro"
+    },
+    "buyOnAmazon": "Comprar en Amazon",
+    "sort": {
+      "label": "Ordenar por",
+      "newest": "Más recientes",
+      "oldest": "Más antiguos",
+      "titleAsc": "Título A → Z",
+      "priceAsc": "Precio: de menor a mayor",
+      "priceDesc": "Precio: de mayor a menor",
+      "partnerPriceAsc": "Precio mayorista: de menor a mayor",
+      "partnerPriceDesc": "Precio mayorista: de mayor a menor",
+      "displayOrderAsc": "Orden personalizado"
+    }
   },
   "cart": {
     "title": "Mi carrito",
@@ -98,7 +118,28 @@
     "successCreate": "✅ Libro creado exitosamente",
     "successUpdate": "✅ Libro actualizado exitosamente",
     "failSave": "❌ Error al guardar el libro",
-    "notFound": "Libro no encontrado"
+    "notFound": "Libro no encontrado",
+    "format": "Formato",
+    "displayOrder": "Orden de visualización",
+    "displayOrderPlaceholder": "0 = al inicio",
+    "amazonUrl": "URL de Amazon",
+    "amazonUrlPlaceholder": "https://www.amazon.com/...",
+    "downloadUrl": "URL de descarga",
+    "downloadUrlPlaceholder": "https://...",
+    "formatRequired": "El formato es obligatorio",
+    "formatInvalid": "Selecciona un formato válido",
+    "displayOrderRequired": "El orden de visualización es obligatorio",
+    "displayOrderType": "El orden de visualización debe ser un número",
+    "displayOrderInteger": "El orden de visualización debe ser un entero",
+    "displayOrderMin": "El orden de visualización no puede ser negativo",
+    "amazonUrlRequired": "La URL de Amazon es obligatoria para títulos Kindle",
+    "downloadUrlNotAllowed": "La URL de descarga no está permitida para títulos Kindle"
+  },
+  "validation": {
+    "required": "Este campo es obligatorio",
+    "minStock": "El stock debe ser 0 o mayor",
+    "mustBeNumber": "Debe ser un número válido",
+    "invalidUrl": "Debe ser una URL válida"
   },
   "favorites": {
     "heading": "Mis libros favoritos",

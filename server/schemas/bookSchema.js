@@ -1,5 +1,13 @@
 import Joi from "joi";
 
+const FORMAT_VALUES = [
+  "PAPERBACK",
+  "HARDCOVER",
+  "EBOOK_EPUB",
+  "KINDLE_AMAZON",
+  "AUDIOBOOK",
+];
+
 export const createBookSchema = Joi.object({
   title: Joi.string().min(2).max(255).required(),
   author: Joi.string().min(2).max(255).required(),
@@ -10,6 +18,21 @@ export const createBookSchema = Joi.object({
   inStock: Joi.boolean().truthy("true").falsy("false").optional(),
   stock: Joi.number().integer().min(0).required(),
   isWholesaleAvailable: Joi.boolean().truthy("true").falsy("false").optional(),
+  format: Joi.string()
+    .valid(...FORMAT_VALUES)
+    .insensitive()
+    .default("PAPERBACK"),
+  displayOrder: Joi.number().integer().min(0).default(0),
+  amazonUrl: Joi.alternatives().conditional("format", {
+    is: Joi.string().valid("KINDLE_AMAZON").insensitive(),
+    then: Joi.string().uri().required(),
+    otherwise: Joi.string().uri().allow("").optional(),
+  }),
+  downloadUrl: Joi.alternatives().conditional("format", {
+    is: Joi.string().valid("KINDLE_AMAZON").insensitive(),
+    then: Joi.forbidden(),
+    otherwise: Joi.string().uri().allow("").optional(),
+  }),
 });
 
 export const updateBookSchema = Joi.object({
@@ -34,4 +57,18 @@ export const updateBookSchema = Joi.object({
     .optional(),
   inStock: Joi.boolean().truthy("true").falsy("false").optional(),
   isWholesaleAvailable: Joi.boolean().truthy("true").falsy("false").optional(),
+  format: Joi.string()
+    .valid(...FORMAT_VALUES)
+    .insensitive(),
+  displayOrder: Joi.number().integer().min(0),
+  amazonUrl: Joi.alternatives().conditional("format", {
+    is: Joi.string().valid("KINDLE_AMAZON").insensitive(),
+    then: Joi.string().uri(),
+    otherwise: Joi.string().uri().allow("").optional(),
+  }),
+  downloadUrl: Joi.alternatives().conditional("format", {
+    is: Joi.string().valid("KINDLE_AMAZON").insensitive(),
+    then: Joi.forbidden(),
+    otherwise: Joi.string().uri().allow("").optional(),
+  }),
 }).min(1);

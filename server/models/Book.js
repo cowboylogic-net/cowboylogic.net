@@ -30,6 +30,29 @@ const Book = sequelize.define(
       allowNull: false,
     },
 
+    format: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: "PAPERBACK",
+      comment: "PAPERBACK | HARDCOVER | EBOOK_EPUB | KINDLE_AMAZON | AUDIOBOOK",
+    },
+    displayOrder: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+      comment: "Lower numbers appear earlier in listings",
+    },
+    amazonUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: "External Amazon URL for Kindle editions",
+    },
+    downloadUrl: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      comment: "Download URL for EPUB / Audiobook",
+    },
+
     isWholesaleAvailable: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,

@@ -1,5 +1,15 @@
 import * as yup from "yup";
 
+const FORMAT_VALUES = [
+  "PAPERBACK",
+  "HARDCOVER",
+  "EBOOK_EPUB",
+  "KINDLE_AMAZON",
+  "AUDIOBOOK",
+];
+
+const toUpper = (value) => String(value || "").toUpperCase();
+
 // BookForm schema
 export const bookFormSchema = (t) =>
   yup.object().shape({
@@ -17,6 +27,44 @@ export const bookFormSchema = (t) =>
       .required(t("validation.required"))
       .min(0, t("validation.minStock"))
       .typeError(t("validation.mustBeNumber")),
+    format: yup
+      .string()
+      .oneOf(FORMAT_VALUES, t("bookForm.formatInvalid"))
+      .required(t("bookForm.formatRequired")),
+    displayOrder: yup
+      .number()
+      .typeError(t("bookForm.displayOrderType"))
+      .integer(t("bookForm.displayOrderInteger"))
+      .min(0, t("bookForm.displayOrderMin"))
+      .required(t("bookForm.displayOrderRequired")),
+    amazonUrl: yup
+      .string()
+      .trim()
+      .transform((value) => (value === "" ? null : value))
+      .nullable()
+      .when("format", (formatValue, schema) => {
+        if (toUpper(formatValue) === "KINDLE_AMAZON") {
+          return schema
+            .required(t("bookForm.amazonUrlRequired"))
+            .url(t("validation.invalidUrl"));
+        }
+        return schema.notRequired().url(t("validation.invalidUrl"));
+      }),
+    downloadUrl: yup
+      .string()
+      .trim()
+      .transform((value) => (value === "" ? null : value))
+      .nullable()
+      .when("format", (formatValue, schema) => {
+        if (toUpper(formatValue) === "KINDLE_AMAZON") {
+          return schema.test(
+            "downloadUrl-null-for-kindle",
+            t("bookForm.downloadUrlNotAllowed"),
+            (value) => !value
+          );
+        }
+        return schema.notRequired().url(t("validation.invalidUrl"));
+      }),
   });
 
 // ContactForm schema
@@ -33,7 +81,6 @@ export const contactFormSchema = (t) =>
       .min(10, t("contact.messageMin"))
       .required(t("contact.messageRequired")),
   });
-
 
 export const newsletterFormSchema = (t) =>
   yup.object({

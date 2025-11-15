@@ -22,6 +22,7 @@ const BookCard = ({
   const [quantity, setQuantity] = useState(5);
 
   const mode = isPartnerView ? "partner" : "user";
+  const isKindle = book.format === "KINDLE_AMAZON";
 
   return (
     <div className={styles.card}>
@@ -72,6 +73,11 @@ const BookCard = ({
         </div>
 
         <p className={styles.cardText}>{book.author}</p>
+        {book.format && (
+          <p className={styles.cardFormat}>
+            {t(`book.format.${book.format}`)}
+          </p>
+        )}
 
         {!isPartnerView ? (
           <p className={styles.cardText}>
@@ -117,7 +123,18 @@ const BookCard = ({
 
         {/* CTA-зона внизу, без absolute */}
         <div className={styles.ctaRow}>
-          {!isPartnerView ? (
+          {isKindle ? (
+            <BaseButton
+              as="a"
+              href={book.amazonUrl || "#"}
+              target="_blank"
+              rel="noopener noreferrer"
+              size="small"
+              variant="outline"
+            >
+              {t("book.buyOnAmazon")}
+            </BaseButton>
+          ) : !isPartnerView ? (
             <BaseButton
               onClick={() => onAddToCart(book.id)}
               size="small"

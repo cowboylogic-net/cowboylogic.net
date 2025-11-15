@@ -87,6 +87,12 @@
   font-size: var(--font-sm);
   color: var(--color-light-text);
 }
+.cardFormat {
+  font-size: var(--font-xs);
+  color: var(--color-accent-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
 
 .cardNote {
   font-size: var(--font-xs);
