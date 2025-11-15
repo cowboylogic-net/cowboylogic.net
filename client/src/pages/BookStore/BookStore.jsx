@@ -112,7 +112,7 @@ const BookStore = () => {
   return (
     <div className={styles.container}>
       <div className={styles.headerRow}>
-        <h1 className={styles.title}>{t("bookStore.title", "Book Store")}</h1>
+        <h1 className={styles.title}>{t("bookStore.title")}</h1>
         {!authBooting && isAdmin && (
           <BaseButton onClick={handleAddBook} variant="outline">
             {t("bookStore.addBook", "Add book")}
