@@ -72,22 +72,25 @@
     "addedToCart": "Book added to cart",
     "addToCartError": "Failed to add to cart",
     "formatLabel": "Format",
-    "label": "Sort by",
-    "newest": "Newest",
-    "oldest": "Oldest",
-    "titleAsc": "Title A → Z",
-    "priceAsc": "Price: low to high",
-    "priceDesc": "Price: high to low",
-    "partnerPriceAsc": "Partner price: low to high",
-    "partnerPriceDesc": "Partner price: high to low",
-    "displayOrderAsc": "Custom display order",
-    "PAPERBACK": "Paperback",
-    "HARDCOVER": "Hardcover",
-    "EBOOK_EPUB": "eBook (EPUB)",
-    "KINDLE_AMAZON": "Kindle (Amazon)",
-    "AUDIOBOOK": "Audiobook",
-
-    "buyOnAmazon": "Buy on Amazon"
+    "format": {
+      "PAPERBACK": "Paperback",
+      "HARDCOVER": "Hardcover",
+      "EBOOK_EPUB": "eBook (EPUB)",
+      "KINDLE_AMAZON": "Kindle (Amazon)",
+      "AUDIOBOOK": "Audiobook"
+    },
+    "buyOnAmazon": "Buy on Amazon",
+    "sort": {
+      "label": "Sort by",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "titleAsc": "Title A → Z",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "partnerPriceAsc": "Partner price: low to high",
+      "partnerPriceDesc": "Partner price: high to low",
+      "displayOrderAsc": "Custom display order"
+    }
   },
 
   "cart": {
@@ -445,7 +448,7 @@
   "partnerStore": {
     "title": "Partner Book Store",
     "loadError": " — Failed to load partner books.",
-    "partnerPrice": "Partner Price: ${{price}}",
+    "partnerPrice": "Partner Price:",
     "invalidPartnerPrice": "Please enter a valid partner price"
   },
   "common": {
