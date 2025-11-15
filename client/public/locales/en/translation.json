@@ -72,25 +72,22 @@
     "addedToCart": "Book added to cart",
     "addToCartError": "Failed to add to cart",
     "formatLabel": "Format",
-    "format": {
-      "PAPERBACK": "Paperback",
-      "HARDCOVER": "Hardcover",
-      "EBOOK_EPUB": "eBook (EPUB)",
-      "KINDLE_AMAZON": "Kindle (Amazon)",
-      "AUDIOBOOK": "Audiobook"
-    },
-    "buyOnAmazon": "Buy on Amazon",
-    "sort": {
-      "label": "Sort by",
-      "newest": "Newest",
-      "oldest": "Oldest",
-      "titleAsc": "Title A → Z",
-      "priceAsc": "Price: low to high",
-      "priceDesc": "Price: high to low",
-      "partnerPriceAsc": "Partner price: low to high",
-      "partnerPriceDesc": "Partner price: high to low",
-      "displayOrderAsc": "Custom display order"
-    }
+    "label": "Sort by",
+    "newest": "Newest",
+    "oldest": "Oldest",
+    "titleAsc": "Title A → Z",
+    "priceAsc": "Price: low to high",
+    "priceDesc": "Price: high to low",
+    "partnerPriceAsc": "Partner price: low to high",
+    "partnerPriceDesc": "Partner price: high to low",
+    "displayOrderAsc": "Custom display order",
+    "PAPERBACK": "Paperback",
+    "HARDCOVER": "Hardcover",
+    "EBOOK_EPUB": "eBook (EPUB)",
+    "KINDLE_AMAZON": "Kindle (Amazon)",
+    "AUDIOBOOK": "Audiobook",
+
+    "buyOnAmazon": "Buy on Amazon"
   },
 
   "cart": {
