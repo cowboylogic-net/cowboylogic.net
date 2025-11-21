@@ -205,6 +205,23 @@ const BurgerNavbar = () => {
                   </>
                 )}
 
+                <a
+                  href="https://cowboylogic.net/bookclub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.navLink}
+                >
+                  CLP Book Club
+                </a>
+                <a
+                  href="https://cowboylogic.net/roger/talent/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.navLink}
+                >
+                  Talent
+                </a>
+
                 <BaseButton
                   variant="outline"
                   size="small"

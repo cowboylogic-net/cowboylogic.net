@@ -63,6 +63,7 @@ const Navbar = () => {
   return (
     <div className="layoutContainer" ref={navbarRef}>
       <div className={styles.navbar}>
+        {/* TODO: wrap navbar items in <ul><li> for semantics & accessibility */}
         <nav className={styles.navLeft}>
           <NavLink
             to="/"
@@ -148,6 +149,23 @@ const Navbar = () => {
               </div>
             )}
           </div>
+
+          <a
+            href="https://cowboylogic.net/bookclub"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.navLink}
+          >
+            CLP Book Club
+          </a>
+          <a
+            href="https://cowboylogic.net/roger/talent/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.navLink}
+          >
+            Talent
+          </a>
 
           {user?.role &&
             [ROLES.ADMIN, ROLES.SUPERADMIN].includes(user.role) && (
