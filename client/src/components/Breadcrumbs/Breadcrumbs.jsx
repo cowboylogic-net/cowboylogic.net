@@ -50,10 +50,12 @@ export default function Breadcrumbs({ hideOnHome = true, className }) {
           label = t("routes.partnerStore", { defaultValue: "Partner Store" });
           break;
         case "cl-publishing":
-          label = t("routes.clPublishing", { defaultValue: "CL Publishing" });
+        case "clpublishing":  
+          label = t("routes.clPublishing", { defaultValue: "CLPublishing" });
           break;
         case "cl-strategies":
-          label = t("routes.clStrategies", { defaultValue: "CL Strategies" });
+        case "clstrategies":
+          label = t("routes.clStrategies", { defaultValue: "CLStrategies" });
           break;
         case "search":
           label = t("routes.search", { defaultValue: "Search" });

@@ -68,6 +68,68 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
     }
   }, []);
 
+  // Ensure legacy <font> tags and align attributes are converted to inline styles
+  // before any sanitization removes them. Without this, execCommand output like
+  // <div align="center"> or <font color="#0f0"> would lose formatting.
+  const normalizeFormatting = useCallback((html) => {
+    if (!html) return html;
+    try {
+      const doc = new DOMParser().parseFromString(html, "text/html");
+
+      doc.body.querySelectorAll("font").forEach((fontEl) => {
+        const span = doc.createElement("span");
+        const styleParts = [];
+
+        const color = fontEl.getAttribute("color");
+        if (color) styleParts.push(`color:${color}`);
+
+        const size = fontEl.getAttribute("size");
+        if (size) {
+          const map = {
+            1: "12px",
+            2: "14px",
+            3: "16px",
+            4: "18px",
+            5: "24px",
+            6: "32px",
+            7: "48px",
+          };
+          if (map[size]) styleParts.push(`font-size:${map[size]}`);
+        }
+
+        const existingStyle = fontEl.getAttribute("style") || "";
+        const style = [existingStyle, ...styleParts]
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .join(";");
+
+        if (style) span.setAttribute("style", style);
+
+        while (fontEl.firstChild) {
+          span.appendChild(fontEl.firstChild);
+        }
+        fontEl.replaceWith(span);
+      });
+
+      doc.body.querySelectorAll("[align]").forEach((node) => {
+        const align = (node.getAttribute("align") || "").toLowerCase();
+        if (/^(left|right|center|justify)$/.test(align)) {
+          const existing = node.getAttribute("style") || "";
+          const style = [existing, `text-align:${align}`]
+            .map((s) => s.trim())
+            .filter(Boolean)
+            .join(";");
+          node.setAttribute("style", style);
+        }
+        node.removeAttribute("align");
+      });
+
+      return doc.body.innerHTML;
+    } catch {
+      return html;
+    }
+  }, []);
+
   const normalizeUploadsInHtml = (html) => {
     if (!html) return html;
     const apiBase = getApiBase(); // напр. https://clpit.duckdns.org у проді; "" локально
@@ -98,10 +160,11 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
   }, [draft, published, isEditing]);
 
   const handleSaveDraft = useCallback(async () => {
-    const cleanContent = DOMPurify.sanitize(
-      enforceAnchorTargets(localContent),
-      { ADD_ATTR: ["style", "target", "rel"] }
-    );
+    const normalized = normalizeFormatting(enforceAnchorTargets(localContent));
+    const cleanContent = DOMPurify.sanitize(normalized, {
+      ADD_ATTR: ["style", "target", "rel", "align"],
+      ADD_TAGS: ["font"],
+    });
     try {
       await dispatch(
         saveDraftContent({ slug, content: cleanContent })
@@ -172,10 +235,11 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
   };
 
   const handleSave = async () => {
-    const cleanContent = DOMPurify.sanitize(
-      enforceAnchorTargets(localContent),
-      { ADD_ATTR: ["style", "target", "rel"] }
-    );
+    const normalized = normalizeFormatting(enforceAnchorTargets(localContent));
+    const cleanContent = DOMPurify.sanitize(normalized, {
+      ADD_ATTR: ["style", "target", "rel", "align"],
+      ADD_TAGS: ["font"],
+    });
 
     const tempDiv = document.createElement("div");
     tempDiv.innerHTML = cleanContent;
@@ -225,8 +289,10 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
     setTimeout(() => {
       if (editorRef.current) {
         editorRef.current.innerHTML = DOMPurify.sanitize(
-          enforceAnchorTargets(normalizeUploadsInHtml(base)),
-          { ADD_ATTR: ["style", "target", "rel"] }
+          normalizeFormatting(
+            enforceAnchorTargets(normalizeUploadsInHtml(base))
+          ),
+          { ADD_ATTR: ["style", "target", "rel", "align"], ADD_TAGS: ["font"] }
         );
       }
     }, 0);
@@ -260,8 +326,8 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
     setLocalContent(lastPublished);
     if (editorRef.current) {
       editorRef.current.innerHTML = DOMPurify.sanitize(
-        enforceAnchorTargets(lastPublished || ""),
-        { ADD_ATTR: ["style", "target", "rel"] }
+        normalizeFormatting(enforceAnchorTargets(lastPublished || "")),
+        { ADD_ATTR: ["style", "target", "rel", "align"], ADD_TAGS: ["font"] }
       );
     }
     dispatch(saveDraftContent({ slug, content: published || "" }));
@@ -546,8 +612,13 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
             className={`editableContent ${styles.preview}`}
             dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(
-                enforceAnchorTargets(normalizeUploadsInHtml(localContent)),
-                { ADD_ATTR: ["style", "target", "rel"] }
+                normalizeFormatting(
+                  enforceAnchorTargets(normalizeUploadsInHtml(localContent))
+                ),
+                {
+                  ADD_ATTR: ["style", "target", "rel", "align"],
+                  ADD_TAGS: ["font"],
+                }
               ),
             }}
           />

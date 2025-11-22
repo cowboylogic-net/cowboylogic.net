@@ -32,10 +32,12 @@ const sanitizeOptions = {
     "tr",
     "td",
     "th",
+    "div",
     "span", // ⬅️ додали
   ],
   allowedAttributes: {
-    a: ["href", "target", "rel"],
+    "*": ["style"], 
+    a: ["href", "target", "rel", "style"],
     img: ["src", "width", "height", "style", "alt"],
     td: ["colspan", "rowspan", "style"],
     th: ["colspan", "rowspan", "style"],
@@ -44,7 +46,21 @@ const sanitizeOptions = {
   },
   allowedSchemes: ["http", "https", "mailto"],
   allowedStyles: {
-    "*": { "text-align": [/^(left|right|center|justify)$/] },
+    "*": {
+      "text-align": [/^(left|right|center|justify)$/],
+      color: [
+        /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
+        /^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/i,
+        /^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(0|0?\.\d+|1)\s*\)$/i,
+        /^transparent$/i,
+      ],
+      "background-color": [
+        /^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/,
+        /^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/i,
+        /^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*(0|0?\.\d+|1)\s*\)$/i,
+        /^transparent$/i,
+      ],
+    },
     img: {
       width: [/^\d+(px|%)$/],
       height: [/^\d+(px|%)$/],
