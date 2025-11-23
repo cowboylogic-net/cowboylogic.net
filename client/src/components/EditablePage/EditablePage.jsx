@@ -173,7 +173,7 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
     } catch (err) {
       console.error("Draft save failed:", err);
     }
-  }, [dispatch, localContent, slug, enforceAnchorTargets]);
+  }, [dispatch, localContent, slug, enforceAnchorTargets, normalizeFormatting]);
 
   useEffect(() => {
     debouncedSaveRef.current = debounce((content) => {

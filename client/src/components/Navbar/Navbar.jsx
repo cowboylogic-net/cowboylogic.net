@@ -38,11 +38,6 @@ const Navbar = () => {
     setSearchVisible(false);
   };
 
-  const toggleDropdown = (menuName, event) => {
-    event.preventDefault();
-    setOpenDropdown(openDropdown === menuName ? null : menuName);
-  };
-
   const handleCloseDropdown = () => {
     setOpenDropdown(null);
   };
@@ -63,7 +58,6 @@ const Navbar = () => {
   return (
     <div className="layoutContainer" ref={navbarRef}>
       <div className={styles.navbar}>
-        {/* TODO: wrap navbar items in <ul><li> for semantics & accessibility */}
         <nav className={styles.navLeft}>
           <NavLink
             to="/"
@@ -73,23 +67,21 @@ const Navbar = () => {
             {t("navbar.home")}
           </NavLink>
 
-          <div className={styles.dropdown} ref={clStrategiesRef}>
+          <div
+            className={styles.dropdown}
+            ref={clStrategiesRef}
+            onMouseEnter={() => setOpenDropdown("clstrategies")}
+            onMouseLeave={() => setOpenDropdown(null)}
+          >
             <NavLink
               to="/clstrategies"
               className={clsx(styles.navLink, styles.dropdownButton)}
-              onClick={(e) => toggleDropdown("clstrategies", e)}
+              onClick={handleCloseDropdown}
             >
               {t("navbar.clStrategies")}
             </NavLink>
             {openDropdown === "clstrategies" && (
               <div className={styles.dropdownMenu}>
-                <NavLink
-                  to="/clstrategies"
-                  className={styles.dropdownItem}
-                  onClick={handleCloseDropdown}
-                >
-                  {t("navbar.clStrategiesHome")}
-                </NavLink>
                 <NavLink
                   to="/clstrategies/cowboy-college-consulting"
                   className={styles.dropdownItem}
@@ -115,23 +107,21 @@ const Navbar = () => {
             )}
           </div>
 
-          <div className={styles.dropdown} ref={clPublishingRef}>
+          <div
+            className={styles.dropdown}
+            ref={clPublishingRef}
+            onMouseEnter={() => setOpenDropdown("clpublishing")}
+            onMouseLeave={() => setOpenDropdown(null)}
+          >
             <NavLink
               to="/clpublishing"
               className={clsx(styles.navLink, styles.dropdownButton)}
-              onClick={(e) => toggleDropdown("clpublishing", e)}
+              onClick={handleCloseDropdown}
             >
               {t("navbar.clPublishing")}
             </NavLink>
             {openDropdown === "clpublishing" && (
               <div className={styles.dropdownMenu}>
-                <NavLink
-                  to="/clpublishing"
-                  className={styles.dropdownItem}
-                  onClick={handleCloseDropdown}
-                >
-                  {t("navbar.clPublishingHome")}
-                </NavLink>
                 <NavLink
                   to="/clpublishing/cowboy-college-pub-author"
                   className={styles.dropdownItem}
@@ -209,15 +199,6 @@ const Navbar = () => {
         </nav>
 
         <div className={styles.navRight}>
-          {/* {isAuth && (
-            <NavLink to="/profile" className={buildLinkClass}>
-              👤
-            </NavLink>
-          )} */}
-          {/* <NavLink to="/favorites" className={buildLinkClass}>
-            ❤️
-          </NavLink> */}
-
           <button
             className={styles.searchButton}
             onClick={() => setSearchVisible(!isSearchVisible)}
