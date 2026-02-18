@@ -1,7 +1,6 @@
-
 # 📘 CowboyLogic — Fullstack Web Platform (Detailed Overview)
 
-_Last updated: 2025-06-08
+\_Last updated: 2025-06-08
 
 CowboyLogic is a full-featured bilingual (EN/UA) publishing and strategy platform built with a modern tech stack
 
@@ -67,45 +66,45 @@ CowboyLogic is a full-featured bilingual (EN/UA) publishing and strategy platfor
 
 ## 🧩 Tech Stack
 
-| Layer         | Technology                         |
-|---------------|-------------------------------------|
-| Frontend      | React, Vite, Redux Toolkit          |
-| Styling       | CSS Modules, custom themes          |
-| i18n          | react-i18next                       |
-| State         | Redux Toolkit (slices + thunks)     |
-| Backend       | Node.js, Express                    |
-| ORM           | Sequelize                           |
-| Database      | MySQL                               |
-| Auth          | JWT, 2FA (email codes)              |
-| Payment       | Square Checkout API                 |
-| Hosting       | HostGator (Frontend), VPS (Backend) |
-| CI/CD         | Jenkins + PM2                       |
+| Layer    | Technology                          |
+| -------- | ----------------------------------- |
+| Frontend | React, Vite, Redux Toolkit          |
+| Styling  | CSS Modules, custom themes          |
+| i18n     | react-i18next                       |
+| State    | Redux Toolkit (slices + thunks)     |
+| Backend  | Node.js, Express                    |
+| ORM      | Sequelize                           |
+| Database | MySQL                               |
+| Auth     | JWT, 2FA (email codes)              |
+| Payment  | Square Checkout API                 |
+| Hosting  | HostGator (Frontend), VPS (Backend) |
+| CI/CD    | Jenkins + PM2                       |
 
 ---
 
 ## 📦 Folder Structure (Mono-Repo)
 
 cowboylogic.net/
-├── client/               # React frontend
-│   ├── src/components/   # Modular components
-│   ├── src/pages/        # Route pages
-│   ├── src/store/        # Redux logic
-├── server/               # Express backend
-│   ├── controllers/      # Route logic
-│   ├── models/           # Sequelize models
-│   ├── routes/           # API routing
-│   ├── middleware/       # Custom middleware
-│   ├── services/         # Email/Square integrations
+├── client/ # React frontend
+│ ├── src/components/ # Modular components
+│ ├── src/pages/ # Route pages
+│ ├── src/store/ # Redux logic
+├── server/ # Express backend
+│ ├── controllers/ # Route logic
+│ ├── models/ # Sequelize models
+│ ├── routes/ # API routing
+│ ├── middleware/ # Custom middleware
+│ ├── services/ # Email/Square integrations
 
 ---
 
 ## 👥 Roles & Permissions
 
-| Role        | Permissions Summary |
-|-------------|---------------------|
-| **User**    | View books, manage cart, place orders, edit profile |
-| **Partner** |  |
-| **Admin**   | Manage content, books, orders, newsletters |
+| Role           | Permissions Summary                                           |
+| -------------- | ------------------------------------------------------------- |
+| **User**       | View books, manage cart, place orders, edit profile           |
+| **Partner**    |                                                               |
+| **Admin**      | Manage content, books, orders, newsletters                    |
 | **SuperAdmin** | Full control including user management and protected deletion |
 
 ---
