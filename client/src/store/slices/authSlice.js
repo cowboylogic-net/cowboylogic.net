@@ -10,6 +10,7 @@ import {
   updateMe,
   upsertPartnerProfile,
   refreshSession,
+  bootstrapAuth,
 } from "../thunks/authThunks";
 
 const initialState = {
@@ -17,6 +18,7 @@ const initialState = {
   token: null,
   emailForVerification: null,
   isLoading: false,
+  bootstrapStatus: "idle",
   error: null,
 };
 
@@ -31,6 +33,7 @@ const authSlice = createSlice({
         avatarURL: toAbsoluteMediaUrl(action.payload.user?.avatarURL),
       };
       state.isLoading = false;
+      state.bootstrapStatus = "done";
       state.error = null;
     },
     logout: (state) => {
@@ -38,6 +41,7 @@ const authSlice = createSlice({
       state.token = null;
       state.emailForVerification = null;
       state.isLoading = false;
+      state.bootstrapStatus = "done";
       state.error = null;
     },
     updateUserAvatar: (state, action) => {
@@ -52,7 +56,18 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(refreshSession.fulfilled, (state, action) => {
-        state.token = action.payload; // лише access token
+        state.token = action.payload;
+      })
+      .addCase(bootstrapAuth.pending, (state) => {
+        if (state.bootstrapStatus === "idle") {
+          state.bootstrapStatus = "loading";
+        }
+      })
+      .addCase(bootstrapAuth.fulfilled, (state) => {
+        state.bootstrapStatus = "done";
+      })
+      .addCase(bootstrapAuth.rejected, (state) => {
+        state.bootstrapStatus = "done";
       })
       .addCase(loginUser.pending, (state) => {
         state.isLoading = true;
@@ -65,6 +80,7 @@ const authSlice = createSlice({
           avatarURL: toAbsoluteMediaUrl(action.payload.user?.avatarURL),
         };
         state.isLoading = false;
+        state.bootstrapStatus = "done";
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -81,6 +97,7 @@ const authSlice = createSlice({
           avatarURL: toAbsoluteMediaUrl(action.payload.user?.avatarURL),
         };
         state.isLoading = false;
+        state.bootstrapStatus = "done";
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -96,18 +113,27 @@ const authSlice = createSlice({
           avatarURL: toAbsoluteMediaUrl(action.payload?.avatarURL),
         };
         state.isLoading = false;
+        state.bootstrapStatus = "done";
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
-        state.user = null;
-        state.token = null;
+        const silent = Boolean(action.meta?.arg?.silent);
+
         state.isLoading = false;
+        state.bootstrapStatus = "done";
         state.error = action.payload;
+
+        if (!silent) {
+          state.user = null;
+          state.token = null;
+        }
       })
+
       .addCase(logoutUser.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.emailForVerification = null;
         state.isLoading = false;
+        state.bootstrapStatus = "done";
         state.error = null;
       })
       .addCase(logoutUser.rejected, (state, action) => {

@@ -6,15 +6,18 @@ export const selectIsAuth = (state) => Boolean(state.auth.token);
 export const selectIsLoading = (state) => state.auth.isLoading;
 export const selectAuthError = (state) => state.auth.error;
 export const selectUserAvatar = (state) => state.auth.user?.avatarURL;
+export const selectBootstrapStatus = (state) => state.auth.bootstrapStatus;
+export const selectAuthKnown = (state) => state.auth.bootstrapStatus === "done";
+export const selectIsInitializingAuth = (state) =>
+  state.auth.bootstrapStatus !== "done";
 
-// Поки є токен, але user ще не підтягнувся — вважаємо, що auth "бу́титься"
-export const selectAuthBooting = (s) =>
-  s.auth.isLoading || (!!s.auth.token && !s.auth.user);
+export const selectAuthBooting = (state) =>
+  state.auth.bootstrapStatus !== "done";
 
-// Надійна перевірка адмінських прав
-export const selectIsAdmin = (s) => {
-  const u = s.auth.user;
-  if (!u) return false;
-  const role = String(u.role || "").toLowerCase(); // уніфікація регістру
-  return role === "admin" || role === "superadmin" || u.isSuperAdmin === true;
+export const selectIsAdmin = (state) => {
+  const user = state.auth.user;
+  if (!user) return false;
+
+  const role = String(user.role || "").toLowerCase();
+  return role === "admin" || role === "superadmin" || user.isSuperAdmin === true;
 };

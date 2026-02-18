@@ -137,3 +137,19 @@ export const refreshSession = createAsyncThunk(
     }
   }
 );
+
+export const bootstrapAuth = createAsyncThunk(
+  "auth/bootstrapAuth",
+  async (_, { dispatch, signal }) => {
+    try {
+      if (signal.aborted) return;
+
+      const token = await dispatch(refreshSession()).unwrap();
+      if (signal.aborted || !token) return;
+
+      await dispatch(fetchCurrentUser({ silent: true })).unwrap();
+    } catch {
+      // Guest session is valid outcome during bootstrap.
+    }
+  }
+);
