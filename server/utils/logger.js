@@ -16,3 +16,11 @@ export const logSuperAdminAction = (adminEmail, action, target = "") => {
   const logLine = `[${timestamp}] SuperAdmin: ${adminEmail} performed "${action}" on ${cleanTarget}\n`;
   fs.appendFileSync(logFilePath, logLine);
 };
+
+export const logWarn = (...args) => {
+  console.warn(...args);
+};
+
+export const logError = (...args) => {
+  console.error(...args);
+};
