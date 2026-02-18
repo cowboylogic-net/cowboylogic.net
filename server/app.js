@@ -36,7 +36,9 @@ import imageRoutes from "./routes/imageRoutes.js";
 import searchRoutes from "./routes/searchRoutes.js";
 import userSelfRoutes from "./routes/userSelfRoutes.js";
 import staticCors from "./middleware/staticCors.js";
+import requestId from "./middleware/requestId.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
+import HttpError from "./helpers/HttpError.js";
 import { client } from "./services/squareService.js";
 
 dotenv.config();
@@ -44,6 +46,7 @@ dotenv.config();
 const app = express();
 app.set("trust proxy", 1);
 app.set("etag", false);
+app.use(requestId);
 
 const UPLOADS_DIR = process.env.UPLOADS_DIR
   ? path.resolve(process.env.UPLOADS_DIR)
@@ -239,11 +242,12 @@ app.use("/uploads", (req, res, next) => {
 app.use("/uploads", express.static(UPLOADS_DIR));
 app.use("/documents", staticCors, express.static("public/documents"));
 
-// Errors
-app.use(errorHandler);
-
 app.get("/__static_check", (req, res) => {
   res.json({ ok: true, uploadsDir: UPLOADS_DIR });
 });
+
+// Errors
+app.use((req, res, next) => next(HttpError(404, "Route not found")));
+app.use(errorHandler);
 
 export default app;
