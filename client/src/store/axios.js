@@ -21,6 +21,7 @@ const refreshClient = axios.create({
 });
 
 const REFRESH_PATH = "/auth/refresh";
+const AUTH_REFRESH_INVALID_RESPONSE = "AUTH_REFRESH_INVALID_RESPONSE";
 const SESSION_EXPIRED_TOAST_ID = "auth-session-expired";
 let refreshPromise = null;
 let sessionExpiredHandled = false;
@@ -59,7 +60,13 @@ const getRefreshToken = () => {
     .post(REFRESH_PATH, null)
     .then(({ data }) => {
       const newToken = data?.data?.token || data?.token;
-      if (!newToken) throw new Error("No token from /auth/refresh");
+      if (!newToken) {
+        const invalidRefreshResponseError = new Error(
+          "No token from /auth/refresh",
+        );
+        invalidRefreshResponseError.code = AUTH_REFRESH_INVALID_RESPONSE;
+        throw invalidRefreshResponseError;
+      }
 
       store?.dispatch({
         type: "auth/refreshSession/fulfilled",
@@ -116,10 +123,19 @@ instance.interceptors.response.use(
       orig.headers = orig.headers || {};
       orig.headers.Authorization = `Bearer ${newToken}`;
       return instance(orig);
-    } catch {
-      authLogger.warn("Refresh failed; clearing session");
-      markSessionExpiredOnce();
-      return Promise.reject(error);
+    } catch (refreshErr) {
+      const refreshStatus = refreshErr?.response?.status;
+      const isInvalidRefreshResponse =
+        refreshErr?.code === AUTH_REFRESH_INVALID_RESPONSE;
+      if (
+        refreshStatus === 401 ||
+        refreshStatus === 403 ||
+        isInvalidRefreshResponse
+      ) {
+        authLogger.warn("Refresh failed with auth status; clearing session");
+        markSessionExpiredOnce();
+      }
+      return Promise.reject(refreshErr || error);
     }
   },
 );

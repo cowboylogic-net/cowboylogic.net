@@ -8,6 +8,7 @@ import Loader from "./components/Loader/Loader";
 import Layout from "./components/Layout/Layout";
 import AdminLayout from "./components/Layout/AdminLayout";
 import PrivateRoute from "./routes/PrivateRoute";
+import PublicOnlyRoute from "./routes/PublicOnlyRoute";
 
 const Home = lazy(() => import("./pages/Home/Home"));
 const About = lazy(() => import("./pages/About/About"));
@@ -62,6 +63,7 @@ const Newsletter = lazy(() => import("./pages/Admin/Newsletter"));
 const App = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, bootstrapStatus } = useSelector((s) => s.auth);
   const sessionExpiredNonce = useSelector(
     (s) => s.auth.sessionExpiredNonce || 0,
   );
@@ -69,13 +71,24 @@ const App = () => {
 
   useEffect(() => {
     if (!sessionExpiredNonce) return;
+    if (bootstrapStatus !== "done") return;
+    if (user) return;
     if (lastHandledRef.current === sessionExpiredNonce) return;
     lastHandledRef.current = sessionExpiredNonce;
 
     if (location.pathname !== "/login") {
-      navigate("/login", { replace: true });
+      navigate("/login", {
+        replace: true,
+        state: { reason: "session-expired" },
+      });
     }
-  }, [sessionExpiredNonce, location.pathname, navigate]);
+  }, [
+    sessionExpiredNonce,
+    bootstrapStatus,
+    user,
+    location.pathname,
+    navigate,
+  ]);
   return (
     <div className={clsx(styles.container, "app-layout")}>
       <Suspense fallback={<Loader />}>
@@ -116,7 +129,9 @@ const App = () => {
 
             <Route path="clpublishing/Books" element={<Books />} />
             <Route path="search" element={<SearchResults />} />
-            <Route path="login" element={<Login />} />
+            <Route element={<PublicOnlyRoute redirectTo="/" />}>
+              <Route path="login" element={<Login />} />
+            </Route>
             <Route path="register" element={<Register />} />
             <Route path="verify-email" element={<VerifyEmailPage />} />
             <Route path="success" element={<SuccessPage />} />
