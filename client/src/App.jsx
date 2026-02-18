@@ -1,6 +1,7 @@
 import styles from "./App.module.css";
-import { Routes, Route } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { lazy, Suspense, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
 import clsx from "clsx";
 
 import Loader from "./components/Loader/Loader";
@@ -8,13 +9,12 @@ import Layout from "./components/Layout/Layout";
 import AdminLayout from "./components/Layout/AdminLayout";
 import PrivateRoute from "./routes/PrivateRoute";
 
-// 🌐 Public
 const Home = lazy(() => import("./pages/Home/Home"));
 const About = lazy(() => import("./pages/About/About"));
 const Contact = lazy(() => import("./pages/Contact/Contact"));
 const BookStore = lazy(() => import("./pages/BookStore/BookStore"));
-const PartnerStorePage = lazy(() =>
-  import("./pages/PartnerStorePage/PartnerStorePage")
+const PartnerStorePage = lazy(
+  () => import("./pages/PartnerStorePage/PartnerStorePage"),
 );
 const BookDetails = lazy(() => import("./pages/BookDetails/BookDetails"));
 const CLStrategies = lazy(() => import("./pages/CLStrategies/CLStrategies"));
@@ -26,38 +26,33 @@ const Forbidden = lazy(() => import("./pages/Forbidden/Forbidden"));
 const Privacy = lazy(() => import("./pages/Privacy/Privacy"));
 const Terms = lazy(() => import("./pages/Terms/Terms"));
 
-// ✅ CLStrategies
-const CowboyCollegeConsulting = lazy(() =>
-  import("./pages/CowboyCollegeConsulting/CowboyCollegeConsulting")
+const CowboyCollegeConsulting = lazy(
+  () => import("./pages/CowboyCollegeConsulting/CowboyCollegeConsulting"),
 );
-const CowboyCollegeStartup = lazy(() =>
-  import("./pages/CowboyCollegeStartup/CowboyCollegeStartup")
+const CowboyCollegeStartup = lazy(
+  () => import("./pages/CowboyCollegeStartup/CowboyCollegeStartup"),
 );
-const CowboyCollegeLeadership = lazy(() =>
-  import("./pages/CowboyCollegeLeadership/CowboyCollegeLeadership")
+const CowboyCollegeLeadership = lazy(
+  () => import("./pages/CowboyCollegeLeadership/CowboyCollegeLeadership"),
 );
 
-// ✅ CLPublishing
-const CowboyCollegePubAuthor = lazy(() =>
-  import("./pages/CowboyCollegePubAuthor/CowboyCollegePubAuthor")
+const CowboyCollegePubAuthor = lazy(
+  () => import("./pages/CowboyCollegePubAuthor/CowboyCollegePubAuthor"),
 );
 const Books = lazy(() => import("./pages/Books/Books"));
 
-// 🔐 Auth
 const Register = lazy(() => import("./pages/Register/Register"));
 const Login = lazy(() => import("./pages/Login/Login"));
 const SuccessPage = lazy(() => import("./pages/SuccessPage/SuccessPage"));
 const CancelPage = lazy(() => import("./pages/CancelPage/CancelPage"));
-const VerifyEmailPage = lazy(() =>
-  import("./pages/VerifyEmailPage/VerifyEmailPage")
+const VerifyEmailPage = lazy(
+  () => import("./pages/VerifyEmailPage/VerifyEmailPage"),
 );
 
-// 🔐 Private
 const Orders = lazy(() => import("./pages/Orders/Orders"));
 const Cart = lazy(() => import("./pages/Cart/Cart"));
 const ProfilePage = lazy(() => import("./pages/ProfilePage/ProfilePage"));
 
-// 🔐 Admin
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AddBook = lazy(() => import("./pages/Admin/AddBook"));
 const EditBook = lazy(() => import("./pages/Admin/EditBook"));
@@ -65,11 +60,26 @@ const UserManagement = lazy(() => import("./pages/Admin/UserManagement"));
 const Newsletter = lazy(() => import("./pages/Admin/Newsletter"));
 
 const App = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const sessionExpiredNonce = useSelector(
+    (s) => s.auth.sessionExpiredNonce || 0,
+  );
+  const lastHandledRef = useRef(0);
+
+  useEffect(() => {
+    if (!sessionExpiredNonce) return;
+    if (lastHandledRef.current === sessionExpiredNonce) return;
+    lastHandledRef.current = sessionExpiredNonce;
+
+    if (location.pathname !== "/login") {
+      navigate("/login", { replace: true });
+    }
+  }, [sessionExpiredNonce, location.pathname, navigate]);
   return (
     <div className={clsx(styles.container, "app-layout")}>
       <Suspense fallback={<Loader />}>
         <Routes>
-          {/* 🌐 Public Layout */}
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="about" element={<About />} />
@@ -140,7 +150,6 @@ const App = () => {
             />
           </Route>
 
-          {/* 🔐 Admin Layout */}
           <Route
             path="/admin"
             element={
@@ -156,7 +165,6 @@ const App = () => {
             <Route path="newsletter" element={<Newsletter />} />
           </Route>
 
-          {/* 🧨 Not Found */}
           <Route path="*" element={<NotFound />} />
           <Route path="/403" element={<Forbidden />} />
         </Routes>

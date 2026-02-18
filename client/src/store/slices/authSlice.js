@@ -19,6 +19,7 @@ const initialState = {
   emailForVerification: null,
   isLoading: false,
   bootstrapStatus: "idle",
+  sessionExpiredNonce: 0,
   error: null,
 };
 
@@ -26,6 +27,15 @@ const authSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
+    sessionExpired: (state) => {
+    state.user = null;
+    state.token = null;
+    state.emailForVerification = null;
+    state.isLoading = false;
+    state.bootstrapStatus = "done";
+    state.error = null;
+    state.sessionExpiredNonce = (state.sessionExpiredNonce || 0) + 1;
+  },
     loginSuccess: (state, action) => {
       state.token = action.payload.token;
       state.user = {
