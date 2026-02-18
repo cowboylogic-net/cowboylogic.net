@@ -14,13 +14,19 @@ export async function refreshSession(req, res, next) {
       return next(HttpError(401, "No refresh token", "AUTH_REFRESH_MISSING"));
 
     const payload = jwt.verify(rt, process.env.JWT_SECRET);
-    if (payload?.type !== "refresh") throw new Error("Invalid token type");
+    if (payload?.type !== "refresh") {
+      return next(
+        HttpError(401, "Invalid token type", "AUTH_REFRESH_INVALID_TYPE"),
+      );
+    }
+
     const user = await User.findByPk(payload.sub);
     if (!user)
       return next(HttpError(401, "User not found", "AUTH_USER_NOT_FOUND"));
 
-    if ((user.tokenVersion || 0) !== (payload.tv || 0))
+    if ((user.tokenVersion || 0) !== (payload.tv || 0)) {
       return next(HttpError(401, "Token revoked", "AUTH_TOKEN_REVOKED"));
+    }
 
     const access = jwt.sign(
       {
@@ -33,11 +39,13 @@ export async function refreshSession(req, res, next) {
       process.env.JWT_SECRET,
       { expiresIn: `${ACCESS_MIN}m` },
     );
+
     const newRt = jwt.sign(
       { sub: user.id, tv: user.tokenVersion || 0, type: "refresh" },
       process.env.JWT_SECRET,
       { expiresIn: `${REFRESH_DAYS}d` },
     );
+
     setRefreshCookie(res, newRt, req);
     return sendResponse(res, { code: 200, data: { token: access } });
   } catch (error) {

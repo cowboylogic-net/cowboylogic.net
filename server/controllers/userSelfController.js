@@ -11,7 +11,7 @@ import { getPublicBase } from "../config/publicBase.js";
 
 const updateAvatar = async (req, res) => {
   if (!req.file) {
-    return sendResponse(res, { code: 400, message: "No avatar uploaded" });
+    throw HttpError(400, "No avatar uploaded", "UPLOAD_MISSING_FILE");
   }
   // будуємо "/uploads/..." коректно:
   let relPath;
@@ -30,7 +30,7 @@ const updateAvatar = async (req, res) => {
   req.user.avatarURL = relPath;
   await req.user.save();
 
- const absUrl = `${getPublicBase(req)}${relPath}`;
+  const absUrl = `${getPublicBase(req)}${relPath}`;
 
   return sendResponse(res, { code: 200, data: { avatarURL: absUrl } });
 };

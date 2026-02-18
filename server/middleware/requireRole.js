@@ -1,17 +1,27 @@
-// middleware/requireRole.js
-export const requireRole = (...allowedRoles) => (req, res, next) => {
-  if (!req.user || !req.user.role) {
-    return res.status(401).json({ message: "Unauthorized: No user or role found." });
-  }
+import HttpError from "../helpers/HttpError.js";
 
-  // ✅ супер-адмін завжди проходить
-  if (req.user.isSuperAdmin === true) {
-    return next();
-  }
+export const requireRole =
+  (...allowedRoles) =>
+  (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return next(
+        HttpError(
+          401,
+          "Unauthorized: No user or role found.",
+          "AUTH_USER_ROLE_REQUIRED",
+        ),
+      );
+    }
 
-  if (!allowedRoles.includes(req.user.role)) {
-    return res.status(403).json({ message: "Forbidden: Access denied." });
-  }
+    if (req.user.isSuperAdmin === true || req.user.role === "superAdmin") {
+      return next();
+    }
 
-  next();
-};
+    if (!allowedRoles.includes(req.user.role)) {
+      return next(
+        HttpError(403, "Forbidden: Access denied.", "AUTH_FORBIDDEN"),
+      );
+    }
+
+    next();
+  };

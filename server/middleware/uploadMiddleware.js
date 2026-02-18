@@ -9,6 +9,7 @@ import {
   uploadBasePath,
 } from "../config/imageConfig.js";
 import { resolveUploadDir } from "../utils/resolveUploadDir.js";
+import HttpError from "../helpers/HttpError.js";
 
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
@@ -51,7 +52,9 @@ export const upload = multer({
 export const optimizeImage = async (req, res, next) => {
   if (!req.file) return next();
   if (!req.file.mimetype.startsWith("image/")) {
-    return res.status(400).json({ message: "Unsupported file type" });
+    return next(
+      HttpError(400, "Unsupported file type", "UPLOAD_UNSUPPORTED_FILE_TYPE")
+    );
   }
 
   const ext = path.extname(req.file.filename).toLowerCase();

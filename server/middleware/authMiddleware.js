@@ -6,42 +6,50 @@ export const protect = async (req, res, next) => {
   const authHeader = req.headers.authorization || "";
   const match = authHeader.match(/^Bearer\s+(.+)$/i);
   if (!match) {
-    return res.status(401).json({ message: "Not authorized, no token" });
+    return next(HttpError(401, "Not authorized, no token", "AUTH_NO_TOKEN"));
   }
   const token = match[1];
   if (!token || token === "undefined" || token === "null") {
-    return res.status(401).json({ message: "Not authorized, bad token" });
+    return next(HttpError(401, "Not authorized, bad token", "AUTH_BAD_TOKEN"));
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id ?? decoded.sub;
     if (!userId) {
-      return res.status(401).json({ message: "Invalid token payload" });
+      return next(
+        HttpError(401, "Invalid token payload", "AUTH_INVALID_PAYLOAD")
+      );
     }
 
     const user = await User.findByPk(userId);
 
-    if (!user) return res.status(401).json({ message: "User not found" });
+    if (!user) return next(HttpError(401, "User not found", "AUTH_USER_NOT_FOUND"));
 
     const tokenVersion = decoded.tokenVersion ?? decoded.tv ?? 0;
     const currentVersion = user.tokenVersion ?? 0;
     if (tokenVersion !== currentVersion) {
-      return res.status(401).json({ message: "Token has been invalidated" });
+      return next(
+        HttpError(401, "Token has been invalidated", "AUTH_TOKEN_REVOKED")
+      );
     }
 
     req.user = user;
 
-    console.log(
-      `[AUTH] User ${user.email} with role ${user.role} accessed ${req.method} ${req.originalUrl}`
-    );
+    console.log("[auth_access]", {
+      requestId: req.requestId,
+      userId: user.id,
+      role: user.role,
+      method: req.method,
+      path: req.originalUrl,
+    });
 
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
-      return res.status(401).json({ message: "Token expired" });
+      return next(HttpError(401, "Token expired", "AUTH_TOKEN_EXPIRED"));
     }
-    res.status(401).json({ message: "Invalid token" });
+    return next(HttpError(401, "Invalid token", "AUTH_INVALID_TOKEN"));
   }
 };
 
@@ -54,7 +62,7 @@ export const isAdmin = (req, res, next) => {
   ) {
     next();
   } else {
-    res.status(403).json({ message: "Access denied. Admins only." });
+    next(HttpError(403, "Access denied. Admins only.", "AUTH_ADMIN_REQUIRED"));
   }
 };
 
@@ -62,15 +70,17 @@ export const isSuperAdmin = (req, res, next) => {
   if (req.user?.isSuperAdmin) {
     return next();
   }
-  return res.status(403).json({ message: "Access denied. Super admin only." });
+  return next(
+    HttpError(403, "Access denied. Super admin only.", "AUTH_SUPER_ADMIN_REQUIRED")
+  );
 };
 
 export const isAdminOrSuperAdmin = (req, res, next) => {
   if (!req.user) {
-    return res.status(401).json({ message: "Not authorized" });
+    return next(HttpError(401, "Not authorized", "AUTH_REQUIRED"));
   }
   const isAdmin = req.user.role === "admin";
   const isSA = req.user.role === "superAdmin" || req.user.isSuperAdmin === true;
   if (isAdmin || isSA) return next();
-  return res.status(403).json({ message: "Access denied. Admins only." });
+  return next(HttpError(403, "Access denied. Admins only.", "AUTH_ADMIN_REQUIRED"));
 };

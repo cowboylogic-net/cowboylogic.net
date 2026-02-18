@@ -12,7 +12,14 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    console.error("🔥 ErrorBoundary caught an error:", error, info);
+    console.error("[ui_error_boundary]", {
+      name: error?.name,
+      message: error?.message,
+      componentStack: info?.componentStack
+        ?.split("\n")
+        .slice(0, 3)
+        .join("\n"),
+    });
   }
 
   render() {
@@ -21,8 +28,10 @@ class ErrorBoundary extends React.Component {
         <div className={styles.container}>
           <div className={styles.box}>
             <h2>Something went wrong.</h2>
-            <p>{this.state.error?.message || "Unexpected error occurred."}</p>
-            <button onClick={() => window.location.reload()}>Reload Page</button>
+            <p>Please reload the page and try again.</p>
+            <button type="button" onClick={() => window.location.reload()}>
+              Reload page
+            </button>
           </div>
         </div>
       );

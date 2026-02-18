@@ -1,8 +1,9 @@
-// // routes/imageRoutes.js
 import express from "express";
 import { upload, optimizeImage } from "../middleware/uploadMiddleware.js";
 import sendResponse from "../utils/sendResponse.js";
 import { protect } from "../middleware/authMiddleware.js";
+import HttpError from "../helpers/HttpError.js";
+import { getPublicBase } from "../config/publicBase.js";
 
 const router = express.Router();
 
@@ -11,19 +12,19 @@ router.post(
   protect,
   upload.single("image"),
   optimizeImage,
-  (req, res) => {
+  (req, res, next) => {
     if (!req.file) {
-      return sendResponse(res, { code: 400, message: "No file uploaded" });
+      return next(HttpError(400, "No file uploaded", "UPLOAD_MISSING_FILE"));
     }
 
     const rel = req.file.webPath || `/uploads/${req.file.filename}`;
-    const base = (process.env.BASE_URL || "").replace(/\/+$/, "");
+    const base = getPublicBase(req);
     const abs = base ? `${base}${rel}` : rel;
-    
+
     return sendResponse(res, {
       code: 200,
       data: { imageUrl: abs, relUrl: rel },
     });
-  }
+  },
 );
 export default router;

@@ -1,11 +1,8 @@
-// middleware/validateBody.js
 import HttpError from "../helpers/HttpError.js";
 
 export const validateBody = (schema, isMultipart = false) => {
   return (req, res, next) => {
     const data = { ...req.body };
-
-    // Якщо multipart, то кастимо типи вручну
     if (isMultipart) {
       for (const key in data) {
         if (data[key] === "true") data[key] = true;
@@ -17,13 +14,21 @@ export const validateBody = (schema, isMultipart = false) => {
     }
 
     const { error, value } = schema.validate(data, { stripUnknown: true });
-    if (!error) req.body = value;
     if (error) {
-      return next(HttpError(400, `Validation error: ${error.message}`));
+      const details = (error.details || []).map((item) => ({
+        path: item.path,
+        type: item.type,
+        message: item.message,
+      }));
+      return next(
+        HttpError(400, `Validation error: ${error.message}`, {
+          code: "VALIDATION_BODY_INVALID",
+          details,
+        }),
+      );
     }
 
-    // Зберігаємо перевірені значення назад
-    req.body = data;
+    req.body = value;
     next();
   };
 };
