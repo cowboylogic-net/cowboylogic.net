@@ -16,6 +16,7 @@ import BaseForm from "../../components/BaseForm/BaseForm";
 import BaseInput from "../../components/BaseInput/BaseInput";
 import BaseButton from "../../components/BaseButton/BaseButton";
 import FormGroup from "../../components/FormGroup/FormGroup";
+import { OTP_LENGTH, sanitizeOtp } from "../../utils/sanitizeOtp";
 
 const VerifyEmailPage = () => {
   const { t } = useTranslation("login");
@@ -35,6 +36,7 @@ const VerifyEmailPage = () => {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, touchedFields, isSubmitting },
   } = useForm({
     resolver: yupResolver(registerCodeSchema(t)),
@@ -43,10 +45,9 @@ const VerifyEmailPage = () => {
   });
 
   const onSubmit = async (data) => {
+    const code = sanitizeOtp(data.code, OTP_LENGTH);
     try {
-      const result = await dispatch(
-        loginUser({ email, code: String(data.code || "").trim() })
-      );
+      const result = await dispatch(loginUser({ email, code }));
       if (!loginUser.fulfilled.match(result)) {
         const p = result.payload;
         const errMsg =
@@ -82,6 +83,27 @@ const VerifyEmailPage = () => {
     }
   };
 
+  const handleOtpChange = (event) => {
+    const sanitized = sanitizeOtp(event.target.value, OTP_LENGTH);
+    setValue("code", sanitized, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleOtpPaste = (event) => {
+    event.preventDefault();
+    const pasted = event.clipboardData?.getData("text") || "";
+    const sanitized = sanitizeOtp(pasted, OTP_LENGTH);
+    setValue("code", sanitized, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
+  const codeField = register("code");
   if (!email) return <p>{t("missingEmail")}</p>;
 
   return (
@@ -103,7 +125,11 @@ const VerifyEmailPage = () => {
             id="verify-code"
             inputMode="numeric"
             autoComplete="one-time-code"
-            {...register("code")}
+            pattern="[0-9]*"
+            maxLength={OTP_LENGTH}
+            {...codeField}
+            onChange={handleOtpChange}
+            onPaste={handleOtpPaste}
             touched={!!touchedFields.code}
           />
         </FormGroup>

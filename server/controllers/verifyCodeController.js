@@ -7,6 +7,7 @@ import { setRefreshCookie } from "../utils/cookies.js";
 import { formatUser } from "../utils/formatUser.js";
 import sendResponse from "../utils/sendResponse.js";
 import { Op } from "sequelize";
+import { isValidOtpFormat, normalizeOtp } from "../utils/otp.js";
 
 const REFRESH_DAYS = parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || "7", 10);
 
@@ -22,12 +23,18 @@ const generateToken = (user) => {
   );
 };
 
-const verifyCode = async (req, res) => {
+export const verifyCodeHandler = async (req, res) => {
   const rawEmail = req.body?.email || "";
-  const rawCode = String(req.body?.code ?? "");
+  const rawCode = req.body?.code;
   const email = rawEmail.trim().toLowerCase();
-  const code = rawCode.trim().toUpperCase();
+  const code = normalizeOtp(rawCode);
   if (!email || !code) throw HttpError(400, "Email and code are required");
+  if (!isValidOtpFormat(code)) {
+    return res.status(400).json({
+      code: "OTP_INVALID_FORMAT",
+      message: "Invalid verification code format",
+    });
+  }
 
   // 🔐 Атомарна перевірка: видалимо рівно 1 валідний (не прострочений) код.
   const destroyed = await LoginCode.destroy({
@@ -84,5 +91,5 @@ const verifyCode = async (req, res) => {
 };
 
 export default {
-  verifyCode: ctrlWrapper(verifyCode),
+  verifyCode: ctrlWrapper(verifyCodeHandler),
 };

@@ -18,6 +18,7 @@ import {
   loginFormSchema,
   codeVerificationSchema,
 } from "../../validation/formSchemas";
+import { OTP_LENGTH, sanitizeOtp } from "../../utils/sanitizeOtp";
 
 const LoginForm = () => {
   const { t } = useTranslation("login");
@@ -91,8 +92,9 @@ const LoginForm = () => {
   };
 
   const onVerify = async (data) => {
+    const code = sanitizeOtp(data.code, OTP_LENGTH);
     try {
-      const result = await dispatch(loginUser({ email, code: data.code }));
+      const result = await dispatch(loginUser({ email, code }));
       if (loginUser.fulfilled.match(result)) {
         const payload = result.payload ?? {};
         const token = payload.token;
@@ -111,6 +113,26 @@ const LoginForm = () => {
     } catch {
       dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
     }
+  };
+
+  const handleOtpChange = (event) => {
+    const sanitized = sanitizeOtp(event.target.value, OTP_LENGTH);
+    setValue("code", sanitized, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleOtpPaste = (event) => {
+    event.preventDefault();
+    const pasted = event.clipboardData?.getData("text") || "";
+    const sanitized = sanitizeOtp(pasted, OTP_LENGTH);
+    setValue("code", sanitized, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
   };
 
   const handleResendCode = async () => {
@@ -152,6 +174,7 @@ const LoginForm = () => {
       dispatch(showNotification({ message: t("googleFailed"), type: "error" }));
     }
   };
+  const codeField = register("code");
 
   return (
     <div className={styles.container}>
@@ -205,7 +228,13 @@ const LoginForm = () => {
               <BaseInput
                 id="login-code"
                 type="text"
-                {...register("code")}
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                pattern="[0-9]*"
+                maxLength={OTP_LENGTH}
+                {...codeField}
+                onChange={handleOtpChange}
+                onPaste={handleOtpPaste}
                 touched={!!touchedFields.code}
                 error={errors.code?.message}
               />

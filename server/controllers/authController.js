@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { nanoid } from "nanoid";
 import { Op } from "sequelize";
 import User from "../models/User.js";
 import LoginCode from "../models/LoginCode.js";
@@ -12,6 +11,7 @@ import PartnerProfile from "../models/PartnerProfile.js";
 import { sequelize } from "../config/db.js";
 import sendResponse from "../utils/sendResponse.js";
 import { setRefreshCookie, clearRefreshCookie } from "../utils/cookies.js";
+import { generateOtpCode } from "../utils/otp.js";
 
 const ACCESS_MIN = parseInt(process.env.ACCESS_TOKEN_TTL_MIN || "15", 10);
 const REFRESH_DAYS = parseInt(process.env.REFRESH_TOKEN_TTL_DAYS || "7", 10);
@@ -99,7 +99,7 @@ const registerUser = async (req, res) => {
       });
     } catch (_) {}
 
-    const code = nanoid(6).toUpperCase();
+    const code = generateOtpCode();
     await LoginCode.create(
       {
         email: newUser.email,

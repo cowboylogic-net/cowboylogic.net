@@ -14,5 +14,5 @@ export const verifyLoginCodeSchema = Joi.object({
     .lowercase()
     .email({ tlds: { allow: false } })
     .required(),
-  code: Joi.string().trim().length(6).alphanum().required(),
+  code: Joi.string().required(),
 });
