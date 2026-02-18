@@ -26,8 +26,8 @@ export const fetchBooks = createAsyncThunk(
       // { data: { items, meta } }
       return response.data.data;
     } catch (err) {
-      const msg = err?.response?.data?.message || "Failed to fetch books";
-      dispatch(showError(msg));
+      const msg = "Failed to fetch books";
+      dispatch(showError(err, msg));
       return rejectWithValue(msg);
     }
   }

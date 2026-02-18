@@ -1,6 +1,6 @@
 // src/store/thunks/favoritesThunks.js
 import { createAsyncThunk } from '@reduxjs/toolkit';
-import axios from '../axios';
+import axios, { getUiErrorMessage } from '../axios';
 import { showSuccess, showError } from './notificationThunks';
 
 export const fetchFavorites = createAsyncThunk(
@@ -17,7 +17,7 @@ export const fetchFavorites = createAsyncThunk(
       });
       return res.data.data; // масив повних Book
     } catch (err) {
-      const msg = err.response?.data?.message || 'Failed to load favorites';
+      const msg = getUiErrorMessage(err, 'Failed to load favorites');
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }

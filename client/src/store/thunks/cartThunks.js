@@ -4,6 +4,11 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "../axios";
 import { showError, showSuccess } from "./notificationThunks";
 import { guestCart } from "../../services/guestCart";
+import {
+  formatUiErrorMessage,
+  mapApiErrorToUi,
+  normalizeApiError,
+} from "../../utils/apiError";
 
 const findBookInState = (getState, id) =>
   getState().books?.books?.find((b) => b.id === id);
@@ -48,7 +53,8 @@ export const addToCartThunk = createAsyncThunk(
         return fetchResult.payload;
       return rejectWithValue("Failed to reload cart");
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to add to cart";
+      const uiError = mapApiErrorToUi(normalizeApiError(err));
+      const msg = formatUiErrorMessage(uiError);
       dispatch(showError(msg));
       return rejectWithValue(msg);
     }

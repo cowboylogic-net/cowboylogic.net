@@ -3,6 +3,8 @@ import axios from "axios";
 import { getApiBase } from "../utils/apiBase";
 import { showNotification } from "./slices/notificationSlice";
 import { logger } from "../utils/logger";
+import { normalizeApiError } from "../utils/apiError";
+import { getUiErrorMessage } from "../utils/uiErrorMessage";
 
 let store;
 export const injectStore = (_store) => {
@@ -33,6 +35,14 @@ const authLogger = {
 
 const isRefreshRequest = (url) =>
   /\/auth\/refresh(?:\?|$)/.test(String(url || ""));
+
+const withNormalizedApiError = (error) => {
+  if (!error || typeof error !== "object") return error;
+  if (!error.apiError) {
+    error.apiError = normalizeApiError(error);
+  }
+  return error;
+};
 
 const markSessionExpiredOnce = () => {
   if (sessionExpiredHandled) return;
@@ -110,11 +120,11 @@ instance.interceptors.response.use(
   async (error) => {
     const resp = error.response;
     const orig = error.config || {};
-    if (!resp) return Promise.reject(error);
+    if (!resp) return Promise.reject(withNormalizedApiError(error));
 
     const isRefreshCall = isRefreshRequest(orig.url);
     if (resp.status !== 401 || orig._retry || isRefreshCall || orig._skipAuth) {
-      return Promise.reject(error);
+      return Promise.reject(withNormalizedApiError(error));
     }
 
     try {
@@ -135,9 +145,10 @@ instance.interceptors.response.use(
         authLogger.warn("Refresh failed with auth status; clearing session");
         markSessionExpiredOnce();
       }
-      return Promise.reject(refreshErr || error);
+      return Promise.reject(withNormalizedApiError(refreshErr || error));
     }
   },
 );
 
 export default instance;
+export { getUiErrorMessage };

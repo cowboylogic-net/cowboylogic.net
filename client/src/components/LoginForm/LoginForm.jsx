@@ -19,6 +19,11 @@ import {
   codeVerificationSchema,
 } from "../../validation/formSchemas";
 import { OTP_LENGTH, sanitizeOtp } from "../../utils/sanitizeOtp";
+import {
+  formatUiErrorMessage,
+  mapApiErrorToUi,
+  normalizeApiError,
+} from "../../utils/apiError";
 
 const LoginForm = () => {
   const { t } = useTranslation("login");
@@ -34,6 +39,7 @@ const LoginForm = () => {
     handleSubmit,
     formState: { errors, touchedFields },
     setValue,
+    setError,
   } = useForm({
     resolver: yupResolver(
       step === 1 ? loginFormSchema(t) : codeVerificationSchema(t)
@@ -47,6 +53,45 @@ const LoginForm = () => {
       return () => clearTimeout(timer);
     }
   }, [resendCooldown]);
+
+  const applyFieldErrors = (fieldErrors) => {
+    if (!fieldErrors || typeof fieldErrors !== "object") return;
+    Object.entries(fieldErrors).forEach(([field, message]) => {
+      if (typeof message !== "string" || !message) return;
+      setError(field, { type: "server", message });
+    });
+  };
+
+  const mapSeverityToNotificationType = (severity) => {
+    if (severity === "success" || severity === "info" || severity === "error") {
+      return severity;
+    }
+    return "error";
+  };
+
+  const showMappedError = (error, fallbackMessage) => {
+    const apiError = normalizeApiError(error);
+    const uiError = mapApiErrorToUi(apiError);
+    applyFieldErrors(uiError.fieldErrors);
+    if (
+      uiError.fieldErrors &&
+      typeof uiError.fieldErrors === "object" &&
+      Object.keys(uiError.fieldErrors).length > 0
+    ) {
+      return apiError;
+    }
+    const message =
+      formatUiErrorMessage(uiError) ||
+      fallbackMessage ||
+      t("loginFailed");
+    dispatch(
+      showNotification({
+        message,
+        type: mapSeverityToNotificationType(uiError.severity),
+      }),
+    );
+    return apiError;
+  };
 
   const onLogin = async (data) => {
     try {
@@ -68,26 +113,25 @@ const LoginForm = () => {
       );
       navigate("/");
     } catch (err) {
-      const status = err.response?.status;
-      if (status === 403) {
+      const apiError = normalizeApiError(err);
+      if (apiError.status === 403) {
         const normalizedEmail = String(data.email || "")
           .trim()
           .toLowerCase();
-        setEmail(normalizedEmail);
-        await api.post("/auth/request-code", { email: normalizedEmail });
-        setValue("email", "");
-        setValue("password", "");
-        setStep(2);
-        setResendCooldown(30);
-        dispatch(showNotification({ message: t("codeSent"), type: "info" }));
-      } else {
-        dispatch(
-          showNotification({
-            message: err.response?.data?.message || t("loginFailed"),
-            type: "error",
-          })
-        );
+        try {
+          setEmail(normalizedEmail);
+          await api.post("/auth/request-code", { email: normalizedEmail });
+          setValue("email", "");
+          setValue("password", "");
+          setStep(2);
+          setResendCooldown(30);
+          dispatch(showNotification({ message: t("codeSent"), type: "info" }));
+        } catch (requestCodeError) {
+          showMappedError(requestCodeError, t("resendFailed"));
+        }
+        return;
       }
+      showMappedError(err, t("loginFailed"));
     }
   };
 
@@ -110,8 +154,8 @@ const LoginForm = () => {
           })
         );
       }
-    } catch {
-      dispatch(showNotification({ message: t("codeInvalid"), type: "error" }));
+    } catch (err) {
+      showMappedError(err, t("codeInvalid"));
     }
   };
 
