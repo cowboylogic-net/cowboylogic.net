@@ -68,6 +68,8 @@ export const sendEmail = async (
 
   const fromName = safe(process.env.MAIL_FROM_NAME || "No-Reply");
   const fromEmail = safe(process.env.MAIL_FROM_EMAIL || process.env.MAIL_USER);
+  const defaultReplyTo = safe(process.env.MAIL_REPLY_TO || "");
+  const effectiveReplyTo = safe(replyTo) || defaultReplyTo;
 
   const headers = {
     "X-App": "CowboyLogic",
@@ -85,7 +87,9 @@ export const sendEmail = async (
     html,
     text,
     headers,
-    ...(replyTo && isEmail(replyTo) ? { replyTo: safe(replyTo) } : {}),
+    ...(effectiveReplyTo && isEmail(effectiveReplyTo)
+      ? { replyTo: effectiveReplyTo }
+      : {}),
   };
 
   console.log(
