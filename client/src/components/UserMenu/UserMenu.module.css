@@ -14,3 +14,41 @@
   opacity: 0.85;
   font-size: 0.95rem;
 }
+
+.cartLink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(35%, -35%);
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+
+  border-radius: 999px;
+  background-color: var(--color-error, #b00020);
+  color: var(--color-white, #fff);
+  border: 2px solid var(--color-white, #fff);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1; 
+  text-align: center;
+
+  pointer-events: none;
+  z-index: 1;
+  font-variant-numeric: tabular-nums;
+}

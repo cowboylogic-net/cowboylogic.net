@@ -16,6 +16,12 @@ export const selectCartCount = createSelector(
     items.reduce((total, item) => total + Number(item.quantity || 0), 0)
 );
 
+export const selectCartBadgeCount = createSelector(
+  [selectCartItems],
+  (items) =>
+    items.reduce((total, item) => total + Number(item?.quantity || 0), 0)
+);
+
 // 🔧 БЕЗПЕЧНА версія для уникнення NaN:
 export const selectCartTotal = createSelector(
   [selectCartItems, selectUser],

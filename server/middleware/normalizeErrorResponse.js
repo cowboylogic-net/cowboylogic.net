@@ -6,6 +6,11 @@ const isStream = (value) =>
   typeof value.pipe === "function";
 
 const normalizeErrorResponse = (req, res, next) => {
+  const path = req?.originalUrl || req?.url || "";
+  if (path && !/^\/api(?:\/|\?|$)/.test(path)) {
+    return next();
+  }
+
   const originalJson = res.json.bind(res);
   const originalSend = res.send.bind(res);
 
@@ -14,6 +19,16 @@ const normalizeErrorResponse = (req, res, next) => {
       fallbackStatus: res.statusCode,
       requestId: req?.requestId || "unknown",
     });
+
+  const sendWithOriginalJson = (payload) => {
+    const currentSend = res.send;
+    res.send = originalSend;
+    try {
+      return originalJson(payload);
+    } finally {
+      res.send = currentSend;
+    }
+  };
 
   res.json = (body) => {
     if (res.statusCode < 400) {
@@ -26,7 +41,7 @@ const normalizeErrorResponse = (req, res, next) => {
       res.status(status);
     }
 
-    return originalJson(payload);
+    return sendWithOriginalJson(payload);
   };
 
   res.send = (body) => {
@@ -46,7 +61,7 @@ const normalizeErrorResponse = (req, res, next) => {
         res.status(status);
       }
 
-      return originalJson(payload);
+      return sendWithOriginalJson(payload);
     }
 
     return originalSend(body);

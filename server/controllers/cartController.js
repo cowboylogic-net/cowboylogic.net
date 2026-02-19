@@ -7,9 +7,61 @@ import {
   updateQuantitySchema,
 } from "../schemas/cartSchemas.js";
 import sendResponse from "../utils/sendResponse.js";
+import { sequelize } from "../config/db.js";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const isUuid = (value) => typeof value === "string" && UUID_RE.test(value);
+const toNonNegInt = (value) => {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.floor(n));
+};
+
+const toPlainItems = (items = []) =>
+  items.map((item) =>
+    typeof item?.toJSON === "function" ? item.toJSON() : item,
+  );
+
+const fetchUserCartItems = async ({ userId, isPartner, transaction } = {}) =>
+  CartItem.findAll({
+    where: { userId },
+    order: [["createdAt", "ASC"]],
+    include: [
+      {
+        model: Book,
+        attributes: {
+          exclude: isPartner ? [] : ["partnerPrice"],
+        },
+      },
+    ],
+    ...(transaction ? { transaction } : {}),
+  });
+
+const buildCartValidationPayload = (items = []) => {
+  const issues = {};
+
+  for (const item of items) {
+    const itemKey = item?.id ?? null;
+    const bookId = item?.bookId ?? null;
+
+    if (!isUuid(bookId)) {
+      if (!issues.invalidId) issues.invalidId = [];
+      issues.invalidId.push({ itemKey, bookId });
+      continue;
+    }
+
+    if (!item?.Book) {
+      if (!issues.missingProducts) issues.missingProducts = [];
+      issues.missingProducts.push({ itemKey, bookId });
+    }
+  }
+
+  return issues;
+};
 
 const getCart = async (req, res) => {
-  // ⬇️ INSERT: єдина логіка — дати partnerPrice тільки привілейованим
   const isPartner = req.user?.role === "partner";
 
   const items = await CartItem.findAll({
@@ -31,13 +83,90 @@ const getCart = async (req, res) => {
   });
 };
 
+const validateCart = async (req, res) => {
+  const isPartner = req.user?.role === "partner";
+  const userId = req.user.id;
+  const items = await fetchUserCartItems({ userId, isPartner });
+  const blockingIssues = buildCartValidationPayload(items);
+  const hasBlockingIssues = Boolean(
+    blockingIssues.invalidId?.length || blockingIssues.missingProducts?.length,
+  );
+  if (hasBlockingIssues) {
+    return sendResponse(res, {
+      code: 200,
+      data: {
+        ok: false,
+        code: blockingIssues.invalidId?.length
+          ? "CART_CORRUPTED"
+          : "CART_VALIDATION_FAILED",
+        issues: blockingIssues,
+        normalizedItems: toPlainItems(items),
+      },
+    });
+  }
+
+  const repairIssues = {};
+  await sequelize.transaction(async (transaction) => {
+    for (const item of items) {
+      const book = item.Book;
+      const requestedQty = toNonNegInt(item?.quantity);
+      const availableQty = toNonNegInt(book?.stock);
+      const outOfStock = !book?.inStock || availableQty <= 0;
+
+      if (outOfStock) {
+        await CartItem.destroy({
+          where: { id: item.id, userId },
+          transaction,
+        });
+        if (!repairIssues.removedOutOfStock)
+          repairIssues.removedOutOfStock = [];
+        repairIssues.removedOutOfStock.push({
+          itemId: item.id,
+          bookId: item.bookId,
+          requestedQty,
+          availableQty,
+        });
+        continue;
+      }
+
+      if (requestedQty > availableQty) {
+        item.quantity = availableQty;
+        await item.save({ transaction });
+        if (!repairIssues.qtyAdjusted) repairIssues.qtyAdjusted = [];
+        repairIssues.qtyAdjusted.push({
+          itemId: item.id,
+          bookId: item.bookId,
+          fromQty: requestedQty,
+          toQty: availableQty,
+          availableQty,
+        });
+      }
+    }
+  });
+
+  const normalizedItems = await fetchUserCartItems({ userId, isPartner });
+  const validation = {
+    ok: true,
+    normalizedItems: toPlainItems(normalizedItems),
+  };
+  if (
+    repairIssues.qtyAdjusted?.length ||
+    repairIssues.removedOutOfStock?.length
+  ) {
+    validation.issues = repairIssues;
+  }
+
+  sendResponse(res, {
+    code: 200,
+    data: validation,
+  });
+};
+
 const addToCart = async (req, res) => {
   const { error, value } = addToCartSchema.validate(req.body);
   if (error) throw HttpError(400, error.details[0].message);
 
   const { bookId, quantity } = value;
- 
-  // ⬇️ INSERT: хтo привілейований (бачить partnerPrice)
   const isPartner = req.user.role === "partner";
 
   const book = await Book.findByPk(bookId);
@@ -64,8 +193,6 @@ const addToCart = async (req, res) => {
 
     existing.quantity = newQuantity;
     await existing.save();
-
-    // ⬇️ REPLACE: було (existing || item).reload(...). Тепер просто existing.reload(...)
     await existing.reload({
       include: [
         {
@@ -75,7 +202,7 @@ const addToCart = async (req, res) => {
           },
         },
       ],
-    }); // ← REPLACE
+    });
 
     return sendResponse(res, {
       code: 200,
@@ -110,7 +237,6 @@ const addToCart = async (req, res) => {
   });
 };
 
-// controllers/cartController.js
 const updateQuantity = async (req, res) => {
   const { error, value } = updateQuantitySchema.validate(req.body);
   if (error) throw HttpError(400, error.details[0].message);
@@ -119,8 +245,6 @@ const updateQuantity = async (req, res) => {
   const { itemId } = req.params;
   const isPartner = req.user.role === "partner";
 
-  
-  // ⬇️ INSERT: підтягуємо Book з потрібними атрибутами
   const item = await CartItem.findByPk(itemId, {
     include: [
       {
@@ -147,7 +271,6 @@ const updateQuantity = async (req, res) => {
   item.quantity = quantity;
   await item.save();
 
-  // ⬇️ INSERT: перезавантажуємо з тим же include, щоб відповідь була «очищена»
   await item.reload({
     include: [
       {
@@ -191,6 +314,7 @@ const clearCart = async (req, res) => {
 
 export default {
   getCart: ctrlWrapper(getCart),
+  validateCart: ctrlWrapper(validateCart),
   addToCart: ctrlWrapper(addToCart),
   updateQuantity: ctrlWrapper(updateQuantity),
   deleteItem: ctrlWrapper(deleteItem),

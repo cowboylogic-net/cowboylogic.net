@@ -1,8 +1,11 @@
-// components/UserMenu/UserMenu.jsx
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { logoutUser } from "../../store/thunks/authThunks";
-import { selectAuthBooting, selectUser } from "../../store/selectors/authSelectors";
+import {
+  selectAuthBooting,
+  selectUser,
+} from "../../store/selectors/authSelectors";
+import { selectCartBadgeCount } from "../../store/selectors/cartSelectors";
 import { useTranslation } from "react-i18next";
 
 import styles from "./UserMenu.module.css";
@@ -12,25 +15,34 @@ const UserMenu = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
   const authBooting = useSelector(selectAuthBooting);
+  const cartCount = useSelector(selectCartBadgeCount);
   const { t } = useTranslation();
+  const cartBadgeValue = cartCount > 99 ? "99+" : String(cartCount);
+  const cartAriaLabel = `${t("userMenu.cart")} (${cartCount} item${cartCount === 1 ? "" : "s"})`;
 
   const handleLogout = () => {
     dispatch(logoutUser());
   };
 
-  // 👇 Обчислюємо ім’я
   const firstName =
-    (user?.fullName?.trim()?.split(/\s+/)[0]) ||
-    (user?.name?.trim()?.split(/\s+/)[0]) ||
-    (user?.email?.split("@")[0]) ||
+    user?.fullName?.trim()?.split(/\s+/)[0] ||
+    user?.name?.trim()?.split(/\s+/)[0] ||
+    user?.email?.split("@")[0] ||
     "";
 
   return (
     <>
       {authBooting ? (
         <>
-          <Link to="/cart">
+          <Link
+            to="/cart"
+            className={styles.cartLink}
+            aria-label={cartAriaLabel}
+          >
             <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>
+            {cartCount > 0 && (
+              <span className={styles.cartBadge}>{cartBadgeValue}</span>
+            )}
           </Link>
           <span className={styles.authPlaceholder}>
             {t("userMenu.authLoading", "Loading account...")}
@@ -38,8 +50,15 @@ const UserMenu = () => {
         </>
       ) : user ? (
         <>
-          <Link to="/cart">
+          <Link
+            to="/cart"
+            className={styles.cartLink}
+            aria-label={cartAriaLabel}
+          >
             <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>
+            {cartCount > 0 && (
+              <span className={styles.cartBadge}>{cartBadgeValue}</span>
+            )}
           </Link>
           <Link to="/orders">
             <BaseButton variant="outline">{t("userMenu.orders")}</BaseButton>
@@ -48,8 +67,7 @@ const UserMenu = () => {
             <BaseButton variant="outline">{t("userMenu.profile")}</BaseButton>
           </Link>
 
-          {/* ⬇️ було: welcome з { email } */}
-          <span className={styles.userEmail /* можна перейменувати на userName */}>
+          <span className={styles.userEmail}>
             {t("userMenu.welcome", { name: firstName })}
           </span>
 
@@ -59,8 +77,15 @@ const UserMenu = () => {
         </>
       ) : (
         <>
-          <Link to="/cart">
+          <Link
+            to="/cart"
+            className={styles.cartLink}
+            aria-label={cartAriaLabel}
+          >
             <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>
+            {cartCount > 0 && (
+              <span className={styles.cartBadge}>{cartBadgeValue}</span>
+            )}
           </Link>
           <Link to="/login">
             <BaseButton variant="outline">{t("userMenu.login")}</BaseButton>

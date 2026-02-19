@@ -9,6 +9,7 @@ const router = express.Router();
 router.use(protect);
 
 router.get("/", cartController.getCart);
+router.post("/validate", cartController.validateCart);
 router.post("/", cartController.addToCart);
 
 router.patch(
