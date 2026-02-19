@@ -6,3 +6,11 @@
   display: inline-block;
   margin: 0 var(--spacing-sm);
 }
+
+.authPlaceholder {
+  display: inline-block;
+  margin: 0 var(--spacing-sm);
+  color: var(--color-text);
+  opacity: 0.85;
+  font-size: 0.95rem;
+}

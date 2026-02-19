@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import styles from "./ImageInsertModal.module.css";
 import BaseButton from "../../BaseButton/BaseButton";
@@ -6,7 +6,7 @@ import FormGroup from "../../FormGroup/FormGroup";
 import BaseInput from "../../BaseInput/BaseInput";
 import BaseCheckbox from "../../BaseCheckbox/BaseCheckbox";
 
-const ImageInsertModal = ({ onInsert, onClose }) => {
+const ImageInsertModal = ({ onInsert, onClose, fileAccept = "image/*" }) => {
   const { t } = useTranslation();
 
   const [url, setUrl] = useState("");
@@ -17,6 +17,26 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
   const [originalSize, setOriginalSize] = useState({ w: null, h: null });
   const [aspectRatio, setAspectRatio] = useState(null);
   const [lockRatio, setLockRatio] = useState(true);
+  const previewObjectUrlRef = useRef(null);
+
+  const revokePreviewObjectUrl = () => {
+    if (!previewObjectUrlRef.current) return;
+    URL.revokeObjectURL(previewObjectUrlRef.current);
+    previewObjectUrlRef.current = null;
+  };
+
+  const handleClose = () => {
+    revokePreviewObjectUrl();
+    onClose();
+  };
+
+  useEffect(() => {
+    return () => {
+      if (!previewObjectUrlRef.current) return;
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+      previewObjectUrlRef.current = null;
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +55,7 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
       setHeight("");
       setOriginalSize({ w: null, h: null });
       setAspectRatio(null);
-      onClose();
+      handleClose();
     }
   };
 
@@ -55,7 +75,9 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
+    revokePreviewObjectUrl();
     const previewUrl = URL.createObjectURL(selectedFile);
+    previewObjectUrlRef.current = previewUrl;
     setFile(selectedFile);
     setPreview(previewUrl);
     setUrl("");
@@ -64,6 +86,7 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
 
   const handleUrlChange = (e) => {
     const newUrl = e.target.value;
+    revokePreviewObjectUrl();
     setUrl(newUrl);
     setFile(null);
     setPreview(newUrl);
@@ -92,7 +115,7 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
   };
 
   return (
-    <div className={styles.overlay} onClick={onClose}>
+    <div className={styles.overlay} onClick={handleClose}>
       <div
         className={styles.modal}
         role="dialog"
@@ -102,7 +125,7 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
         <h3>{t("modals.chooseImage")}</h3>
         <form onSubmit={handleSubmit}>
           <FormGroup>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
+            <input type="file" accept={fileAccept} onChange={handleFileChange} />
           </FormGroup>
 
           <p className={styles.orText}>{t("modals.or")}</p>
@@ -169,7 +192,7 @@ const ImageInsertModal = ({ onInsert, onClose }) => {
             <BaseButton type="submit" variant="outline">
               {t("modals.confirm")}
             </BaseButton>
-            <BaseButton type="button" variant="outline" onClick={onClose}>
+            <BaseButton type="button" variant="outline" onClick={handleClose}>
               {t("modals.cancel")}
             </BaseButton>
           </div>

@@ -5,8 +5,7 @@ import { useState } from "react";
 import styles from "./BookCard.module.css";
 import FavoriteButton from "../FavoriteButton/FavoriteButton";
 import BaseButton from "../BaseButton/BaseButton";
-import SmartImage from "../SmartImage/SmartImage";
-import { toAbsoluteMediaUrl } from "../../utils/mediaUrl";
+import BookCoverImage from "../BookCoverImage/BookCoverImage";
 
 const BookCard = ({
   book,
@@ -27,31 +26,12 @@ const BookCard = ({
   return (
     <div className={styles.card}>
       <div className={styles.imageWrapper}>
-        {(() => {
-          const normalizedVariants = Array.isArray(book.imageVariants)
-            ? book.imageVariants
-                .map((v) => ({ ...v, url: toAbsoluteMediaUrl(v?.url) }))
-                .filter((v) => !!v.url)
-            : [];
-          const coverSrc =
-            toAbsoluteMediaUrl(book.imageUrl) || "/fallback-image.png";
-
-          return normalizedVariants.length > 0 ? (
-            <SmartImage
-              variants={normalizedVariants}
-              alt={`Cover of ${book.title}`}
-              className={styles.image}
-            />
-          ) : (
-            <img
-              src={coverSrc}
-              alt={`Cover of ${book.title}`}
-              className={styles.image}
-              loading="lazy"
-              decoding="async"
-            />
-          );
-        })()}
+        <BookCoverImage
+          src={book.imageUrl}
+          variants={book.imageVariants}
+          alt={`Cover of ${book.title}`}
+          className={styles.image}
+        />
       </div>
 
       <div className={styles.info}>

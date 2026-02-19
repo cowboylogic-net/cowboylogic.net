@@ -15,6 +15,8 @@ import { apiService } from "../../services/axiosService";
 
 import FavoriteButton from "../../components/FavoriteButton/FavoriteButton";
 import BaseButton from "../../components/BaseButton/BaseButton";
+import Loader from "../../components/Loader/Loader";
+import BookCoverImage from "../../components/BookCoverImage/BookCoverImage";
 import styles from "./BookDetails.module.css";
 import { toast } from "react-toastify";
 
@@ -119,15 +121,26 @@ const BookDetails = () => {
     }
   };
 
-  if (isFetchingById || !book)
-    return <h2 className={styles.loading}>{t("book.loading")}</h2>;
+  if (isFetchingById || !book) {
+    return (
+      <div className={styles.loadingState}>
+        <Loader />
+      </div>
+    );
+  }
   if (error) return <h2 className={styles.error}>{error}</h2>;
 
   return (
     <div className="layoutContainer">
       <div className={styles.bookDetails}>
         <div className={styles.imageContainer}>
-          <img src={book.imageUrl} alt={book.title} />
+          <BookCoverImage
+            src={book.imageUrl}
+            variants={book.imageVariants}
+            alt={book.title}
+            className={styles.coverImage}
+            loading="eager"
+          />
         </div>
 
         <div className={styles.info}>

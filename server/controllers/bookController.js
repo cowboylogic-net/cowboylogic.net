@@ -1,4 +1,3 @@
-// controllers/bookController.js
 import Book from "../models/Book.js";
 import HttpError from "../helpers/HttpError.js";
 import ctrlWrapper from "../helpers/ctrlWrapper.js";
@@ -21,6 +20,19 @@ const normalizeFormat = (value = "PAPERBACK") => {
     throw HttpError(400, "Invalid format");
   }
   return normalized;
+};
+
+const isAllowedBookImageUrl = (value) => {
+  const trimmed = typeof value === "string" ? value.trim() : "";
+  if (!trimmed) return false;
+  if (trimmed.startsWith("/uploads/")) return true;
+
+  try {
+    const parsed = new URL(trimmed);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
+  } catch {
+    return false;
+  }
 };
 
 const createBook = async (req, res) => {
@@ -53,7 +65,8 @@ const createBook = async (req, res) => {
 
   const normalizedFormat = normalizeFormat(format || "PAPERBACK");
 
-  let normalizedAmazonUrl = typeof amazonUrl === "string" ? amazonUrl.trim() : amazonUrl;
+  let normalizedAmazonUrl =
+    typeof amazonUrl === "string" ? amazonUrl.trim() : amazonUrl;
   let normalizedDownloadUrl =
     typeof downloadUrl === "string" ? downloadUrl.trim() : downloadUrl;
 
@@ -97,13 +110,10 @@ const createBook = async (req, res) => {
   sendResponse(res, { code: 201, data: book });
 };
 
-// ✅ UPDATE
-// ✅ UPDATE (drop-in replacement)
 const updateBook = async (req, res) => {
   const book = await Book.findByPk(req.params.id);
   if (!book) throw HttpError(404, "Book not found");
 
-  // побудова updateData лише з наданих ключів
   const updateData = {};
 
   if ("title" in req.body) updateData.title = req.body.title;
@@ -140,11 +150,9 @@ const updateBook = async (req, res) => {
         updateData.partnerPrice = +(updateData.price * 0.75).toFixed(2);
       }
     } else {
-      // wholesale вимкнули → обнуляємо partnerPrice
       updateData.partnerPrice = null;
     }
   } else if ("partnerPrice" in req.body) {
-    // wholesale не змінювали, але надійшов partnerPrice
     const pp = parseFloat(req.body.partnerPrice);
     if (Number.isNaN(pp)) throw HttpError(400, "Invalid partnerPrice");
     updateData.partnerPrice = pp;
@@ -167,7 +175,9 @@ const updateBook = async (req, res) => {
   let nextAmazonUrl = book.amazonUrl;
   if ("amazonUrl" in req.body) {
     const trimmed =
-      typeof req.body.amazonUrl === "string" ? req.body.amazonUrl.trim() : req.body.amazonUrl;
+      typeof req.body.amazonUrl === "string"
+        ? req.body.amazonUrl.trim()
+        : req.body.amazonUrl;
     nextAmazonUrl = trimmed || null;
     updateData.amazonUrl = nextAmazonUrl;
   }
@@ -208,10 +218,9 @@ const updateBook = async (req, res) => {
     updateData.downloadUrl = null;
   }
 
-  // 🖼️ якщо прийшов новий файл — видаляємо старий /uploads/* і ставимо новий шлях
   if (req.file?.webPath) {
     if (book.imageUrl && book.imageUrl.startsWith("/uploads/")) {
-      const relativePath = book.imageUrl.slice(1); // прибираємо початковий "/"
+      const relativePath = book.imageUrl.slice(1);
       const oldPath = path.resolve("public", relativePath);
       try {
         await fs.unlink(oldPath);
@@ -222,23 +231,36 @@ const updateBook = async (req, res) => {
       }
     }
     updateData.imageUrl = req.file.webPath;
+  } else if (typeof req.body.imageUrl === "string") {
+    const nextImageUrl = req.body.imageUrl.trim();
+    if (nextImageUrl) {
+      if (!isAllowedBookImageUrl(nextImageUrl)) {
+        throw HttpError(400, "Invalid imageUrl");
+      }
+      updateData.imageUrl = nextImageUrl;
+
+      const hasImageVariants = Object.prototype.hasOwnProperty.call(
+        Book.rawAttributes || {},
+        "imageVariants",
+      );
+      if (hasImageVariants && /^https?:\/\//i.test(nextImageUrl)) {
+        updateData.imageVariants = null;
+      }
+    }
   }
 
   await book.update(updateData);
   sendResponse(res, { code: 200, data: book });
 };
 
-// controllers/bookController.js
 const getBooks = async (req, res) => {
   const isPrivileged =
     req.user?.role === "partner" ||
     req.user?.role === "admin" ||
     req.user?.isSuperAdmin;
 
-  // 1) беремо з мідлвара, якщо є
   const q = (req.validated && req.validated.query) || req.query || {};
 
-  // 2) будуємо whitelist для сорту з урахуванням наявності поля createdAt
   const attrs = Book.rawAttributes || Book.getAttributes?.() || {};
   const allowedSort = new Set(["title", "price", "stock"]);
   if ("createdAt" in attrs) allowedSort.add("createdAt");
@@ -280,7 +302,6 @@ const getBooks = async (req, res) => {
   sendResponse(res, { code: 200, data: { items: rows, meta } });
 };
 
-// ✅ GET ONE
 const getBookById = async (req, res) => {
   const book = await Book.findByPk(req.params.id);
   if (!book) throw HttpError(404, "Book not found");
@@ -295,12 +316,10 @@ const getBookById = async (req, res) => {
   sendResponse(res, { code: 200, data: bookData });
 };
 
-// ✅ DELETE
 const deleteBook = async (req, res) => {
   const book = await Book.findByPk(req.params.id);
   if (!book) throw HttpError(404, "Book not found");
 
-  // 🧹 Видаляємо зображення, якщо є
   if (book.imageUrl && book.imageUrl.includes("/uploads/")) {
     const relativePath = book.imageUrl.startsWith("/")
       ? book.imageUrl.slice(1)
@@ -327,7 +346,13 @@ const deleteBook = async (req, res) => {
 const getPartnerBooks = async (req, res) => {
   const q = (req.validated && req.validated.query) || req.query || {};
 
-  const allowedSort = new Set(["createdAt", "title", "partnerPrice", "stock", "displayOrder"]);
+  const allowedSort = new Set([
+    "createdAt",
+    "title",
+    "partnerPrice",
+    "stock",
+    "displayOrder",
+  ]);
   const sortByRaw = q.sortBy ?? "createdAt";
   const sortBy = allowedSort.has(sortByRaw) ? sortByRaw : "createdAt";
 

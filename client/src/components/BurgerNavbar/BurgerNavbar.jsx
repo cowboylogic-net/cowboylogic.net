@@ -6,6 +6,7 @@ import styles from "./BurgerNavbar.module.css";
 import LanguageSwitcher from "../LanguageSwitcher/LanguageSwitcher";
 import { logoutUser } from "../../store/thunks/authThunks";
 import BaseButton from "../BaseButton/BaseButton";
+import { selectAuthBooting } from "../../store/selectors/authSelectors";
 
 const BurgerNavbar = () => {
   const [open, setOpen] = useState(false);
@@ -13,6 +14,7 @@ const BurgerNavbar = () => {
   const wrapperRef = useRef(null);
 
   const user = useSelector((state) => state.auth.user);
+  const authBooting = useSelector(selectAuthBooting);
   const role = user?.role;
 
   const dispatch = useDispatch();
@@ -166,7 +168,9 @@ const BurgerNavbar = () => {
               </div>
             )}
 
-            {user ? (
+            {authBooting ? (
+              <span className={styles.authPlaceholder}>Loading account...</span>
+            ) : user ? (
               <>
                 <NavLink to="/profile" onClick={() => setOpen(false)}>
                   Profile

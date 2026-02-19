@@ -1,10 +1,22 @@
-// client/src/utils/mediaUrl.js
 import { getApiBase } from "./apiBase";
 
 export const toAbsoluteMediaUrl = (u) => {
-  if (!u || typeof u !== "string") return u;
-  if (/^(https?:|blob:|data:)/i.test(u)) return u;  
-  const base = getApiBase();
-  const rel = u.startsWith("/") ? u : `/${u}`;
-  return base ? `${base}${rel}` : rel;
+  if (typeof u !== "string") return "";
+  const raw = u.trim();
+  if (!raw) return "";
+
+  if (/^(https?:\/\/|blob:|data:)/i.test(raw)) return raw;
+
+  const path = raw.startsWith("uploads/") ? `/${raw}` : raw;
+
+  if (path.startsWith("/uploads/")) {
+    const base = getApiBase();
+    if (!base) return path;
+    const normalizedBase = String(base).replace(/\/+$/, "");
+    return `${normalizedBase}${path}`;
+  }
+
+  if (path.startsWith("/")) return path;
+
+  return "";
 };

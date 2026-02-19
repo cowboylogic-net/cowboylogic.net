@@ -19,7 +19,7 @@
   color: #fff6e6;
 }
 
-/* Центруємо сам контейнер FormGroup (має max-width у своєму модулі) */
+/* Center the FormGroup container itself (it has max-width in its own module). */
 .group {
   margin-inline: auto;
 }
@@ -43,7 +43,20 @@
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
-/* Buttons centering (BaseForm -> align-items: stretch) */
+.previewPlaceholder {
+  margin: 0 auto;
+  width: min(200px, 100%);
+  min-height: 80px;
+  display: grid;
+  place-items: center;
+  padding: 0.5rem;
+  border: 1px dashed rgba(255, 248, 220, 0.45);
+  border-radius: var(--radius-sm);
+  color: rgba(255, 248, 220, 0.8);
+  font-size: 0.9rem;
+}
+
+/* Buttons centering (BaseForm -> align-items: stretch). */
 .actionsTop,
 .actions {
   display: flex;
@@ -55,16 +68,24 @@
   align-self: center;
 }
 
-/* Errors coming from component logic */
+/* Errors coming from component logic. */
 .error {
   color: var(--color-error);
   font-size: 0.9rem;
   margin: 0.5rem 0 0;
   text-align: center;
 }
+
+.loadingState {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .checkboxCenter {
-  align-self: center;      /* перекриває align-items: stretch у BaseForm */
-  justify-content: center; /* вирівнює вміст самого label (wrapper) */
+  align-self: center;
+  justify-content: center;
   gap: var(--spacing-xs);
   margin: 0.5rem 0;
 }

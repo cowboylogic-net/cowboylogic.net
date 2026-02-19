@@ -31,41 +31,52 @@ const PartnerStorePage = () => {
   const { page, totalPages } = useSelector(selectPartnerMeta);
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const sortParam = searchParams.get("sort");
+  const pageParam = searchParams.get("page");
 
   useEffect(() => {
-    if (!searchParams.get("sort")) {
-      setSearchParams((prev) => {
-        const sp = new URLSearchParams(prev);
-        sp.set("sort", PARTNER_BOOK_SORT_OPTIONS[0].value);
-        if (!sp.get("page")) {
-          sp.set("page", "1");
-        }
-        return sp;
-      });
-    }
-  }, [searchParams, setSearchParams]);
+    if (sortParam && pageParam) return;
 
-  const sortParam = searchParams.get("sort") || PARTNER_BOOK_SORT_OPTIONS[0].value;
+    setSearchParams((prev) => {
+      const sp = new URLSearchParams(prev);
+
+      if (!sp.get("sort")) {
+        sp.set("sort", PARTNER_BOOK_SORT_OPTIONS[0].value);
+      }
+      if (!sp.get("page")) {
+        sp.set("page", "1");
+      }
+
+      return sp;
+    });
+  }, [sortParam, pageParam, setSearchParams]);
+
+  const activeSort = sortParam || PARTNER_BOOK_SORT_OPTIONS[0].value;
 
   const currentSort = useMemo(() => {
-    const found = PARTNER_BOOK_SORT_OPTIONS.find((option) => option.value === sortParam);
+    const found = PARTNER_BOOK_SORT_OPTIONS.find(
+      (option) => option.value === activeSort,
+    );
     return found || PARTNER_BOOK_SORT_OPTIONS[0];
-  }, [sortParam]);
+  }, [activeSort]);
 
-  // ✅ Правильний useEffect
+  const resolvedPage = useMemo(() => {
+    const parsed = Number(pageParam || 1);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+  }, [pageParam]);
+
   useEffect(() => {
-    if (!user) return; // не фетчимо, доки немає юзера
-    const pageFromUrl = Number(searchParams.get("page") || 1);
+    if (!user) return;
 
     dispatch(
       fetchPartnerBooks({
-        page: Number.isFinite(pageFromUrl) && pageFromUrl > 0 ? pageFromUrl : 1,
+        page: resolvedPage,
         limit: DEFAULT_LIMIT,
         sortBy: currentSort.sortBy,
         order: currentSort.order,
-      })
+      }),
     );
-  }, [dispatch, user, searchParams, currentSort]);
+  }, [dispatch, user, resolvedPage, currentSort.sortBy, currentSort.order]);
 
   const onPageChange = (newPage) => {
     setSearchParams((prev) => {
@@ -111,7 +122,9 @@ const PartnerStorePage = () => {
 
       {error && (
         <p>
-          {typeof error === "string" ? error : error?.message || "Unknown error"}
+          {typeof error === "string"
+            ? error
+            : error?.message || "Unknown error"}
           {t("partnerStore.loadError")}
         </p>
       )}

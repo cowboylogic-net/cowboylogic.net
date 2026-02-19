@@ -46,6 +46,17 @@ router.put(
   bookController.updateBook
 );
 
+router.patch(
+  "/:id",
+  protect,
+  isAdmin,
+  upload.single("image"),
+  optimizeImage,
+  validateParams(idParamSchema),
+  validateBody(updateBookSchema, true),
+  bookController.updateBook
+);
+
 router.get(
   "/partner-books",
   protect,

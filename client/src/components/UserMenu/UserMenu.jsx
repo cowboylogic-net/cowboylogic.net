@@ -2,7 +2,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { logoutUser } from "../../store/thunks/authThunks";
-import { selectUser } from "../../store/selectors/authSelectors";
+import { selectAuthBooting, selectUser } from "../../store/selectors/authSelectors";
 import { useTranslation } from "react-i18next";
 
 import styles from "./UserMenu.module.css";
@@ -11,6 +11,7 @@ import BaseButton from "../BaseButton/BaseButton";
 const UserMenu = () => {
   const dispatch = useDispatch();
   const user = useSelector(selectUser);
+  const authBooting = useSelector(selectAuthBooting);
   const { t } = useTranslation();
 
   const handleLogout = () => {
@@ -26,7 +27,16 @@ const UserMenu = () => {
 
   return (
     <>
-      {user ? (
+      {authBooting ? (
+        <>
+          <Link to="/cart">
+            <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>
+          </Link>
+          <span className={styles.authPlaceholder}>
+            {t("userMenu.authLoading", "Loading account...")}
+          </span>
+        </>
+      ) : user ? (
         <>
           <Link to="/cart">
             <BaseButton variant="outline">{`🛒 ${t("userMenu.cart")}`}</BaseButton>

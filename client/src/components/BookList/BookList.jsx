@@ -1,9 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import {
   selectBooksMeta,
   selectPartnerMeta,
+  selectPartnerBooks,
+  selectIsFetchingPartnerBooks,
 } from "../../store/selectors/bookSelectors";
 import { fetchPartnerBooks } from "../../store/thunks/bookThunks";
 
@@ -29,19 +31,25 @@ const BookList = ({
   disableAutoFetch = false,
   showAdminActions = true,
   showDeleteModal = true,
-  variant = "user", // <- явний дефолт
+  variant = "user",
 }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const reduxBooks = useSelector(selectAllBooks);
+  const isPartnerView = variant === "partner";
+
+  const reduxBooks = useSelector(
+    isPartnerView ? selectPartnerBooks : selectAllBooks,
+  );
+
   const books = useMemo(
     () => externalBooks ?? reduxBooks,
-    [externalBooks, reduxBooks]
+    [externalBooks, reduxBooks],
   );
 
   const user = useSelector(selectUser);
   const { isFetching } = useSelector(selectLoadingFlags);
+  const isFetchingPartnerBooks = useSelector(selectIsFetchingPartnerBooks);
 
   const [bookToDelete, setBookToDelete] = useState(null);
 
@@ -49,17 +57,35 @@ const BookList = ({
     user?.role === "admin" || user?.role === "superAdmin" || user?.isSuperAdmin;
   const isLoggedIn = !!user;
 
-  // ВАЖЛИВО: тільки проп керує відображенням
-  const isPartnerView = variant === "partner";
   const meta = useSelector(isPartnerView ? selectPartnerMeta : selectBooksMeta);
   const currentPage = meta?.page ?? 1;
   const currentLimit = meta?.limit ?? 12;
+  const booksCount = Array.isArray(books) ? books.length : 0;
+  const hasExternalBooks = externalBooks != null;
+
+  const isListFetching = isPartnerView ? isFetchingPartnerBooks : isFetching;
 
   useEffect(() => {
-    if (!disableAutoFetch && !externalBooks && books.length === 0) {
-      dispatch(fetchBooks());
+    if (disableAutoFetch) return;
+    if (hasExternalBooks) return;
+    if (isListFetching) return;
+    if (booksCount > 0) return;
+
+    if (isPartnerView) {
+      dispatch(fetchPartnerBooks({ page: currentPage, limit: currentLimit }));
+    } else {
+      dispatch(fetchBooks({ page: currentPage, limit: currentLimit }));
     }
-  }, [dispatch, externalBooks, books.length, disableAutoFetch]);
+  }, [
+    disableAutoFetch,
+    hasExternalBooks,
+    isListFetching,
+    booksCount,
+    isPartnerView,
+    dispatch,
+    currentPage,
+    currentLimit,
+  ]);
 
   const handleEdit = (id) => navigate(`/admin/books/edit/${id}`);
 
@@ -93,7 +119,7 @@ const BookList = ({
     }
   };
 
-  if (!externalBooks && isFetching && (!books || books.length === 0)) {
+  if (!hasExternalBooks && isListFetching && booksCount === 0) {
     return <Loader />;
   }
 

@@ -94,6 +94,13 @@
   color: var(--color-link);
 }
 
+.authPlaceholder {
+  padding: 0.5rem 0.625rem;
+  color: var(--color-text);
+  opacity: 0.85;
+  font-size: 0.95rem;
+}
+
 /* дрібний адаптив — для надто вузьких екранів зробимо ширину впритул */
 @media (max-width: 360px) {
   .menu {

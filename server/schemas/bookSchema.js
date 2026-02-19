@@ -44,12 +44,17 @@ export const updateBookSchema = Joi.object({
   stock: Joi.number().integer().min(0),
   imageUrl: Joi.string()
     .custom((value, helpers) => {
-      if (!value) return value;
-      if (value.startsWith("/uploads/")) return value;
+      if (typeof value !== "string") return helpers.error("any.invalid");
+      const trimmedValue = value.trim();
+      if (!trimmedValue) return "";
+      if (trimmedValue.startsWith("/uploads/")) return trimmedValue;
 
       try {
-        new URL(value);
-        return value;
+        const parsed = new URL(trimmedValue);
+        if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+          return trimmedValue;
+        }
+        return helpers.error("any.invalid");
       } catch {
         return helpers.error("any.invalid");
       }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Controller, useForm } from "react-hook-form";
@@ -27,6 +27,24 @@ import BaseForm from "../BaseForm/BaseForm";
 import FormGroup from "../FormGroup/FormGroup";
 import BaseCheckbox from "../BaseCheckbox/BaseCheckbox";
 import BaseSelect from "../BaseSelect/BaseSelect";
+
+const BOOK_IMAGE_ALLOWED_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+]);
+const BOOK_IMAGE_ACCEPT = "image/jpeg,image/png,image/webp";
+const BOOK_IMAGE_MAX_SIZE_BYTES = 5 * 1024 * 1024;
+const BOOK_IMAGE_MAX_SIZE_MB = BOOK_IMAGE_MAX_SIZE_BYTES / (1024 * 1024);
+const normalizeImageUrlForSubmit = (raw) => {
+  const v = String(raw || "").trim();
+  if (!v) return "";
+  if (/^https?:/i.test(v)) return v;
+
+  if (v.startsWith("uploads/")) return `/${v}`;
+
+  return v;
+};
 
 const BookForm = ({ onSuccess, onError }) => {
   const { t } = useTranslation();
@@ -64,11 +82,44 @@ const BookForm = ({ onSuccess, onError }) => {
     },
   });
 
-  const [imageFile, setImageFile] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [image, setImage] = useState(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState("");
+  const [previewHasError, setPreviewHasError] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const previewObjectUrlRef = useRef(null);
 
   const formatValue = watch("format");
+  const previewSrc =
+    image?.kind === "newFile" ? filePreviewUrl : image?.value || "";
+
+  const revokePreviewObjectUrl = () => {
+    if (!previewObjectUrlRef.current) return;
+    URL.revokeObjectURL(previewObjectUrlRef.current);
+    previewObjectUrlRef.current = null;
+  };
+
+  const validateImageFile = (file) => {
+    if (!BOOK_IMAGE_ALLOWED_TYPES.has(file.type)) {
+      onError?.(
+        t("bookForm.imageInvalidType", {
+          defaultValue: "Unsupported image type. Use JPEG, PNG, or WEBP.",
+        }),
+      );
+      return false;
+    }
+
+    if (file.size > BOOK_IMAGE_MAX_SIZE_BYTES) {
+      onError?.(
+        t("bookForm.imageTooLarge", {
+          maxSizeMb: BOOK_IMAGE_MAX_SIZE_MB,
+          defaultValue: `Image is too large. Maximum size is ${BOOK_IMAGE_MAX_SIZE_MB}MB.`,
+        }),
+      );
+      return false;
+    }
+
+    return true;
+  };
 
   useEffect(() => {
     if (isEditMode && id) {
@@ -77,7 +128,16 @@ const BookForm = ({ onSuccess, onError }) => {
   }, [dispatch, isEditMode, id]);
 
   useEffect(() => {
+    return () => {
+      if (!previewObjectUrlRef.current) return;
+      URL.revokeObjectURL(previewObjectUrlRef.current);
+      previewObjectUrlRef.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     if (isEditMode && selectedBook) {
+      revokePreviewObjectUrl();
       reset({
         title: selectedBook.title,
         author: selectedBook.author,
@@ -92,7 +152,13 @@ const BookForm = ({ onSuccess, onError }) => {
         amazonUrl: selectedBook.amazonUrl || "",
         downloadUrl: selectedBook.downloadUrl || "",
       });
-      setPreview(selectedBook.imageUrl || null);
+      setImage(
+        selectedBook.imageUrl
+          ? { kind: "existingUrl", value: selectedBook.imageUrl }
+          : null,
+      );
+      setFilePreviewUrl("");
+      setPreviewHasError(false);
     }
   }, [selectedBook, reset, isEditMode]);
 
@@ -104,15 +170,30 @@ const BookForm = ({ onSuccess, onError }) => {
 
   const handleImageInsert = ({ file, url }) => {
     if (file) {
-      setImageFile(file);
+      if (!validateImageFile(file)) return false;
+
+      revokePreviewObjectUrl();
+      const nextPreviewUrl = URL.createObjectURL(file);
+      previewObjectUrlRef.current = nextPreviewUrl;
+
+      setImage({ kind: "newFile", value: file });
+      setFilePreviewUrl(nextPreviewUrl);
       setValue("imageUrl", "");
-      setPreview(URL.createObjectURL(file));
-    } else if (url) {
-      setImageFile(null);
-      setValue("imageUrl", url);
-      setPreview(url);
+      setPreviewHasError(false);
+      return true;
     }
-    setShowImageModal(false);
+
+    if (url) {
+      const trimmedUrl = url.trim();
+      revokePreviewObjectUrl();
+      setImage({ kind: "existingUrl", value: trimmedUrl });
+      setFilePreviewUrl("");
+      setValue("imageUrl", trimmedUrl);
+      setPreviewHasError(false);
+      return true;
+    }
+
+    return false;
   };
 
   const onSubmit = async (data) => {
@@ -148,15 +229,19 @@ const BookForm = ({ onSuccess, onError }) => {
       formData.append("downloadUrl", data.downloadUrl.trim());
     }
 
-    const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:5000";
+    const originalImageUrl = normalizeImageUrlForSubmit(selectedBook?.imageUrl);
 
-    if (imageFile) {
-      formData.append("image", imageFile);
-    } else if (data.imageUrl?.trim()) {
-      const fullUrl = data.imageUrl.startsWith("/")
-        ? `${baseUrl}${data.imageUrl}`
-        : data.imageUrl;
-      formData.append("imageUrl", fullUrl);
+    if (image?.kind === "newFile" && image.value) {
+      formData.append("image", image.value);
+    } else if (image?.kind === "existingUrl") {
+      const nextImageUrl = normalizeImageUrlForSubmit(image.value);
+
+      const shouldSendImageUrl =
+        !isEditMode || nextImageUrl !== originalImageUrl;
+
+      if (nextImageUrl && shouldSendImageUrl) {
+        formData.append("imageUrl", nextImageUrl);
+      }
     }
 
     try {
@@ -173,7 +258,13 @@ const BookForm = ({ onSuccess, onError }) => {
     }
   };
 
-  if (isEditMode && isFetchingById) return <Loader />;
+  if (isEditMode && isFetchingById) {
+    return (
+      <div className={styles.loadingState}>
+        <Loader />
+      </div>
+    );
+  }
   if (isEditMode && !selectedBook && !isFetchingById)
     return <p className={styles.error}>{t("bookForm.notFound")}</p>;
   if (error) return <p className={styles.error}>{error}</p>;
@@ -368,14 +459,25 @@ const BookForm = ({ onSuccess, onError }) => {
           </BaseButton>
         </div>
 
-        {preview && (
-          <div className={styles.preview}>
-            <div className={styles.previewTitle}>
-              {t("bookForm.imagePreview")}
-            </div>
-            <img src={preview} alt="Preview" className={styles.previewImage} />
+        <div className={styles.preview}>
+          <div className={styles.previewTitle}>
+            {t("bookForm.imagePreview")}
           </div>
-        )}
+          {previewSrc && !previewHasError ? (
+            <img
+              src={previewSrc}
+              alt="Preview"
+              className={styles.previewImage}
+              onError={() => setPreviewHasError(true)}
+            />
+          ) : (
+            <div className={styles.previewPlaceholder}>
+              {t("bookForm.imagePreviewPlaceholder", {
+                defaultValue: "No image preview available.",
+              })}
+            </div>
+          )}
+        </div>
 
         <BaseCheckbox
           className={styles.checkboxCenter}
@@ -395,8 +497,8 @@ const BookForm = ({ onSuccess, onError }) => {
                 ? t("bookForm.updating")
                 : t("bookForm.update")
               : isCreating
-              ? t("bookForm.creating")
-              : t("bookForm.create")}
+                ? t("bookForm.creating")
+                : t("bookForm.create")}
           </BaseButton>
         </div>
       </BaseForm>
@@ -404,6 +506,7 @@ const BookForm = ({ onSuccess, onError }) => {
       {showImageModal && (
         <ImageInsertModal
           onInsert={handleImageInsert}
+          fileAccept={BOOK_IMAGE_ACCEPT}
           onClose={() => setShowImageModal(false)}
         />
       )}

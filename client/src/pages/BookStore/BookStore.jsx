@@ -6,11 +6,13 @@ import BookList from "../../components/BookList/BookList";
 import BaseButton from "../../components/BaseButton/BaseButton";
 import Pagination from "../../components/Pagination/Pagination";
 import BaseSelect from "../../components/BaseSelect/BaseSelect";
+import Loader from "../../components/Loader/Loader";
 import styles from "./BookStore.module.css";
 import { fetchBooks, deleteBook } from "../../store/thunks/bookThunks";
 import {
   selectAllBooks,
   selectBooksMeta,
+  selectLoadingFlags,
 } from "../../store/selectors/bookSelectors";
 import {
   selectIsAdmin,
@@ -28,46 +30,50 @@ const BookStore = () => {
   const isAdmin = useSelector(selectIsAdmin);
   const authBooting = useSelector(selectAuthBooting);
   const books = useSelector(selectAllBooks);
+  const { isFetching } = useSelector(selectLoadingFlags);
   const { page, totalPages } = useSelector(selectBooksMeta);
 
   const [searchParams, setSearchParams] = useSearchParams();
+  const sortParam = searchParams.get("sort");
+  const pageParam = searchParams.get("page");
+
   useEffect(() => {
-    if (!searchParams.get("sort")) {
+    if (!sortParam) {
       setSearchParams((prev) => {
         const sp = new URLSearchParams(prev);
         sp.set("sort", BOOK_SORT_OPTIONS[0].value);
-        if (!sp.get("page")) {
+        if (!pageParam) {
           sp.set("page", "1");
         }
         return sp;
       });
     }
-  }, [searchParams, setSearchParams]);
+  }, [sortParam, pageParam, setSearchParams]);
 
-  const sortParam = searchParams.get("sort") || BOOK_SORT_OPTIONS[0].value;
+  const activeSort = sortParam || BOOK_SORT_OPTIONS[0].value;
 
   const currentSort = useMemo(() => {
     const found = BOOK_SORT_OPTIONS.find(
-      (option) => option.value === sortParam
+      (option) => option.value === activeSort,
     );
     return found || BOOK_SORT_OPTIONS[0];
-  }, [sortParam]);
+  }, [activeSort]);
 
-  // 1) зчитуємо page з URL і фетчимо
+  const resolvedPage = useMemo(() => {
+    const parsedPage = Number(pageParam || 1);
+    return Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
+  }, [pageParam]);
+
   useEffect(() => {
-    const pageFromUrl = Number(searchParams.get("page") || 1);
-    const resolvedPage =
-      Number.isFinite(pageFromUrl) && pageFromUrl > 0 ? pageFromUrl : 1;
-
     dispatch(
       fetchBooks({
         page: resolvedPage,
         limit: DEFAULT_LIMIT,
         sortBy: currentSort.sortBy,
         order: currentSort.order,
-      })
+      }),
     );
-  }, [dispatch, searchParams, currentSort]);
+  }, [dispatch, resolvedPage, currentSort.sortBy, currentSort.order]);
 
   const onPageChange = (newPage) => {
     setSearchParams((prev) => {
@@ -102,12 +108,20 @@ const BookStore = () => {
           limit: DEFAULT_LIMIT,
           sortBy: currentSort.sortBy,
           order: currentSort.order,
-        })
+        }),
       );
     } catch (err) {
       console.error("Failed to delete book:", err);
     }
   };
+
+  if (isFetching && books.length === 0) {
+    return (
+      <div className={styles.loadingState}>
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -151,7 +165,5 @@ const BookStore = () => {
     </div>
   );
 };
-
-
 
 export default BookStore;
