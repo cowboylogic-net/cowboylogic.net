@@ -1,8 +1,10 @@
 import styles from "./App.module.css";
 import { Routes, Route, useLocation, useNavigate } from "react-router-dom";
 import { lazy, Suspense, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import clsx from "clsx";
+import { resetCartState } from "./store/slices/cartSlice";
+import { guestCart } from "./services/guestCart";
 
 import Loader from "./components/Loader/Loader";
 import Layout from "./components/Layout/Layout";
@@ -61,6 +63,7 @@ const UserManagement = lazy(() => import("./pages/Admin/UserManagement"));
 const Newsletter = lazy(() => import("./pages/Admin/Newsletter"));
 
 const App = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const { user, bootstrapStatus } = useSelector((s) => s.auth);
@@ -68,6 +71,19 @@ const App = () => {
     (s) => s.auth.sessionExpiredNonce || 0,
   );
   const lastHandledRef = useRef(0);
+  const lastUserIdRef = useRef(user?.id || null);
+
+  useEffect(() => {
+    const prevUserId = lastUserIdRef.current;
+    const nextUserId = user?.id || null;
+    if (prevUserId === nextUserId) return;
+
+    lastUserIdRef.current = nextUserId;
+    dispatch(resetCartState());
+    if (prevUserId) {
+      guestCart.clear();
+    }
+  }, [dispatch, user?.id]);
 
   useEffect(() => {
     if (!sessionExpiredNonce) return;
@@ -82,13 +98,7 @@ const App = () => {
         state: { reason: "session-expired" },
       });
     }
-  }, [
-    sessionExpiredNonce,
-    bootstrapStatus,
-    user,
-    location.pathname,
-    navigate,
-  ]);
+  }, [sessionExpiredNonce, bootstrapStatus, user, location.pathname, navigate]);
   return (
     <div className={clsx(styles.container, "app-layout")}>
       <Suspense fallback={<Loader />}>

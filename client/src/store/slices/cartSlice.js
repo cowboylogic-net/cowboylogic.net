@@ -1,17 +1,27 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchCartItems, addToCartThunk, updateCartItemQuantity, deleteCartItemThunk, clearCartThunk } from "../thunks/cartThunks";
+import {
+  fetchCartItems,
+  addToCartThunk,
+  updateCartItemQuantity,
+  deleteCartItemThunk,
+  clearCartThunk,
+} from "../thunks/cartThunks";
+import { logoutUser } from "../thunks/authThunks";
+
+const getInitialState = () => ({
+  items: [],
+  error: null,
+  isFetching: false,
+  isAdding: false,
+  isUpdating: false,
+  isDeleting: false,
+});
 
 const cartSlice = createSlice({
   name: "cart",
-  initialState: {
-    items: [],
-    error: null,
-    isFetching: false,
-    isAdding: false,
-    isUpdating: false,
-    isDeleting: false,
-  },
+  initialState: getInitialState(),
   reducers: {
+    resetCartState: () => getInitialState(),
     removeFromCart: (state, action) => {
       state.items = state.items.filter((item) => item.id !== action.payload);
     },
@@ -53,7 +63,7 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(addToCartThunk.fulfilled, (state, action) => {
-        state.items = action.payload; 
+        state.items = action.payload;
         state.isAdding = false;
       })
       .addCase(addToCartThunk.rejected, (state, action) => {
@@ -65,7 +75,7 @@ const cartSlice = createSlice({
         state.error = null;
       })
       .addCase(updateCartItemQuantity.fulfilled, (state, action) => {
-        state.items = action.payload; // повний масив після refetch
+        state.items = action.payload;
         state.isUpdating = false;
       })
       .addCase(updateCartItemQuantity.rejected, (state, action) => {
@@ -73,13 +83,12 @@ const cartSlice = createSlice({
         state.isUpdating = false;
       })
 
-      // ⬇️ INSERT: deleteCartItemThunk
       .addCase(deleteCartItemThunk.pending, (state) => {
         state.isDeleting = true;
         state.error = null;
       })
       .addCase(deleteCartItemThunk.fulfilled, (state, action) => {
-        state.items = action.payload; // повний масив після refetch
+        state.items = action.payload;
         state.isDeleting = false;
       })
       .addCase(deleteCartItemThunk.rejected, (state, action) => {
@@ -87,17 +96,19 @@ const cartSlice = createSlice({
         state.isDeleting = false;
       })
 
-      // ⬇️ INSERT: clearCartThunk
       .addCase(clearCartThunk.fulfilled, (state, action) => {
-        state.items = action.payload; // []
+        state.items = action.payload;
       })
       .addCase(clearCartThunk.rejected, (state, action) => {
         state.error = action.payload;
-      });
+      })
+      .addCase(logoutUser.fulfilled, () => getInitialState())
+      .addCase("auth/sessionExpired", () => getInitialState());
   },
 });
 
 export const {
+  resetCartState,
   removeFromCart,
   clearCart,
   replaceCart,
@@ -106,4 +117,3 @@ export const {
 } = cartSlice.actions;
 
 export default cartSlice.reducer;
-
