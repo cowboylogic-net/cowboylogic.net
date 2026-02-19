@@ -1,7 +1,8 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "./tests/visual",
+  testDir: "./tests",
+  testMatch: ["**/*.spec.js", "**/*.spec.ts"],
   timeout: 30000,
   expect: {
     toHaveScreenshot: {

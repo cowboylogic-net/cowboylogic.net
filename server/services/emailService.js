@@ -9,23 +9,33 @@ const IS_SECURE = PORT === 465;
 const IS_PROD = (process.env.NODE_ENV || "").toLowerCase() === "production";
 const REDIRECT_ALL_TO = process.env.MAIL_REDIRECT_ALL_TO || "";
 
-// --- helpers ---
 const safe = (v) => String(v ?? "").trim();
 
 const escapeHtml = (str) =>
-  safe(str).replace(/[&<>"'`=\/]/g, (s) =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;", "/": "&#x2F;", "`": "&#x60;", "=": "&#x3D;" }[s])
+  safe(str).replace(
+    /[&<>"'`=\/]/g,
+    (s) =>
+      ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+        "/": "&#x2F;",
+        "`": "&#x60;",
+        "=": "&#x3D;",
+      })[s],
   );
 
 const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safe(s));
-const resolveRecipient = (to) => (!IS_PROD && REDIRECT_ALL_TO ? REDIRECT_ALL_TO : to);
+const resolveRecipient = (to) =>
+  !IS_PROD && REDIRECT_ALL_TO ? REDIRECT_ALL_TO : to;
 
-// --- transporter ---
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
   port: PORT,
-  secure: IS_SECURE,           // 465 = SSL
-  requireTLS: !IS_SECURE,      // 587 -> STARTTLS обов’язково
+  secure: IS_SECURE,
+  requireTLS: !IS_SECURE,
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
@@ -43,8 +53,12 @@ const transporter = nodemailer.createTransport({
 
 export const verifySMTP = async () => transporter.verify();
 
-// --- base sender ---
-export const sendEmail = async (toRaw, subjectRaw, htmlRaw, { replyTo } = {}) => {
+export const sendEmail = async (
+  toRaw,
+  subjectRaw,
+  htmlRaw,
+  { replyTo } = {},
+) => {
   const toOriginal = safe(toRaw);
   const to = resolveRecipient(toOriginal);
 
@@ -76,11 +90,15 @@ export const sendEmail = async (toRaw, subjectRaw, htmlRaw, { replyTo } = {}) =>
 
   console.log(
     "📨 Sending email:",
-    { to: mailOptions.to, subject: mailOptions.subject, env: process.env.NODE_ENV || "dev" },
+    {
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      env: process.env.NODE_ENV || "dev",
+    },
     "via",
     transporter.options.host,
     "port:",
-    transporter.options.port
+    transporter.options.port,
   );
 
   try {
@@ -93,12 +111,19 @@ export const sendEmail = async (toRaw, subjectRaw, htmlRaw, { replyTo } = {}) =>
   }
 };
 
-// --- contact email ---
-export const sendContactEmail = async ({ firstName, lastName, email, message, comment }) => {
+export const sendContactEmail = async ({
+  firstName,
+  lastName,
+  email,
+  message,
+  comment,
+}) => {
   const body = safe(message ?? comment);
   const name = safe(`${safe(firstName)} ${safe(lastName)}`) || "Contact Form";
 
-  const adminRecipient = safe(process.env.MAIL_ADMIN || process.env.EMAIL_ADMIN);
+  const adminRecipient = safe(
+    process.env.MAIL_ADMIN || process.env.EMAIL_ADMIN,
+  );
   if (!adminRecipient) throw new Error("EMAIL_ADMIN/MAIL_ADMIN env is missing");
 
   const html = `
@@ -113,12 +138,12 @@ export const sendContactEmail = async ({ firstName, lastName, email, message, co
   });
 };
 
-// --- order confirmation ---
 export const sendOrderConfirmationEmail = async ({ to, order, items }) => {
   const itemList = (items || [])
     .map((item) => {
       const title = escapeHtml(item?.Book?.title ?? item?.title ?? "Item");
-      const unit = item?.Book?.partnerPrice ?? item?.Book?.price ?? item?.price ?? 0;
+      const unit =
+        item?.Book?.partnerPrice ?? item?.Book?.price ?? item?.price ?? 0;
       const unitPrice = Number(unit).toFixed(2);
       const qty = Number(item?.quantity ?? 0);
       return `<li>${qty} × ${title} @ $${unitPrice}</li>`;

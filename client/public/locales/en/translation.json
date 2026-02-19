@@ -317,10 +317,15 @@
     "confirmed": "Your order #{{orderId}} has been confirmed.\nThank you for your purchase!",
     "redirect": "You will be redirected to your orders shortly...",
     "viewOrders": "View Orders Now",
+    "processingTitle": "We are confirming your order",
+    "processingText": "Your payment is complete. We are waiting for the order to appear.",
+    "processingAttempts": "Checking order status (attempt {{attempt}}/{{max}})...",
+    "refreshStatus": "Refresh Order Status",
     "missingTokenTitle": "⚠️ Missing token",
     "missingTokenText": "You must be logged in to confirm your order.",
     "goToLogin": "Go to Login",
     "errorTitle": "⚠️ Error",
+    "errorDefault": "We could not confirm your order yet. Please refresh your order status.",
     "tryAgain": "Try Again"
   },
   "cancel": {

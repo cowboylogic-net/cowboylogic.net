@@ -284,10 +284,15 @@
     "confirmed": "Tu pedido #{{orderId}} ha sido confirmado.\n¡Gracias por tu compra!",
     "redirect": "Serás redirigido a tus pedidos en breve...",
     "viewOrders": "Ver pedidos ahora",
+    "processingTitle": "Estamos confirmando tu pedido",
+    "processingText": "Tu pago ya se complet�. Estamos esperando a que el pedido aparezca.",
+    "processingAttempts": "Verificando estado del pedido (intento {{attempt}}/{{max}})...",
+    "refreshStatus": "Actualizar estado del pedido",
     "missingTokenTitle": "⚠️ Token faltante",
     "missingTokenText": "Debes iniciar sesión para confirmar tu pedido.",
     "goToLogin": "Ir a iniciar sesión",
     "errorTitle": "⚠️ Error",
+    "errorDefault": "A�n no pudimos confirmar tu pedido. Actualiza el estado del pedido.",
     "tryAgain": "Intentar de nuevo"
 },
   "contact": {
@@ -376,13 +381,4 @@
     "confirm": "Sí, continuar",
     "cancel": "Cancelar"
   }
-
-
-
-
 }
-
-
-
-
-
