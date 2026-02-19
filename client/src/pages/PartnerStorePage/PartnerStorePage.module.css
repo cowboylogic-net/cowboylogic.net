@@ -18,6 +18,30 @@
 .controls {
   width: 100%;
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: var(--spacing-lg); 
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+}
+
+.controls > div {
+  margin-bottom: 0;
+  min-width: 220px;
+  max-width: 320px;
+  width: 100%;
+}
+
+.controls select {
+  height: 40px;
+  padding: 0 2rem 0 12px;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  border: 1px solid var(--color-border, #673d21);
+  border-radius: var(--radius-md, 8px);
+  background-color: var(--color-white, #ffffff);
+  color: var(--color-dark, #222);
+}
+
+.controls select:focus-visible {
+  outline: 2px solid var(--color-focus, var(--color-inner-buttons, #8b4513));
+  outline-offset: 1px;
 }

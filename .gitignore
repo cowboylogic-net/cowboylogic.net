@@ -31,3 +31,5 @@ dist-ssr
 
 public/uploads/
 data/uploads/
+client/test-results/
+client/playwright-report/

@@ -13,6 +13,10 @@ import {
 const initialState = {
   orders: [],         // список для поточного екрана (user або admin)
   latest: null,       // останній ордер поточного юзера
+  page: 1,
+  limit: 20,
+  total: 0,
+  hasMore: false,
   loading: false,
   error: null,
   isCreating: false,
@@ -30,6 +34,35 @@ const ordersSlice = createSlice({
     resetOrdersState: () => ({ ...initialState }),
   },
   extraReducers: (builder) => {
+    const applyOrdersPayload = (state, action) => {
+      const payload = action.payload;
+      const items = Array.isArray(payload) ? payload : payload?.items || [];
+      const append = !Array.isArray(payload) && payload?.append === true;
+
+      if (append) {
+        const existingById = new Map(state.orders.map((order) => [order.id, order]));
+        for (const order of items) {
+          existingById.set(order.id, order);
+        }
+        state.orders = Array.from(existingById.values());
+      } else {
+        state.orders = items;
+      }
+
+      const pagination = !Array.isArray(payload) ? payload?.pagination : null;
+      if (pagination) {
+        state.page = pagination.page ?? state.page;
+        state.limit = pagination.limit ?? state.limit;
+        state.total = pagination.total ?? state.total;
+        state.hasMore = Boolean(pagination.hasMore);
+      } else {
+        state.page = 1;
+        state.limit = items.length || state.limit;
+        state.total = items.length;
+        state.hasMore = false;
+      }
+    };
+
     builder
       // ───────── fetchOrders (user) ─────────
       .addCase(fetchOrders.pending, (state) => {
@@ -37,7 +70,7 @@ const ordersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchOrders.fulfilled, (state, action) => {
-        state.orders = action.payload;
+        applyOrdersPayload(state, action);
         state.loading = false;
         state.lastFetched = Date.now();
       })
@@ -52,7 +85,7 @@ const ordersSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchAllOrders.fulfilled, (state, action) => {
-        state.orders = action.payload;
+        applyOrdersPayload(state, action);
         state.loading = false;
         state.lastFetched = Date.now();
       })
@@ -139,6 +172,10 @@ const ordersSlice = createSlice({
         (state) => {
           state.orders = [];
           state.latest = null;
+          state.page = 1;
+          state.limit = 20;
+          state.total = 0;
+          state.hasMore = false;
           state.loading = false;
           state.error = null;
           state.isCreating = false;

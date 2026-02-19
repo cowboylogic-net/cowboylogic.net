@@ -1,0 +1,56 @@
+{
+  "items": [
+    {
+      "id": "4b8f8c7d-5f9f-4e5c-8fd2-02b018f95d01",
+      "status": "pending",
+      "totalPrice": "120.50",
+      "createdAt": "2026-02-15T10:30:00.000Z",
+      "shippingName": "Jane Rider",
+      "shippingPhone": "+1-555-0100",
+      "shippingAddressJson": "{\"addressLine1\":\"10 Main St\",\"locality\":\"Dallas\",\"administrativeDistrictLevel1\":\"TX\",\"postalCode\":\"75001\",\"country\":\"US\"}",
+      "OrderItems": [
+        {
+          "id": "6df53ed7-d15a-4d6c-8d80-baf950000001",
+          "quantity": 2,
+          "price": "40.25",
+          "Book": {
+            "title": "Cowboy Logic Vol. 1"
+          }
+        },
+        {
+          "id": "6df53ed7-d15a-4d6c-8d80-baf950000002",
+          "quantity": 1,
+          "price": "40.00",
+          "Book": {
+            "title": "Startup Lessons"
+          }
+        }
+      ]
+    },
+    {
+      "id": "4b8f8c7d-5f9f-4e5c-8fd2-02b018f95d02",
+      "status": "completed",
+      "totalPrice": "55.00",
+      "createdAt": "2026-01-30T14:00:00.000Z",
+      "shippingName": "Jane Rider",
+      "shippingPhone": "+1-555-0100",
+      "shippingAddressJson": "{\"addressLine1\":\"10 Main St\",\"locality\":\"Dallas\",\"administrativeDistrictLevel1\":\"TX\",\"postalCode\":\"75001\",\"country\":\"US\"}",
+      "OrderItems": [
+        {
+          "id": "6df53ed7-d15a-4d6c-8d80-baf950000003",
+          "quantity": 1,
+          "price": "55.00",
+          "Book": {
+            "title": "Leadership Notes"
+          }
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 2,
+    "hasMore": false
+  }
+}

@@ -1,7 +1,6 @@
 // src/pages/Orders/Orders.jsx
 import styles from "./Orders.module.css";
-import clsx from "clsx";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
 import {
@@ -19,15 +18,9 @@ import ConfirmModal from "../../components/modals/ConfirmModal/ConfirmModal";
 import Loader from "../../components/Loader/Loader";
 import BaseButton from "../../components/BaseButton/BaseButton";
 import BaseSelect from "../../components/BaseSelect/BaseSelect";
+import OrdersTable from "../../components/Orders/OrdersTable";
 
-const TEN_MINUTES = 10 * 60 * 1000;
-const safeParse = (str) => {
-  try {
-    return str ? JSON.parse(str) : null;
-  } catch {
-    return null;
-  }
-};
+const PAGE_SIZE = 20;
 
 const Orders = () => {
   const { t } = useTranslation();
@@ -37,20 +30,48 @@ const Orders = () => {
   const orders = useSelector(selectAllOrders);
   const loading = useSelector(selectOrdersLoading);
   const error = useSelector(selectOrdersError);
-  const lastFetched = useSelector((s) => s.orders.lastFetched);
 
   const isAdmin = user?.role === "admin" || user?.isSuperAdmin;
   const [statusFilter, setStatusFilter] = useState("all");
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const loadOrders = useCallback(
+    async (nextPage, append) => {
+      if (!user?.id) return;
+
+      if (append) setIsLoadingMore(true);
+
+      try {
+        const fetchThunk = isAdmin ? fetchAllOrders : fetchOrders;
+        const payload = await dispatch(
+          fetchThunk({
+            page: nextPage,
+            limit: PAGE_SIZE,
+            status: statusFilter,
+            append,
+          })
+        ).unwrap();
+
+        setPage(payload?.pagination?.page ?? nextPage);
+        setHasMore(Boolean(payload?.pagination?.hasMore));
+      } catch {
+        setHasMore(false);
+      } finally {
+        if (append) setIsLoadingMore(false);
+      }
+    },
+    [dispatch, isAdmin, statusFilter, user?.id]
+  );
 
   useEffect(() => {
-    const isStale = !lastFetched || Date.now() - lastFetched > TEN_MINUTES;
-    if (user?.id && isStale) {
-      if (isAdmin) dispatch(fetchAllOrders());
-      else dispatch(fetchOrders());
-    }
-  }, [dispatch, user?.id, isAdmin, lastFetched]);
+    setPage(1);
+    setHasMore(false);
+    loadOrders(1, false);
+  }, [loadOrders]);
 
   const openDeleteModal = (orderId) => {
     setDeleteTargetId(orderId);
@@ -69,14 +90,14 @@ const Orders = () => {
     closeDeleteModal();
   };
 
-  const filteredOrders =
-    statusFilter === "all"
-      ? orders
-      : orders.filter((o) => o.status === statusFilter);
+  const handleLoadMore = () => {
+    if (!hasMore || loading || isLoadingMore) return;
+    loadOrders(page + 1, true);
+  };
 
   return (
     <div className="layoutContainer">
-      <div className={styles.ordersPage}>
+      <div className={styles.ordersPage} data-testid="orders-page">
         <h2>{t("orders.title")}</h2>
 
         <div className={styles.controlsRow}>
@@ -96,123 +117,31 @@ const Orders = () => {
 
         {loading && <Loader />}
         {!loading && error && <p className={styles.error}>{error}</p>}
-        {!loading && !error && filteredOrders.length === 0 && (
+        {!loading && !error && orders.length === 0 && (
           <p className={styles.empty}>{t("orders.noOrders")}</p>
         )}
 
-        {!loading &&
-          !error &&
-          filteredOrders.length > 0 &&
-          filteredOrders.map((order) => {
-            const addr = safeParse(order.shippingAddressJson);
+        {!loading && !error && orders.length > 0 && (
+          <OrdersTable
+            orders={orders}
+            isAdmin={isAdmin}
+            t={t}
+            onDelete={openDeleteModal}
+            onStatusChange={(orderId, status) =>
+              dispatch(updateOrderStatus({ orderId, status }))
+            }
+          />
+        )}
 
-            return (
-              <div key={order.id} className={styles.orderCard}>
-                {/* Заголовок + статус */}
-                <div className={styles.headerRow}>
-                  <h4 className={styles.orderId}>
-                    {t("orders.orderNumber", { id: order.id })}
-                  </h4>
-                  <span
-                    className={clsx(
-                      styles.statusBadge,
-                      styles[`status_${order.status}`] // status_pending | status_completed
-                    )}
-                  >
-                    {order.status}
-                  </span>
-                </div>
-
-                {/* Admin: покупець */}
-                {isAdmin && (
-                  <p className={styles.customer}>
-                    <strong>Customer:</strong>{" "}
-                    {order.User
-                      ? `${order.User.fullName ?? "—"} (${order.User.email})`
-                      : "—"}
-                  </p>
-                )}
-
-                {/* Разом */}
-                <div className={styles.metaRow}>
-                  <div className={styles.total}>
-                    {t("orders.total")}: $
-                    {Number(order.totalPrice ?? 0).toFixed(2)}
-                  </div>
-                </div>
-
-                {/* Доставка */}
-                <div className={styles.shipBlock}>
-                  <h5>Shipping</h5>
-                  <p className={styles.shipLine}>
-                    {order.shippingName || "—"}
-                    {order.shippingPhone ? `, ${order.shippingPhone}` : ""}
-                  </p>
-                  {addr ? (
-                    <>
-                      <p className={styles.shipLine}>
-                        {[addr.addressLine1, addr.addressLine2]
-                          .filter(Boolean)
-                          .join(", ") || "—"}
-                      </p>
-                      <p className={styles.shipLine}>
-                        {[
-                          addr.locality,
-                          addr.administrativeDistrictLevel1,
-                          addr.postalCode,
-                        ]
-                          .filter(Boolean)
-                          .join(", ") || "—"}
-                      </p>
-                      <p className={styles.shipLine}>{addr.country || "—"}</p>
-                    </>
-                  ) : (
-                    <p className={styles.shipLine}>—</p>
-                  )}
-                </div>
-
-                {/* Items */}
-                <ul className={styles.orderList}>
-                  {(order.OrderItems || []).map((item) => (
-                    <li key={item.id} className={styles.orderItem}>
-                      <strong>{item.Book.title}</strong> — {item.quantity}{" "}
-                      {t("orders.pcs")} @ ${Number(item.price ?? 0).toFixed(2)}
-                    </li>
-                  ))}
-                </ul>
-
-                {/* Admin-дії */}
-                {isAdmin && (
-                  <div className={styles.adminRow}>
-                    <BaseSelect
-                      name="status"
-                      value={order.status}
-                      onChange={(e) =>
-                        dispatch(
-                          updateOrderStatus({
-                            orderId: order.id,
-                            status: e.target.value,
-                          })
-                        )
-                      }
-                      options={[
-                        { value: "pending", label: t("orders.pending") },
-                        { value: "completed", label: t("orders.completed") },
-                      ]}
-                      compact
-                    />
-                    <BaseButton
-                      onClick={() => openDeleteModal(order.id)}
-                      variant="danger"
-                      size="sm"
-                    >
-                      🗑 {t("orders.cancel")}
-                    </BaseButton>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+        {!loading && !error && hasMore && (
+          <div className={styles.loadMoreRow}>
+            <BaseButton onClick={handleLoadMore} disabled={isLoadingMore}>
+              {isLoadingMore
+                ? t("orders.loadingMore", { defaultValue: "Loading..." })
+                : t("orders.loadMore", { defaultValue: "Load more" })}
+            </BaseButton>
+          </div>
+        )}
       </div>
       {showConfirm && (
         <ConfirmModal

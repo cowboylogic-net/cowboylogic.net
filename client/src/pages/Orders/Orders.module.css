@@ -39,6 +39,11 @@
   opacity: 0.9;
 }
 
+.loadMoreRow {
+  display: flex;
+  justify-content: center;
+}
+
 /* === Картка одного замовлення (окремий фон як у CartItem) === */
 .orderCard {
   background: var(--color-bg-light);

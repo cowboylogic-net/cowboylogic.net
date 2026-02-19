@@ -1,0 +1,109 @@
+.tableWrapper {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-md);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 900px;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: left;
+}
+
+.table th {
+  font-size: var(--font-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.orderIdText {
+  font-family: monospace;
+  font-size: 0.8rem;
+  max-width: 170px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemsCell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  text-transform: capitalize;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.status_pending {
+  background: rgba(255, 193, 7, 0.18);
+  color: #ffd27a;
+  border-color: rgba(255, 193, 7, 0.35);
+}
+
+.status_completed {
+  background: rgba(40, 167, 69, 0.18);
+  color: #9be0b1;
+  border-color: rgba(40, 167, 69, 0.35);
+}
+
+.status_default {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-text);
+}
+
+.actionsCell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.statusSelect {
+  min-width: 120px;
+  height: 34px;
+  padding: 6px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--color-text);
+  font-size: 0.9rem;
+}
+
+.statusSelect:focus-visible {
+  outline: 2px solid var(--color-focus, #8b4513);
+  outline-offset: 2px;
+}
+
+@media (max-width: 768px) {
+  .table {
+    min-width: 760px;
+  }
+}

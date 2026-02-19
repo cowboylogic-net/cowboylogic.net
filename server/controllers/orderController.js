@@ -14,6 +14,26 @@ import { materializeSquareOrder } from "../utils/materializeSquareOrder.js";
 // єдине правило привілеїв (бачать partnerPrice)
 const isPrivileged = (user) =>
   user?.role === "partner" || user?.role === "admin" || user?.isSuperAdmin;
+const ORDER_STATUS_VALUES = new Set(["pending", "completed"]);
+
+const parsePagination = (query) => {
+  const hasPage = query?.page !== undefined;
+  const hasLimit = query?.limit !== undefined;
+  const paginated = hasPage || hasLimit;
+
+  const rawPage = Number.parseInt(query?.page, 10);
+  const rawLimit = Number.parseInt(query?.limit, 10);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  const limit =
+    Number.isFinite(rawLimit) && rawLimit > 0
+      ? Math.min(rawLimit, 100)
+      : 20;
+
+  return { paginated, page, limit, offset: (page - 1) * limit };
+};
+
+const parseStatusFilter = (status) =>
+  ORDER_STATUS_VALUES.has(status) ? status : null;
 
 const createOrder = async (req, res) => {
   const userId = req.user.id;
@@ -108,24 +128,55 @@ const createOrder = async (req, res) => {
 
 const getUserOrders = async (req, res) => {
   const privileged = isPrivileged(req.user);
+  const { paginated, page, limit, offset } = parsePagination(req.query);
+  const status = parseStatusFilter(req.query?.status);
+  const where = {
+    userId: req.user.id,
+    ...(status ? { status } : {}),
+  };
 
-  const orders = await Order.findAll({
-    where: { userId: req.user.id },
-    include: [
-      {
-        model: OrderItem,
-        include: [
-          {
-            model: Book,
-            attributes: { exclude: privileged ? [] : ["partnerPrice"] }, // ⬅️ не витікає
-          },
-        ],
-      },
-    ],
+  const include = [
+    {
+      model: OrderItem,
+      include: [
+        {
+          model: Book,
+          attributes: { exclude: privileged ? [] : ["partnerPrice"] }, // ⬅️ не витікає
+        },
+      ],
+    },
+  ];
+
+  if (!paginated) {
+    const orders = await Order.findAll({
+      where,
+      include,
+      order: [["createdAt", "DESC"]],
+    });
+    return sendResponse(res, { code: 200, data: orders });
+  }
+
+  const { rows, count } = await Order.findAndCountAll({
+    where,
+    include,
     order: [["createdAt", "DESC"]],
+    limit,
+    offset,
+    distinct: true,
   });
 
-  sendResponse(res, { code: 200, data: orders });
+  sendResponse(res, {
+    code: 200,
+    data: {
+      items: rows,
+      pagination: {
+        page,
+        limit,
+        total: count,
+        hasMore: offset + rows.length < count,
+      },
+    },
+  });
 };
 
 const getAllOrders = async (req, res) => {
@@ -134,15 +185,44 @@ const getAllOrders = async (req, res) => {
     throw HttpError(403, "Access denied. Admins only.");
   }
 
-  const orders = await Order.findAll({
-    include: [
-      { model: User, attributes: ["id", "email", "fullName"] },
-      { model: OrderItem, include: [Book] },
-    ],
+  const { paginated, page, limit, offset } = parsePagination(req.query);
+  const status = parseStatusFilter(req.query?.status);
+  const where = status ? { status } : {};
+  const include = [
+    { model: User, attributes: ["id", "email", "fullName"] },
+    { model: OrderItem, include: [Book] },
+  ];
+
+  if (!paginated) {
+    const orders = await Order.findAll({
+      where,
+      include,
+      order: [["createdAt", "DESC"]],
+    });
+    return sendResponse(res, { code: 200, data: orders });
+  }
+
+  const { rows, count } = await Order.findAndCountAll({
+    where,
+    include,
     order: [["createdAt", "DESC"]],
+    limit,
+    offset,
+    distinct: true,
   });
 
-  sendResponse(res, { code: 200, data: orders });
+  sendResponse(res, {
+    code: 200,
+    data: {
+      items: rows,
+      pagination: {
+        page,
+        limit,
+        total: count,
+        hasMore: offset + rows.length < count,
+      },
+    },
+  });
 };
 
 const updateOrderStatus = async (req, res) => {

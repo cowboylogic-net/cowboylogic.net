@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "8a4ab4fb-2f74-4a62-84df-43a4d663f001",
+      "status": "pending",
+      "totalPrice": "300.00",
+      "createdAt": "2026-02-16T11:30:00.000Z",
+      "shippingName": "Partner Buyer",
+      "shippingPhone": "+1-555-0210",
+      "shippingAddressJson": "{\"addressLine1\":\"77 Ranch Rd\",\"locality\":\"Austin\",\"administrativeDistrictLevel1\":\"TX\",\"postalCode\":\"73301\",\"country\":\"US\"}",
+      "User": {
+        "id": "f8a6b4fb-2f74-4a62-84df-43a4d663f011",
+        "email": "buyer@example.com",
+        "fullName": "Partner Buyer"
+      },
+      "OrderItems": [
+        {
+          "id": "9ad53ed7-d15a-4d6c-8d80-baf950000101",
+          "quantity": 3,
+          "price": "100.00",
+          "Book": {
+            "title": "Business Frontier"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8a4ab4fb-2f74-4a62-84df-43a4d663f002",
+      "status": "completed",
+      "totalPrice": "89.99",
+      "createdAt": "2026-02-01T08:15:00.000Z",
+      "shippingName": "Alex Guide",
+      "shippingPhone": "+1-555-0333",
+      "shippingAddressJson": "{\"addressLine1\":\"22 Market Ave\",\"locality\":\"Denver\",\"administrativeDistrictLevel1\":\"CO\",\"postalCode\":\"80014\",\"country\":\"US\"}",
+      "User": {
+        "id": "f8a6b4fb-2f74-4a62-84df-43a4d663f012",
+        "email": "alex@example.com",
+        "fullName": "Alex Guide"
+      },
+      "OrderItems": [
+        {
+          "id": "9ad53ed7-d15a-4d6c-8d80-baf950000102",
+          "quantity": 2,
+          "price": "44.995",
+          "Book": {
+            "title": "Publishing Guide"
+          }
+        }
+      ]
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 2,
+    "hasMore": false
+  }
+}

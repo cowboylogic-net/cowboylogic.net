@@ -8,13 +8,38 @@ import { showError, showSuccess } from "./notificationThunks";
  */
 export const fetchOrders = createAsyncThunk(
   "orders/fetchOrders",
-  async (_, { rejectWithValue, getState, dispatch }) => {
+  async (params = {}, { rejectWithValue, getState, dispatch }) => {
     try {
       const token = getState().auth.token;
+      const query = {};
+      if (params.page) query.page = params.page;
+      if (params.limit) query.limit = params.limit;
+      if (params.status && params.status !== "all") query.status = params.status;
+
       const res = await axios.get("/orders", {
         headers: { Authorization: `Bearer ${token}` },
+        params: query,
       });
-      return res.data.data;
+
+      const data = res.data.data;
+      if (Array.isArray(data)) {
+        return {
+          items: data,
+          append: !!params.append,
+          pagination: {
+            page: 1,
+            limit: data.length,
+            total: data.length,
+            hasMore: false,
+          },
+        };
+      }
+
+      return {
+        items: Array.isArray(data?.items) ? data.items : [],
+        append: !!params.append,
+        pagination: data?.pagination || null,
+      };
     } catch (err) {
       const msg = err?.response?.data?.message || "Failed to load orders";
       dispatch(showError(msg));
@@ -28,13 +53,38 @@ export const fetchOrders = createAsyncThunk(
  */
 export const fetchAllOrders = createAsyncThunk(
   "orders/fetchAllOrders",
-  async (_, { rejectWithValue, getState, dispatch }) => {
+  async (params = {}, { rejectWithValue, getState, dispatch }) => {
     try {
       const token = getState().auth.token;
+      const query = {};
+      if (params.page) query.page = params.page;
+      if (params.limit) query.limit = params.limit;
+      if (params.status && params.status !== "all") query.status = params.status;
+
       const res = await axios.get("/orders/all", {
         headers: { Authorization: `Bearer ${token}` },
+        params: query,
       });
-      return res.data.data;
+
+      const data = res.data.data;
+      if (Array.isArray(data)) {
+        return {
+          items: data,
+          append: !!params.append,
+          pagination: {
+            page: 1,
+            limit: data.length,
+            total: data.length,
+            hasMore: false,
+          },
+        };
+      }
+
+      return {
+        items: Array.isArray(data?.items) ? data.items : [],
+        append: !!params.append,
+        pagination: data?.pagination || null,
+      };
     } catch (err) {
       const msg = err?.response?.data?.message || "Failed to load all orders";
       dispatch(showError(msg));
@@ -84,7 +134,9 @@ export const createOrder = createAsyncThunk(
 
       // refetch, щоб повернути оновлений список
       const ref = await dispatch(fetchOrders());
-      if (ref.meta.requestStatus === "fulfilled") return ref.payload;
+      if (ref.meta.requestStatus === "fulfilled") {
+        return Array.isArray(ref.payload) ? ref.payload : ref.payload?.items || [];
+      }
       return rejectWithValue("Failed to reload orders");
     } catch (err) {
       const msg = err?.response?.data?.message || "Failed to create order";
@@ -112,7 +164,9 @@ export const confirmSquareOrder = createAsyncThunk(
       dispatch(showSuccess(res?.data?.message || "Order confirmed"));
       // refetch
       const ref = await dispatch(fetchOrders());
-      if (ref.meta.requestStatus === "fulfilled") return ref.payload;
+      if (ref.meta.requestStatus === "fulfilled") {
+        return Array.isArray(ref.payload) ? ref.payload : ref.payload?.items || [];
+      }
       return rejectWithValue("Failed to reload orders");
     } catch (err) {
       const msg = err?.response?.data?.message || "Failed to confirm order";
