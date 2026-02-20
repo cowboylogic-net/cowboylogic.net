@@ -3,14 +3,26 @@ dotenv.config();
 
 import nodemailer from "nodemailer";
 import { convert } from "html-to-text";
-const MAIL_PROVIDER = safe(process.env.MAIL_PROVIDER || "smtp").toLowerCase();
-const PORT = Number(process.env.MAIL_PORT) || 587;
-const IS_SECURE = PORT === 465;
-const IS_PROD = (process.env.NODE_ENV || "").toLowerCase() === "production";
-const REDIRECT_ALL_TO = process.env.MAIL_REDIRECT_ALL_TO || "";
 
 const safe = (v) => String(v ?? "").trim();
 
+const IS_PROD = safe(process.env.NODE_ENV).toLowerCase() === "production";
+const REDIRECT_ALL_TO = safe(process.env.MAIL_REDIRECT_ALL_TO || "");
+
+// Mailgun (needed early so we can default provider safely)
+const MAILGUN_API_KEY = safe(process.env.MAILGUN_API_KEY || "");
+const MAILGUN_DOMAIN = safe(process.env.MAILGUN_DOMAIN || "");
+const MAILGUN_API_BASE = safe(
+  process.env.MAILGUN_API_BASE || "https://api.mailgun.net/v3",
+).replace(/\/+$/g, "");
+
+// Provider: if not explicitly set, prefer Mailgun API when creds exist (Render free blocks SMTP)
+const RAW_PROVIDER = safe(process.env.MAIL_PROVIDER || "").toLowerCase();
+const MAIL_PROVIDER =
+  RAW_PROVIDER || (MAILGUN_API_KEY && MAILGUN_DOMAIN ? "mailgun" : "smtp");
+
+const PORT = Number(process.env.MAIL_PORT) || 587;
+const IS_SECURE = PORT === 465;
 const escapeHtml = (str) =>
   safe(str).replace(
     /[&<>"'`=\/]/g,
@@ -30,12 +42,6 @@ const escapeHtml = (str) =>
 const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safe(s));
 const resolveRecipient = (to) =>
   !IS_PROD && REDIRECT_ALL_TO ? REDIRECT_ALL_TO : to;
-
-const MAILGUN_API_KEY = safe(process.env.MAILGUN_API_KEY || "");
-const MAILGUN_DOMAIN = safe(process.env.MAILGUN_DOMAIN || "");
-const MAILGUN_API_BASE = safe(
-  process.env.MAILGUN_API_BASE || "https://api.mailgun.net/v3",
-).replace(/\/+$/g, "");
 
 const buildBasicAuth = (user, pass) =>
   Buffer.from(`${user}:${pass}`, "utf8").toString("base64");
