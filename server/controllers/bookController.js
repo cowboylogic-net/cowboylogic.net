@@ -1,10 +1,14 @@
-import Book from "../models/Book.js";
-import HttpError from "../helpers/HttpError.js";
-import ctrlWrapper from "../helpers/ctrlWrapper.js";
+import { randomUUID } from "crypto";
 import fs from "fs/promises";
 import path from "path";
 import { Op } from "sequelize";
+import Book from "../models/Book.js";
+import HttpError from "../helpers/HttpError.js";
+import ctrlWrapper from "../helpers/ctrlWrapper.js";
 import sendResponse from "../utils/sendResponse.js";
+import { isCloudinaryProvider } from "../config/imageConfig.js";
+import { destroyImage, uploadImageFromPath } from "../services/cloudinary.js";
+import { cleanupTempFileIfNeeded } from "../middleware/uploadMiddleware.js";
 
 const ALLOWED_FORMATS = [
   "PAPERBACK",
@@ -35,7 +39,26 @@ const isAllowedBookImageUrl = (value) => {
   }
 };
 
+const getBookCoverPublicId = (bookId) => `cowboylogic/books/${bookId}/cover`;
+
+const removeLegacyLocalBookImage = async (imageUrl) => {
+  if (!imageUrl || !imageUrl.includes("/uploads/")) return;
+
+  const relativePath = imageUrl.startsWith("/") ? imageUrl.slice(1) : imageUrl;
+  const filePath = path.resolve("public", relativePath);
+
+  try {
+    await fs.unlink(filePath);
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      console.warn("Failed to delete local image:", error.message);
+    }
+  }
+};
+
 const createBook = async (req, res) => {
+  const filePath = req.file?.path || null;
+
   const {
     title,
     author,
@@ -56,7 +79,7 @@ const createBook = async (req, res) => {
 
   let calculatedPartnerPrice = null;
   if (wholesale) {
-    if (partnerPrice && !isNaN(parseFloat(partnerPrice))) {
+    if (partnerPrice && !Number.isNaN(parseFloat(partnerPrice))) {
       calculatedPartnerPrice = parseFloat(partnerPrice);
     } else {
       calculatedPartnerPrice = +(parsedPrice * 0.75).toFixed(2);
@@ -90,27 +113,63 @@ const createBook = async (req, res) => {
       ? 0
       : parsedDisplayOrderRaw;
 
-  const newBook = {
-    title,
-    author,
-    description,
-    price: parsedPrice,
-    partnerPrice: calculatedPartnerPrice,
-    isWholesaleAvailable: wholesale,
-    inStock: String(inStock).toLowerCase() === "true",
-    stock: parseInt(stock) || 0,
-    imageUrl: req.file?.webPath || req.body.imageUrl || null, // ✅ головне
-    format: normalizedFormat,
-    displayOrder: parsedDisplayOrder,
-    amazonUrl: normalizedAmazonUrl,
-    downloadUrl: normalizedDownloadUrl,
-  };
+  const bookId = randomUUID();
+  let uploadedCloudResult = null;
 
-  const book = await Book.create(newBook);
-  sendResponse(res, { code: 201, data: book });
+  try {
+    if (filePath && isCloudinaryProvider) {
+      const publicId = getBookCoverPublicId(bookId);
+      uploadedCloudResult = await uploadImageFromPath({
+        filePath,
+        publicId,
+        overwrite: true,
+        invalidate: true,
+        kind: "book",
+        tags: [
+          "resource:book-cover",
+          `book:${bookId}`,
+          `env:${process.env.NODE_ENV || "development"}`,
+        ],
+      });
+    }
+
+    const newBook = {
+      id: bookId,
+      title,
+      author,
+      description,
+      price: parsedPrice,
+      partnerPrice: calculatedPartnerPrice,
+      isWholesaleAvailable: wholesale,
+      inStock: String(inStock).toLowerCase() === "true",
+      stock: parseInt(stock, 10) || 0,
+      imageUrl:
+        uploadedCloudResult?.secureUrl || req.file?.webPath || req.body.imageUrl || null,
+      imagePublicId: uploadedCloudResult?.publicId || null,
+      format: normalizedFormat,
+      displayOrder: parsedDisplayOrder,
+      amazonUrl: normalizedAmazonUrl,
+      downloadUrl: normalizedDownloadUrl,
+    };
+
+    let book;
+    try {
+      book = await Book.create(newBook);
+    } catch (error) {
+      if (uploadedCloudResult?.publicId) {
+        await destroyImage(uploadedCloudResult.publicId);
+      }
+      throw error;
+    }
+
+    sendResponse(res, { code: 201, data: book });
+  } finally {
+    await cleanupTempFileIfNeeded(filePath);
+  }
 };
 
 const updateBook = async (req, res) => {
+  const filePath = req.file?.path || null;
   const book = await Book.findByPk(req.params.id);
   if (!book) throw HttpError(404, "Book not found");
 
@@ -127,7 +186,7 @@ const updateBook = async (req, res) => {
   }
 
   if ("stock" in req.body) {
-    const s = parseInt(req.body.stock);
+    const s = parseInt(req.body.stock, 10);
     if (Number.isNaN(s) || s < 0) throw HttpError(400, "Invalid stock");
     updateData.stock = s;
   }
@@ -218,26 +277,41 @@ const updateBook = async (req, res) => {
     updateData.downloadUrl = null;
   }
 
-  if (req.file?.webPath) {
-    if (book.imageUrl && book.imageUrl.startsWith("/uploads/")) {
-      const relativePath = book.imageUrl.slice(1);
-      const oldPath = path.resolve("public", relativePath);
-      try {
-        await fs.unlink(oldPath);
-      } catch (err) {
-        if (err.code !== "ENOENT") {
-          console.warn("⚠️ Failed to delete old image:", err.message);
+  let uploadedCloudResult = null;
+
+  try {
+    if (filePath && isCloudinaryProvider) {
+      const publicId = getBookCoverPublicId(book.id);
+      uploadedCloudResult = await uploadImageFromPath({
+        filePath,
+        publicId,
+        overwrite: true,
+        invalidate: true,
+        kind: "book",
+        tags: [
+          "resource:book-cover",
+          `book:${book.id}`,
+          `env:${process.env.NODE_ENV || "development"}`,
+        ],
+      });
+
+      updateData.imageUrl = uploadedCloudResult.secureUrl;
+      updateData.imagePublicId = uploadedCloudResult.publicId;
+    } else if (req.file?.webPath) {
+      await removeLegacyLocalBookImage(book.imageUrl);
+      updateData.imageUrl = req.file.webPath;
+      updateData.imagePublicId = null;
+    } else if (typeof req.body.imageUrl === "string") {
+      const nextImageUrl = req.body.imageUrl.trim();
+      if (nextImageUrl) {
+        if (!isAllowedBookImageUrl(nextImageUrl)) {
+          throw HttpError(400, "Invalid imageUrl");
+        }
+        updateData.imageUrl = nextImageUrl;
+        if (/^https?:\/\//i.test(nextImageUrl)) {
+          updateData.imagePublicId = null;
         }
       }
-    }
-    updateData.imageUrl = req.file.webPath;
-  } else if (typeof req.body.imageUrl === "string") {
-    const nextImageUrl = req.body.imageUrl.trim();
-    if (nextImageUrl) {
-      if (!isAllowedBookImageUrl(nextImageUrl)) {
-        throw HttpError(400, "Invalid imageUrl");
-      }
-      updateData.imageUrl = nextImageUrl;
 
       const hasImageVariants = Object.prototype.hasOwnProperty.call(
         Book.rawAttributes || {},
@@ -247,10 +321,20 @@ const updateBook = async (req, res) => {
         updateData.imageVariants = null;
       }
     }
-  }
 
-  await book.update(updateData);
-  sendResponse(res, { code: 200, data: book });
+    try {
+      await book.update(updateData);
+    } catch (error) {
+      if (uploadedCloudResult?.publicId) {
+        await destroyImage(uploadedCloudResult.publicId);
+      }
+      throw error;
+    }
+
+    sendResponse(res, { code: 200, data: book });
+  } finally {
+    await cleanupTempFileIfNeeded(filePath);
+  }
 };
 
 const getBooks = async (req, res) => {
@@ -320,21 +404,11 @@ const deleteBook = async (req, res) => {
   const book = await Book.findByPk(req.params.id);
   if (!book) throw HttpError(404, "Book not found");
 
-  if (book.imageUrl && book.imageUrl.includes("/uploads/")) {
-    const relativePath = book.imageUrl.startsWith("/")
-      ? book.imageUrl.slice(1)
-      : book.imageUrl;
-    const filePath = path.resolve("public", relativePath);
-
-    try {
-      await fs.unlink(filePath);
-      console.log("🗑️ Deleted image:", filePath);
-    } catch (err) {
-      if (err.code !== "ENOENT") {
-        console.warn("⚠️ Failed to delete image:", err.message);
-      }
-    }
+  if (book.imagePublicId) {
+    await destroyImage(book.imagePublicId);
   }
+
+  await removeLegacyLocalBookImage(book.imageUrl);
 
   await book.destroy();
   sendResponse(res, {

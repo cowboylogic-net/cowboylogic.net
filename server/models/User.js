@@ -59,6 +59,10 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    avatarPublicId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
 
     tokenVersion: {
       type: DataTypes.INTEGER,

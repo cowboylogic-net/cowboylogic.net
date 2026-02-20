@@ -1,6 +1,10 @@
 import express from "express";
 import bookController from "../controllers/bookController.js";
-import { upload, optimizeImage } from "../middleware/uploadMiddleware.js";
+import {
+  optimizeImage,
+  uploadBookImageFile,
+  validateDecodedImageIfPresent,
+} from "../middleware/uploadMiddleware.js";
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 import { createBookSchema, updateBookSchema } from "../schemas/bookSchema.js";
 import { optionalAuth } from "../middleware/optionalAuth.js";
@@ -22,39 +26,42 @@ router.delete(
   protect,
   isAdmin,
   validateParams(idParamSchema),
-  bookController.deleteBook
+  bookController.deleteBook,
 );
 
 router.post(
   "/",
   protect,
   isAdmin,
-  upload.single("image"),
-  optimizeImage, // ✅ робимо webp + ставимо webPath
+  uploadBookImageFile,
+  validateDecodedImageIfPresent,
+  optimizeImage,
   validateBody(createBookSchema, true),
-  bookController.createBook
+  bookController.createBook,
 );
 
 router.put(
   "/:id",
   protect,
   isAdmin,
-  upload.single("image"),
-  optimizeImage, // ✅ те саме для оновлення
+  uploadBookImageFile,
+  validateDecodedImageIfPresent,
+  optimizeImage,
   validateParams(idParamSchema),
   validateBody(updateBookSchema, true),
-  bookController.updateBook
+  bookController.updateBook,
 );
 
 router.patch(
   "/:id",
   protect,
   isAdmin,
-  upload.single("image"),
+  uploadBookImageFile,
+  validateDecodedImageIfPresent,
   optimizeImage,
   validateParams(idParamSchema),
   validateBody(updateBookSchema, true),
-  bookController.updateBook
+  bookController.updateBook,
 );
 
 router.get(
@@ -62,20 +69,20 @@ router.get(
   protect,
   requireRole("partner", "admin", "superAdmin"),
   validateQuery(partnerBooksQuerySchema),
-  getPartnerBooks
+  getPartnerBooks,
 );
 
 router.get(
   "/",
   optionalAuth,
   validateQuery(booksQuerySchema),
-  bookController.getBooks
+  bookController.getBooks,
 );
 router.get(
   "/:id",
   optionalAuth,
   validateParams(idParamSchema),
-  bookController.getBookById
+  bookController.getBookById,
 );
 
 router.post("/check-stock", protect, bookController.checkStock);

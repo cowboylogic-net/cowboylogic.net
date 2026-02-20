@@ -60,6 +60,10 @@ const Book = sequelize.define(
     imageUrl: {
       type: DataTypes.STRING,
     },
+    imagePublicId: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     inStock: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

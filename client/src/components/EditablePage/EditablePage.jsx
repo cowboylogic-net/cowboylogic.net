@@ -580,6 +580,7 @@ const EditablePage = ({ slug, title, placeholder, whiteBackground = true }) => {
             execCmd={execCmd}
             editorRef={editorRef}
             authToken={token}
+            slug={slug}
           />
         )}
 

@@ -38,6 +38,7 @@ import staticCors from "./middleware/staticCors.js";
 import requestId from "./middleware/requestId.js";
 import normalizeErrorResponse from "./middleware/normalizeErrorResponse.js";
 import { errorHandler } from "./middleware/errorMiddleware.js";
+import { cleanupTempUploadOnError } from "./middleware/uploadMiddleware.js";
 import HttpError from "./helpers/HttpError.js";
 import { client } from "./services/squareService.js";
 
@@ -211,6 +212,7 @@ app.get("/__static_check", (req, res) => {
 });
 
 app.use((req, res, next) => next(HttpError(404, "Route not found")));
+app.use(cleanupTempUploadOnError);
 app.use(errorHandler);
 
 export default app;

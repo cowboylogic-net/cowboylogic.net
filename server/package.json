@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon server.js",
-    "test": "node --test --experimental-test-isolation=none tests/error-contract.test.js tests/request-id.test.js",
+    "test": "node --test --experimental-test-isolation=none tests/error-contract.test.js tests/request-id.test.js tests/book-update-imageurl-schema.test.js tests/cloudinary.service.test.js tests/upload-image-validation.test.js tests/upload-routes-minimal.test.js",
     "start": "node server.js",
     "db:migrate": "npx sequelize-cli db:migrate --env development",
     "db:migrate:status": "npx sequelize-cli db:migrate:status --env development",
@@ -22,6 +22,7 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.2",
+    "cloudinary": "2.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",

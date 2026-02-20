@@ -65,7 +65,7 @@ const normalizeFontTags = (rootEl) => {
   });
 };
 
-const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
+const EditableToolbar = ({ execCmd, editorRef, authToken, slug }) => {
   const { t } = useTranslation(); // 🆕
   const isUpdating = useSelector(selectPageUpdating);
   const [showImageModal, setShowImageModal] = useState(false);
@@ -131,6 +131,7 @@ const EditableToolbar = ({ execCmd, editorRef, authToken }) => {
       if (file) {
         const formData = new FormData();
         formData.append("image", file);
+        if (slug) formData.append("slug", slug);
 
         const apiBase = getApiBase();
         const joinUrl = (base, path) =>
