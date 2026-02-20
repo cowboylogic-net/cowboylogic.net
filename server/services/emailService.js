@@ -3,7 +3,7 @@ dotenv.config();
 
 import nodemailer from "nodemailer";
 import { convert } from "html-to-text";
-
+const MAIL_PROVIDER = safe(process.env.MAIL_PROVIDER || "smtp").toLowerCase();
 const PORT = Number(process.env.MAIL_PORT) || 587;
 const IS_SECURE = PORT === 465;
 const IS_PROD = (process.env.NODE_ENV || "").toLowerCase() === "production";
@@ -31,27 +31,87 @@ const isEmail = (s) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(safe(s));
 const resolveRecipient = (to) =>
   !IS_PROD && REDIRECT_ALL_TO ? REDIRECT_ALL_TO : to;
 
-const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: PORT,
-  secure: IS_SECURE,
-  requireTLS: !IS_SECURE,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-  pool: true,
-  maxConnections: 5,
-  maxMessages: 50,
-  connectionTimeout: 10_000,
-  greetingTimeout: 10_000,
-  socketTimeout: 20_000,
-  tls: { minVersion: "TLSv1.2" },
-  logger: process.env.MAIL_DEBUG === "1",
-  debug: process.env.MAIL_DEBUG === "1",
-});
+const MAILGUN_API_KEY = safe(process.env.MAILGUN_API_KEY || "");
+const MAILGUN_DOMAIN = safe(process.env.MAILGUN_DOMAIN || "");
+const MAILGUN_API_BASE = safe(
+  process.env.MAILGUN_API_BASE || "https://api.mailgun.net/v3",
+).replace(/\/+$/g, "");
 
-export const verifySMTP = async () => transporter.verify();
+const buildBasicAuth = (user, pass) =>
+  Buffer.from(`${user}:${pass}`, "utf8").toString("base64");
+
+const sendViaMailgunApi = async ({
+  from,
+  to,
+  subject,
+  html,
+  text,
+  replyTo,
+  headers,
+}) => {
+  if (!MAILGUN_API_KEY) throw new Error("MAILGUN_API_KEY env is missing");
+  if (!MAILGUN_DOMAIN) throw new Error("MAILGUN_DOMAIN env is missing");
+
+  const url = `${MAILGUN_API_BASE}/${MAILGUN_DOMAIN}/messages`;
+  const params = new URLSearchParams();
+  params.set("from", from);
+  params.set("to", to);
+  params.set("subject", subject);
+  if (text) params.set("text", text);
+  if (html) params.set("html", html);
+  if (replyTo) params.set("h:Reply-To", replyTo);
+  for (const [k, v] of Object.entries(headers || {})) {
+    params.set(`h:${k}`, String(v));
+  }
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Basic ${buildBasicAuth("api", MAILGUN_API_KEY)}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: params.toString(),
+  });
+
+  const bodyText = await res.text();
+  if (!res.ok) {
+    throw new Error(`Mailgun API error: ${res.status} ${bodyText}`);
+  }
+  try {
+    return JSON.parse(bodyText);
+  } catch (err) {
+    return { ok: true, raw: bodyText };
+  }
+};
+
+const smtpTransporter =
+  MAIL_PROVIDER === "smtp"
+    ? nodemailer.createTransport({
+        host: process.env.MAIL_HOST,
+        port: PORT,
+        secure: IS_SECURE,
+        requireTLS: !IS_SECURE,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+        pool: true,
+        maxConnections: 5,
+        maxMessages: 50,
+        connectionTimeout: 10_000,
+        greetingTimeout: 10_000,
+        socketTimeout: 20_000,
+        tls: { minVersion: "TLSv1.2" },
+        logger: process.env.MAIL_DEBUG === "1",
+        debug: process.env.MAIL_DEBUG === "1",
+      })
+    : null;
+
+export const verifySMTP = async () => {
+  if (MAIL_PROVIDER === "mailgun") return true;
+  if (!smtpTransporter) throw new Error("SMTP transporter is not initialized");
+  return smtpTransporter.verify();
+};
 
 export const sendEmail = async (
   toRaw,
@@ -80,8 +140,9 @@ export const sendEmail = async (
     headers["X-Original-To"] = toOriginal || "(empty)";
   }
 
+  const from = `"${fromName}" <${fromEmail}>`;
   const mailOptions = {
-    from: `"${fromName}" <${fromEmail}>`,
+    from,
     to,
     subject,
     html,
@@ -100,13 +161,31 @@ export const sendEmail = async (
       env: process.env.NODE_ENV || "dev",
     },
     "via",
-    transporter.options.host,
+    MAIL_PROVIDER === "mailgun"
+      ? "mailgun api"
+      : smtpTransporter?.options?.host,
     "port:",
-    transporter.options.port,
+    MAIL_PROVIDER === "mailgun" ? "-" : smtpTransporter?.options?.port,
   );
 
   try {
-    const info = await transporter.sendMail(mailOptions);
+    if (MAIL_PROVIDER === "mailgun") {
+      const info = await sendViaMailgunApi({
+        from,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        html: mailOptions.html,
+        text: mailOptions.text,
+        replyTo: mailOptions.replyTo,
+        headers: mailOptions.headers,
+      });
+      console.log("✅ Email sent:", info?.message || info?.id || "ok");
+      return info;
+    }
+
+    if (!smtpTransporter)
+      throw new Error("SMTP transporter is not initialized");
+    const info = await smtpTransporter.sendMail(mailOptions);
     console.log("✅ Email sent:", info.response || info.messageId);
     return info;
   } catch (err) {
