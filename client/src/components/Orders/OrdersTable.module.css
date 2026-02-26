@@ -1,23 +1,32 @@
 .tableWrapper {
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: var(--radius-md);
   background: rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
 }
 
+/* ===== Desktop table (>=1201) ===== */
 .table {
   width: 100%;
+  max-width: 100%;
   border-collapse: collapse;
-  min-width: 900px;
+  table-layout: fixed;
+  box-sizing: border-box;
 }
 
 .table th,
 .table td {
   padding: 12px;
-  vertical-align: middle;
+  vertical-align: top;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   text-align: left;
+overflow: hidden;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .table th {
@@ -25,69 +34,147 @@
   font-weight: 600;
   color: var(--color-text);
   background: rgba(0, 0, 0, 0.25);
+  white-space: nowrap;
+
+  /* щоб заголовки не "злипалися" */
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .table tbody tr:nth-child(even) {
   background: rgba(255, 255, 255, 0.03);
 }
-
 .table tbody tr:hover {
   background: rgba(255, 255, 255, 0.07);
 }
 
+.cellValue {
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.muted {
+  opacity: 0.75;
+}
+
+.colOrder   { width: 12%; }
+.colDate    { width: 10%; }
+.colCustomer{ width: 14%; }
+.colItems   { width: 12%; }
+.colShipping{ width: 22%; }
+.colTotal   { width: 6%;  }
+.colStatus  { width: 10%; }  /* було 8 */
+.colActions { width: 14%; }  /* було 12 */
+
 .orderIdText {
   font-family: monospace;
-  font-size: 0.8rem;
-  max-width: 170px;
+  font-size: 0.85rem;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.dateCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.2;
+}
+.dateTimeMuted {
+  opacity: 0.75;
+  font-size: 0.85em;
+}
+
+.customerCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.customerName {
+  font-weight: 600;
+}
+.customerEmail {
+  opacity: 0.8;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .itemsCell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+}
+.itemLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  line-height: 1.2;
+}
+.itemTitle {
+  font-weight: 600;
+}
+.itemMeta {
+  opacity: 0.85;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shipping: НЕ "anywhere" на desktop, щоб не різало по літерах */
+.shippingCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.2;
+
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 
 .statusBadge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 84px;
-  padding: 4px 10px;
+
+  min-width: 0;        /* було 110px */
+  max-width: 100%;
+  padding: 4px 10px;   /* трохи компактніше */
   border-radius: 999px;
-  font-size: 0.8rem;
-  text-transform: capitalize;
+  font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
   border: 1px solid rgba(255, 255, 255, 0.25);
-}
 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* якщо все ж затісно */
+}
 .status_pending {
   background: rgba(255, 193, 7, 0.18);
   color: #ffd27a;
   border-color: rgba(255, 193, 7, 0.35);
 }
-
 .status_completed {
   background: rgba(40, 167, 69, 0.18);
   color: #9be0b1;
   border-color: rgba(40, 167, 69, 0.35);
 }
-
 .status_default {
   background: rgba(255, 255, 255, 0.08);
   color: var(--color-text);
 }
 
+/* Desktop actions base (make stable for ALL desktop widths) */
 .actionsCell {
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
   gap: 8px;
-  align-items: center;
 }
 
 .statusSelect {
-  min-width: 120px;
+  width: 100%;
+  max-width: 220px;     /* підбери 200–260 як подобається */
+  min-width: 0;
   height: 34px;
   padding: 6px 10px;
   border-radius: var(--radius-md);
@@ -97,13 +184,185 @@
   font-size: 0.9rem;
 }
 
+.cancelBtnWrap {
+  width: 100%;
+  max-width: 220px;
+}
+
+.cancelBtnWrap button {
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  border-radius: var(--radius-md);
+  white-space: nowrap;
+}
+
 .statusSelect:focus-visible {
   outline: 2px solid var(--color-focus, #8b4513);
   outline-offset: 2px;
 }
 
-@media (max-width: 768px) {
+
+/* Ellipsis rules for desktop text (>=1201) */
+@media (min-width: 1201px) {
+  .customerName,
+  .customerEmail {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .itemLine {
+    min-width: 0;
+    align-items: baseline;
+  }
+
+  .itemTitle {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .itemMeta {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+}
+
+
+/* ===== Tablet+Mobile -> cards (<=1200) ===== */
+@media (max-width: 1200px) {
+  .tableWrapper {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    padding: 0;
+  }
+
   .table {
-    min-width: 760px;
+    display: block;
+    width: 100%;
+    table-layout: auto;
+  }
+
+  .table thead {
+    display: none;
+  }
+
+  .table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .table tbody tr {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-md);
+    background: rgba(0, 0, 0, 0.22);
+  }
+
+  .table td {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .table td:last-child {
+    border-bottom: 0;
+  }
+
+  .table td::before {
+    content: attr(data-label);
+    flex: 0 0 96px;
+    max-width: 96px;
+    font-weight: 600;
+    opacity: 0.9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .table td > .cellValue {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .actionsCell {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .statusSelect {
+    width: 100%;
+  }
+  .cancelBtnWrap {
+    width: 100%;
+  }
+  .cancelBtnWrap button {
+    width: 100%;
+  }
+}
+
+/* ===== Small phones: label top, value under ===== */
+@media (max-width: 560px) {
+  .table td {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .table td::before {
+    flex: 0 0 auto;
+    max-width: none;
+  }
+
+  .statusBadge {
+    min-width: 0;
+    width: fit-content;
+  }
+}
+
+/* tablet-only: smaller controls inside cards */
+@media (min-width: 561px) and (max-width: 1200px) {
+  .actionsCell {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+  }
+
+  .statusSelect {
+    width: auto;
+    min-width: 160px;
+    height: 32px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
+  }
+
+  .cancelBtnWrap {
+    width: auto;
+  }
+
+  .cancelBtnWrap button {
+    width: auto;
+    height: 32px;
+    padding: 5px 10px;
+    font-size: 0.85rem;
   }
 }
