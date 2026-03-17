@@ -141,15 +141,16 @@ const Navbar = () => {
           </div>
 
           <a
-            href="https://cowboylogic.net/bookclub"
+            href="https://bookclub.cowboylogic.net"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.navLink}
           >
             CLP Book Club
           </a>
+
           <a
-            href="https://cowboylogic.net/roger/talent/"
+            href="https://talent.cowboylogic.net"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.navLink}
