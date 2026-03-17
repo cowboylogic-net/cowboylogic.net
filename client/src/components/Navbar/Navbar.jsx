@@ -150,7 +150,7 @@ const Navbar = () => {
           </a>
 
           <a
-            href="https://talent.cowboylogic.net"
+            href="https://roger.cowboylogic.net/talent/"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.navLink}
