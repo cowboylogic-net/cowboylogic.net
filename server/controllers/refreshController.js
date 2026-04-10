@@ -46,7 +46,7 @@ export async function refreshSession(req, res, next) {
       { expiresIn: `${REFRESH_DAYS}d` },
     );
 
-    setRefreshCookie(res, newRt, req);
+    setRefreshCookie(res, newRt);
     return sendResponse(res, { code: 200, data: { token: access } });
   } catch (error) {
     if (error?.status) return next(error);

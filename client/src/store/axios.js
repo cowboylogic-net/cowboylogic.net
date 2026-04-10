@@ -12,19 +12,22 @@ export const injectStore = (_store) => {
 };
 
 const API_BASE = getApiBase();
+const BASE_URL = API_BASE ? `${API_BASE}/api` : "/api";
+
 const instance = axios.create({
-  baseURL: API_BASE ? `${API_BASE}/api` : "/api",
+  baseURL: BASE_URL,
   withCredentials: true,
 });
 
 const refreshClient = axios.create({
-  baseURL: API_BASE ? `${API_BASE}/api` : "/api",
+  baseURL: BASE_URL,
   withCredentials: true,
 });
 
 const REFRESH_PATH = "/auth/refresh";
 const AUTH_REFRESH_INVALID_RESPONSE = "AUTH_REFRESH_INVALID_RESPONSE";
 const SESSION_EXPIRED_TOAST_ID = "auth-session-expired";
+
 let refreshPromise = null;
 let sessionExpiredHandled = false;
 
@@ -35,6 +38,9 @@ const authLogger = {
 
 const isRefreshRequest = (url) =>
   /\/auth\/refresh(?:\?|$)/.test(String(url || ""));
+
+const isNonRetryAuthRequest = (url) =>
+  /\/auth\/(?:login|register|google|refresh)(?:\?|$)/.test(String(url || ""));
 
 const withNormalizedApiError = (error) => {
   if (!error || typeof error !== "object") return error;
@@ -58,6 +64,20 @@ const markSessionExpiredOnce = () => {
   );
 };
 
+const applyCommonHeaders = (config) => {
+  config.headers = config.headers || {};
+
+  if (import.meta.env.DEV) {
+    config.headers["ngrok-skip-browser-warning"] = "true";
+  }
+
+  if (!config.headers.Accept) {
+    config.headers.Accept = "application/json";
+  }
+
+  return config;
+};
+
 const getRefreshToken = () => {
   if (refreshPromise) {
     authLogger.debug("Awaiting in-flight refresh request");
@@ -66,7 +86,9 @@ const getRefreshToken = () => {
 
   authLogger.debug("Starting refresh request");
   refreshPromise = refreshClient
-    .post(REFRESH_PATH, null)
+    .post(REFRESH_PATH, null, {
+      _skipAuth: true,
+    })
     .then(({ data }) => {
       const newToken = data?.data?.token || data?.token;
       if (!newToken) {
@@ -81,6 +103,7 @@ const getRefreshToken = () => {
         type: "auth/refreshSession/fulfilled",
         payload: newToken,
       });
+
       sessionExpiredHandled = false;
       return newToken;
     })
@@ -93,22 +116,24 @@ const getRefreshToken = () => {
 
 instance.interceptors.request.use(
   (config) => {
-    const token = store?.getState().auth.token;
-    config.headers = config.headers || {};
+    applyCommonHeaders(config);
 
-    if (token) {
+    const token = store?.getState()?.auth?.token;
+    const url = String(config.url || "");
+
+    if (token && !isRefreshRequest(url)) {
       sessionExpiredHandled = false;
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    if (import.meta.env.DEV) {
-      config.headers["ngrok-skip-browser-warning"] = "true";
-    }
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
 
-    if (!config.headers.Accept) {
-      config.headers.Accept = "application/json";
-    }
-
+refreshClient.interceptors.request.use(
+  (config) => {
+    applyCommonHeaders(config);
     return config;
   },
   (error) => Promise.reject(error),
@@ -128,23 +153,38 @@ instance.interceptors.response.use(
   async (error) => {
     const resp = error.response;
     const orig = error.config || {};
-    if (!resp) return Promise.reject(withNormalizedApiError(error));
+    const url = String(orig.url || "");
 
-    const isRefreshCall = isRefreshRequest(orig.url);
-    if (resp.status !== 401 || orig._retry || isRefreshCall || orig._skipAuth) {
+    if (!resp) {
+      return Promise.reject(withNormalizedApiError(error));
+    }
+
+    const isRefreshCall = isRefreshRequest(url);
+    const isAuthEntryCall = isNonRetryAuthRequest(url);
+
+    if (
+      resp.status !== 401 ||
+      orig._retry ||
+      orig._skipAuth ||
+      isRefreshCall ||
+      isAuthEntryCall
+    ) {
       return Promise.reject(withNormalizedApiError(error));
     }
 
     try {
       const newToken = await getRefreshToken();
+
       orig._retry = true;
       orig.headers = orig.headers || {};
       orig.headers.Authorization = `Bearer ${newToken}`;
+
       return instance(orig);
     } catch (refreshErr) {
       const refreshStatus = refreshErr?.response?.status;
       const isInvalidRefreshResponse =
         refreshErr?.code === AUTH_REFRESH_INVALID_RESPONSE;
+
       if (
         refreshStatus === 401 ||
         refreshStatus === 403 ||
@@ -153,10 +193,11 @@ instance.interceptors.response.use(
         authLogger.warn("Refresh failed with auth status; clearing session");
         markSessionExpiredOnce();
       }
+
       return Promise.reject(withNormalizedApiError(refreshErr || error));
     }
   },
 );
 
 export default instance;
-export { getUiErrorMessage };
+export { refreshClient, getUiErrorMessage };

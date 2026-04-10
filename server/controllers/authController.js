@@ -182,7 +182,7 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
-  clearRefreshCookie(res, req);
+  clearRefreshCookie(res);
   sendResponse(res, {
     code: 200,
     message: "Logged out successfully",
