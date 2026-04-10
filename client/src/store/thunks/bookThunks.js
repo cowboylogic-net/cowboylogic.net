@@ -1,6 +1,23 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../../store/axios";
-import { showSuccess, showError } from "./notificationThunks";
+import axios from "../../store/axios.js";
+import { showSuccess, showError } from "./notificationThunks.js";
+
+const hasExplicitAvailability = (book) => typeof book?.inStock === "boolean";
+
+const hydratePartnerBookAvailability = async (book, headers) => {
+  if (!book?.id || hasExplicitAvailability(book)) return book;
+
+  const response = await axios.get(`/books/${book.id}`, { headers });
+  const detailedBook = response?.data?.data;
+
+  if (!detailedBook) return book;
+
+  return {
+    ...book,
+    inStock: detailedBook.inStock,
+    stock: detailedBook.stock ?? book.stock,
+  };
+};
 
 // 📚 Отримати всі книги
 export const fetchBooks = createAsyncThunk(
@@ -145,7 +162,21 @@ export const fetchPartnerBooks = createAsyncThunk(
       const response = await axios.get(`/books/partner-books?${qs}`, {
         headers,
       });
-      return response.data.data; // { items, meta }
+      const partnerData = response.data.data;
+      const items = Array.isArray(partnerData?.items) ? partnerData.items : [];
+
+      if (items.every(hasExplicitAvailability)) {
+        return partnerData; // { items, meta }
+      }
+
+      const hydratedItems = await Promise.all(
+        items.map((book) => hydratePartnerBookAvailability(book, headers)),
+      );
+
+      return {
+        ...partnerData,
+        items: hydratedItems,
+      };
     } catch (err) {
       const msg =
         err?.response?.data?.message || "Failed to load partner books";

@@ -7,7 +7,7 @@ import {
   deleteBook,
   checkStock,
   fetchPartnerBooks,
-} from "../thunks/bookThunks";
+} from "../thunks/bookThunks.js";
 
 // slices/bookSlice.js
 const initialState = {

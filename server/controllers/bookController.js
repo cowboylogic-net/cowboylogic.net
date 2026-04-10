@@ -454,6 +454,7 @@ const getPartnerBooks = async (req, res) => {
       "author",
       "description",
       "partnerPrice",
+      "inStock",
       "stock",
       "imageUrl",
       "createdAt",
