@@ -8,6 +8,10 @@ import {
 } from "../schemas/cartSchemas.js";
 import sendResponse from "../utils/sendResponse.js";
 import { sequelize } from "../config/db.js";
+import {
+  getAvailableStock,
+  isBookAvailableForPurchase,
+} from "../utils/bookAvailability.js";
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -110,8 +114,8 @@ const validateCart = async (req, res) => {
     for (const item of items) {
       const book = item.Book;
       const requestedQty = toNonNegInt(item?.quantity);
-      const availableQty = toNonNegInt(book?.stock);
-      const outOfStock = !book?.inStock || availableQty <= 0;
+      const availableQty = getAvailableStock(book);
+      const outOfStock = !isBookAvailableForPurchase(book, 1);
 
       if (outOfStock) {
         await CartItem.destroy({
@@ -187,8 +191,12 @@ const addToCart = async (req, res) => {
       throw HttpError(400, "Partners must have at least 5 total items");
     }
 
-    if (book.stock < newQuantity) {
-      throw HttpError(400, `Only ${book.stock} items left in stock`);
+    if (!isBookAvailableForPurchase(book, 1)) {
+      throw HttpError(400, "Book is out of stock");
+    }
+
+    if (!isBookAvailableForPurchase(book, newQuantity)) {
+      throw HttpError(400, `Only ${getAvailableStock(book)} items left in stock`);
     }
 
     existing.quantity = newQuantity;
@@ -210,8 +218,12 @@ const addToCart = async (req, res) => {
     });
   }
 
-  if (book.stock < quantity) {
-    throw HttpError(400, `Only ${book.stock} items left in stock`);
+  if (!isBookAvailableForPurchase(book, 1)) {
+    throw HttpError(400, "Book is out of stock");
+  }
+
+  if (!isBookAvailableForPurchase(book, quantity)) {
+    throw HttpError(400, `Only ${getAvailableStock(book)} items left in stock`);
   }
 
   const item = await CartItem.create({
@@ -264,8 +276,12 @@ const updateQuantity = async (req, res) => {
     throw HttpError(400, "Partners must order at least 5 items");
   }
 
-  if (item.Book.stock < quantity) {
-    throw HttpError(400, `Only ${item.Book.stock} items left in stock`);
+  if (!isBookAvailableForPurchase(item.Book, 1)) {
+    throw HttpError(400, "Book is out of stock");
+  }
+
+  if (!isBookAvailableForPurchase(item.Book, quantity)) {
+    throw HttpError(400, `Only ${getAvailableStock(item.Book)} items left in stock`);
   }
 
   item.quantity = quantity;

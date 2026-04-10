@@ -1,10 +1,10 @@
 // client/src/store/axios.js
 import axios from "axios";
-import { getApiBase } from "../utils/apiBase";
-import { showNotification } from "./slices/notificationSlice";
-import { logger } from "../utils/logger";
-import { normalizeApiError } from "../utils/apiError";
-import { getUiErrorMessage } from "../utils/uiErrorMessage";
+import { getApiBase } from "../utils/apiBase.js";
+import { showNotification } from "./slices/notificationSlice.js";
+import { logger } from "../utils/logger.js";
+import { normalizeApiError } from "../utils/apiError.js";
+import { getUiErrorMessage } from "../utils/uiErrorMessage.js";
 
 let store;
 export const injectStore = (_store) => {

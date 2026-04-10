@@ -20,6 +20,11 @@ import Loader from "../../components/Loader/Loader";
 import { ROLES } from "../../constants/roles";
 import { Link } from "react-router-dom";
 import { replaceCart } from "../../store/slices/cartSlice";
+import {
+  getCheckoutDisabled,
+  getClearedBlockingValidationState,
+  getValidationTransportFailureResult,
+} from "./cartValidationState";
 
 const hasBlockingIssues = (issues = {}) =>
   Boolean(
@@ -91,14 +96,22 @@ const Cart = () => {
   const isCorruptedCart =
     lastValidationCode === "CART_CORRUPTED" ||
     Boolean(lastIssues?.invalidId?.length);
-  const isCheckoutDisabled =
-    isAdding ||
-    isCheckoutLoading ||
-    isUpdating ||
-    isDeleting ||
-    isCartValidating ||
-    isResetting ||
-    lastBlocking;
+  const isCheckoutDisabled = getCheckoutDisabled({
+    isAdding,
+    isCheckoutLoading,
+    isUpdating,
+    isDeleting,
+    isCartValidating,
+    isResetting,
+    lastBlocking,
+  });
+
+  const clearBlockingValidationState = () => {
+    const clearedState = getClearedBlockingValidationState();
+    setLastBlocking(clearedState.lastBlocking);
+    setLastValidationCode(clearedState.lastValidationCode);
+    setLastIssues(clearedState.lastIssues);
+  };
 
   const validateCart = async (fallbackItems = items) => {
     if (!token) {
@@ -132,8 +145,7 @@ const Cart = () => {
       }
 
       setValidationBanner(formatValidationBannerMessage(validation));
-      setLastBlocking(false);
-      setLastValidationCode(null);
+      clearBlockingValidationState();
       setLastIssues(validation.issues || null);
       return { ok: true, blocking: false, itemsForCheckout: normalizedItems };
     } catch (err) {
@@ -141,10 +153,8 @@ const Cart = () => {
         err?.response?.data?.message ||
           "Cart validation failed. Please try again.",
       );
-      setLastBlocking(true);
-      setLastValidationCode(err?.response?.data?.code || null);
-      setLastIssues(null);
-      return { ok: false, blocking: true, itemsForCheckout: fallbackItems };
+      clearBlockingValidationState();
+      return getValidationTransportFailureResult(fallbackItems);
     } finally {
       setIsCartValidating(false);
     }
@@ -183,6 +193,7 @@ const Cart = () => {
     );
 
     if (updateCartItemQuantity.fulfilled.match(resultAction)) {
+      await validateCart(resultAction.payload);
       toast.success(t("cart.quantityUpdated"));
     } else {
       toast.error(resultAction.payload || t("cart.quantityUpdateError"));
@@ -197,6 +208,7 @@ const Cart = () => {
 
     const resultAction = await dispatch(deleteCartItemThunk(itemId));
     if (deleteCartItemThunk.fulfilled.match(resultAction)) {
+      await validateCart(resultAction.payload);
       toast.success(t("cart.itemRemoved"));
     } else {
       toast.error(resultAction.payload || t("cart.itemRemoveError"));
@@ -231,6 +243,9 @@ const Cart = () => {
       }
 
       const validationResult = await validateCart(items);
+      if (validationResult.requestFailed) {
+        return;
+      }
       if (validationResult.blocking) {
         return;
       }

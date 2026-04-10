@@ -6,6 +6,7 @@ import crypto from "crypto";
 import Joi from "joi";
 import Book from "../models/Book.js";
 import { Op } from "sequelize";
+import { isBookAvailableForPurchase } from "../utils/bookAvailability.js";
 
 const paymentSchema = Joi.array()
   .items(
@@ -33,7 +34,7 @@ const buildLineItemsFromDB = ({ books, items, isPartner }) => {
   return items.map(({ bookId, quantity }) => {
     const book = mapById.get(bookId);
     if (!book) throw HttpError(400, `Book not found: ${bookId}`);
-    if (!book.inStock || (book.stock ?? 0) < quantity) {
+    if (!isBookAvailableForPurchase(book, quantity)) {
       throw HttpError(400, `Insufficient stock for "${book.title}"`);
     }
     const unitPrice =

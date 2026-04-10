@@ -1,17 +1,26 @@
 // src/store/thunks/cartThunks.js
 
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "../axios";
-import { showError, showSuccess } from "./notificationThunks";
-import { guestCart } from "../../services/guestCart";
+import axios from "../axios.js";
+import { showError, showSuccess } from "./notificationThunks.js";
+import { guestCart } from "../../services/guestCart.js";
+import {
+  mergeCartItemIntoItems,
+  removeCartItemFromItems,
+} from "../../utils/cartItems.js";
 import {
   formatUiErrorMessage,
   mapApiErrorToUi,
   normalizeApiError,
-} from "../../utils/apiError";
+} from "../../utils/apiError.js";
 
 const findBookInState = (getState, id) =>
   getState().books?.books?.find((b) => b.id === id);
+
+const loadServerCartItems = async () => {
+  const response = await axios.get("/cart");
+  return response.data.data;
+};
 
 export const fetchCartItems = createAsyncThunk(
   "cart/fetchCartItems",
@@ -21,8 +30,7 @@ export const fetchCartItems = createAsyncThunk(
       if (!token) {
         return guestCart.get();
       }
-      const response = await axios.get("/cart");
-      return response.data.data;
+      return await loadServerCartItems();
     } catch {
       dispatch(showError("Failed to load cart items"));
       return rejectWithValue("Failed to fetch cart");
@@ -48,10 +56,11 @@ export const addToCartThunk = createAsyncThunk(
       }
       const res = await axios.post("/cart", { bookId, quantity });
       dispatch(showSuccess(res.data.message || "Book added to cart!"));
-      const fetchResult = await dispatch(fetchCartItems());
-      if (fetchResult.meta.requestStatus === "fulfilled")
-        return fetchResult.payload;
-      return rejectWithValue("Failed to reload cart");
+      try {
+        return await loadServerCartItems();
+      } catch {
+        return mergeCartItemIntoItems(getState().cart.items, res.data.data);
+      }
     } catch (err) {
       const uiError = mapApiErrorToUi(normalizeApiError(err));
       const msg = formatUiErrorMessage(uiError);
@@ -87,10 +96,12 @@ export const updateCartItemQuantity = createAsyncThunk(
       if (!token) {
         return guestCart.update(itemId, q);
       }
-      await axios.patch(`/cart/${itemId}`, { quantity: q });
-      const res = await dispatch(fetchCartItems());
-      if (res.meta.requestStatus === "fulfilled") return res.payload;
-      return rejectWithValue("Failed to reload cart");
+      const res = await axios.patch(`/cart/${itemId}`, { quantity: q });
+      try {
+        return await loadServerCartItems();
+      } catch {
+        return mergeCartItemIntoItems(getState().cart.items, res.data.data);
+      }
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to update item";
       dispatch(showError(msg));
@@ -113,9 +124,11 @@ export const deleteCartItemThunk = createAsyncThunk(
         return guestCart.remove(itemId);
       }
       await axios.delete(`/cart/${itemId}`);
-      const res = await dispatch(fetchCartItems());
-      if (res.meta.requestStatus === "fulfilled") return res.payload;
-      return rejectWithValue("Failed to reload cart");
+      try {
+        return await loadServerCartItems();
+      } catch {
+        return removeCartItemFromItems(getState().cart.items, itemId);
+      }
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to delete item";
       dispatch(showError(msg));
@@ -135,9 +148,11 @@ export const clearCartThunk = createAsyncThunk(
       }
       await axios.delete("/cart");
       dispatch(showSuccess("Cart cleared"));
-      const res = await dispatch(fetchCartItems());
-      if (res.meta.requestStatus === "fulfilled") return res.payload;
-      return rejectWithValue("Failed to reload cart");
+      try {
+        return await loadServerCartItems();
+      } catch {
+        return [];
+      }
     } catch (err) {
       const msg = err.response?.data?.message || "Failed to clear cart";
       dispatch(showError(msg));

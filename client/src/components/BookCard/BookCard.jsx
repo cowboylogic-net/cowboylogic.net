@@ -6,6 +6,7 @@ import styles from "./BookCard.module.css";
 import FavoriteButton from "../FavoriteButton/FavoriteButton";
 import BaseButton from "../BaseButton/BaseButton";
 import BookCoverImage from "../BookCoverImage/BookCoverImage";
+import { isBookAvailableForPurchase } from "../../utils/bookAvailability";
 
 const BookCard = ({
   book,
@@ -22,6 +23,8 @@ const BookCard = ({
 
   const mode = isPartnerView ? "partner" : "user";
   const isKindle = book.format === "KINDLE_AMAZON";
+  const isAvailable = isBookAvailableForPurchase(book, 1);
+  const isPartnerQuantityAvailable = isBookAvailableForPurchase(book, quantity);
 
   return (
     <div className={styles.card}>
@@ -74,10 +77,10 @@ const BookCard = ({
 
         <p
           className={`${styles.cardText} ${
-            book.stock === 0 ? styles.outOfStock : ""
+            !isAvailable ? styles.outOfStock : ""
           }`}
         >
-          {book.stock > 0
+          {isAvailable
             ? t("book.inStock", { count: book.stock })
             : t("book.outOfStock")}
         </p>
@@ -119,9 +122,9 @@ const BookCard = ({
               onClick={() => onAddToCart(book.id)}
               size="small"
               variant="outline"
-              disabled={book.stock === 0}
+              disabled={!isAvailable}
             >
-              {book.stock === 0 ? t("book.outOfStock") : t("book.addToCart")}
+              {!isAvailable ? t("book.outOfStock") : t("book.addToCart")}
             </BaseButton>
           ) : (
             isLoggedIn && (
@@ -147,7 +150,7 @@ const BookCard = ({
                   }
                   size="small"
                   variant="outline"
-                  disabled={quantity < 5 || book.stock === 0}
+                  disabled={quantity < 5 || !isPartnerQuantityAvailable}
                 >
                   {t("book.addToCart")}
                 </BaseButton>

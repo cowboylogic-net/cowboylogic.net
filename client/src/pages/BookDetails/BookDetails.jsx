@@ -19,6 +19,7 @@ import Loader from "../../components/Loader/Loader";
 import BookCoverImage from "../../components/BookCoverImage/BookCoverImage";
 import styles from "./BookDetails.module.css";
 import { toast } from "react-toastify";
+import { isBookAvailableForPurchase } from "../../utils/bookAvailability";
 
 const BookDetails = () => {
   const { id } = useParams();
@@ -50,6 +51,12 @@ const BookDetails = () => {
     isPartnerView && book?.partnerPrice
       ? Number(book.partnerPrice).toFixed(2)
       : Number(book?.price ?? 0).toFixed(2);
+  const purchaseQuantity = isPartnerView ? 5 : 1;
+  const isAvailableForPurchase = isBookAvailableForPurchase(
+    book,
+    purchaseQuantity,
+  );
+  const isVisibleAsAvailable = isBookAvailableForPurchase(book, 1);
 
   useEffect(() => {
     if (id) dispatch(fetchBookById(id));
@@ -64,7 +71,7 @@ const BookDetails = () => {
 
   const handleAddToCart = async () => {
     if (!book) return;
-    const quantity = isPartnerView ? 5 : 1;
+    const quantity = purchaseQuantity;
 
     try {
       await dispatch(addToCartThunk({ bookId: book.id, quantity })).unwrap();
@@ -85,13 +92,13 @@ const BookDetails = () => {
       return;
     }
 
-    const quantity = isPartnerView ? 5 : 1;
+    const quantity = purchaseQuantity;
     const pricePerUnit =
       isPartnerView && book?.partnerPrice
         ? Number(book.partnerPrice)
         : Number(book.price);
 
-    if (book.stock < quantity) {
+    if (!isBookAvailableForPurchase(book, quantity)) {
       toast.error(t("cart.outOfStockGeneric"));
       return;
     }
@@ -162,7 +169,7 @@ const BookDetails = () => {
           </p>
 
           <p className={styles.stock}>
-            {book.stock > 0
+            {isVisibleAsAvailable
               ? t("book.inStock", { count: book.stock })
               : t("book.outOfStock")}
           </p>
@@ -187,9 +194,9 @@ const BookDetails = () => {
                   onClick={handleAddToCart}
                   size="lg"
                   variant="outline"
-                  disabled={book.stock === 0}
+                  disabled={!isAvailableForPurchase}
                 >
-                  {book.stock === 0
+                  {!isAvailableForPurchase
                     ? t("book.outOfStock")
                     : t("book.addToCart")}
                 </BaseButton>
@@ -197,6 +204,7 @@ const BookDetails = () => {
                   onClick={handleSquareCheckout}
                   size="lg"
                   variant="outline"
+                  disabled={!isAvailableForPurchase}
                 >
                   {t("book.buyNow")}
                 </BaseButton>
