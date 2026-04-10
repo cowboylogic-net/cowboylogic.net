@@ -56,8 +56,7 @@ const markSessionExpiredOnce = () => {
       message: "Session expired. Please log in again.",
     }),
   );
-
- };
+};
 
 const getRefreshToken = () => {
   if (refreshPromise) {
@@ -95,12 +94,21 @@ const getRefreshToken = () => {
 instance.interceptors.request.use(
   (config) => {
     const token = store?.getState().auth.token;
+    config.headers = config.headers || {};
+
     if (token) {
       sessionExpiredHandled = false;
       config.headers.Authorization = `Bearer ${token}`;
     }
-    config.headers["ngrok-skip-browser-warning"] = "true";
-    if (!config.headers.Accept) config.headers.Accept = "application/json";
+
+    if (import.meta.env.DEV) {
+      config.headers["ngrok-skip-browser-warning"] = "true";
+    }
+
+    if (!config.headers.Accept) {
+      config.headers.Accept = "application/json";
+    }
+
     return config;
   },
   (error) => Promise.reject(error),
